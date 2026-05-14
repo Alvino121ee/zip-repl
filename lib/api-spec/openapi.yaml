@@ -1,15 +1,21 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CryptoSaham Predictor API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: market
+    description: Live market data for crypto and stocks
+  - name: news
+    description: Crypto and stock news
+  - name: predictions
+    description: Price predictions and signals
+
 paths:
   /healthz:
     get:
@@ -24,6 +30,207 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /market/crypto:
+    get:
+      operationId: getCryptoMarket
+      tags: [market]
+      summary: Get live crypto prices
+      description: Returns live cryptocurrency prices from CoinGecko
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: currency
+          in: query
+          schema:
+            type: string
+            default: usd
+      responses:
+        "200":
+          description: List of cryptocurrencies with live prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CryptoAsset"
+
+  /market/crypto/{id}:
+    get:
+      operationId: getCryptoDetail
+      tags: [market]
+      summary: Get crypto detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detailed crypto asset info with history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CryptoDetail"
+
+  /market/crypto/{id}/history/{days}:
+    get:
+      operationId: getCryptoHistory
+      tags: [market]
+      summary: Get crypto price history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Price history data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceHistory"
+
+  /market/stocks:
+    get:
+      operationId: getStockMarket
+      tags: [market]
+      summary: Get live stock prices
+      description: Returns live stock prices for major stocks and Indonesian stocks
+      parameters:
+        - name: symbols
+          in: query
+          schema:
+            type: string
+            description: Comma-separated stock symbols
+      responses:
+        "200":
+          description: List of stocks with live prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockAsset"
+
+  /market/overview:
+    get:
+      operationId: getMarketOverview
+      tags: [market]
+      summary: Global market overview
+      description: Returns global crypto market stats and major indices overview
+      responses:
+        "200":
+          description: Global market overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketOverview"
+
+  /market/trending:
+    get:
+      operationId: getTrending
+      tags: [market]
+      summary: Get trending assets
+      description: Returns trending cryptocurrencies and most active stocks
+      responses:
+        "200":
+          description: Trending assets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendingAssets"
+
+  /news:
+    get:
+      operationId: getNews
+      tags: [news]
+      summary: Get latest market news
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [crypto, stock, all]
+            default: all
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Latest news articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsArticle"
+
+  /predictions:
+    get:
+      operationId: getPredictions
+      tags: [predictions]
+      summary: Get prediction signals
+      description: Returns AI-generated prediction signals for top assets based on news sentiment and price trends
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [crypto, stock, all]
+            default: all
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Prediction signals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prediction"
+
+  /predictions/{assetType}/{assetId}:
+    get:
+      operationId: getPredictionDetail
+      tags: [predictions]
+      summary: Get detailed prediction for an asset
+      parameters:
+        - name: assetType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [crypto, stock]
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detailed prediction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionDetail"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +241,345 @@ components:
       required:
         - status
 
+    CryptoAsset:
+      type: object
+      required: [id, symbol, name, current_price, market_cap, price_change_percentage_24h, total_volume, image, market_cap_rank]
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        current_price:
+          type: number
+        market_cap:
+          type: number
+        market_cap_rank:
+          type: integer
+        price_change_percentage_24h:
+          type: number
+        price_change_percentage_7d:
+          type: ["number", "null"]
+        total_volume:
+          type: number
+        high_24h:
+          type: ["number", "null"]
+        low_24h:
+          type: ["number", "null"]
+        image:
+          type: string
+        ath:
+          type: ["number", "null"]
+        circulating_supply:
+          type: ["number", "null"]
+
+    CryptoDetail:
+      type: object
+      required: [id, symbol, name, current_price, market_cap, description, categories]
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        current_price:
+          type: number
+        market_cap:
+          type: number
+        price_change_percentage_24h:
+          type: number
+        price_change_percentage_7d:
+          type: ["number", "null"]
+        price_change_percentage_30d:
+          type: ["number", "null"]
+        total_volume:
+          type: number
+        high_24h:
+          type: ["number", "null"]
+        low_24h:
+          type: ["number", "null"]
+        image:
+          type: string
+        ath:
+          type: ["number", "null"]
+        circulating_supply:
+          type: ["number", "null"]
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+
+    PriceHistory:
+      type: object
+      required: [id, prices]
+      properties:
+        id:
+          type: string
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PricePoint"
+
+    PricePoint:
+      type: object
+      required: [timestamp, price]
+      properties:
+        timestamp:
+          type: number
+        price:
+          type: number
+
+    StockAsset:
+      type: object
+      required: [symbol, name, price, change, changePercent, volume, marketCap, exchange]
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        change:
+          type: number
+        changePercent:
+          type: number
+        volume:
+          type: ["number", "null"]
+        marketCap:
+          type: ["number", "null"]
+        high:
+          type: ["number", "null"]
+        low:
+          type: ["number", "null"]
+        open:
+          type: ["number", "null"]
+        previousClose:
+          type: ["number", "null"]
+        exchange:
+          type: string
+        currency:
+          type: string
+        logoUrl:
+          type: ["string", "null"]
+
+    MarketOverview:
+      type: object
+      required: [totalMarketCap, totalVolume24h, btcDominance, ethDominance, marketCapChange24h, activeCryptocurrencies, fearGreedIndex, fearGreedLabel]
+      properties:
+        totalMarketCap:
+          type: number
+        totalVolume24h:
+          type: number
+        btcDominance:
+          type: number
+        ethDominance:
+          type: number
+        marketCapChange24h:
+          type: number
+        activeCryptocurrencies:
+          type: integer
+        fearGreedIndex:
+          type: integer
+        fearGreedLabel:
+          type: string
+
+    TrendingAssets:
+      type: object
+      required: [cryptos, stocks]
+      properties:
+        cryptos:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingCrypto"
+        stocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingStock"
+
+    TrendingCrypto:
+      type: object
+      required: [id, name, symbol, rank, priceChangePercent24h, image]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        rank:
+          type: integer
+        priceChangePercent24h:
+          type: number
+        image:
+          type: string
+        currentPrice:
+          type: ["number", "null"]
+
+    TrendingStock:
+      type: object
+      required: [symbol, name, changePercent, exchange]
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        changePercent:
+          type: number
+        exchange:
+          type: string
+        price:
+          type: ["number", "null"]
+
+    NewsArticle:
+      type: object
+      required: [id, title, url, publishedAt, source, type, sentiment]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        publishedAt:
+          type: string
+        source:
+          type: string
+        type:
+          type: string
+          enum: [crypto, stock, general]
+        sentiment:
+          type: string
+          enum: [positive, negative, neutral]
+        sentimentScore:
+          type: ["number", "null"]
+        relatedAssets:
+          type: array
+          items:
+            type: string
+        summary:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        votes:
+          type: object
+          properties:
+            positive:
+              type: integer
+            negative:
+              type: integer
+            important:
+              type: integer
+
+    Prediction:
+      type: object
+      required: [assetId, assetName, assetType, symbol, signal, confidence, sentimentScore, priceChange24h, reasons]
+      properties:
+        assetId:
+          type: string
+        assetName:
+          type: string
+        assetType:
+          type: string
+          enum: [crypto, stock]
+        symbol:
+          type: string
+        image:
+          type: ["string", "null"]
+        signal:
+          type: string
+          enum: [strong_buy, buy, neutral, sell, strong_sell]
+        confidence:
+          type: number
+          description: 0-100 confidence score
+        sentimentScore:
+          type: number
+          description: -1 to 1 sentiment score
+        priceChange24h:
+          type: number
+        priceChange7d:
+          type: ["number", "null"]
+        currentPrice:
+          type: number
+        reasons:
+          type: array
+          items:
+            type: string
+        newsCount:
+          type: integer
+        positiveNews:
+          type: integer
+        negativeNews:
+          type: integer
+
+    PredictionDetail:
+      type: object
+      required: [assetId, assetName, assetType, symbol, signal, confidence, sentimentScore, priceChange24h, reasons, technicalIndicators, newsItems]
+      properties:
+        assetId:
+          type: string
+        assetName:
+          type: string
+        assetType:
+          type: string
+          enum: [crypto, stock]
+        symbol:
+          type: string
+        image:
+          type: ["string", "null"]
+        signal:
+          type: string
+          enum: [strong_buy, buy, neutral, sell, strong_sell]
+        confidence:
+          type: number
+        sentimentScore:
+          type: number
+        priceChange24h:
+          type: number
+        priceChange7d:
+          type: ["number", "null"]
+        currentPrice:
+          type: number
+        reasons:
+          type: array
+          items:
+            type: string
+        technicalIndicators:
+          $ref: "#/components/schemas/TechnicalIndicators"
+        newsItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsArticle"
+        newsCount:
+          type: integer
+        positiveNews:
+          type: integer
+        negativeNews:
+          type: integer
+
+    TechnicalIndicators:
+      type: object
+      required: [rsi, trend, momentum, volumeTrend, support, resistance]
+      properties:
+        rsi:
+          type: number
+        trend:
+          type: string
+          enum: [bullish, bearish, sideways]
+        momentum:
+          type: string
+          enum: [strong, moderate, weak]
+        volumeTrend:
+          type: string
+          enum: [increasing, decreasing, stable]
+        support:
+          type: number
+        resistance:
+          type: number
+        movingAverage7d:
+          type: ["number", "null"]
+        movingAverage30d:
+          type: ["number", "null"]
