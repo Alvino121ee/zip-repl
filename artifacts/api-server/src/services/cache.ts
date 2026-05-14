@@ -27,9 +27,19 @@ class InMemoryCache {
   delete(key: string): void {
     this.store.delete(key);
   }
+
+  /** Returns the expiry timestamp (ms since epoch) for a key, or null if not cached */
+  getExpiresAt(key: string): number | null {
+    const entry = this.store.get(key);
+    if (!entry || Date.now() > entry.expiresAt) return null;
+    return entry.expiresAt;
+  }
 }
 
 export const cache = new InMemoryCache();
+
+/** Duration that AI predictions are "locked" before recalculating (ms) */
+export const PREDICTION_LOCK_MS = 5 * 60 * 1000; // 5 minutes
 
 export const TTL = {
   CRYPTO_PRICES: 10_000,
@@ -37,6 +47,6 @@ export const TTL = {
   MARKET_OVERVIEW: 15_000,
   TRENDING: 30_000,
   NEWS: 300_000,
-  PREDICTIONS: 30_000,
+  PREDICTIONS: PREDICTION_LOCK_MS,
   HISTORY: 300_000,
 };

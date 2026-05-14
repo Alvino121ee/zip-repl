@@ -2,8 +2,21 @@ import { Router } from "express";
 import { getCryptoPredictions, getStockPredictions } from "../services/predictions.js";
 import { getCryptoNews, getStockNews } from "../services/news.js";
 import { GetPredictionsQueryParams, GetPredictionDetailParams } from "@workspace/api-zod";
+import { cache, PREDICTION_LOCK_MS } from "../services/cache.js";
 
 const router = Router();
+
+/** Attach lock metadata headers so the client knows when predictions expire */
+function attachLockHeaders(res: import("express").Response, type: string, limit: number): void {
+  const cryptoKey = `crypto-predictions-${type === "stock" ? 0 : limit}`;
+  const stockKey = `stock-predictions-${type === "crypto" ? 0 : limit}`;
+  // Use the earliest non-null expiry so client refreshes at the right time
+  const expiryA = cache.getExpiresAt(cryptoKey);
+  const expiryB = cache.getExpiresAt(stockKey);
+  const lockedUntil = expiryA ?? expiryB ?? Date.now() + PREDICTION_LOCK_MS;
+  res.setHeader("X-Prediction-Locked-Until", String(lockedUntil));
+  res.setHeader("X-Prediction-Lock-Duration-Ms", String(PREDICTION_LOCK_MS));
+}
 
 router.get("/predictions", async (req, res) => {
   const parse = GetPredictionsQueryParams.safeParse(req.query);
@@ -13,12 +26,14 @@ router.get("/predictions", async (req, res) => {
   try {
     if (type === "crypto") {
       const preds = await getCryptoPredictions(limit);
+      attachLockHeaders(res, type, limit);
       res.json(preds.map(({ technicalIndicators: _ti, ...p }) => p));
       return;
     }
 
     if (type === "stock") {
       const preds = await getStockPredictions(limit);
+      attachLockHeaders(res, type, limit);
       res.json(preds.map(({ technicalIndicators: _ti, ...p }) => p));
       return;
     }
@@ -32,6 +47,7 @@ router.get("/predictions", async (req, res) => {
       .map(({ technicalIndicators: _ti, ...p }) => p)
       .sort((a, b) => Math.abs(b.sentimentScore) - Math.abs(a.sentimentScore));
 
+    attachLockHeaders(res, type, limit);
     res.json(merged.slice(0, limit));
   } catch (err) {
     req.log.error({ err }, "Failed to get predictions");
