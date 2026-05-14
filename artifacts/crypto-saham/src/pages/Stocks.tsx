@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import { Search, LineChart, Info, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Search, LineChart, TrendingUp, TrendingDown, Minus, ArrowUpDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PriceChange } from "@/components/shared/PriceChange";
+import { LivePrice, LiveDot, UpdatedAgo } from "@/components/shared/LivePrice";
 import { useGetStockMarket } from "@workspace/api-client-react";
 import { formatCurrency, formatCompactNumber } from "@/lib/format";
+import { isBEIOpen } from "@/hooks/use-animated-price";
 import type { StockAsset } from "@workspace/api-client-react";
+
+const REFETCH_MS = 10_000;
 
 const SECTOR_MAP: Record<string, string> = {
   "BBCA.JK": "Perbankan", "BBRI.JK": "Perbankan", "BMRI.JK": "Perbankan",
@@ -29,7 +32,12 @@ const SECTOR_MAP: Record<string, string> = {
 export default function Stocks() {
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState<string>("Semua");
-  const { data: stocks, isLoading, error } = useGetStockMarket();
+  const beiOpen = isBEIOpen();
+
+  const { data: stocks, isLoading, error, dataUpdatedAt } = useGetStockMarket(
+    {},
+    { query: { refetchInterval: REFETCH_MS } as any },
+  );
 
   const idxStocks = (stocks ?? []).filter(
     (s) => s.exchange?.includes("IDX") || s.exchange?.includes("Jakarta") || s.symbol?.endsWith(".JK")
@@ -58,9 +66,11 @@ export default function Stocks() {
             <LineChart className="h-6 w-6 text-primary" />
             Saham Indonesia (IDX / BEI)
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Harga saham BEI real-time – data dari Yahoo Finance
-          </p>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-sm text-muted-foreground">Data dari Yahoo Finance · diperbarui tiap 10 detik</p>
+            <LiveDot active={beiOpen} />
+          </div>
+          {stocks && <UpdatedAgo dataUpdatedAt={dataUpdatedAt} refetchIntervalMs={REFETCH_MS} />}
         </div>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -83,14 +93,16 @@ export default function Stocks() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-1.5">
-              {gainers.map((s) => (
+              {gainers.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">Belum ada pergerakan positif</p>
+              ) : gainers.map((s) => (
                 <div key={s.symbol} className="flex items-center justify-between">
                   <div>
                     <span className="text-sm font-semibold">{s.symbol.replace(".JK", "")}</span>
                     <span className="text-xs text-muted-foreground ml-2 hidden sm:inline">{s.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</span>
+                    <LivePrice value={s.price} formatted={formatCurrency(s.price, "IDR")} className="text-sm" />
                     <PriceChange value={s.changePercent} className="text-xs justify-end" />
                   </div>
                 </div>
@@ -104,14 +116,16 @@ export default function Stocks() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-1.5">
-              {losers.map((s) => (
+              {losers.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">Belum ada pergerakan negatif</p>
+              ) : losers.map((s) => (
                 <div key={s.symbol} className="flex items-center justify-between">
                   <div>
                     <span className="text-sm font-semibold">{s.symbol.replace(".JK", "")}</span>
                     <span className="text-xs text-muted-foreground ml-2 hidden sm:inline">{s.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</span>
+                    <LivePrice value={s.price} formatted={formatCurrency(s.price, "IDR")} className="text-sm" />
                     <PriceChange value={s.changePercent} className="text-xs justify-end" />
                   </div>
                 </div>
@@ -179,8 +193,10 @@ export default function Stocks() {
   );
 }
 
+type SortKey = keyof Pick<StockAsset, "price" | "change" | "changePercent" | "marketCap">;
+
 function StocksTable({ stocks }: { stocks: StockAsset[] }) {
-  const [sort, setSort] = useState<{ key: keyof StockAsset; dir: "asc" | "desc" }>({ key: "marketCap", dir: "desc" });
+  const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "marketCap", dir: "desc" });
 
   const sorted = [...stocks].sort((a, b) => {
     const av = (a[sort.key] as number) ?? 0;
@@ -188,28 +204,30 @@ function StocksTable({ stocks }: { stocks: StockAsset[] }) {
     return sort.dir === "desc" ? bv - av : av - bv;
   });
 
-  const toggleSort = (key: keyof StockAsset) => {
+  const toggleSort = (key: SortKey) =>
     setSort((prev) => prev.key === key ? { key, dir: prev.dir === "desc" ? "asc" : "desc" } : { key, dir: "desc" });
-  };
 
-  const SortHeader = ({ label, k }: { label: string; k: keyof StockAsset }) => (
-    <button
-      onClick={() => toggleSort(k)}
-      className={`text-xs uppercase tracking-wider font-semibold text-right w-full ${sort.key === k ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-    >
-      {label} {sort.key === k ? (sort.dir === "desc" ? "↓" : "↑") : ""}
-    </button>
-  );
+  function SortBtn({ label, k }: { label: string; k: SortKey }) {
+    const active = sort.key === k;
+    return (
+      <button
+        onClick={() => toggleSort(k)}
+        className={`flex items-center justify-end gap-1 text-xs uppercase tracking-wider font-semibold w-full ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+      >
+        {label} <ArrowUpDown className={`h-3 w-3 ${active ? "opacity-100" : "opacity-30"}`} />
+      </button>
+    );
+  }
 
   return (
     <Card>
       <CardContent className="p-0">
         <div className="hidden md:grid grid-cols-[1fr_9rem_8rem_8rem_9rem_7rem] gap-3 px-4 py-3 border-b border-border bg-muted/30">
           <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Perusahaan</span>
-          <SortHeader label="Harga" k="price" />
-          <SortHeader label="Perubahan" k="change" />
-          <SortHeader label="%" k="changePercent" />
-          <SortHeader label="Mkt Cap" k="marketCap" />
+          <SortBtn label="Harga" k="price" />
+          <SortBtn label="Perubahan" k="change" />
+          <SortBtn label="%" k="changePercent" />
+          <SortBtn label="Mkt Cap" k="marketCap" />
           <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground text-right">Sektor</span>
         </div>
         <div className="divide-y divide-border/50">
@@ -222,15 +240,16 @@ function StocksTable({ stocks }: { stocks: StockAsset[] }) {
 
 function StockRow({ stock }: { stock: StockAsset }) {
   const sector = SECTOR_MAP[stock.symbol] ?? "Lainnya";
-  const ChangeIcon = stock.changePercent > 0 ? TrendingUp : stock.changePercent < 0 ? TrendingDown : Minus;
   const changeColor = stock.changePercent > 0 ? "text-green-500" : stock.changePercent < 0 ? "text-red-500" : "text-muted-foreground";
+  const ChangeIcon = stock.changePercent > 0 ? TrendingUp : stock.changePercent < 0 ? TrendingDown : Minus;
 
   return (
     <div className="grid grid-cols-[1fr_auto] md:grid-cols-[1fr_9rem_8rem_8rem_9rem_7rem] gap-3 items-center px-4 py-3 hover:bg-muted/40 transition-colors">
+      {/* Name */}
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-primary/10 text-primary shrink-0`}>
-            {(stock.symbol.replace(".JK", "")).slice(0, 2)}
+          <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-primary/10 text-primary shrink-0">
+            {stock.symbol.replace(".JK", "").slice(0, 2)}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{stock.name || stock.symbol}</p>
@@ -243,11 +262,9 @@ function StockRow({ stock }: { stock: StockAsset }) {
         </div>
       </div>
 
-      {/* Mobile: price + change */}
+      {/* Mobile */}
       <div className="text-right md:hidden">
-        <p className="text-sm font-semibold tabular-nums">
-          {stock.price > 0 ? formatCurrency(stock.price, "IDR") : <span className="text-muted-foreground">N/A</span>}
-        </p>
+        <LivePrice value={stock.price} formatted={stock.price > 0 ? formatCurrency(stock.price, "IDR") : "N/A"} className="text-sm" />
         <div className={`flex items-center justify-end gap-0.5 text-xs ${changeColor}`}>
           <ChangeIcon className="h-3 w-3" />
           <span>{Math.abs(stock.changePercent).toFixed(2)}%</span>
@@ -256,9 +273,7 @@ function StockRow({ stock }: { stock: StockAsset }) {
 
       {/* Price (desktop) */}
       <div className="text-right hidden md:block">
-        <p className="text-sm font-semibold tabular-nums">
-          {stock.price > 0 ? formatCurrency(stock.price, "IDR") : <span className="text-muted-foreground">N/A</span>}
-        </p>
+        <LivePrice value={stock.price} formatted={stock.price > 0 ? formatCurrency(stock.price, "IDR") : "N/A"} className="text-sm" />
         {stock.high != null && stock.low != null && (
           <p className="text-[10px] text-muted-foreground">
             {formatCurrency(stock.low, "IDR")} – {formatCurrency(stock.high, "IDR")}
@@ -266,32 +281,28 @@ function StockRow({ stock }: { stock: StockAsset }) {
         )}
       </div>
 
-      {/* Change (desktop) */}
+      {/* Change */}
       <div className="text-right hidden md:block">
         <p className={`text-sm tabular-nums font-medium ${changeColor}`}>
           {stock.change >= 0 ? "+" : ""}{formatCurrency(stock.change, "IDR")}
         </p>
       </div>
 
-      {/* Change % (desktop) */}
+      {/* % */}
       <div className="text-right hidden md:block">
         <PriceChange value={stock.changePercent} className="text-sm justify-end" />
       </div>
 
-      {/* Market Cap (desktop) */}
+      {/* Market Cap */}
       <div className="text-right hidden md:block">
         {stock.marketCap ? (
-          <div>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              Rp {formatCompactNumber(stock.marketCap)}
-            </p>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">–</p>
-        )}
+          <p className="text-sm text-muted-foreground tabular-nums">
+            Rp {formatCompactNumber(stock.marketCap)}
+          </p>
+        ) : <p className="text-sm text-muted-foreground">–</p>}
       </div>
 
-      {/* Sector (desktop) */}
+      {/* Sector */}
       <div className="text-right hidden md:block">
         <Badge variant="outline" className="text-[10px]">{sector}</Badge>
       </div>

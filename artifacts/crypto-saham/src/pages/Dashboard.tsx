@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { PriceChange } from "@/components/shared/PriceChange";
 import { SignalBadge } from "@/components/shared/SignalBadge";
+import { LivePrice, LiveDot, UpdatedAgo } from "@/components/shared/LivePrice";
+import { isBEIOpen } from "@/hooks/use-animated-price";
 import {
   useGetMarketOverview,
   useGetTrending,
@@ -14,6 +16,9 @@ import {
   useGetStockMarket,
 } from "@workspace/api-client-react";
 import { formatCurrency, formatCompactNumber, formatPercentage } from "@/lib/format";
+
+const REFETCH_STOCKS = 10_000;
+const REFETCH_CRYPTO = 10_000;
 
 function FearGreedGauge({ value, label }: { value: number; label: string }) {
   const color =
@@ -75,11 +80,26 @@ function StatCard({ title, value, sub, icon: Icon, colorClass }: {
 }
 
 export default function Dashboard() {
-  const { data: overview, isLoading: ovLoading } = useGetMarketOverview();
-  const { data: trending, isLoading: trendLoading } = useGetTrending();
-  const { data: cryptos, isLoading: cryptoLoading } = useGetCryptoMarket({ limit: 5 });
-  const { data: predictions, isLoading: predLoading } = useGetPredictions({ limit: 5, type: "stock" });
-  const { data: stocks, isLoading: stockLoading } = useGetStockMarket();
+  const beiOpen = isBEIOpen();
+
+  const { data: overview, isLoading: ovLoading } = useGetMarketOverview(
+    { query: { refetchInterval: 15_000 } as any }
+  );
+  const { data: trending, isLoading: trendLoading } = useGetTrending(
+    { query: { refetchInterval: REFETCH_CRYPTO } as any }
+  );
+  const { data: cryptos, isLoading: cryptoLoading, dataUpdatedAt: cryptoUpdatedAt } = useGetCryptoMarket(
+    { limit: 5 },
+    { query: { refetchInterval: REFETCH_CRYPTO } as any }
+  );
+  const { data: predictions, isLoading: predLoading } = useGetPredictions(
+    { limit: 5, type: "stock" },
+    { query: { refetchInterval: REFETCH_STOCKS } as any }
+  );
+  const { data: stocks, isLoading: stockLoading, dataUpdatedAt: stockUpdatedAt } = useGetStockMarket(
+    {},
+    { query: { refetchInterval: REFETCH_STOCKS } as any }
+  );
 
   const idxStocks = (stocks ?? [])
     .filter((s) => s.symbol?.endsWith(".JK") || s.exchange?.includes("IDX") || s.exchange?.includes("Jakarta"))
@@ -90,9 +110,15 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Saham Indonesia (IDX) &amp; pasar kripto global</p>
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-sm text-muted-foreground">Saham Indonesia (IDX) &amp; pasar kripto global</p>
+            <LiveDot active={beiOpen} />
+          </div>
+          {stocks && <UpdatedAgo dataUpdatedAt={stockUpdatedAt} refetchIntervalMs={REFETCH_STOCKS} />}
+        </div>
       </div>
 
       {/* Overview Stats */}
@@ -125,6 +151,8 @@ export default function Dashboard() {
           <CardContent>
             {stockLoading ? (
               <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            ) : gainers.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2">Belum ada pergerakan positif</p>
             ) : (
               <div className="space-y-0.5">
                 {gainers.map((s) => (
@@ -140,7 +168,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <LivePrice value={s.price} formatted={formatCurrency(s.price, "IDR")} className="text-sm" />
                         <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
                       </div>
                     </div>
@@ -161,6 +189,8 @@ export default function Dashboard() {
           <CardContent>
             {stockLoading ? (
               <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            ) : losers.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2">Belum ada pergerakan negatif</p>
             ) : (
               <div className="space-y-0.5">
                 {losers.map((s) => (
@@ -176,7 +206,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <LivePrice value={s.price} formatted={formatCurrency(s.price, "IDR")} className="text-sm" />
                         <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
                       </div>
                     </div>
@@ -204,7 +234,10 @@ export default function Dashboard() {
         {/* Trending Crypto */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Trending Crypto</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Trending Crypto</CardTitle>
+              <LiveDot active={true} />
+            </div>
             <Link href="/crypto" className="text-xs text-primary hover:underline">Lihat semua →</Link>
           </CardHeader>
           <CardContent>
@@ -222,7 +255,9 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        {coin.currentPrice != null && <p className="text-sm font-medium">{formatCurrency(coin.currentPrice)}</p>}
+                        {coin.currentPrice != null && (
+                          <LivePrice value={coin.currentPrice} formatted={formatCurrency(coin.currentPrice)} className="text-sm" />
+                        )}
                         <PriceChange value={coin.priceChangePercent24h} className="text-xs justify-end mt-0.5" />
                       </div>
                     </div>
@@ -238,11 +273,12 @@ export default function Dashboard() {
         {/* IDX Stocks Overview */}
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <div>
+            <div className="flex items-center gap-2">
               <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Saham IDX</CardTitle>
+              <Badge variant="outline" className="text-[10px]">BEI</Badge>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px]">BEI</Badge>
+              {stocks && <UpdatedAgo dataUpdatedAt={stockUpdatedAt} refetchIntervalMs={REFETCH_STOCKS} />}
               <Link href="/stocks" className="text-xs text-primary hover:underline">Lihat semua →</Link>
             </div>
           </CardHeader>
@@ -262,7 +298,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <LivePrice value={s.price} formatted={formatCurrency(s.price, "IDR")} className="text-sm" />
                         <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
                       </div>
                     </div>
@@ -318,8 +354,14 @@ export default function Dashboard() {
       {/* Top Crypto */}
       <Card>
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
-          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Crypto Global</CardTitle>
-          <Link href="/crypto" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Crypto Global</CardTitle>
+            <LiveDot active={true} />
+          </div>
+          <div className="flex items-center gap-2">
+            {cryptos && <UpdatedAgo dataUpdatedAt={cryptoUpdatedAt} refetchIntervalMs={REFETCH_CRYPTO} />}
+            <Link href="/crypto" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+          </div>
         </CardHeader>
         <CardContent>
           {cryptoLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
@@ -331,7 +373,7 @@ export default function Dashboard() {
                       onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     <div className="min-w-0">
                       <p className="text-sm font-semibold truncate">{coin.name}</p>
-                      <p className="text-sm font-medium">{formatCurrency(coin.current_price)}</p>
+                      <LivePrice value={coin.current_price} formatted={formatCurrency(coin.current_price)} className="text-sm" />
                       <PriceChange value={coin.price_change_percentage_24h} className="text-xs" />
                     </div>
                   </div>
