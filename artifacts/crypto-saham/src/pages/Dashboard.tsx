@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "wouter";
-import { Activity, DollarSign, BarChart2, Zap } from "lucide-react";
+import { Activity, DollarSign, BarChart2, Zap, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { PriceChange } from "@/components/shared/PriceChange";
 import { SignalBadge } from "@/components/shared/SignalBadge";
 import {
@@ -10,6 +11,7 @@ import {
   useGetTrending,
   useGetCryptoMarket,
   useGetPredictions,
+  useGetStockMarket,
 } from "@workspace/api-client-react";
 import { formatCurrency, formatCompactNumber, formatPercentage } from "@/lib/format";
 
@@ -45,7 +47,7 @@ function FearGreedGauge({ value, label }: { value: number; label: string }) {
       <div className="text-3xl font-bold -mt-2" style={{ color }}>{value}</div>
       <div className="text-sm font-semibold mt-0.5" style={{ color }}>{label}</div>
       <p className="text-xs text-muted-foreground mt-1.5 text-center max-w-[160px]">
-        Crypto Fear & Greed Index (Alternative.me)
+        Crypto Fear & Greed Index
       </p>
     </div>
   );
@@ -76,13 +78,21 @@ export default function Dashboard() {
   const { data: overview, isLoading: ovLoading } = useGetMarketOverview();
   const { data: trending, isLoading: trendLoading } = useGetTrending();
   const { data: cryptos, isLoading: cryptoLoading } = useGetCryptoMarket({ limit: 5 });
-  const { data: predictions, isLoading: predLoading } = useGetPredictions({ limit: 5, type: "crypto" });
+  const { data: predictions, isLoading: predLoading } = useGetPredictions({ limit: 5, type: "stock" });
+  const { data: stocks, isLoading: stockLoading } = useGetStockMarket();
+
+  const idxStocks = (stocks ?? [])
+    .filter((s) => s.symbol?.endsWith(".JK") || s.exchange?.includes("IDX") || s.exchange?.includes("Jakarta"))
+    .slice(0, 8);
+
+  const gainers = [...idxStocks].filter((s) => s.changePercent > 0).sort((a, b) => b.changePercent - a.changePercent).slice(0, 3);
+  const losers = [...idxStocks].filter((s) => s.changePercent < 0).sort((a, b) => a.changePercent - b.changePercent).slice(0, 3);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Ringkasan pasar crypto &amp; saham real-time</p>
+        <p className="text-sm text-muted-foreground mt-0.5">Saham Indonesia (IDX) &amp; pasar kripto global</p>
       </div>
 
       {/* Overview Stats */}
@@ -103,11 +113,86 @@ export default function Dashboard() {
         </>)}
       </div>
 
+      {/* IDX Top Movers */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5 text-green-500" /> Top Gainers IDX
+            </CardTitle>
+            <Link href="/stocks" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+          </CardHeader>
+          <CardContent>
+            {stockLoading ? (
+              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            ) : (
+              <div className="space-y-0.5">
+                {gainers.map((s) => (
+                  <Link key={s.symbol} href="/stocks">
+                    <div className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-md bg-green-500/10 flex items-center justify-center text-[10px] font-bold text-green-600">
+                          {s.symbol.replace(".JK", "").slice(0, 4)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{s.symbol.replace(".JK", "")} · IDX</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <TrendingDown className="h-3.5 w-3.5 text-red-500" /> Top Losers IDX
+            </CardTitle>
+            <Link href="/stocks" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+          </CardHeader>
+          <CardContent>
+            {stockLoading ? (
+              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            ) : (
+              <div className="space-y-0.5">
+                {losers.map((s) => (
+                  <Link key={s.symbol} href="/stocks">
+                    <div className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-md bg-red-500/10 flex items-center justify-center text-[10px] font-bold text-red-600">
+                          {s.symbol.replace(".JK", "").slice(0, 4)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{s.symbol.replace(".JK", "")} · IDX</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Fear & Greed */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Indeks Sentimen</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Indeks Sentimen Kripto</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-center pb-4">
             {ovLoading ? <Skeleton className="h-28 w-40" /> : (
@@ -116,7 +201,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Trending */}
+        {/* Trending Crypto */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Trending Crypto</CardTitle>
@@ -150,31 +235,38 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Top Crypto by Market Cap */}
+        {/* IDX Stocks Overview */}
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Crypto</CardTitle>
-            <Link href="/crypto" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+            <div>
+              <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Saham IDX</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-[10px]">BEI</Badge>
+              <Link href="/stocks" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+            </div>
           </CardHeader>
           <CardContent>
-            {cryptoLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
+            {stockLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
               <div className="divide-y divide-border/50">
-                {(cryptos ?? []).map((coin) => (
-                  <div key={coin.id} className="flex items-center justify-between py-2.5 first:pt-1 last:pb-1">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{coin.market_cap_rank}</span>
-                      <img src={coin.image} alt={coin.name} className="w-7 h-7 rounded-full bg-muted"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      <div>
-                        <p className="text-sm font-medium leading-none">{coin.name}</p>
-                        <p className="text-xs text-muted-foreground uppercase mt-0.5">{coin.symbol}</p>
+                {idxStocks.slice(0, 6).map((s) => (
+                  <Link key={s.symbol} href="/stocks">
+                    <div className="flex items-center justify-between py-2.5 first:pt-1 last:pb-1 hover:bg-muted/30 rounded px-1 -mx-1 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
+                          {s.symbol.replace(".JK", "").slice(0, 4)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{s.symbol.replace(".JK", "")}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{formatCurrency(s.price, "IDR")}</p>
+                        <PriceChange value={s.changePercent} className="text-xs justify-end mt-0.5" />
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{formatCurrency(coin.current_price)}</p>
-                      <PriceChange value={coin.price_change_percentage_24h} className="text-xs justify-end mt-0.5" />
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -184,7 +276,7 @@ export default function Dashboard() {
         {/* Top Predictions */}
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Prediksi AI</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Prediksi AI – Saham IDX</CardTitle>
             <Link href="/predictions" className="text-xs text-primary hover:underline">Lihat semua →</Link>
           </CardHeader>
           <CardContent>
@@ -194,13 +286,17 @@ export default function Dashboard() {
                   <Link key={p.assetId} href={`/predictions/${p.assetType}/${p.assetId}`}>
                     <div className="flex items-center justify-between py-2.5 first:pt-1 last:pb-1 hover:bg-muted/30 rounded px-1 -mx-1 transition-colors cursor-pointer">
                       <div className="flex items-center gap-3">
-                        {p.image && (
+                        {p.image ? (
                           <img src={p.image} alt={p.assetName} className="w-7 h-7 rounded-full bg-muted"
                             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        ) : (
+                          <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
+                            {p.symbol.replace(".JK", "").slice(0, 4)}
+                          </div>
                         )}
                         <div>
                           <p className="text-sm font-medium leading-none">{p.assetName}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{p.symbol}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{p.symbol.replace(".JK", "")}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -218,6 +314,33 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Top Crypto */}
+      <Card>
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Crypto Global</CardTitle>
+          <Link href="/crypto" className="text-xs text-primary hover:underline">Lihat semua →</Link>
+        </CardHeader>
+        <CardContent>
+          {cryptoLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {(cryptos ?? []).map((coin) => (
+                <Link key={coin.id} href="/crypto">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer">
+                    <img src={coin.image} alt={coin.name} className="w-8 h-8 rounded-full bg-muted shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{coin.name}</p>
+                      <p className="text-sm font-medium">{formatCurrency(coin.current_price)}</p>
+                      <PriceChange value={coin.price_change_percentage_24h} className="text-xs" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

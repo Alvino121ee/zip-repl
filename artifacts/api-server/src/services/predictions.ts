@@ -1,5 +1,5 @@
 import { getCryptoList, getTrendingCoins } from "./coingecko.js";
-import { getStockQuotes } from "./stocks.js";
+import { getIDXStockQuotes } from "./stocks.js";
 import { getCryptoNews, getStockNews, analyzeSentiment } from "./news.js";
 import { cache, TTL } from "./cache.js";
 
@@ -226,7 +226,7 @@ export async function getStockPredictions(limit: number): Promise<PredictionResu
   let stocks, news;
   try {
     [stocks, news] = await Promise.all([
-      getStockQuotes(),
+      getIDXStockQuotes(),
       getStockNews(30),
     ]);
   } catch {
