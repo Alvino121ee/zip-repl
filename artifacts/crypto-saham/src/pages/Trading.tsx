@@ -133,6 +133,9 @@ interface FullAnalysis {
   stopLoss: number;
   takeProfit: number;
   riskRewardRatio: number;
+  optimalEntry?: number;
+  entryQuality?: "optimal" | "good" | "risky";
+  entryNote?: string | null;
   scalpTargets: { tp05pct: number; tp1pct: number; sl: number };
   recommendedLeverage: number;
   reasons: string[];
@@ -393,6 +396,33 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
               </div>
             </div>
           </div>
+
+          {/* Optimal Entry Zone */}
+          {analysis.optimalEntry && analysis.side && (
+            <div className={`rounded-xl p-3 border text-xs flex items-start gap-3 ${
+              analysis.entryQuality === "optimal" ? "bg-green-950/20 border-green-500/30" :
+              analysis.entryQuality === "good" ? "bg-blue-950/20 border-blue-500/30" :
+              "bg-orange-950/20 border-orange-500/30"}`}>
+              <div className="shrink-0 mt-0.5 text-base">
+                {analysis.entryQuality === "optimal" ? "🎯" : analysis.entryQuality === "good" ? "📍" : "⚠️"}
+              </div>
+              <div className="flex-1">
+                <div className={`font-semibold mb-1 ${
+                  analysis.entryQuality === "optimal" ? "text-green-400" :
+                  analysis.entryQuality === "good" ? "text-blue-400" : "text-orange-400"}`}>
+                  {analysis.entryQuality === "optimal" ? "Rate Optimal — Entry Sekarang" :
+                   analysis.entryQuality === "good" ? "Rate Bagus — Tunggu Sedikit" : "Rate Kurang Ideal — Tahan Dulu"}
+                </div>
+                <div className="text-muted-foreground">{analysis.entryNote}</div>
+                <div className="mt-1.5 font-bold">
+                  Harga saat ini: <span className="text-foreground">${fmt(analysis.entryPrice, 4)}</span>
+                  {analysis.optimalEntry !== analysis.entryPrice && (
+                    <> · Target entry: <span className={analysis.entryQuality === "optimal" ? "text-green-400" : "text-blue-400"}>${fmt(analysis.optimalEntry, 4)}</span></>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Supply & Demand Zones */}
           {(analysis.supplyDemandZones.supplyZone || analysis.supplyDemandZones.demandZone) && (

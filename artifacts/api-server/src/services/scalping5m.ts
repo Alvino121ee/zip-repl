@@ -43,6 +43,11 @@ export interface Scalp5mSignal {
   nearestResistance: number;
   checklist: Scalp5mChecklist;
   allChecksPassed: boolean;
+  optimalEntry: number;
+  entryQuality: "at_zone" | "near_zone" | "wait_pullback" | "chase";
+  riskLevel: "low" | "medium" | "high" | "extreme";
+  isHighRisk: boolean;
+  riskReason: string | null;
   session: TradingSession;
   analyzedAt: number;
   reasons: string[];
@@ -336,6 +341,58 @@ export async function analyzeScalp5m(symbol: string, displayName: string): Promi
   const checksPassed = Object.values(checklist).filter(Boolean).length;
   const allChecksPassed = checksPassed === 7 && side !== null;
 
+  // ── Optimal entry calculation ─────────────────────────────────────────────
+  let optimalEntry: number;
+  let entryQuality: "at_zone" | "near_zone" | "wait_pullback" | "chase";
+  if (side === "Buy") {
+    const pullbackTarget = nearestSupport > 0 && nearestSupport < price ? Math.max(e21, nearestSupport) : e21;
+    optimalEntry = pullbackTarget > 0 && pullbackTarget < price ? pullbackTarget : price;
+    const distPct = optimalEntry < price ? ((price - optimalEntry) / optimalEntry) * 100 : 0;
+    entryQuality = distPct < 0.3 ? "at_zone" : distPct < 1.0 ? "near_zone" : distPct < 2.5 ? "wait_pullback" : "chase";
+  } else if (side === "Sell") {
+    const bounceTarget = nearestResistance > price ? Math.min(e21 > price ? e21 : nearestResistance, nearestResistance) : e21;
+    optimalEntry = bounceTarget > price ? bounceTarget : price;
+    const distPct = optimalEntry > price ? ((optimalEntry - price) / price) * 100 : 0;
+    entryQuality = distPct < 0.3 ? "at_zone" : distPct < 1.0 ? "near_zone" : distPct < 2.5 ? "wait_pullback" : "chase";
+  } else {
+    optimalEntry = price;
+    entryQuality = "wait_pullback";
+  }
+
+  // ── Additional risk filters ───────────────────────────────────────────────
+  let isHighRisk = false;
+  let riskReason: string | null = null;
+  // Volume too low
+  if (volRatio < 0.8) { isHighRisk = true; riskReason = `Volume hanya ${(volRatio * 100).toFixed(0)}% rata-rata — sinyal tidak terkonfirmasi`; }
+  // RSI extremes
+  if (side === "Buy" && rsiVal > 72) { isHighRisk = true; riskReason = `RSI ${rsiVal.toFixed(1)} overbought ekstrem — jangan entry LONG`; }
+  if (side === "Sell" && rsiVal < 28) { isHighRisk = true; riskReason = `RSI ${rsiVal.toFixed(1)} oversold ekstrem — jangan entry SHORT`; }
+  // Dead zone session
+  if (session.quality === "avoid") { isHighRisk = true; riskReason = `Sesi ${session.name} (01:00–07:00 WIB) — volume rendah, sinyal mudah palsu`; }
+  // Too close to resistance for LONG
+  if (side === "Buy") {
+    const distToResist = ((nearestResistance - price) / price) * 100;
+    if (distToResist < 0.8) { isHighRisk = true; riskReason = `Resistance hanya ${distToResist.toFixed(1)}% dari harga — RR buruk untuk LONG`; }
+  }
+  // Too close to support for SHORT
+  if (side === "Sell") {
+    const distToSupp = ((price - nearestSupport) / price) * 100;
+    if (distToSupp < 0.8) { isHighRisk = true; riskReason = `Support hanya ${distToSupp.toFixed(1)}% dari harga — RR buruk untuk SHORT`; }
+  }
+  // Chasing price (too far above EMA9 for LONG)
+  if (side === "Buy" && price > e9 * 1.025) { isHighRisk = true; riskReason = `Harga ${((price - e9) / e9 * 100).toFixed(1)}% di atas EMA9 — chasing, tunggu pullback`; }
+  if (side === "Sell" && price < e9 * 0.975) { isHighRisk = true; riskReason = `Harga ${((e9 - price) / e9 * 100).toFixed(1)}% di bawah EMA9 — chasing, tunggu rebound`; }
+  // RR too low
+  if (!rrMet && riskReason === null) { isHighRisk = true; riskReason = `RR ${riskReward.toFixed(2)}x di bawah minimum 1.5x`; }
+
+  // Risk level classification
+  let riskLevel: "low" | "medium" | "high" | "extreme";
+  if (isHighRisk) riskLevel = "extreme";
+  else if (checksPassed === 7) riskLevel = "low";
+  else if (checksPassed >= 5) riskLevel = "medium";
+  else if (checksPassed >= 3) riskLevel = "high";
+  else riskLevel = "extreme";
+
   // Confidence score
   let score = 0;
   if (emaCrossover) score += 25;
@@ -379,7 +436,9 @@ export async function analyzeScalp5m(symbol: string, displayName: string): Promi
     ema9: e9, ema21: e21, rsi14: rsiVal, volumeRatio: volRatio,
     trend15m, crossoverType: crossover.type, crossoverBars: crossover.barsAgo,
     nearestSupport, nearestResistance,
-    checklist, allChecksPassed, session, analyzedAt: Date.now(),
+    checklist, allChecksPassed,
+    optimalEntry, entryQuality, riskLevel, isHighRisk, riskReason,
+    session, analyzedAt: Date.now(),
     reasons, warnings,
   };
 
@@ -395,7 +454,12 @@ export async function scanScalp5m(): Promise<Scalp5mSignal[]> {
     SCALP_PAIRS.map((p) => analyzeScalp5m(p.symbol, p.displayName))
   );
   return results
-    .map((r, i) => r.status === "fulfilled" ? r.value : null)
+    .map((r) => r.status === "fulfilled" ? r.value : null)
     .filter((r): r is Scalp5mSignal => r !== null)
-    .sort((a, b) => b.confidence - a.confidence);
+    .sort((a, b) => {
+      // Valid signals first, then by confidence
+      if (!a.isHighRisk && b.isHighRisk) return -1;
+      if (a.isHighRisk && !b.isHighRisk) return 1;
+      return b.confidence - a.confidence;
+    });
 }

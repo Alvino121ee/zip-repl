@@ -72,6 +72,9 @@ export interface FullAnalysis {
   stopLoss: number;
   takeProfit: number;
   riskRewardRatio: number;
+  optimalEntry: number;
+  entryQuality: "optimal" | "good" | "risky";
+  entryNote: string | null;
   scalpTargets: { tp05pct: number; tp1pct: number; sl: number };
   recommendedLeverage: number;
   reasons: string[];
@@ -697,6 +700,42 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
     shouldEnter = false;
     waitReason = `Fake breakout support terdeteksi — hindari SHORT sekarang`;
   }
+  // Risk: funding rate extreme — market too crowded
+  if (side === "Buy" && fundingRate && fundingRate.rate > 0.1) {
+    shouldEnter = false;
+    waitReason = `Funding rate ${fundingRate.rate.toFixed(4)}% — pasar terlalu crowded long, risiko long squeeze tinggi`;
+  }
+  if (side === "Sell" && fundingRate && fundingRate.rate < -0.1) {
+    shouldEnter = false;
+    waitReason = `Funding rate ${fundingRate.rate.toFixed(4)}% — pasar terlalu crowded short, risiko short squeeze tinggi`;
+  }
+  // Risk: chasing price — too far from EMA20
+  const distEma20Pct = ((price - e20) / e20) * 100;
+  if (side === "Buy" && distEma20Pct > 2.5) {
+    shouldEnter = false;
+    waitReason = `Harga ${distEma20Pct.toFixed(1)}% di atas EMA20 — chasing, tunggu pullback ke $${e20.toFixed(4)}`;
+  }
+  if (side === "Sell" && distEma20Pct < -2.5) {
+    shouldEnter = false;
+    waitReason = `Harga ${Math.abs(distEma20Pct).toFixed(1)}% di bawah EMA20 — chasing, tunggu rebound ke $${e20.toFixed(4)}`;
+  }
+  // Risk: resistance too close for LONG (bad RR)
+  const distResistancePct = nearestResistance > 0 ? ((nearestResistance - price) / price) * 100 : 99;
+  if (side === "Buy" && distResistancePct < 0.8) {
+    shouldEnter = false;
+    waitReason = `Resistance $${nearestResistance.toFixed(4)} hanya ${distResistancePct.toFixed(1)}% dari harga — RR terlalu buruk untuk LONG`;
+  }
+  // Risk: support too close for SHORT (bad RR)
+  const distSupportPct = nearestSupport > 0 ? ((price - nearestSupport) / price) * 100 : 99;
+  if (side === "Sell" && distSupportPct < 0.8) {
+    shouldEnter = false;
+    waitReason = `Support $${nearestSupport.toFixed(4)} hanya ${distSupportPct.toFixed(1)}% dari harga — RR terlalu buruk untuk SHORT`;
+  }
+  // Risk: volume too low — low conviction
+  if (shouldEnter && volRatio < 0.7) {
+    shouldEnter = false;
+    waitReason = `Volume hanya ${(volRatio * 100).toFixed(0)}% rata-rata — konfirmasi lemah, skip entry`;
+  }
 
   // ── Exit signals for existing positions ──────────────────────────────────
   const shouldExitLong = marketDirection === "BEARISH" && bearConfidence >= 72 && bearConf >= 4;
@@ -705,10 +744,32 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   if (shouldExitLong) exitReason = `Tren berbalik BEARISH (${bearConfidence}% conf, ${bearConf} konfirmasi) — close LONG`;
   if (shouldExitShort) exitReason = `Tren berbalik BULLISH (${bullConfidence}% conf, ${bullConf} konfirmasi) — close SHORT`;
 
+  // ── Optimal entry calculation ─────────────────────────────────────────────
+  let optimalEntry: number;
+  let entryQuality: "optimal" | "good" | "risky";
+  let entryNote: string | null;
+  if (side === "Buy") {
+    const pullbackTarget = nearestSupport > 0 && nearestSupport < price ? Math.max(e20, nearestSupport) : e20;
+    optimalEntry = pullbackTarget > 0 && pullbackTarget < price ? pullbackTarget : price;
+    const distPct = optimalEntry < price ? ((price - optimalEntry) / optimalEntry) * 100 : 0;
+    if (distPct <= 0.5) { entryQuality = "optimal"; entryNote = `Harga di zona EMA20/Support — entry sekarang sudah optimal`; }
+    else if (distPct <= 2.0) { entryQuality = "good"; entryNote = `Tunggu pullback ke $${optimalEntry.toFixed(4)} (${distPct.toFixed(1)}% lebih rendah) untuk rate lebih baik`; }
+    else { entryQuality = "risky"; entryNote = `Entry saat ini ${distPct.toFixed(1)}% di atas optimal — idealnya tunggu pullback ke $${optimalEntry.toFixed(4)}`; }
+  } else if (side === "Sell") {
+    const bounceTarget = nearestResistance > price ? Math.min(e20 > price ? e20 : nearestResistance, nearestResistance) : e20;
+    optimalEntry = bounceTarget > price ? bounceTarget : price;
+    const distPct = optimalEntry > price ? ((optimalEntry - price) / price) * 100 : 0;
+    if (distPct <= 0.5) { entryQuality = "optimal"; entryNote = `Harga di zona EMA20/Resistance — entry sekarang sudah optimal`; }
+    else if (distPct <= 2.0) { entryQuality = "good"; entryNote = `Tunggu bounce ke $${optimalEntry.toFixed(4)} (${distPct.toFixed(1)}% lebih tinggi) untuk rate lebih baik`; }
+    else { entryQuality = "risky"; entryNote = `Entry saat ini ${distPct.toFixed(1)}% di bawah optimal — idealnya tunggu bounce ke $${optimalEntry.toFixed(4)}`; }
+  } else {
+    optimalEntry = price; entryQuality = "risky"; entryNote = null;
+  }
+
   const analysis: FullAnalysis = {
     symbol, analyzedAt: Date.now(), marketDirection, overallConfidence, indicatorAgreementPct,
     side, shouldEnter, waitReason, shouldExitLong, shouldExitShort, exitReason,
-    entryPrice, stopLoss, takeProfit, riskRewardRatio, scalpTargets, recommendedLeverage,
+    entryPrice, stopLoss, takeProfit, riskRewardRatio, optimalEntry, entryQuality, entryNote, scalpTargets, recommendedLeverage,
     reasons, warnings, confirmations,
     indicators: { ema20: e20, ema50: e50, ema200: e200, vwap: vwapVal, rsi14: rsiVal,
       atr14: atrVal, volumeRatio: volRatio, priceVsVwap, emaAlignment, rsiZone },

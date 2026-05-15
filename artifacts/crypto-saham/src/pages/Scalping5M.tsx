@@ -51,6 +51,11 @@ interface Scalp5mSignal {
   nearestResistance: number;
   checklist: Checklist;
   allChecksPassed: boolean;
+  optimalEntry: number;
+  entryQuality: "at_zone" | "near_zone" | "wait_pullback" | "chase";
+  riskLevel: "low" | "medium" | "high" | "extreme";
+  isHighRisk: boolean;
+  riskReason: string | null;
   session: TradingSession;
   analyzedAt: number;
   reasons: string[];
@@ -222,6 +227,30 @@ function SignalCard({ sig, onRefresh, refreshing }: { sig: Scalp5mSignal; onRefr
             </div>
           </div>
         </div>
+
+        {/* Optimal entry zone */}
+        {sig.side && (
+          <div className={`rounded-lg p-2.5 mb-2 border text-xs flex items-center gap-2 ${
+            sig.entryQuality === "at_zone" ? "bg-green-950/25 border-green-500/30 text-green-300" :
+            sig.entryQuality === "near_zone" ? "bg-blue-950/20 border-blue-500/30 text-blue-300" :
+            sig.entryQuality === "wait_pullback" ? "bg-yellow-950/20 border-yellow-500/30 text-yellow-300" :
+            "bg-red-950/20 border-red-500/30 text-red-300"}`}>
+            <span className="text-base shrink-0">
+              {sig.entryQuality === "at_zone" ? "🎯" : sig.entryQuality === "near_zone" ? "📍" : sig.entryQuality === "wait_pullback" ? "⏳" : "🚫"}
+            </span>
+            <div>
+              <div className="font-semibold">
+                {sig.entryQuality === "at_zone" ? "Entry Optimal — Zona EMA/Support" :
+                 sig.entryQuality === "near_zone" ? `Entry Bagus — Tunggu ke $${fmt(sig.optimalEntry, 4)}` :
+                 sig.entryQuality === "wait_pullback" ? `Tunggu Pullback ke $${fmt(sig.optimalEntry, 4)}` :
+                 `Chasing — Entry Berbahaya`}
+              </div>
+              {sig.optimalEntry !== sig.entryPrice && (
+                <div className="opacity-75">Market: ${fmt(sig.entryPrice, 4)} · Optimal: ${fmt(sig.optimalEntry, 4)}</div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Price targets */}
         {sig.side && (
@@ -487,10 +516,12 @@ export default function Scalping5M() {
     );
   }
 
-  const bestSession = signals[0]?.session;
-  const readySignals = signals.filter((s) => s.allChecksPassed);
-  const longSignals = signals.filter((s) => s.side === "Buy");
-  const shortSignals = signals.filter((s) => s.side === "Sell");
+  const anySession = signals[0]?.session;
+  const validSignals = signals.filter((s) => !s.isHighRisk);
+  const skippedSignals = signals.filter((s) => s.isHighRisk);
+  const readySignals = validSignals.filter((s) => s.allChecksPassed);
+  const longSignals = validSignals.filter((s) => s.side === "Buy");
+  const shortSignals = validSignals.filter((s) => s.side === "Sell");
   const tradesFull = (sessionStats?.tradesCount ?? 0) >= 5;
   const sessionStopped = sessionStats?.sessionStopped ?? false;
 
@@ -512,8 +543,8 @@ export default function Scalping5M() {
         </div>
       </div>
 
-      {/* Session Banner */}
-      {bestSession && <SessionBanner session={bestSession} />}
+      {/* Session Banner — always shown if data loaded */}
+      {anySession && <SessionBanner session={anySession} />}
 
       {/* Session stopped warning */}
       {sessionStopped && (
@@ -534,11 +565,11 @@ export default function Scalping5M() {
         <Card><CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1"><Activity className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Siap Entry</span></div>
           <div className={`font-bold text-xl ${readySignals.length > 0 ? "text-green-400" : "text-muted-foreground"}`}>{readySignals.length}</div>
-          <div className="text-xs text-muted-foreground">dari 4 pair</div>
+          <div className="text-xs text-muted-foreground">dari {validSignals.length} valid</div>
         </CardContent></Card>
 
         <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-1"><BarChart2 className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Sinyal</span></div>
+          <div className="flex items-center gap-2 mb-1"><BarChart2 className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Sinyal Valid</span></div>
           <div className="font-bold flex items-center gap-2">
             <span className="text-green-400">{longSignals.length}↑</span>
             <span className="text-red-400">{shortSignals.length}↓</span>
@@ -584,23 +615,65 @@ export default function Scalping5M() {
         </div>
       )}
 
-      {/* Signal Grid */}
+      {/* Signal Grid — Valid only */}
       <div>
+        {validSignals.length === 0 && skippedSignals.length > 0 && (
+          <div className="rounded-xl bg-orange-950/20 border border-orange-500/30 p-4 flex items-start gap-3 text-sm mb-4">
+            <AlertTriangle className="h-5 w-5 text-orange-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-semibold text-orange-300 mb-1">Tidak ada entry aman saat ini</div>
+              <div className="text-muted-foreground text-xs">Semua pair sedang dalam kondisi berisiko tinggi. Tunggu setup yang lebih baik — jangan memaksakan entry.</div>
+            </div>
+          </div>
+        )}
         {readySignals.length > 0 && (
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-green-400">
             <CheckCircle2 className="h-4 w-4" />Setup Valid — Semua Checklist Terpenuhi ({readySignals.length})
           </div>
         )}
-        <div className="grid gap-4 sm:grid-cols-2">
-          {signals.map((sig) => (
-            <SignalCard
-              key={sig.symbol}
-              sig={sig}
-              onRefresh={refreshSymbol}
-              refreshing={refreshingSymbol === sig.symbol}
-            />
-          ))}
-        </div>
+        {validSignals.length > 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 mb-4">
+            {validSignals.map((sig) => (
+              <SignalCard
+                key={sig.symbol}
+                sig={sig}
+                onRefresh={refreshSymbol}
+                refreshing={refreshingSymbol === sig.symbol}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Skipped high-risk signals */}
+        {skippedSignals.length > 0 && (
+          <div className="rounded-xl border border-border bg-muted/10 overflow-hidden">
+            <div className="px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground border-b border-border">
+              <AlertTriangle className="h-4 w-4 text-orange-400" />
+              <span className="font-semibold">Dilewati karena Risiko Tinggi ({skippedSignals.length})</span>
+              <span className="text-xs ml-auto opacity-60">Entry tidak direkomendasikan</span>
+            </div>
+            <div className="divide-y divide-border">
+              {skippedSignals.map((sig) => (
+                <div key={sig.symbol} className="px-4 py-3 flex items-center gap-3 text-sm">
+                  <span className="font-bold text-foreground w-16">{sig.displayName}</span>
+                  <span className="text-muted-foreground text-xs flex-1">{sig.riskReason ?? "Kondisi pasar tidak mendukung"}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    sig.riskLevel === "extreme" ? "bg-red-950/40 text-red-400 border border-red-500/30" :
+                    "bg-orange-950/40 text-orange-400 border border-orange-500/30"}`}>
+                    {sig.riskLevel === "extreme" ? "EXTREME" : "HIGH"} RISK
+                  </span>
+                  <button
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => void refreshSymbol(sig.symbol)}
+                    disabled={refreshingSymbol === sig.symbol}
+                  >
+                    {refreshingSymbol === sig.symbol ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Strategy Guide */}
