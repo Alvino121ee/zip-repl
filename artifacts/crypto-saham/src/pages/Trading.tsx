@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Activity, AlertTriangle, Bot, CheckCircle2, ChevronDown, ChevronUp,
   CircleDollarSign, Clock, Loader2, Power, RefreshCw, Settings, ShieldAlert,
-  TrendingUp, Wallet, XCircle, Zap, Target, Bell,
+  TrendingUp, TrendingDown, Wallet, XCircle, Zap, Target, Bell, Search,
+  BarChart2, Shield, Minus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +88,55 @@ interface EngineStatusData {
   };
 }
 
+interface TimeframeSignal {
+  interval: string;
+  trend: "up" | "down" | "sideways";
+  momentum: "strong" | "normal" | "weak";
+  confirmation: boolean;
+  ema20: number;
+  ema50: number;
+  rsi: number;
+  volumeRatio: number;
+  candlePattern: string | null;
+  note: string;
+}
+
+interface FullAnalysis {
+  symbol: string;
+  analyzedAt: number;
+  marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
+  overallConfidence: number;
+  shouldEnter: boolean;
+  waitReason: string | null;
+  entryPrice: number;
+  stopLoss: number;
+  takeProfit: number;
+  riskRewardRatio: number;
+  side: "Buy" | "Sell";
+  reasons: string[];
+  warnings: string[];
+  confirmations: number;
+  indicators: {
+    ema20: number;
+    ema50: number;
+    ema200: number;
+    vwap: number;
+    rsi14: number;
+    atr14: number;
+    volumeRatio: number;
+    priceVsVwap: "above" | "below";
+    emaAlignment: "bullish" | "bearish" | "mixed";
+    rsiZone: "overbought" | "oversold" | "neutral";
+  };
+  multiTimeframe: Record<string, TimeframeSignal>;
+  supportResistance: {
+    support: number[];
+    resistance: number[];
+    nearestSupport: number;
+    nearestResistance: number;
+  };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
@@ -101,10 +151,10 @@ async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-function formatUSDT(n: number | string) {
+function fmt(n: number | string, dec = 2) {
   const v = typeof n === "string" ? parseFloat(n) : n;
   if (isNaN(v)) return "—";
-  return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 
 function pnlColor(v: string) {
@@ -143,7 +193,7 @@ function timeUntil(ts: number | null): string {
 function SignalBadge({ signal }: { signal: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     strong_buy: { label: "⚡ STRONG BUY", cls: "bg-green-500/20 text-green-400 border-green-500/40" },
-    buy:        { label: "↑ BUY",         cls: "bg-blue-500/20  text-blue-400  border-blue-500/40"  },
+    buy: { label: "↑ BUY", cls: "bg-blue-500/20 text-blue-400 border-blue-500/40" },
   };
   const m = map[signal] ?? { label: signal.toUpperCase(), cls: "bg-muted text-muted-foreground border-border" };
   return (
@@ -153,19 +203,291 @@ function SignalBadge({ signal }: { signal: string }) {
   );
 }
 
+// ─── Analysis Modal ───────────────────────────────────────────────────────────
+
+function AnalysisModal({
+  analysis,
+  config,
+  onClose,
+  onExecute,
+  executing,
+}: {
+  analysis: FullAnalysis;
+  config: AutoConfig;
+  onClose: () => void;
+  onExecute: () => void;
+  executing: boolean;
+}) {
+  const dirColor =
+    analysis.marketDirection === "BULLISH"
+      ? "text-green-400"
+      : analysis.marketDirection === "BEARISH"
+      ? "text-red-400"
+      : "text-yellow-400";
+
+  const dirBg =
+    analysis.marketDirection === "BULLISH"
+      ? "bg-green-950/30 border-green-500/30"
+      : analysis.marketDirection === "BEARISH"
+      ? "bg-red-950/30 border-red-500/30"
+      : "bg-yellow-950/30 border-yellow-500/30";
+
+  const confColor =
+    analysis.overallConfidence >= 75
+      ? "text-green-400"
+      : analysis.overallConfidence >= 55
+      ? "text-yellow-400"
+      : "text-red-400";
+
+  const confBar =
+    analysis.overallConfidence >= 75
+      ? "bg-green-500"
+      : analysis.overallConfidence >= 55
+      ? "bg-yellow-500"
+      : "bg-red-500";
+
+  const TF_ORDER = ["1m", "5m", "15m", "1h"];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm p-3 overflow-y-auto">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl my-4">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+              <BarChart2 className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <div className="font-bold text-lg">{analysis.symbol}</div>
+              <div className="text-xs text-muted-foreground">
+                Analisis lengkap · {new Date(analysis.analyzedAt).toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl leading-none h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/50">×</button>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* Market Direction + Confidence */}
+          <div className={`rounded-xl border p-4 ${dirBg}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Arah Market</div>
+                <div className={`font-bold text-xl flex items-center gap-2 ${dirColor}`}>
+                  {analysis.marketDirection === "BULLISH" ? (
+                    <TrendingUp className="h-5 w-5" />
+                  ) : analysis.marketDirection === "BEARISH" ? (
+                    <TrendingDown className="h-5 w-5" />
+                  ) : (
+                    <Minus className="h-5 w-5" />
+                  )}
+                  {analysis.marketDirection}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground mb-1">Confidence Score</div>
+                <div className={`font-bold text-3xl ${confColor}`}>{analysis.overallConfidence}%</div>
+                <div className="text-xs text-muted-foreground">{analysis.confirmations} konfirmasi</div>
+              </div>
+            </div>
+            <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all ${confBar}`} style={{ width: `${analysis.overallConfidence}%` }} />
+            </div>
+          </div>
+
+          {/* Entry Details */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-muted/30 rounded-xl p-3 border border-border">
+              <div className="text-xs text-muted-foreground mb-1">Entry Price</div>
+              <div className="font-bold text-sm">${fmt(analysis.entryPrice, 4)}</div>
+            </div>
+            <div className="bg-red-950/20 rounded-xl p-3 border border-red-500/20">
+              <div className="text-xs text-muted-foreground mb-1">Stop Loss</div>
+              <div className="font-bold text-sm text-red-400">${fmt(analysis.stopLoss, 4)}</div>
+            </div>
+            <div className="bg-green-950/20 rounded-xl p-3 border border-green-500/20">
+              <div className="text-xs text-muted-foreground mb-1">Take Profit</div>
+              <div className="font-bold text-sm text-green-400">${fmt(analysis.takeProfit, 4)}</div>
+            </div>
+            <div className="bg-muted/30 rounded-xl p-3 border border-border">
+              <div className="text-xs text-muted-foreground mb-1">Risk/Reward</div>
+              <div className={`font-bold text-sm ${analysis.riskRewardRatio >= 2 ? "text-green-400" : "text-yellow-400"}`}>
+                1 : {analysis.riskRewardRatio.toFixed(1)}
+              </div>
+            </div>
+          </div>
+
+          {/* Reasons & Warnings */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            {analysis.reasons.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-green-400 uppercase tracking-wide">Alasan Entry</div>
+                {analysis.reasons.map((r, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs bg-green-950/20 border border-green-500/15 rounded-lg px-3 py-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0 mt-0.5" />
+                    <span>{r}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {analysis.warnings.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-yellow-400 uppercase tracking-wide">Peringatan</div>
+                {analysis.warnings.map((w, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs bg-yellow-950/20 border border-yellow-500/15 rounded-lg px-3 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5 text-yellow-400 shrink-0 mt-0.5" />
+                    <span>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Key Indicators */}
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Indikator Teknikal (15m)</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {[
+                { label: "EMA 20", val: `$${fmt(analysis.indicators.ema20, 4)}`, sub: analysis.indicators.ema20 < analysis.entryPrice ? "↑ Price above" : "↓ Price below", good: analysis.indicators.ema20 < analysis.entryPrice },
+                { label: "EMA 50", val: `$${fmt(analysis.indicators.ema50, 4)}`, sub: analysis.indicators.ema50 < analysis.entryPrice ? "↑ Price above" : "↓ Price below", good: analysis.indicators.ema50 < analysis.entryPrice },
+                { label: "EMA 200", val: `$${fmt(analysis.indicators.ema200, 4)}`, sub: analysis.indicators.emaAlignment, good: analysis.indicators.emaAlignment === "bullish" },
+                { label: "VWAP", val: `$${fmt(analysis.indicators.vwap, 4)}`, sub: `Price ${analysis.indicators.priceVsVwap} VWAP`, good: analysis.indicators.priceVsVwap === "above" },
+                { label: "RSI 14", val: analysis.indicators.rsi14.toFixed(1), sub: analysis.indicators.rsiZone, good: analysis.indicators.rsiZone === "neutral" },
+                { label: "Volume", val: `${(analysis.indicators.volumeRatio * 100).toFixed(0)}%`, sub: "vs avg volume", good: analysis.indicators.volumeRatio >= 1 },
+              ].map((ind) => (
+                <div key={ind.label} className={`rounded-lg p-2.5 border text-xs ${ind.good ? "bg-green-950/15 border-green-500/20" : "bg-red-950/15 border-red-500/20"}`}>
+                  <div className="text-muted-foreground mb-0.5">{ind.label}</div>
+                  <div className="font-bold">{ind.val}</div>
+                  <div className={`text-[10px] ${ind.good ? "text-green-400" : "text-red-400"}`}>{ind.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Support & Resistance */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-muted/20 rounded-xl p-3 border border-border">
+              <div className="text-xs text-muted-foreground mb-2">Support Terdekat</div>
+              <div className="font-bold text-green-400">${fmt(analysis.supportResistance.nearestSupport, 4)}</div>
+              {analysis.supportResistance.support.slice(0, 2).map((s, i) => (
+                <div key={i} className="text-xs text-muted-foreground mt-1">${fmt(s, 4)}</div>
+              ))}
+            </div>
+            <div className="bg-muted/20 rounded-xl p-3 border border-border">
+              <div className="text-xs text-muted-foreground mb-2">Resistance Terdekat</div>
+              <div className="font-bold text-red-400">${fmt(analysis.supportResistance.nearestResistance, 4)}</div>
+              {analysis.supportResistance.resistance.slice(0, 2).map((r, i) => (
+                <div key={i} className="text-xs text-muted-foreground mt-1">${fmt(r, 4)}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Multi-Timeframe */}
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Analisis Multi-Timeframe</div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    {["TF", "Tren", "Momentum", "RSI", "Volume", "Konfirmasi"].map((h) => (
+                      <th key={h} className="text-left text-muted-foreground font-medium pb-2 pr-3">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {TF_ORDER.filter((tf) => analysis.multiTimeframe[tf]).map((tf) => {
+                    const t = analysis.multiTimeframe[tf];
+                    return (
+                      <tr key={tf} className="border-b border-border/40 last:border-0">
+                        <td className="py-2 pr-3 font-bold">{tf}</td>
+                        <td className="py-2 pr-3">
+                          <span className={`inline-flex items-center gap-1 font-medium ${t.trend === "up" ? "text-green-400" : t.trend === "down" ? "text-red-400" : "text-yellow-400"}`}>
+                            {t.trend === "up" ? <TrendingUp className="h-3 w-3" /> : t.trend === "down" ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                            {t.trend}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3">
+                          <span className={`${t.momentum === "strong" ? "text-green-400" : t.momentum === "normal" ? "text-foreground" : "text-muted-foreground"}`}>
+                            {t.momentum}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3">{t.rsi.toFixed(0)}</td>
+                        <td className="py-2 pr-3">{(t.volumeRatio * 100).toFixed(0)}%</td>
+                        <td className="py-2">
+                          {t.confirmation ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Wait reason or Execute */}
+          {!analysis.shouldEnter ? (
+            <div className="rounded-xl bg-yellow-950/30 border border-yellow-500/30 p-4 flex items-start gap-3">
+              <ShieldAlert className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-yellow-400 mb-1">Jangan Entry Sekarang</div>
+                <div className="text-sm text-muted-foreground">{analysis.waitReason}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-green-950/20 border border-green-500/30 p-4 flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-green-400 mb-1">Setup Valid — Siap Entry</div>
+                <div className="text-sm text-muted-foreground">
+                  {analysis.confirmations} konfirmasi · RR {analysis.riskRewardRatio.toFixed(1)}x · Confidence {analysis.overallConfidence}%
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={onClose}>Tutup</Button>
+            {config.mode === "semi" && (
+              <Button
+                className={`flex-1 ${analysis.shouldEnter ? "bg-green-600 hover:bg-green-700 text-white" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
+                disabled={!analysis.shouldEnter || executing}
+                onClick={onExecute}
+              >
+                {executing ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" />Executing…</>
+                ) : (
+                  <><Zap className="h-4 w-4 mr-2" />Execute Order</>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Signal Card ──────────────────────────────────────────────────────────────
 
 function SignalCard({
-  sig, config, onExecute, executing,
+  sig, config, onAnalyze, onExecute, analyzing, executing,
 }: {
   sig: Signal;
   config: AutoConfig;
+  onAnalyze: (sig: Signal) => void;
   onExecute: (sig: Signal) => void;
+  analyzing: string | null;
   executing: string | null;
 }) {
   const qty = smartQty(sig.price, config.maxPositionUSDT);
   const sl = sig.stopLoss ?? sig.price * (1 - config.stopLossPct / 100);
   const tp = sig.takeProfit ?? sig.price * (1 + config.takeProfitPct / 100);
+  const isAnalyzing = analyzing === sig.bybitSymbol;
   const isExec = executing === sig.bybitSymbol;
 
   return (
@@ -178,7 +500,7 @@ function SignalCard({
           </div>
           <div className="text-right">
             <SignalBadge signal={sig.signal} />
-            <div className="text-sm font-semibold mt-1">${formatUSDT(sig.price)}</div>
+            <div className="text-sm font-semibold mt-1">${fmt(sig.price, 4)}</div>
             <div className="text-xs text-muted-foreground">Current Price</div>
           </div>
         </div>
@@ -203,38 +525,55 @@ function SignalCard({
           </div>
           <div className="bg-red-950/20 rounded p-2 border border-red-500/20">
             <div className="text-muted-foreground">Stop Loss</div>
-            <div className="font-medium text-red-400">{sl != null ? `$${formatUSDT(sl)}` : "—"}</div>
+            <div className="font-medium text-red-400">{sl != null ? `$${fmt(sl, 4)}` : "—"}</div>
           </div>
           <div className="bg-green-950/20 rounded p-2 border border-green-500/20">
             <div className="text-muted-foreground">Take Profit</div>
-            <div className="font-medium text-green-400">{tp != null ? `$${formatUSDT(tp)}` : "—"}</div>
+            <div className="font-medium text-green-400">{tp != null ? `$${fmt(tp, 4)}` : "—"}</div>
           </div>
         </div>
 
-        {config.mode === "semi" && (
+        <div className="flex gap-2">
+          {/* Analyze button — always visible */}
           <Button
-            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            variant="outline"
             size="sm"
-            disabled={isExec}
-            onClick={() => onExecute(sig)}
+            className="flex-1 text-xs border-primary/40 text-primary hover:bg-primary/10"
+            disabled={isAnalyzing}
+            onClick={() => onAnalyze(sig)}
           >
-            {isExec ? (
-              <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Executing…</>
+            {isAnalyzing ? (
+              <><Loader2 className="h-3 w-3 animate-spin mr-1" />Analyzing…</>
             ) : (
-              <><Zap className="h-3.5 w-3.5 mr-1" /> Execute Order</>
+              <><BarChart2 className="h-3 w-3 mr-1" />Analisa AI</>
             )}
           </Button>
-        )}
+
+          {/* Quick execute in semi mode */}
+          {config.mode === "semi" && (
+            <Button
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs"
+              size="sm"
+              disabled={isExec}
+              onClick={() => onExecute(sig)}
+            >
+              {isExec ? (
+                <><Loader2 className="h-3 w-3 animate-spin mr-1" />Exec…</>
+              ) : (
+                <><Zap className="h-3 w-3 mr-1" />Execute</>
+              )}
+            </Button>
+          )}
+        </div>
 
         {config.mode === "auto" && config.enabled && (
-          <div className="flex items-center gap-1.5 text-xs text-green-400">
+          <div className="flex items-center gap-1.5 text-xs text-green-400 mt-2">
             <Bot className="h-3.5 w-3.5" />
-            <span>Auto-engine akan eksekusi saat kondisi terpenuhi</span>
+            <span>Auto-engine akan eksekusi jika analisis valid</span>
           </div>
         )}
-
         {config.mode === "auto" && !config.enabled && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
             <Power className="h-3.5 w-3.5" />
             <span>Aktifkan engine untuk auto-eksekusi</span>
           </div>
@@ -262,23 +601,18 @@ function PositionRow({ pos, onSetTPSL }: { pos: Position; onSetTPSL: (p: Positio
         </div>
         <div className="text-xs text-muted-foreground space-y-0.5">
           <div>Ukuran: <span className="text-foreground">{pos.size}</span></div>
-          <div>Avg Price: <span className="text-foreground">${formatUSDT(pos.avgPrice)}</span></div>
-          <div>Mark Price: <span className="text-foreground">${formatUSDT(pos.markPrice)}</span></div>
+          <div>Avg Price: <span className="text-foreground">${fmt(pos.avgPrice)}</span></div>
+          <div>Mark Price: <span className="text-foreground">${fmt(pos.markPrice)}</span></div>
         </div>
       </div>
       <div className="text-right shrink-0">
         <div className={`font-bold text-base ${pnlColor(pos.unrealisedPnl)}`}>
-          {pnl >= 0 ? "+" : ""}{formatUSDT(pnl)} USDT
+          {pnl >= 0 ? "+" : ""}{fmt(pnl)} USDT
         </div>
         <div className={`text-xs ${pnlColor(pos.unrealisedPnl)}`}>
           ({pct >= 0 ? "+" : ""}{pct.toFixed(2)}%)
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-2 text-xs h-7 px-2"
-          onClick={() => onSetTPSL(pos)}
-        >
+        <Button size="sm" variant="outline" className="mt-2 text-xs h-7 px-2" onClick={() => onSetTPSL(pos)}>
           <Target className="h-3 w-3 mr-1" /> TP/SL
         </Button>
       </div>
@@ -343,15 +677,11 @@ function TPSLDialog({
         <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-center">
           <div className="bg-green-950/20 border border-green-500/20 rounded p-2">
             <div>Profit target</div>
-            <div className="text-green-400 font-semibold">
-              {(((tp - markPrice) / markPrice) * 100).toFixed(2)}%
-            </div>
+            <div className="text-green-400 font-semibold">{(((tp - markPrice) / markPrice) * 100).toFixed(2)}%</div>
           </div>
           <div className="bg-red-950/20 border border-red-500/20 rounded p-2">
             <div>Max loss</div>
-            <div className="text-red-400 font-semibold">
-              {(((sl - markPrice) / markPrice) * 100).toFixed(2)}%
-            </div>
+            <div className="text-red-400 font-semibold">{(((sl - markPrice) / markPrice) * 100).toFixed(2)}%</div>
           </div>
         </div>
 
@@ -372,7 +702,6 @@ function TPSLDialog({
 function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; config: AutoConfig }) {
   const [, forceUpdate] = useState(0);
 
-  // Tick every second to update countdown
   useEffect(() => {
     const id = setInterval(() => forceUpdate((n) => n + 1), 1000);
     return () => clearInterval(id);
@@ -390,11 +719,10 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
 
   return (
     <div className="mt-3 rounded-lg bg-green-950/20 border border-green-500/20 p-3 space-y-2">
-      {/* Analyzing indicator */}
       {isAnalyzing ? (
         <div className="flex items-center gap-2 text-sm text-green-300 font-medium">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Sedang menganalisis sinyal…</span>
+          <span>Sedang menganalisis sinyal multi-timeframe…</span>
         </div>
       ) : (
         <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
@@ -402,11 +730,10 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
           </span>
-          Engine aktif — scan otomatis berjalan
+          Engine aktif — analisis teknikal otomatis berjalan
         </div>
       )}
 
-      {/* Timing info */}
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Clock className="h-3 w-3" />
@@ -418,16 +745,14 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
         </div>
       </div>
 
-      {/* Last cycle stats */}
       {cycleCount > 0 && (
         <div className="flex gap-3 text-xs text-muted-foreground">
           <span>Scan ke-<span className="text-foreground font-medium">{cycleCount}</span></span>
-          <span>Sinyal ditemukan: <span className="text-foreground font-medium">{lastSignals}</span></span>
+          <span>Sinyal: <span className="text-foreground font-medium">{lastSignals}</span></span>
           <span>Order: <span className={lastOrders > 0 ? "text-green-400 font-medium" : "text-foreground font-medium"}>{lastOrders}</span></span>
         </div>
       )}
 
-      {/* Error display */}
       {lastError && (
         <div className="flex items-center gap-1.5 text-xs text-red-400 bg-red-950/30 rounded p-2 border border-red-500/20">
           <AlertTriangle className="h-3 w-3 shrink-0" />
@@ -438,7 +763,118 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
   );
 }
 
-// ─── Main page ─────────────────────────────────────────────────────────────────
+// ─── Settings Panel ───────────────────────────────────────────────────────────
+
+function SettingsPanel({
+  config, onChange, onClose,
+}: {
+  config: AutoConfig;
+  onChange: (patch: Partial<AutoConfig>) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-card border border-border rounded-xl w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
+          <div className="font-bold flex items-center gap-2">
+            <Settings className="h-4 w-4 text-primary" />
+            Pengaturan Bot
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl">×</button>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* Mode */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-2">Mode Trading</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["semi", "auto"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => onChange({ mode: m })}
+                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${config.mode === m ? "bg-primary/20 border-primary text-primary" : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"}`}
+                >
+                  {m === "semi" ? "Semi (Manual)" : "Auto (Full-Auto)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Scan Source */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-2">Sumber Sinyal</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["universe", "predictions"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => onChange({ scanSource: s })}
+                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${config.scanSource === s ? "bg-primary/20 border-primary text-primary" : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"}`}
+                >
+                  {s === "universe" ? "Bybit Universe" : "AI Predictions"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Order Type */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-2">Tipe Order</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["Market", "Limit"] as const).map((o) => (
+                <button
+                  key={o}
+                  onClick={() => onChange({ orderType: o })}
+                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${config.orderType === o ? "bg-primary/20 border-primary text-primary" : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"}`}
+                >
+                  {o}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sliders */}
+          {([
+            { key: "minConfidence" as const, label: "Min Confidence (%)", min: 50, max: 99, step: 1, display: `${config.minConfidence}%` },
+            { key: "maxPositionUSDT" as const, label: "Max Posisi (USDT)", min: 5, max: 500, step: 5, display: `$${config.maxPositionUSDT}` },
+            { key: "stopLossPct" as const, label: "Stop Loss (%)", min: 0.5, max: 10, step: 0.5, display: `${config.stopLossPct}%` },
+            { key: "takeProfitPct" as const, label: "Take Profit (%)", min: 0.5, max: 20, step: 0.5, display: `${config.takeProfitPct}%` },
+            { key: "maxPositions" as const, label: "Max Posisi Serentak", min: 1, max: 20, step: 1, display: `${config.maxPositions}` },
+            { key: "leverage" as const, label: "Leverage", min: 1, max: 20, step: 1, display: `${config.leverage}x` },
+          ]).map(({ key, label, min, max, step, display }) => (
+            <div key={key}>
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="font-semibold">{display}</span>
+              </div>
+              <Slider
+                min={min} max={max} step={step}
+                value={[config[key] as number]}
+                onValueChange={([v]) => onChange({ [key]: v })}
+                className="w-full"
+              />
+            </div>
+          ))}
+
+          {/* Scan interval */}
+          <div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-muted-foreground">Interval Scan</span>
+              <span className="font-semibold">{config.intervalMs / 1000}s</span>
+            </div>
+            <Slider
+              min={15000} max={300000} step={15000}
+              value={[config.intervalMs]}
+              onValueChange={([v]) => onChange({ intervalMs: v })}
+              className="w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Trading Page ────────────────────────────────────────────────────────
 
 export default function Trading() {
   const { toast } = useToast();
@@ -446,18 +882,9 @@ export default function Trading() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [config, setConfig] = useState<AutoConfig>({
-    enabled: false,
-    mode: "semi",
-    minConfidence: 80,
-    maxPositionUSDT: 50,
-    stopLossPct: 2,
-    takeProfitPct: 4,
-    maxPositions: 5,
-    leverage: 1,
-    intervalMs: 60_000,
-    orderType: "Market",
-    limitOffsetPct: 0.3,
-    scanSource: "universe",
+    enabled: false, mode: "semi", minConfidence: 80, maxPositionUSDT: 50,
+    stopLossPct: 2, takeProfitPct: 4, maxPositions: 5, leverage: 1,
+    intervalMs: 60_000, orderType: "Market", limitOffsetPct: 0.3, scanSource: "universe",
   });
   const [engineStat, setEngineStat] = useState<EngineStatusData | null>(null);
   const [tradeLogs, setTradeLogs] = useState<TradeLog[]>([]);
@@ -466,9 +893,12 @@ export default function Trading() {
   const [refreshing, setRefreshing] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [executing, setExecuting] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState<string | null>(null);
+  const [activeAnalysis, setActiveAnalysis] = useState<FullAnalysis | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signals" | "positions" | "log">("signals");
   const [tpslPos, setTpslPos] = useState<Position | null>(null);
+  const [pendingExecuteSig, setPendingExecuteSig] = useState<Signal | null>(null);
 
   const prevPosCount = useRef<number>(-1);
 
@@ -492,13 +922,11 @@ export default function Trading() {
       if (posRes.status === "fulfilled") {
         const newPositions = posRes.value.list ?? [];
         const newCount = newPositions.length;
-
-        // Detect new position opened
         if (prevPosCount.current >= 0 && newCount > prevPosCount.current) {
           const diff = newCount - prevPosCount.current;
           toast({
             title: `🔔 ${diff} Posisi Baru Dibuka!`,
-            description: `Kamu sekarang punya ${newCount} posisi aktif di Bybit. Cek tab Positions.`,
+            description: `Kamu sekarang punya ${newCount} posisi aktif di Bybit.`,
           });
           setActiveTab("positions");
         }
@@ -523,22 +951,15 @@ export default function Trading() {
     try {
       const stat = await apiFetch<EngineStatusData>("/api/trading/engine-status");
       setEngineStat(stat);
-    } catch {
-      // silently ignore
-    }
+    } catch { /* ignore */ }
   }, []);
 
-  // Initial load
   useEffect(() => { void loadAll(); }, [loadAll]);
-
-  // Poll engine status every 5s when in auto mode
   useEffect(() => {
     void loadEngineStat();
     const id = setInterval(() => { void loadEngineStat(); }, 5000);
     return () => clearInterval(id);
   }, [loadEngineStat]);
-
-  // Auto-refresh all data every 30s when engine is active
   useEffect(() => {
     if (!config.enabled || config.mode !== "auto") return;
     const id = setInterval(() => { void loadAll(true); }, 30_000);
@@ -556,29 +977,40 @@ export default function Trading() {
         body: JSON.stringify(patch),
       });
       setConfig(updated);
-
-      if (isToggle && "enabled" in patch) {
+      if (isToggle) {
         if (patch.enabled) {
-          toast({ title: "Engine Aktif", description: "Auto-trading engine dimulai. Scan sinyal tiap " + Math.round(updated.intervalMs / 1000) + "s." });
-          // Trigger first status refresh
+          toast({ title: "Engine Aktif", description: "Bot dimulai dengan analisis teknikal penuh. Scan tiap " + Math.round(updated.intervalMs / 1000) + "s." });
           setTimeout(() => { void loadEngineStat(); }, 500);
         } else {
           toast({ title: "Engine Dimatikan", description: "Auto-trading dihentikan." });
         }
       }
     } catch (err) {
-      setConfig(config); // revert on error
+      setConfig(config);
       toast({ title: "Config error", description: String(err), variant: "destructive" });
     } finally {
       if (isToggle) setToggling(false);
     }
   }
 
+  async function handleAnalyze(sig: Signal) {
+    setAnalyzing(sig.bybitSymbol);
+    try {
+      const analysis = await apiFetch<FullAnalysis>(`/api/trading/analyze/${sig.bybitSymbol}`);
+      setActiveAnalysis(analysis);
+      setPendingExecuteSig(sig);
+    } catch (err) {
+      toast({ title: "Analisis gagal", description: String(err), variant: "destructive" });
+    } finally {
+      setAnalyzing(null);
+    }
+  }
+
   function calcQty(price: number, usdtAmount: number): string {
     const raw = usdtAmount / price;
     if (price >= 10000) return Math.max(0.001, Math.floor(raw * 1000) / 1000).toFixed(3);
-    if (price >= 100)   return Math.max(0.01,  Math.floor(raw * 100)  / 100 ).toFixed(2);
-    if (price >= 1)     return Math.max(1,      Math.floor(raw * 10)   / 10  ).toFixed(1);
+    if (price >= 100) return Math.max(0.01, Math.floor(raw * 100) / 100).toFixed(2);
+    if (price >= 1) return Math.max(1, Math.floor(raw * 10) / 10).toFixed(1);
     return Math.max(10, Math.floor(raw)).toFixed(0);
   }
 
@@ -595,536 +1027,303 @@ export default function Trading() {
       });
 
       toast({
-        title: "✅ Order Berhasil!",
-        description: `Buy ${qty} ${sig.symbol} @ $${formatUSDT(sig.price)} — TP/SL sedang diset`,
+        title: `Order ${sig.bybitSymbol} tereksekusi!`,
+        description: `Buy ${qty} @ $${fmt(sig.price, 4)} · TP: $${fmt(tpPrice, 4)} · SL: $${fmt(slPrice, 4)}`,
       });
-
-      setTimeout(() => { void loadAll(true); }, 2500);
+      void loadAll(true);
+      setActiveAnalysis(null);
+      setPendingExecuteSig(null);
     } catch (err) {
-      toast({ title: "Order Gagal", description: String(err), variant: "destructive" });
+      toast({ title: "Order gagal", description: String(err), variant: "destructive" });
     } finally {
       setExecuting(null);
     }
   }
 
   async function handleSetTPSL(symbol: string, tp: number, sl: number) {
-    try {
-      await apiFetch("/api/trading/position/tpsl", {
-        method: "POST",
-        body: JSON.stringify({ symbol, takeProfit: tp, stopLoss: sl }),
-      });
-      toast({ title: "✅ TP/SL Diperbarui", description: `${symbol} TP: $${tp.toFixed(4)} · SL: $${sl.toFixed(4)}` });
-      void loadAll(true);
-    } catch (err) {
-      toast({ title: "TP/SL Gagal", description: String(err), variant: "destructive" });
-    }
+    await apiFetch("/api/trading/position/tpsl", {
+      method: "POST",
+      body: JSON.stringify({ symbol, takeProfit: tp, stopLoss: sl }),
+    });
+    toast({ title: "TP/SL diperbarui", description: `${symbol}: TP $${fmt(tp, 4)} · SL $${fmt(sl, 4)}` });
+    void loadAll(true);
   }
 
-  const totalPnl = positions.reduce((sum, p) => sum + parseFloat(p.unrealisedPnl ?? "0"), 0);
+  // Settings panel applies config without toggling engine
+  async function applySettings(patch: Partial<AutoConfig>) {
+    const next = { ...config, ...patch };
+    setConfig(next);
+    try {
+      const updated = await apiFetch<AutoConfig>("/api/trading/config", {
+        method: "PUT",
+        body: JSON.stringify(patch),
+      });
+      setConfig(updated);
+    } catch (err) {
+      setConfig(config);
+      toast({ title: "Config error", description: String(err), variant: "destructive" });
+    }
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
+  const totalPnl = positions.reduce((sum, p) => sum + parseFloat(p.unrealisedPnl ?? "0"), 0);
+
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
             <Bot className="h-6 w-6 text-primary" />
-            Bybit Auto Trading
+            AI Futures Bot
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            AI-driven signals connected to Bybit Mainnet
-          </p>
+          <p className="text-sm text-muted-foreground">Bybit USDT Perpetual · Analisis teknikal multi-timeframe otomatis</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => void loadAll(true)} disabled={refreshing}>
-          <RefreshCw className={`h-4 w-4 mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => void loadAll(true)} disabled={refreshing}>
+            {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Mainnet Warning */}
-      <div className="flex items-start gap-2.5 rounded-lg border border-yellow-500/40 bg-yellow-950/20 px-4 py-3 text-sm text-yellow-300">
-        <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" />
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Balance</span>
+            </div>
+            <div className="font-bold text-lg">
+              {balance != null ? `$${fmt(balance)}` : <span className="text-muted-foreground text-sm">No API key</span>}
+            </div>
+            <div className="text-xs text-muted-foreground">USDT</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Open PnL</span>
+            </div>
+            <div className={`font-bold text-lg ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {totalPnl >= 0 ? "+" : ""}{fmt(totalPnl)} USDT
+            </div>
+            <div className="text-xs text-muted-foreground">{positions.length} posisi aktif</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Sumber Scan</span>
+            </div>
+            <div className="font-bold capitalize">{config.scanSource}</div>
+            <div className="text-xs text-muted-foreground">{config.orderType} orders</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Engine</span>
+              </div>
+              {toggling ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Switch
+                  checked={config.enabled}
+                  onCheckedChange={(v) => void updateConfig({ enabled: v })}
+                />
+              )}
+            </div>
+            <div className={`font-bold text-sm ${config.enabled ? "text-green-400" : "text-muted-foreground"}`}>
+              {config.enabled ? "AKTIF" : "NONAKTIF"}
+            </div>
+            <div className="text-xs text-muted-foreground capitalize">{config.mode} mode</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Engine Status */}
+      <EngineStatusPanel stat={engineStat} config={config} />
+
+      {/* AI analysis info banner */}
+      <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 flex items-start gap-3 text-sm">
+        <BarChart2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold">Mainnet aktif</span> — Semua order menggunakan uang nyata.
-          Pastikan kamu memahami risikonya sebelum mengaktifkan Auto Mode.
+          <span className="font-semibold text-primary">Analisis AI Aktif</span>
+          <span className="text-muted-foreground"> · Klik <strong>Analisa AI</strong> pada signal untuk melihat full analisis: EMA 20/50/200, VWAP, RSI, Volume, Support/Resistance, dan konfirmasi multi-timeframe (1m 5m 15m 1h) sebelum entry.</span>
         </div>
       </div>
 
-      {/* Open Positions Warning Banner */}
-      {positions.length > 0 && (
-        <div className="flex items-start gap-3 rounded-lg border border-orange-500/40 bg-orange-950/20 px-4 py-3">
-          <Bell className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-orange-300">
-              {positions.length} Posisi Sedang Terbuka
-            </div>
-            <div className="text-xs text-orange-300/70 mt-0.5 space-y-0.5">
-              {positions.map((p) => {
-                const pnl = parseFloat(p.unrealisedPnl ?? "0");
-                return (
-                  <span key={p.symbol + p.side} className="inline-flex items-center gap-1 mr-3">
-                    <span className="font-medium">{p.symbol}</span>
-                    <span className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
-                      {pnl >= 0 ? "+" : ""}{formatUSDT(pnl)} USDT
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+      {/* Tabs */}
+      <div className="flex border-b border-border gap-1">
+        {(["signals", "positions", "log"] as const).map((tab) => (
           <button
-            className="text-xs text-orange-400 hover:text-orange-300 shrink-0 underline underline-offset-2"
-            onClick={() => setActiveTab("positions")}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
-            Lihat posisi
+            {tab === "signals"
+              ? `Signals (${signals.length})`
+              : tab === "positions"
+              ? (
+                <span className={positions.length > 0 ? "text-orange-400" : ""}>
+                  Positions ({positions.length})
+                  {positions.length > 0 && <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />}
+                </span>
+              )
+              : `Trade Log (${tradeLogs.length})`}
           </button>
-        </div>
+        ))}
+      </div>
+
+      {/* Signals Tab */}
+      {activeTab === "signals" && (
+        <>
+          {signals.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground text-sm">
+              <Activity className="h-8 w-8 mx-auto mb-2 opacity-30" />
+              Tidak ada sinyal dengan confidence ≥ {config.minConfidence}% saat ini
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {signals.map((sig) => (
+                <SignalCard
+                  key={sig.bybitSymbol}
+                  sig={sig}
+                  config={config}
+                  onAnalyze={handleAnalyze}
+                  onExecute={executeOrder}
+                  analyzing={analyzing}
+                  executing={executing}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Positions Tab */}
+      {activeTab === "positions" && (
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <Wallet className="h-5 w-5 text-primary shrink-0" />
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground">USDT Balance</div>
-              <div className="font-bold text-lg truncate">
-                {balance !== null ? `$${formatUSDT(balance)}` : "—"}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className={`cursor-pointer transition-colors ${positions.length > 0 ? "border-orange-500/40" : ""}`}
-          onClick={() => positions.length > 0 && setActiveTab("positions")}
-        >
-          <CardContent className="p-4 flex items-center gap-3">
-            <Activity className={`h-5 w-5 shrink-0 ${positions.length > 0 ? "text-orange-400" : "text-blue-400"}`} />
-            <div>
-              <div className="text-xs text-muted-foreground">Open Positions</div>
-              <div className={`font-bold text-lg ${positions.length > 0 ? "text-orange-400" : ""}`}>{positions.length}</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <CircleDollarSign className={`h-5 w-5 shrink-0 ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`} />
-            <div>
-              <div className="text-xs text-muted-foreground">Unrealised PnL</div>
-              <div className={`font-bold text-lg ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
-                {totalPnl >= 0 ? "+" : ""}{formatUSDT(totalPnl)}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-green-400 shrink-0" />
-            <div>
-              <div className="text-xs text-muted-foreground">High-Conf Signals</div>
-              <div className="font-bold text-lg">{signals.length}</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Auto Trading Control */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Bot className="h-4 w-4 text-primary" />
-              Auto Trading Engine
-            </CardTitle>
-            <button
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-              onClick={() => setSettingsOpen((v) => !v)}
-            >
-              <Settings className="h-3.5 w-3.5" />
-              Settings
-              {settingsOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            </button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Mode toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-medium">Mode</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                {config.mode === "auto"
-                  ? "Otomatis eksekusi tanpa konfirmasi"
-                  : "Kamu klik tombol untuk eksekusi tiap sinyal"}
-              </div>
-            </div>
-            <Tabs value={config.mode} onValueChange={(v) => void updateConfig({ mode: v as "auto" | "semi" })}>
-              <TabsList className="h-8">
-                <TabsTrigger value="semi" className="text-xs px-3">Semi-Auto</TabsTrigger>
-                <TabsTrigger value="auto" className="text-xs px-3">Full Auto</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          {/* Full Auto limits info */}
-          {config.mode === "auto" && (
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1 text-xs bg-primary/10 border border-primary/20 rounded-full px-3 py-1 text-primary">
-                <Bot className="h-3 w-3" />
-                {config.scanSource === "universe" ? "Semua token Bybit" : "Prediksi AI"}
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <Zap className="h-3 w-3" />
-                {config.orderType === "Market" ? "Market Order" : `Limit −${config.limitOffsetPct}%`}
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <Activity className="h-3 w-3" /> Max {config.maxPositions} posisi
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <TrendingUp className="h-3 w-3" /> Score ≥ {config.minConfidence}%
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <Wallet className="h-3 w-3" /> Maks ${config.maxPositionUSDT}/trade
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <Clock className="h-3 w-3" /> Scan tiap {Math.round(config.intervalMs / 1000)}s
-              </span>
-            </div>
-          )}
-
-          {/* Power toggle */}
-          <div className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-            config.enabled
-              ? "border-green-500/40 bg-green-950/10"
-              : "border-border bg-muted/20"
-          }`}>
-            <div className="flex items-center gap-2">
-              <Power className={`h-4 w-4 ${config.enabled ? "text-green-400" : "text-muted-foreground"}`} />
-              <div>
-                <div className={`text-sm font-medium ${config.enabled ? "text-green-400" : ""}`}>
-                  {toggling ? "Memperbarui…" : config.enabled ? "Engine Aktif" : "Engine Mati"}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {config.mode === "auto"
-                    ? config.enabled
-                      ? `Otomatis scan & order berjalan`
-                      : "Aktifkan untuk mulai auto-trading"
-                    : "Semi-auto: konfirmasi tiap order"}
-                </div>
-              </div>
-            </div>
-            <Switch
-              checked={config.enabled}
-              disabled={toggling}
-              onCheckedChange={(v) => void updateConfig({ enabled: v })}
-            />
-          </div>
-
-          {/* Engine real-time status (Full Auto only) */}
-          <EngineStatusPanel stat={engineStat} config={config} />
-
-          {/* Settings panel */}
-          {settingsOpen && (
-            <div className="space-y-5 pt-3 border-t border-border">
-
-              {/* ── Scan Source ───────────────────────────────────────────── */}
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sumber Scan</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => void updateConfig({ scanSource: "universe" })}
-                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
-                      config.scanSource === "universe"
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border bg-muted/20 text-muted-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
-                      <Bot className="h-3.5 w-3.5" /> Semua Token Bybit
-                    </div>
-                    <div className="text-[11px] leading-snug opacity-80">
-                      Scan ratusan token, pilih momentum terbaik hari ini
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => void updateConfig({ scanSource: "predictions" })}
-                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
-                      config.scanSource === "predictions"
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border bg-muted/20 text-muted-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
-                      <TrendingUp className="h-3.5 w-3.5" /> Prediksi AI
-                    </div>
-                    <div className="text-[11px] leading-snug opacity-80">
-                      Hanya koin dari halaman Predictions dengan sinyal BUY
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* ── Order Type ────────────────────────────────────────────── */}
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Jenis Order</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => void updateConfig({ orderType: "Market" })}
-                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
-                      config.orderType === "Market"
-                        ? "border-green-500/60 bg-green-950/20 text-foreground"
-                        : "border-border bg-muted/20 text-muted-foreground hover:border-green-500/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
-                      <Zap className="h-3.5 w-3.5 text-green-400" /> Market Order
-                    </div>
-                    <div className="text-[11px] leading-snug opacity-80">
-                      Beli langsung di harga pasar sekarang — pasti terisi
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => void updateConfig({ orderType: "Limit" })}
-                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
-                      config.orderType === "Limit"
-                        ? "border-blue-500/60 bg-blue-950/20 text-foreground"
-                        : "border-border bg-muted/20 text-muted-foreground hover:border-blue-500/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
-                      <Target className="h-3.5 w-3.5 text-blue-400" /> Limit Order
-                    </div>
-                    <div className="text-[11px] leading-snug opacity-80">
-                      Pasang harga target, terisi saat pasar turun ke harga itu
-                    </div>
-                  </button>
-                </div>
-
-                {/* Limit offset slider — only shown when Limit is selected */}
-                {config.orderType === "Limit" && (
-                  <div className="mt-3 p-3 bg-blue-950/10 border border-blue-500/20 rounded-lg">
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Beli di bawah harga pasar</span>
-                      <span className="font-semibold text-blue-400">−{config.limitOffsetPct}%</span>
-                    </div>
-                    <Slider
-                      min={0.1} max={3} step={0.1}
-                      value={[config.limitOffsetPct]}
-                      onValueChange={([v]) => void updateConfig({ limitOffsetPct: v! })}
-                    />
-                    <div className="text-[11px] text-muted-foreground mt-1.5">
-                      Contoh: harga pasar $100, limit order dipasang di ${(100 * (1 - config.limitOffsetPct / 100)).toFixed(2)}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Risk & Position Controls ──────────────────────────────── */}
-              <div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Kontrol Risiko</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Min Score / Confidence</span>
-                      <span className="font-semibold">{config.minConfidence}%</span>
-                    </div>
-                    <Slider min={40} max={90} step={5} value={[config.minConfidence]}
-                      onValueChange={([v]) => void updateConfig({ minConfidence: v! })} />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Max per Trade (USDT)</span>
-                      <span className="font-semibold">${config.maxPositionUSDT}</span>
-                    </div>
-                    <Slider min={10} max={500} step={10} value={[config.maxPositionUSDT]}
-                      onValueChange={([v]) => void updateConfig({ maxPositionUSDT: v! })} />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Stop Loss</span>
-                      <span className="font-semibold text-red-400">{config.stopLossPct}%</span>
-                    </div>
-                    <Slider min={1} max={10} step={0.5} value={[config.stopLossPct]}
-                      onValueChange={([v]) => void updateConfig({ stopLossPct: v! })} />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Take Profit</span>
-                      <span className="font-semibold text-green-400">{config.takeProfitPct}%</span>
-                    </div>
-                    <Slider min={1} max={20} step={0.5} value={[config.takeProfitPct]}
-                      onValueChange={([v]) => void updateConfig({ takeProfitPct: v! })} />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Max Posisi Bersamaan</span>
-                      <span className="font-semibold">{config.maxPositions}</span>
-                    </div>
-                    <Slider min={1} max={10} step={1} value={[config.maxPositions]}
-                      onValueChange={([v]) => void updateConfig({ maxPositions: v! })} />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Leverage</span>
-                      <span className="font-semibold">{config.leverage}x</span>
-                    </div>
-                    <Slider min={1} max={10} step={1} value={[config.leverage]}
-                      onValueChange={([v]) => void updateConfig({ leverage: v! })} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Tabs: Signals / Positions / Log */}
-      <div>
-        <div className="flex gap-1 border-b border-border mb-4">
-          {(["signals", "positions", "log"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab === "signals"
-                ? `Signals (${signals.length})`
-                : tab === "positions"
-                ? (
-                  <span className={positions.length > 0 ? "text-orange-400" : ""}>
-                    Positions ({positions.length})
-                    {positions.length > 0 && (
-                      <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
-                    )}
-                  </span>
-                )
-                : `Trade Log (${tradeLogs.length})`}
-            </button>
-          ))}
-        </div>
-
-        {/* Signals */}
-        {activeTab === "signals" && (
-          <>
-            {signals.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground text-sm">
-                <Activity className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                Tidak ada sinyal dengan confidence ≥ {config.minConfidence}% saat ini
+          <CardContent className="p-4">
+            {positions.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground text-sm">
+                <CircleDollarSign className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                Tidak ada posisi terbuka
               </div>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {signals.map((sig) => (
-                  <SignalCard
-                    key={sig.bybitSymbol}
-                    sig={sig}
-                    config={config}
-                    onExecute={executeOrder}
-                    executing={executing}
-                  />
-                ))}
-              </div>
+              positions.map((pos) => (
+                <PositionRow key={pos.symbol + pos.side} pos={pos} onSetTPSL={setTpslPos} />
+              ))
             )}
-          </>
-        )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Positions */}
-        {activeTab === "positions" && (
-          <Card>
-            <CardContent className="p-4">
-              {positions.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground text-sm">
-                  <CircleDollarSign className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  Tidak ada posisi terbuka
-                </div>
-              ) : (
-                positions.map((pos) => (
-                  <PositionRow key={pos.symbol + pos.side} pos={pos} onSetTPSL={setTpslPos} />
-                ))
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Log */}
-        {activeTab === "log" && (
-          <Card>
-            <CardContent className="p-4 space-y-0">
-              {tradeLogs.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground text-sm">
-                  <Activity className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  Belum ada riwayat trading
-                </div>
-              ) : (
-                tradeLogs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between py-2.5 border-b border-border last:border-0 gap-2 text-sm">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {log.status === "executed" ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
-                      ) : log.status === "rejected" ? (
-                        <XCircle className="h-4 w-4 text-red-400 shrink-0" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">{log.symbol}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {log.side} {log.qty} @ ${formatUSDT(log.price)} · {log.confidence}% confidence
+      {/* Trade Log Tab */}
+      {activeTab === "log" && (
+        <Card>
+          <CardContent className="p-4 space-y-0">
+            {tradeLogs.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground text-sm">
+                <Activity className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                Belum ada riwayat trading
+              </div>
+            ) : (
+              tradeLogs.map((log) => (
+                <div key={log.id} className="flex items-start justify-between py-2.5 border-b border-border last:border-0 gap-2 text-sm">
+                  <div className="flex items-start gap-2 min-w-0">
+                    {log.status === "executed" ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0 mt-0.5" />
+                    ) : log.status === "rejected" ? (
+                      <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-medium">{log.symbol}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {log.side} {log.qty} @ ${fmt(log.price, 4)} · {log.confidence}% conf
+                      </div>
+                      {log.reason && (
+                        <div className={`text-xs truncate mt-0.5 ${log.status === "rejected" ? "text-yellow-500" : "text-muted-foreground"}`}>
+                          {log.reason}
                         </div>
-                        {log.reason && (
-                          <div className="text-xs text-red-400 truncate">{log.reason}</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <Badge
-                        variant="outline"
-                        className={
-                          log.status === "executed"
-                            ? "border-green-500/40 text-green-400"
-                            : log.status === "rejected"
-                            ? "border-red-500/40 text-red-400"
-                            : "border-yellow-500/40 text-yellow-400"
-                        }
-                      >
-                        {log.status}
-                      </Badge>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {new Date(log.timestamp).toLocaleTimeString()}
-                      </div>
+                      )}
                     </div>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                  <div className="text-right shrink-0">
+                    <Badge
+                      variant="outline"
+                      className={
+                        log.status === "executed"
+                          ? "border-green-500/40 text-green-400"
+                          : log.status === "rejected"
+                          ? "border-red-500/40 text-red-400"
+                          : "border-yellow-500/40 text-yellow-400"
+                      }
+                    >
+                      {log.status}
+                    </Badge>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(log.timestamp).toLocaleTimeString()}
+                    </div>
+                    {log.orderId && (
+                      <div className="text-[10px] text-muted-foreground/60 truncate max-w-[80px]">{log.orderId.slice(0, 8)}…</div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      )}
 
+      {/* Analysis Modal */}
+      {activeAnalysis && pendingExecuteSig && (
+        <AnalysisModal
+          analysis={activeAnalysis}
+          config={config}
+          onClose={() => { setActiveAnalysis(null); setPendingExecuteSig(null); }}
+          onExecute={() => { void executeOrder(pendingExecuteSig); }}
+          executing={executing === pendingExecuteSig.bybitSymbol}
+        />
+      )}
+
+      {/* TPSL Dialog */}
       {tpslPos && (
         <TPSLDialog
           pos={tpslPos}
           config={config}
           onClose={() => setTpslPos(null)}
           onSave={handleSetTPSL}
+        />
+      )}
+
+      {/* Settings Panel */}
+      {settingsOpen && (
+        <SettingsPanel
+          config={config}
+          onChange={applySettings}
+          onClose={() => setSettingsOpen(false)}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { logger } from "../lib/logger.js";
 import { getCryptoPredictions } from "./predictions.js";
+import { analyzeSymbol } from "./analysis.js";
 
 const BYBIT_BASE = "https://api.bybit.com";
 const API_KEY = process.env.BYBIT_API_KEY ?? "";
@@ -471,17 +472,47 @@ async function runAutoTradeCycle() {
     // Max per trade: smaller of config limit or 20% of available balance
     const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.2);
 
-    // ── 3. Execute orders ────────────────────────────────────────────────────
+    // ── 3. Execute orders (with full AI analysis gate) ───────────────────────
     let ordersPlaced = 0;
 
     for (const cand of candidates) {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
       if (activeSymbols.has(cand.symbol)) continue;
 
+      // ── Full technical analysis gate ─────────────────────────────────────
+      let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+      try {
+        analysis = await analyzeSymbol(cand.symbol);
+      } catch (err) {
+        logger.warn({ err, symbol: cand.symbol }, "Analysis unavailable, skipping");
+        tradeLog.unshift({
+          id: crypto.randomUUID(), timestamp: Date.now(),
+          symbol: cand.symbol, side: "Buy", qty: "0", price: cand.price,
+          confidence: cand.confidence, signal: cand.signal,
+          status: "rejected", reason: `Analysis failed: ${String(err)}`,
+        });
+        if (tradeLog.length > 200) tradeLog.splice(200);
+        continue;
+      }
+
+      if (!analysis.shouldEnter) {
+        logger.info({ symbol: cand.symbol, reason: analysis.waitReason }, "Entry skipped by analysis");
+        tradeLog.unshift({
+          id: crypto.randomUUID(), timestamp: Date.now(),
+          symbol: cand.symbol, side: "Buy", qty: "0", price: cand.price,
+          confidence: analysis.overallConfidence, signal: cand.signal,
+          status: "rejected",
+          reason: analysis.waitReason ?? "Kondisi belum optimal",
+        });
+        if (tradeLog.length > 200) tradeLog.splice(200);
+        continue;
+      }
+
       const execPrice = autoConfig.orderType === "Limit" ? cand.limitPrice : cand.price;
       const qty = formatQty(maxPerTrade / execPrice, execPrice);
-      const slPrice = execPrice * (1 - autoConfig.stopLossPct / 100);
-      const tpPrice = execPrice * (1 + autoConfig.takeProfitPct / 100);
+      const slPrice = analysis.stopLoss > 0 ? analysis.stopLoss : execPrice * (1 - autoConfig.stopLossPct / 100);
+      const tpPrice = analysis.takeProfit > 0 ? analysis.takeProfit : execPrice * (1 + autoConfig.takeProfitPct / 100);
+      const reasonSummary = analysis.reasons.slice(0, 2).join(" | ");
 
       const logEntry: TradeLogEntry = {
         id: crypto.randomUUID(),
@@ -490,9 +521,10 @@ async function runAutoTradeCycle() {
         side: "Buy",
         qty,
         price: execPrice,
-        confidence: cand.confidence,
+        confidence: analysis.overallConfidence,
         signal: cand.signal,
         status: "pending",
+        reason: reasonSummary,
       };
 
       try {
@@ -504,17 +536,20 @@ async function runAutoTradeCycle() {
           price: autoConfig.orderType === "Limit" ? cand.limitPrice : undefined,
         });
 
-        // For market orders, set TP/SL immediately; for limit, TP/SL set on fill
         if (autoConfig.orderType === "Market") {
           await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice })
-            .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL after market order"));
+            .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL"));
         }
 
         logEntry.status = "executed";
         logEntry.orderId = order.orderId;
         activeSymbols.add(cand.symbol);
         ordersPlaced++;
-        logger.info({ symbol: cand.symbol, qty, orderType: autoConfig.orderType, orderId: order.orderId }, "Auto-trade placed");
+        logger.info(
+          { symbol: cand.symbol, qty, orderType: autoConfig.orderType, orderId: order.orderId,
+            confidence: analysis.overallConfidence, confirmations: analysis.confirmations },
+          "Auto-trade placed (passed full analysis)"
+        );
       } catch (err) {
         logEntry.status = "rejected";
         logEntry.reason = String(err);

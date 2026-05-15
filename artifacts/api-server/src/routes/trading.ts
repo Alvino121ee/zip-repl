@@ -15,6 +15,7 @@ import {
   engineStatus,
   type AutoTradingConfig,
 } from "../services/bybit.js";
+import { analyzeSymbol } from "../services/analysis.js";
 
 const router = Router();
 
@@ -199,6 +200,22 @@ router.get("/trading/engine-status", (_req, res) => {
       intervalMs: autoConfig.intervalMs,
     },
   });
+});
+
+// GET /api/trading/analyze/:symbol  — full AI technical analysis
+router.get("/trading/analyze/:symbol", async (req, res) => {
+  const { symbol } = req.params;
+  if (!symbol) {
+    res.status(400).json({ error: "symbol is required" });
+    return;
+  }
+  try {
+    const analysis = await analyzeSymbol(symbol.toUpperCase());
+    res.json(analysis);
+  } catch (err) {
+    req.log.error({ err, symbol }, "Analysis failed");
+    res.status(502).json({ error: String(err) });
+  }
 });
 
 export default router;
