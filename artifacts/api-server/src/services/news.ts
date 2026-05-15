@@ -246,7 +246,7 @@ const IDX_FALLBACK: NewsItem[] = [
 const rssParser = new Parser({
   timeout: 8000,
   headers: {
-    "User-Agent": "Mozilla/5.0 (compatible; CryptoSahamBot/1.0)",
+    "User-Agent": "Mozilla/5.0 (compatible; VinzPredictBot/1.0)",
     "Accept": "application/rss+xml, application/xml, text/xml, */*",
   },
   customFields: {

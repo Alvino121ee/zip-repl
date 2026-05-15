@@ -8,7 +8,8 @@ import {
   LineChart, 
   Menu,
   Bell,
-  Search
+  Search,
+  Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,8 +30,8 @@ export function TopNav() {
             <SheetContent side="left" className="w-[240px] sm:w-[300px]">
               <div className="px-2 py-6">
                 <Link href="/" className="flex items-center gap-2 font-bold text-lg mb-8">
-                  <Activity className="h-5 w-5 text-primary" />
-                  <span>CryptoSaham</span>
+                  <Zap className="h-5 w-5 text-primary fill-primary" />
+                  <span className="tracking-wide">VINZ <span className="text-primary">PREDICT</span></span>
                 </Link>
                 <nav className="flex flex-col gap-2">
                   <MobileNavItem href="/" icon={BarChart2}>Dashboard</MobileNavItem>
@@ -45,8 +46,8 @@ export function TopNav() {
         </div>
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-            <Activity className="h-5 w-5 text-primary" />
-            <span>CryptoSaham</span>
+            <Zap className="h-5 w-5 text-primary fill-primary" />
+            <span className="tracking-wide">VINZ <span className="text-primary">PREDICT</span></span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

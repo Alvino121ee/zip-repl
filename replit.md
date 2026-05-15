@@ -1,6 +1,6 @@
-# CryptoSaham Predictor
+# VINZ PREDICT
 
-A crypto and stock market prediction website showing live prices, curated news with sentiment analysis, and AI-driven buy/sell/hold signals for assets.
+An AI-powered crypto and stock market prediction website showing live prices, curated news with sentiment analysis, and AI-driven buy/sell/hold signals for assets.
 
 ## Run & Operate
 
