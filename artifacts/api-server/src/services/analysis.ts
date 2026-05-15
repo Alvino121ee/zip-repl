@@ -28,15 +28,43 @@ export interface TimeframeSignal {
   note: string;
 }
 
+export interface MacdData {
+  macd: number;
+  signal: number;
+  histogram: number;
+  trend: "bullish" | "bearish" | "neutral";
+  crossover: "golden" | "death" | "none";
+}
+
+export interface MarketStructure {
+  structure: "bullish" | "bearish" | "ranging";
+  pattern: string;
+  lastHigh: number;
+  lastLow: number;
+  prevHigh: number;
+  prevLow: number;
+}
+
+export interface SupplyDemandZones {
+  supplyZone: { high: number; low: number } | null;
+  demandZone: { high: number; low: number } | null;
+}
+
+export interface FakeBreakout {
+  isFakeBreakoutUp: boolean;
+  isFakeBreakoutDown: boolean;
+  note: string | null;
+}
+
 export interface FullAnalysis {
   symbol: string;
   analyzedAt: number;
   marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
   overallConfidence: number;
+  indicatorAgreementPct: number;
   side: "Buy" | "Sell" | null;
   shouldEnter: boolean;
   waitReason: string | null;
-  // Should exit an EXISTING position?
   shouldExitLong: boolean;
   shouldExitShort: boolean;
   exitReason: string | null;
@@ -44,6 +72,8 @@ export interface FullAnalysis {
   stopLoss: number;
   takeProfit: number;
   riskRewardRatio: number;
+  scalpTargets: { tp05pct: number; tp1pct: number; sl: number };
+  recommendedLeverage: number;
   reasons: string[];
   warnings: string[];
   confirmations: number;
@@ -59,6 +89,12 @@ export interface FullAnalysis {
     emaAlignment: "bullish" | "bearish" | "mixed";
     rsiZone: "overbought" | "oversold" | "neutral";
   };
+  macdData: MacdData;
+  marketStructure: MarketStructure;
+  openInterest: { value: number; change: number } | null;
+  fundingRate: { rate: number; nextFundingTime: number } | null;
+  fakeBreakout: FakeBreakout;
+  supplyDemandZones: SupplyDemandZones;
   multiTimeframe: Record<string, TimeframeSignal>;
   supportResistance: {
     support: number[];
@@ -89,6 +125,46 @@ async function fetchKlines(symbol: string, interval: string, limit = 200): Promi
       turnover: parseFloat(r[6]),
     }))
     .reverse();
+}
+
+// ─── Public market data ───────────────────────────────────────────────────────
+
+async function fetchOpenInterest(symbol: string): Promise<{ value: number; change: number } | null> {
+  try {
+    const url = `${BYBIT_BASE}/v5/market/open-interest?category=linear&symbol=${symbol}&intervalTime=5min&limit=2`;
+    const res = await fetch(url);
+    const data = (await res.json()) as {
+      retCode: number;
+      result: { list: Array<{ openInterest: string; timestamp: string }> };
+    };
+    if (data.retCode !== 0 || !data.result?.list?.length) return null;
+    const list = data.result.list;
+    const current = parseFloat(list[0].openInterest);
+    const previous = list[1] ? parseFloat(list[1].openInterest) : current;
+    const change = previous > 0 ? ((current - previous) / previous) * 100 : 0;
+    return { value: current, change };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchFundingRate(symbol: string): Promise<{ rate: number; nextFundingTime: number } | null> {
+  try {
+    const url = `${BYBIT_BASE}/v5/market/tickers?category=linear&symbol=${symbol}`;
+    const res = await fetch(url);
+    const data = (await res.json()) as {
+      retCode: number;
+      result: { list: Array<{ fundingRate: string; nextFundingTime: string }> };
+    };
+    if (data.retCode !== 0 || !data.result?.list?.length) return null;
+    const ticker = data.result.list[0];
+    return {
+      rate: parseFloat(ticker.fundingRate) * 100,
+      nextFundingTime: parseInt(ticker.nextFundingTime),
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ─── Math helpers ─────────────────────────────────────────────────────────────
@@ -185,6 +261,127 @@ function detectCandlePattern(klines: Kline[]): string | null {
   return null;
 }
 
+// ─── MACD ─────────────────────────────────────────────────────────────────────
+
+function computeMacd(closes: number[]): MacdData {
+  if (closes.length < 35) return { macd: 0, signal: 0, histogram: 0, trend: "neutral", crossover: "none" };
+
+  const ema12 = ema(closes, 12);
+  const ema26 = ema(closes, 26);
+  const macdLine: number[] = [];
+  for (let i = 0; i < closes.length; i++) {
+    if (isNaN(ema12[i]) || isNaN(ema26[i])) { macdLine.push(NaN); continue; }
+    macdLine.push(ema12[i] - ema26[i]);
+  }
+  const validMacd = macdLine.filter((v) => !isNaN(v));
+  if (validMacd.length < 9) return { macd: 0, signal: 0, histogram: 0, trend: "neutral", crossover: "none" };
+
+  const signalLine = ema(validMacd, 9);
+  const lastMacd = validMacd[validMacd.length - 1];
+  const prevMacd = validMacd[validMacd.length - 2];
+  const lastSignal = signalLine[signalLine.length - 1];
+  const prevSignal = signalLine[signalLine.length - 2];
+  const histogram = lastMacd - lastSignal;
+
+  let trend: "bullish" | "bearish" | "neutral" = "neutral";
+  if (lastMacd > lastSignal && lastMacd > 0) trend = "bullish";
+  else if (lastMacd < lastSignal && lastMacd < 0) trend = "bearish";
+  else if (lastMacd > lastSignal) trend = "bullish";
+  else if (lastMacd < lastSignal) trend = "bearish";
+
+  let crossover: "golden" | "death" | "none" = "none";
+  if (!isNaN(prevMacd) && !isNaN(prevSignal)) {
+    if (prevMacd <= prevSignal && lastMacd > lastSignal) crossover = "golden";
+    else if (prevMacd >= prevSignal && lastMacd < lastSignal) crossover = "death";
+  }
+
+  return { macd: lastMacd, signal: lastSignal, histogram, trend, crossover };
+}
+
+// ─── Market structure (HH/HL/LH/LL) ──────────────────────────────────────────
+
+function detectMarketStructure(klines: Kline[]): MarketStructure {
+  if (klines.length < 30) {
+    return { structure: "ranging", pattern: "Insufficient data", lastHigh: 0, lastLow: 0, prevHigh: 0, prevLow: 0 };
+  }
+
+  const highs = swingHighs(klines, 3);
+  const lows = swingLows(klines, 3);
+
+  if (highs.length < 2 || lows.length < 2) {
+    const lastH = klines[klines.length - 1].high;
+    const lastL = klines[klines.length - 1].low;
+    return { structure: "ranging", pattern: "Ranging", lastHigh: lastH, lastLow: lastL, prevHigh: lastH, prevLow: lastL };
+  }
+
+  const lastHigh = highs[highs.length - 1];
+  const prevHigh = highs[highs.length - 2];
+  const lastLow = lows[lows.length - 1];
+  const prevLow = lows[lows.length - 2];
+
+  const hh = lastHigh > prevHigh;
+  const hl = lastLow > prevLow;
+  const lh = lastHigh < prevHigh;
+  const ll = lastLow < prevLow;
+
+  if (hh && hl) return { structure: "bullish", pattern: "HH + HL (Uptrend)", lastHigh, lastLow, prevHigh, prevLow };
+  if (lh && ll) return { structure: "bearish", pattern: "LH + LL (Downtrend)", lastHigh, lastLow, prevHigh, prevLow };
+  if (hh && ll) return { structure: "ranging", pattern: "HH + LL (Volatile)", lastHigh, lastLow, prevHigh, prevLow };
+  if (lh && hl) return { structure: "ranging", pattern: "LH + HL (Compression)", lastHigh, lastLow, prevHigh, prevLow };
+
+  return { structure: "ranging", pattern: "Ranging", lastHigh, lastLow, prevHigh, prevLow };
+}
+
+// ─── Supply & Demand zones ────────────────────────────────────────────────────
+
+function detectSupplyDemandZones(klines: Kline[], price: number): SupplyDemandZones {
+  if (klines.length < 30) return { supplyZone: null, demandZone: null };
+  const avgVol = klines.slice(-20).reduce((s, k) => s + k.volume, 0) / 20;
+  const highVolCandles = klines.slice(-60).filter((k) => k.volume > avgVol * 1.5);
+  const supplyCandles = highVolCandles.filter((k) => k.close < k.open && k.high > price);
+  const demandCandles = highVolCandles.filter((k) => k.close > k.open && k.low < price);
+  const supplyZone = supplyCandles.length > 0 ? {
+    high: Math.max(...supplyCandles.map((k) => k.high)),
+    low: Math.min(...supplyCandles.map((k) => k.low)),
+  } : null;
+  const demandZone = demandCandles.length > 0 ? {
+    high: Math.max(...demandCandles.map((k) => k.high)),
+    low: Math.min(...demandCandles.map((k) => k.low)),
+  } : null;
+  return { supplyZone, demandZone };
+}
+
+// ─── Fake breakout detection ──────────────────────────────────────────────────
+
+function detectFakeBreakout(klines: Kline[], resistance: number, support: number): FakeBreakout {
+  if (klines.length < 4) return { isFakeBreakoutUp: false, isFakeBreakoutDown: false, note: null };
+  const last = klines[klines.length - 1];
+  const prev1 = klines[klines.length - 2];
+  const prev2 = klines[klines.length - 3];
+
+  const isFakeBreakoutUp =
+    prev2.close < resistance && prev1.close > resistance && last.close < resistance;
+  const isFakeBreakoutDown =
+    prev2.close > support && prev1.close < support && last.close > support;
+
+  let note = null;
+  if (isFakeBreakoutUp) note = `Fake breakout resistance $${resistance.toFixed(4)} — waspada reversal bearish`;
+  if (isFakeBreakoutDown) note = `Fake breakout support $${support.toFixed(4)} — waspada reversal bullish`;
+
+  return { isFakeBreakoutUp, isFakeBreakoutDown, note };
+}
+
+// ─── Leverage recommender ─────────────────────────────────────────────────────
+
+function recommendLeverage(confidence: number, atrPct: number): number {
+  if (atrPct > 4) return 1;
+  if (atrPct > 3) return confidence >= 85 ? 2 : 1;
+  if (atrPct > 2) return confidence >= 85 ? 3 : 2;
+  if (atrPct > 1) return confidence >= 85 ? 5 : 3;
+  if (atrPct > 0.5) return confidence >= 90 ? 10 : 5;
+  return confidence >= 90 ? 15 : 10;
+}
+
 // ─── Single-timeframe analysis ────────────────────────────────────────────────
 
 function analyzeTimeframe(klines: Kline[], interval: string): TimeframeSignal {
@@ -233,17 +430,28 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const cached = analysisCache.get(symbol);
   if (cached && Date.now() - cached.at < CACHE_TTL) return cached.data;
 
-  logger.info({ symbol }, "Running full bidirectional technical analysis");
+  logger.info({ symbol }, "Running full scalping AI analysis");
 
   const intervals: [string, string, number][] = [
     ["1", "1m", 200], ["5", "5m", 200], ["15", "15m", 200], ["60", "1h", 200],
   ];
 
+  const [klineResults, openInterest, fundingRate] = await Promise.all([
+    Promise.all(intervals.map(async ([bybitInterval, label, limit]) => {
+      try {
+        const data = await fetchKlines(symbol, bybitInterval, limit);
+        return { label, data };
+      } catch (err) {
+        logger.warn({ symbol, interval: label, err }, "Failed to fetch klines");
+        return { label, data: [] as Kline[] };
+      }
+    })),
+    fetchOpenInterest(symbol),
+    fetchFundingRate(symbol),
+  ]);
+
   const klineMap: Record<string, Kline[]> = {};
-  await Promise.all(intervals.map(async ([bybitInterval, label, limit]) => {
-    try { klineMap[label] = await fetchKlines(symbol, bybitInterval, limit); }
-    catch (err) { logger.warn({ symbol, interval: label, err }, "Failed to fetch klines"); klineMap[label] = []; }
-  }));
+  for (const { label, data } of klineResults) klineMap[label] = data;
 
   const primary = klineMap["15m"];
   if (!primary || primary.length < 50) throw new Error(`Insufficient data for ${symbol}`);
@@ -277,6 +485,13 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const nearestResistance = rawResistance[0] ?? price * 1.03;
   const nearestSupport = rawSupport[0] ?? price * 0.97;
 
+  // ── New indicators ────────────────────────────────────────────────────────
+  const macdData = computeMacd(closes);
+  const marketStructure = detectMarketStructure(klineMap["1h"].length > 20 ? klineMap["1h"] : primary);
+  const supplyDemandZones = detectSupplyDemandZones(primary, price);
+  const fakeBreakout = detectFakeBreakout(primary, nearestResistance, nearestSupport);
+  const atrPct = (atrVal / price) * 100;
+
   const multiTimeframe: Record<string, TimeframeSignal> = {};
   for (const [, label] of intervals) {
     multiTimeframe[label] = analyzeTimeframe(klineMap[label] ?? [], label);
@@ -290,119 +505,107 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const distToResistance = nearestResistance > 0 ? (nearestResistance - price) / price : 1;
   const pattern15m = detectCandlePattern(primary);
 
-  // ── Bullish scoring ──────────────────────────────────────────────────────────
+  // ── Funding rate bias ─────────────────────────────────────────────────────
+  // Positive funding = longs pay shorts (bearish bias risk for longs)
+  // Negative funding = shorts pay longs (bullish bias risk for shorts)
+  const fundingBias = fundingRate
+    ? fundingRate.rate > 0.05 ? "bearish_pressure"
+    : fundingRate.rate < -0.05 ? "bullish_pressure"
+    : "neutral"
+    : "neutral";
+
+  // ── OI momentum ───────────────────────────────────────────────────────────
+  const oiRising = openInterest ? openInterest.change > 1 : false;
+  const oiFalling = openInterest ? openInterest.change < -1 : false;
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BULLISH SCORING — each indicator is tracked for agreement %
+  // ─────────────────────────────────────────────────────────────────────────
   let bullScore = 0;
   let bullConf = 0;
+  let bullIndicatorTotal = 0;
+  let bullIndicatorAgree = 0;
   const bullReasons: string[] = [];
   const bullWarnings: string[] = [];
 
-  if (emaAlignment === "bullish") {
-    bullReasons.push("EMA 20 > 50 > 200 — tren bullish jangka panjang"); bullScore += 25; bullConf++;
-  } else if (emaAlignment === "bearish") {
-    bullWarnings.push("EMA bearish alignment — tren jangka panjang turun"); bullScore -= 10;
-  } else { bullWarnings.push("EMA belum selaras — pasar masih ranging"); }
-
-  if (price > e20) {
-    bullReasons.push(`Harga di atas EMA20 ($${e20.toFixed(4)}) — momentum bullish`); bullScore += 10; bullConf++;
-  } else { bullWarnings.push("Harga di bawah EMA20"); bullScore -= 5; }
-
-  if (priceVsVwap === "above") {
-    bullReasons.push(`Harga di atas VWAP ($${vwapVal.toFixed(4)}) — buyers in control`); bullScore += 15; bullConf++;
-  } else { bullWarnings.push("Harga di bawah VWAP — seller dominan"); bullScore -= 10; }
-
-  if (rsiVal >= 45 && rsiVal <= 65) {
-    bullReasons.push(`RSI ${rsiVal.toFixed(0)} — zona bullish optimal (45–65)`); bullScore += 15; bullConf++;
-  } else if (rsiVal > 65 && rsiVal < 75) {
-    bullReasons.push(`RSI ${rsiVal.toFixed(0)} — momentum kuat`); bullScore += 8;
-  } else if (rsiVal >= 75) {
-    bullWarnings.push(`RSI ${rsiVal.toFixed(0)} — overbought, risiko reversal`); bullScore -= 15;
-  } else if (rsiVal < 35) {
-    bullWarnings.push(`RSI ${rsiVal.toFixed(0)} — oversold, perlu konfirmasi`); bullScore -= 5;
+  function bullCheck(agrees: boolean, weight: number, reason: string, warning: string) {
+    bullIndicatorTotal++;
+    if (agrees) { bullIndicatorAgree++; bullScore += weight; bullConf++; bullReasons.push(reason); }
+    else { bullScore -= Math.floor(weight / 2); if (warning) bullWarnings.push(warning); }
   }
 
-  if (volRatio >= 1.5) {
-    bullReasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata`); bullScore += 15; bullConf++;
-  } else if (volRatio >= 1.0) {
-    bullReasons.push(`Volume normal`); bullScore += 5;
-  } else { bullWarnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%)`); bullScore -= 5; }
-
-  if (tfBullish >= 3) {
-    bullReasons.push(`${tfBullish}/${tfTotal} timeframe bullish — konfirmasi multi-TF kuat`); bullScore += 20; bullConf++;
-  } else if (tfBullish === 2) {
-    bullReasons.push(`${tfBullish}/${tfTotal} timeframe bullish`); bullScore += 10; bullConf++;
-  } else { bullWarnings.push(`Hanya ${tfBullish}/${tfTotal} TF bullish`); bullScore -= 10; }
-
-  if (pattern15m?.includes("Bullish")) {
-    bullReasons.push(`Candle: ${pattern15m}`); bullScore += 10; bullConf++;
-  } else if (pattern15m?.includes("Bearish")) {
-    bullWarnings.push(`Candle: ${pattern15m} — potensi reversal bearish`); bullScore -= 10;
+  // EMA alignment
+  bullCheck(emaAlignment === "bullish", 20, "EMA 20>50>200 — tren bullish jangka panjang", "EMA alignment tidak bullish");
+  bullCheck(price > e20, 10, `Harga di atas EMA20 ($${e20.toFixed(4)}) — momentum bullish`, "Harga di bawah EMA20");
+  bullCheck(priceVsVwap === "above", 12, `Harga di atas VWAP ($${vwapVal.toFixed(4)}) — buyers in control`, "Harga di bawah VWAP — seller dominan");
+  bullCheck(rsiVal >= 45 && rsiVal <= 68, 12, `RSI ${rsiVal.toFixed(0)} di zona bullish optimal (45–68)`, `RSI ${rsiVal.toFixed(0)} di luar zona optimal`);
+  bullCheck(volRatio >= 1.2, 12, `Volume spike ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi kuat`, `Volume rendah (${(volRatio * 100).toFixed(0)}%)`);
+  bullCheck(tfBullish >= 3, 18, `${tfBullish}/${tfTotal} timeframe bullish — konfirmasi multi-TF kuat`, `Hanya ${tfBullish}/${tfTotal} TF bullish`);
+  bullCheck(macdData.trend === "bullish", 12, `MACD ${macdData.crossover === "golden" ? "golden cross" : "bullish"} — momentum naik`, "MACD bearish / sideways");
+  bullCheck(marketStructure.structure === "bullish", 12, `Market structure HH+HL — uptrend terstruktur`, "Market structure tidak bullish");
+  bullCheck(distToSupport < 0.02, 8, `Harga dekat support ($${nearestSupport.toFixed(4)}) — area beli optimal`, "");
+  bullCheck(!fakeBreakout.isFakeBreakoutUp, 4, "", "Fake breakout resistance terdeteksi — waspada");
+  if (pattern15m?.includes("Bullish")) { bullScore += 10; bullConf++; bullReasons.push(`Candle pattern: ${pattern15m}`); bullIndicatorAgree++; }
+  if (pattern15m?.includes("Bearish")) { bullScore -= 10; bullWarnings.push(`Candle: ${pattern15m} — kontra bullish`); }
+  bullIndicatorTotal++;
+  if (oiRising) { bullScore += 6; bullReasons.push(`Open interest naik ${openInterest!.change.toFixed(2)}% — money inflow`); bullIndicatorAgree++; }
+  if (oiFalling) { bullScore -= 4; bullWarnings.push("Open interest turun — potensi profit taking"); }
+  bullIndicatorTotal++;
+  if (fundingBias === "bearish_pressure") { bullScore -= 6; bullWarnings.push(`Funding rate tinggi (${fundingRate!.rate.toFixed(4)}%) — longs membayar`); }
+  else if (fundingBias === "bullish_pressure") { bullScore += 4; bullReasons.push(`Funding rate negatif (${fundingRate!.rate.toFixed(4)}%) — menguntungkan long`); bullIndicatorAgree++; }
+  else bullIndicatorAgree++;
+  bullIndicatorTotal++;
+  if (supplyDemandZones.demandZone && price <= supplyDemandZones.demandZone.high * 1.005) {
+    bullScore += 8; bullReasons.push(`Harga di zona demand (${supplyDemandZones.demandZone.low.toFixed(4)}–${supplyDemandZones.demandZone.high.toFixed(4)})`);
+    bullIndicatorAgree++; bullIndicatorTotal++;
   }
 
-  if (distToSupport < 0.015) {
-    bullReasons.push(`Harga dekat support ($${nearestSupport.toFixed(4)}) — area beli optimal`); bullScore += 10; bullConf++;
-  }
-  if (distToResistance < 0.008) {
-    bullWarnings.push(`Terlalu dekat resistance ($${nearestResistance.toFixed(4)})`); bullScore -= 15;
-  }
-
-  // ── Bearish scoring ──────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // BEARISH SCORING
+  // ─────────────────────────────────────────────────────────────────────────
   let bearScore = 0;
   let bearConf = 0;
+  let bearIndicatorTotal = 0;
+  let bearIndicatorAgree = 0;
   const bearReasons: string[] = [];
   const bearWarnings: string[] = [];
 
-  if (emaAlignment === "bearish") {
-    bearReasons.push("EMA 20 < 50 < 200 — tren bearish jangka panjang"); bearScore += 25; bearConf++;
-  } else if (emaAlignment === "bullish") {
-    bearWarnings.push("EMA bullish alignment — kontra tren"); bearScore -= 10;
-  } else { bearWarnings.push("EMA belum selaras — ranging"); }
-
-  if (price < e20) {
-    bearReasons.push(`Harga di bawah EMA20 ($${e20.toFixed(4)}) — momentum bearish`); bearScore += 10; bearConf++;
-  } else { bearWarnings.push("Harga masih di atas EMA20"); bearScore -= 5; }
-
-  if (priceVsVwap === "below") {
-    bearReasons.push(`Harga di bawah VWAP ($${vwapVal.toFixed(4)}) — sellers in control`); bearScore += 15; bearConf++;
-  } else { bearWarnings.push("Harga di atas VWAP — buyer masih dominan"); bearScore -= 10; }
-
-  if (rsiVal <= 55 && rsiVal >= 35) {
-    bearReasons.push(`RSI ${rsiVal.toFixed(0)} — zona bearish optimal (35–55)`); bearScore += 15; bearConf++;
-  } else if (rsiVal < 35 && rsiVal > 25) {
-    bearReasons.push(`RSI ${rsiVal.toFixed(0)} — momentum turun kuat`); bearScore += 8;
-  } else if (rsiVal <= 25) {
-    bearWarnings.push(`RSI ${rsiVal.toFixed(0)} — oversold, risiko reversal`); bearScore -= 15;
-  } else if (rsiVal > 65) {
-    bearWarnings.push(`RSI ${rsiVal.toFixed(0)} — overbought, butuh konfirmasi short`); bearScore -= 5;
+  function bearCheck(agrees: boolean, weight: number, reason: string, warning: string) {
+    bearIndicatorTotal++;
+    if (agrees) { bearIndicatorAgree++; bearScore += weight; bearConf++; bearReasons.push(reason); }
+    else { bearScore -= Math.floor(weight / 2); if (warning) bearWarnings.push(warning); }
   }
 
-  if (volRatio >= 1.5) {
-    bearReasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi bearish kuat`); bearScore += 15; bearConf++;
-  } else if (volRatio >= 1.0) {
-    bearReasons.push(`Volume normal`); bearScore += 5;
-  } else { bearWarnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%)`); bearScore -= 5; }
-
-  if (tfBearish >= 3) {
-    bearReasons.push(`${tfBearish}/${tfTotal} timeframe bearish — konfirmasi multi-TF kuat`); bearScore += 20; bearConf++;
-  } else if (tfBearish === 2) {
-    bearReasons.push(`${tfBearish}/${tfTotal} timeframe bearish`); bearScore += 10; bearConf++;
-  } else { bearWarnings.push(`Hanya ${tfBearish}/${tfTotal} TF bearish`); bearScore -= 10; }
-
-  if (pattern15m?.includes("Bearish")) {
-    bearReasons.push(`Candle: ${pattern15m} — konfirmasi reversal bearish`); bearScore += 10; bearConf++;
-  } else if (pattern15m?.includes("Bullish")) {
-    bearWarnings.push(`Candle: ${pattern15m} — kontra arah short`); bearScore -= 10;
+  bearCheck(emaAlignment === "bearish", 20, "EMA 20<50<200 — tren bearish jangka panjang", "EMA alignment tidak bearish");
+  bearCheck(price < e20, 10, `Harga di bawah EMA20 ($${e20.toFixed(4)}) — momentum bearish`, "Harga masih di atas EMA20");
+  bearCheck(priceVsVwap === "below", 12, `Harga di bawah VWAP ($${vwapVal.toFixed(4)}) — sellers in control`, "Harga di atas VWAP — buyers masih dominan");
+  bearCheck(rsiVal <= 55 && rsiVal >= 32, 12, `RSI ${rsiVal.toFixed(0)} di zona bearish optimal (32–55)`, `RSI ${rsiVal.toFixed(0)} di luar zona optimal`);
+  bearCheck(volRatio >= 1.2, 12, `Volume spike ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi bearish`, `Volume rendah (${(volRatio * 100).toFixed(0)}%)`);
+  bearCheck(tfBearish >= 3, 18, `${tfBearish}/${tfTotal} timeframe bearish — konfirmasi multi-TF kuat`, `Hanya ${tfBearish}/${tfTotal} TF bearish`);
+  bearCheck(macdData.trend === "bearish", 12, `MACD ${macdData.crossover === "death" ? "death cross" : "bearish"} — momentum turun`, "MACD bullish / sideways");
+  bearCheck(marketStructure.structure === "bearish", 12, `Market structure LH+LL — downtrend terstruktur`, "Market structure tidak bearish");
+  bearCheck(distToResistance < 0.02, 8, `Harga dekat resistance ($${nearestResistance.toFixed(4)}) — area short optimal`, "");
+  bearCheck(!fakeBreakout.isFakeBreakoutDown, 4, "", "Fake breakout support terdeteksi — waspada");
+  if (pattern15m?.includes("Bearish")) { bearScore += 10; bearConf++; bearReasons.push(`Candle pattern: ${pattern15m}`); bearIndicatorAgree++; }
+  if (pattern15m?.includes("Bullish")) { bearScore -= 10; bearWarnings.push(`Candle: ${pattern15m} — kontra bearish`); }
+  bearIndicatorTotal++;
+  if (oiFalling) { bearScore += 6; bearReasons.push(`Open interest turun ${openInterest!.change.toFixed(2)}% — short pressure meningkat`); bearIndicatorAgree++; }
+  if (oiRising) { bearScore -= 4; bearWarnings.push("Open interest naik — bisa jadi short squeeze"); }
+  bearIndicatorTotal++;
+  if (fundingBias === "bullish_pressure") { bearScore -= 6; bearWarnings.push(`Funding rate negatif (${fundingRate!.rate.toFixed(4)}%) — shorts membayar`); }
+  else if (fundingBias === "bearish_pressure") { bearScore += 4; bearReasons.push(`Funding rate tinggi (${fundingRate!.rate.toFixed(4)}%) — menguntungkan short`); bearIndicatorAgree++; }
+  else bearIndicatorAgree++;
+  bearIndicatorTotal++;
+  if (supplyDemandZones.supplyZone && price >= supplyDemandZones.supplyZone.low * 0.995) {
+    bearScore += 8; bearReasons.push(`Harga di zona supply (${supplyDemandZones.supplyZone.low.toFixed(4)}–${supplyDemandZones.supplyZone.high.toFixed(4)})`);
+    bearIndicatorAgree++; bearIndicatorTotal++;
   }
 
-  if (distToResistance < 0.015) {
-    bearReasons.push(`Harga dekat resistance ($${nearestResistance.toFixed(4)}) — area short optimal`); bearScore += 10; bearConf++;
-  }
-  if (distToSupport < 0.008) {
-    bearWarnings.push(`Terlalu dekat support ($${nearestSupport.toFixed(4)})`); bearScore -= 15;
-  }
-
-  // ── Determine direction ──────────────────────────────────────────────────────
+  // ── Determine direction ──────────────────────────────────────────────────
   const bullConfidence = Math.min(99, Math.max(10, Math.round(50 + bullScore)));
   const bearConfidence = Math.min(99, Math.max(10, Math.round(50 + bearScore)));
+  const bullAgreementPct = bullIndicatorTotal > 0 ? Math.round((bullIndicatorAgree / bullIndicatorTotal) * 100) : 0;
+  const bearAgreementPct = bearIndicatorTotal > 0 ? Math.round((bearIndicatorAgree / bearIndicatorTotal) * 100) : 0;
 
   let marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
   let side: "Buy" | "Sell" | null;
@@ -410,90 +613,111 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   let confirmations: number;
   let reasons: string[];
   let warnings: string[];
+  let indicatorAgreementPct: number;
 
   if (bullScore > bearScore && bullConfidence >= 60) {
     marketDirection = "BULLISH"; side = "Buy";
     overallConfidence = bullConfidence; confirmations = bullConf;
     reasons = bullReasons; warnings = bullWarnings;
+    indicatorAgreementPct = bullAgreementPct;
   } else if (bearScore > bullScore && bearConfidence >= 60) {
     marketDirection = "BEARISH"; side = "Sell";
     overallConfidence = bearConfidence; confirmations = bearConf;
     reasons = bearReasons; warnings = bearWarnings;
+    indicatorAgreementPct = bearAgreementPct;
   } else {
     marketDirection = "SIDEWAYS"; side = null;
     overallConfidence = Math.max(bullConfidence, bearConfidence);
     confirmations = Math.max(bullConf, bearConf);
-    reasons = []; warnings = ["Market ranging — tidak ada arah yang dominan"];
+    reasons = []; warnings = ["Market ranging — tidak ada arah yang dominan, hindari entry"];
+    indicatorAgreementPct = Math.max(bullAgreementPct, bearAgreementPct);
   }
 
-  // ── SL / TP (direction-aware, ATR-based) ───────────────────────────────────
-  const slDistance = Math.max(atrVal * 1.5, price * 0.012);
-  const tpDistance = slDistance * 2.5;
+  // ── SL / TP — ATR-based, scalp-friendly ─────────────────────────────────
+  const slDistance = Math.max(atrVal * 1.5, price * 0.01);
+  const tpDistance = slDistance * 2.5; // RR 2.5:1 minimum
   const entryPrice = price;
 
   let stopLoss: number;
   let takeProfit: number;
 
   if (side === "Sell") {
-    stopLoss = entryPrice + slDistance;   // SL above entry for shorts
-    takeProfit = entryPrice - tpDistance; // TP below entry for shorts
+    stopLoss = entryPrice + slDistance;
+    takeProfit = entryPrice - tpDistance;
   } else {
-    stopLoss = entryPrice - slDistance;   // SL below entry for longs
-    takeProfit = entryPrice + tpDistance; // TP above entry for longs
+    stopLoss = entryPrice - slDistance;
+    takeProfit = entryPrice + tpDistance;
   }
 
   const riskRewardRatio = tpDistance / slDistance;
 
-  // ── Entry & exit decisions ──────────────────────────────────────────────────
-  let shouldEnter = overallConfidence >= 65 && confirmations >= 3 && side !== null;
+  // Scalp targets (quick 0.5% and 1% profit levels)
+  const scalpTargets = side === "Sell"
+    ? { tp05pct: entryPrice * (1 - 0.005), tp1pct: entryPrice * (1 - 0.01), sl: stopLoss }
+    : { tp05pct: entryPrice * (1 + 0.005), tp1pct: entryPrice * (1 + 0.01), sl: stopLoss };
+
+  const recommendedLeverage = recommendLeverage(overallConfidence, atrPct);
+
+  // ── Entry decision — strict 80%+ rule ───────────────────────────────────
+  const SCALP_MIN_CONFIDENCE = 80;
+  const SCALP_MIN_AGREEMENT = 75; // at least 75% indicators must agree
+  const SCALP_MIN_CONFIRMATIONS = 4;
+
+  let shouldEnter = false;
   let waitReason: string | null = null;
 
-  if (!shouldEnter) {
-    if (side === null) waitReason = "Market sideways — tidak ada setup yang jelas, tunggu breakout";
-    else if (overallConfidence < 65) waitReason = `Confidence rendah (${overallConfidence}%) — butuh lebih banyak konfirmasi`;
-    else if (confirmations < 3) waitReason = `Hanya ${confirmations} konfirmasi — butuh minimal 3`;
-    else waitReason = "Kondisi market belum optimal";
+  if (side === null) {
+    waitReason = "Market sideways — tidak ada setup jelas, tunggu breakout";
+  } else if (overallConfidence < SCALP_MIN_CONFIDENCE) {
+    waitReason = `Confidence ${overallConfidence}% di bawah standar scalping (≥${SCALP_MIN_CONFIDENCE}%) — tunggu konfirmasi lebih banyak`;
+  } else if (indicatorAgreementPct < SCALP_MIN_AGREEMENT) {
+    waitReason = `Hanya ${indicatorAgreementPct}% indikator setuju (butuh ≥${SCALP_MIN_AGREEMENT}%) — entry terlalu berisiko`;
+  } else if (confirmations < SCALP_MIN_CONFIRMATIONS) {
+    waitReason = `Hanya ${confirmations} konfirmasi (butuh ≥${SCALP_MIN_CONFIRMATIONS}) — setup belum cukup kuat`;
+  } else if (riskRewardRatio < 1.5) {
+    waitReason = `Risk/Reward ${riskRewardRatio.toFixed(1)}x terlalu rendah (butuh ≥1.5x)`;
+  } else {
+    shouldEnter = true;
   }
 
   // Hard stops
   if (side === "Buy" && rsiVal >= 78) {
     shouldEnter = false;
-    waitReason = `RSI ${rsiVal.toFixed(0)} overbought ekstrem — tunggu pullback sebelum long`;
+    waitReason = `RSI ${rsiVal.toFixed(0)} overbought ekstrem — tunggu pullback`;
   }
   if (side === "Sell" && rsiVal <= 22) {
     shouldEnter = false;
-    waitReason = `RSI ${rsiVal.toFixed(0)} oversold ekstrem — tunggu rebound sebelum short`;
+    waitReason = `RSI ${rsiVal.toFixed(0)} oversold ekstrem — tunggu rebound`;
+  }
+  if (fakeBreakout.isFakeBreakoutUp && side === "Buy") {
+    shouldEnter = false;
+    waitReason = `Fake breakout resistance terdeteksi — hindari LONG sekarang`;
+  }
+  if (fakeBreakout.isFakeBreakoutDown && side === "Sell") {
+    shouldEnter = false;
+    waitReason = `Fake breakout support terdeteksi — hindari SHORT sekarang`;
   }
 
-  // ── Exit signals for existing positions ─────────────────────────────────────
-  // Existing LONG should exit if market is now clearly BEARISH
-  const shouldExitLong =
-    marketDirection === "BEARISH" &&
-    bearConfidence >= 68 &&
-    bearConf >= 3;
-
-  // Existing SHORT should exit if market is now clearly BULLISH
-  const shouldExitShort =
-    marketDirection === "BULLISH" &&
-    bullConfidence >= 68 &&
-    bullConf >= 3;
-
+  // ── Exit signals for existing positions ──────────────────────────────────
+  const shouldExitLong = marketDirection === "BEARISH" && bearConfidence >= 72 && bearConf >= 4;
+  const shouldExitShort = marketDirection === "BULLISH" && bullConfidence >= 72 && bullConf >= 4;
   let exitReason: string | null = null;
-  if (shouldExitLong) exitReason = `Tren berbalik BEARISH (${bearConfidence}% confidence, ${bearConf} konfirmasi) — close LONG`;
-  if (shouldExitShort) exitReason = `Tren berbalik BULLISH (${bullConfidence}% confidence, ${bullConf} konfirmasi) — close SHORT`;
+  if (shouldExitLong) exitReason = `Tren berbalik BEARISH (${bearConfidence}% conf, ${bearConf} konfirmasi) — close LONG`;
+  if (shouldExitShort) exitReason = `Tren berbalik BULLISH (${bullConfidence}% conf, ${bullConf} konfirmasi) — close SHORT`;
 
   const analysis: FullAnalysis = {
-    symbol, analyzedAt: Date.now(), marketDirection, overallConfidence, side,
-    shouldEnter, waitReason, shouldExitLong, shouldExitShort, exitReason,
-    entryPrice, stopLoss, takeProfit, riskRewardRatio,
+    symbol, analyzedAt: Date.now(), marketDirection, overallConfidence, indicatorAgreementPct,
+    side, shouldEnter, waitReason, shouldExitLong, shouldExitShort, exitReason,
+    entryPrice, stopLoss, takeProfit, riskRewardRatio, scalpTargets, recommendedLeverage,
     reasons, warnings, confirmations,
     indicators: { ema20: e20, ema50: e50, ema200: e200, vwap: vwapVal, rsi14: rsiVal,
       atr14: atrVal, volumeRatio: volRatio, priceVsVwap, emaAlignment, rsiZone },
+    macdData, marketStructure, openInterest, fundingRate, fakeBreakout, supplyDemandZones,
     multiTimeframe,
     supportResistance: { support: rawSupport.slice(0, 3), resistance: rawResistance.slice(0, 3), nearestSupport, nearestResistance },
   };
 
   analysisCache.set(symbol, { data: analysis, at: Date.now() });
-  logger.info({ symbol, confidence: overallConfidence, shouldEnter, side, marketDirection, confirmations }, "Analysis complete");
+  logger.info({ symbol, confidence: overallConfidence, agreementPct: indicatorAgreementPct, shouldEnter, side, marketDirection, confirmations }, "Scalping analysis complete");
   return analysis;
 }

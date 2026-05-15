@@ -100,11 +100,29 @@ interface TimeframeSignal {
   note: string;
 }
 
+interface MacdData {
+  macd: number;
+  signal: number;
+  histogram: number;
+  trend: "bullish" | "bearish" | "neutral";
+  crossover: "golden" | "death" | "none";
+}
+
+interface MarketStructure {
+  structure: "bullish" | "bearish" | "ranging";
+  pattern: string;
+  lastHigh: number;
+  lastLow: number;
+  prevHigh: number;
+  prevLow: number;
+}
+
 interface FullAnalysis {
   symbol: string;
   analyzedAt: number;
   marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
   overallConfidence: number;
+  indicatorAgreementPct: number;
   side: "Buy" | "Sell" | null;
   shouldEnter: boolean;
   waitReason: string | null;
@@ -115,6 +133,8 @@ interface FullAnalysis {
   stopLoss: number;
   takeProfit: number;
   riskRewardRatio: number;
+  scalpTargets: { tp05pct: number; tp1pct: number; sl: number };
+  recommendedLeverage: number;
   reasons: string[];
   warnings: string[];
   confirmations: number;
@@ -124,6 +144,15 @@ interface FullAnalysis {
     priceVsVwap: "above" | "below";
     emaAlignment: "bullish" | "bearish" | "mixed";
     rsiZone: "overbought" | "oversold" | "neutral";
+  };
+  macdData: MacdData;
+  marketStructure: MarketStructure;
+  openInterest: { value: number; change: number } | null;
+  fundingRate: { rate: number; nextFundingTime: number } | null;
+  fakeBreakout: { isFakeBreakoutUp: boolean; isFakeBreakoutDown: boolean; note: string | null };
+  supplyDemandZones: {
+    supplyZone: { high: number; low: number } | null;
+    demandZone: { high: number; low: number } | null;
   };
   multiTimeframe: Record<string, TimeframeSignal>;
   supportResistance: { support: number[]; resistance: number[]; nearestSupport: number; nearestResistance: number };
@@ -206,16 +235,22 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
   const dirBg = analysis.marketDirection === "BULLISH" ? "bg-green-950/30 border-green-500/30"
     : analysis.marketDirection === "BEARISH" ? "bg-red-950/30 border-red-500/30"
     : "bg-yellow-950/30 border-yellow-500/30";
-  const confColor = analysis.overallConfidence >= 75 ? "text-green-400"
-    : analysis.overallConfidence >= 55 ? "text-yellow-400" : "text-red-400";
-  const confBar = analysis.overallConfidence >= 75 ? "bg-green-500"
-    : analysis.overallConfidence >= 55 ? "bg-yellow-500" : "bg-red-500";
+  const confColor = analysis.overallConfidence >= 80 ? "text-green-400"
+    : analysis.overallConfidence >= 65 ? "text-yellow-400" : "text-red-400";
+  const confBar = analysis.overallConfidence >= 80 ? "bg-green-500"
+    : analysis.overallConfidence >= 65 ? "bg-yellow-500" : "bg-red-500";
+  const agreeColor = analysis.indicatorAgreementPct >= 75 ? "text-green-400"
+    : analysis.indicatorAgreementPct >= 60 ? "text-yellow-400" : "text-red-400";
 
-  const TF_ORDER = ["1m", "5m", "15m", "1h"];
+  const macdColor = analysis.macdData.trend === "bullish" ? "text-green-400"
+    : analysis.macdData.trend === "bearish" ? "text-red-400" : "text-yellow-400";
+  const msColor = analysis.marketStructure.structure === "bullish" ? "text-green-400"
+    : analysis.marketStructure.structure === "bearish" ? "text-red-400" : "text-yellow-400";
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm p-3 overflow-y-auto">
       <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl my-4">
+        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div className="flex items-center gap-3">
             <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${isShort ? "bg-red-500/10" : "bg-green-500/10"}`}>
@@ -224,17 +259,17 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
             <div>
               <div className="font-bold text-lg">{analysis.symbol}</div>
               <div className="text-xs text-muted-foreground">
-                {isShort ? "SHORT Analysis" : "LONG Analysis"} · {new Date(analysis.analyzedAt).toLocaleTimeString()}
+                AI Scalping Analysis · {new Date(analysis.analyzedAt).toLocaleTimeString()}
               </div>
             </div>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted/50">×</button>
         </div>
 
-        <div className="p-5 space-y-5">
-          {/* Direction + Confidence */}
+        <div className="p-5 space-y-4">
+          {/* Direction + Confidence + Agreement */}
           <div className={`rounded-xl border p-4 ${dirBg}`}>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="text-xs text-muted-foreground mb-1">Arah Market</div>
                 <div className={`font-bold text-xl flex items-center gap-2 ${dirColor}`}>
@@ -255,41 +290,136 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
                 <div className="text-xs text-muted-foreground">{analysis.confirmations} konfirmasi</div>
               </div>
             </div>
-            <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${confBar}`} style={{ width: `${analysis.overallConfidence}%` }} />
+            {/* Confidence bar */}
+            <div className="mb-2">
+              <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                <span>Confidence Score</span><span className={confColor}>{analysis.overallConfidence}% / butuh ≥80%</span>
+              </div>
+              <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${confBar}`} style={{ width: `${analysis.overallConfidence}%` }} />
+              </div>
             </div>
-          </div>
-
-          {/* Entry Details */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-muted/30 rounded-xl p-3 border border-border">
-              <div className="text-xs text-muted-foreground mb-1">Entry Price</div>
-              <div className="font-bold text-sm">${fmt(analysis.entryPrice, 4)}</div>
-            </div>
-            <div className={`rounded-xl p-3 border ${isShort ? "bg-green-950/20 border-green-500/20" : "bg-red-950/20 border-red-500/20"}`}>
-              <div className="text-xs text-muted-foreground mb-1">Stop Loss</div>
-              <div className={`font-bold text-sm ${isShort ? "text-green-400" : "text-red-400"}`}>${fmt(analysis.stopLoss, 4)}</div>
-              <div className="text-[10px] text-muted-foreground">{isShort ? "↑ atas entry" : "↓ bawah entry"}</div>
-            </div>
-            <div className={`rounded-xl p-3 border ${isShort ? "bg-red-950/20 border-red-500/20" : "bg-green-950/20 border-green-500/20"}`}>
-              <div className="text-xs text-muted-foreground mb-1">Take Profit</div>
-              <div className={`font-bold text-sm ${isShort ? "text-red-400" : "text-green-400"}`}>${fmt(analysis.takeProfit, 4)}</div>
-              <div className="text-[10px] text-muted-foreground">{isShort ? "↓ bawah entry" : "↑ atas entry"}</div>
-            </div>
-            <div className="bg-muted/30 rounded-xl p-3 border border-border">
-              <div className="text-xs text-muted-foreground mb-1">Risk/Reward</div>
-              <div className={`font-bold text-sm ${analysis.riskRewardRatio >= 2 ? "text-green-400" : "text-yellow-400"}`}>
-                1 : {analysis.riskRewardRatio.toFixed(1)}
+            {/* Indicator agreement bar */}
+            <div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                <span>Indikator Setuju</span><span className={agreeColor}>{analysis.indicatorAgreementPct}% / butuh ≥75%</span>
+              </div>
+              <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${analysis.indicatorAgreementPct >= 75 ? "bg-green-500" : analysis.indicatorAgreementPct >= 60 ? "bg-yellow-500" : "bg-red-500"}`}
+                  style={{ width: `${analysis.indicatorAgreementPct}%` }} />
               </div>
             </div>
           </div>
 
+          {/* Fake breakout warning */}
+          {analysis.fakeBreakout.note && (
+            <div className="rounded-xl bg-orange-950/30 border border-orange-500/40 p-3 flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
+              <span className="text-xs text-orange-300">{analysis.fakeBreakout.note}</span>
+            </div>
+          )}
+
+          {/* Market structure + MACD + OI + Funding row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="bg-muted/20 rounded-xl p-3 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Market Structure</div>
+              <div className={`font-bold text-xs ${msColor}`}>{analysis.marketStructure.pattern}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                H: ${fmt(analysis.marketStructure.lastHigh, 4)}
+              </div>
+            </div>
+            <div className={`rounded-xl p-3 border ${analysis.macdData.crossover === "golden" ? "bg-green-950/20 border-green-500/30" : analysis.macdData.crossover === "death" ? "bg-red-950/20 border-red-500/30" : "bg-muted/20 border-border"}`}>
+              <div className="text-[10px] text-muted-foreground mb-1">MACD</div>
+              <div className={`font-bold text-xs ${macdColor}`}>
+                {analysis.macdData.crossover === "golden" ? "⚡ Golden Cross"
+                  : analysis.macdData.crossover === "death" ? "💀 Death Cross"
+                  : analysis.macdData.trend.charAt(0).toUpperCase() + analysis.macdData.trend.slice(1)}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                Hist: {analysis.macdData.histogram >= 0 ? "+" : ""}{analysis.macdData.histogram.toFixed(6)}
+              </div>
+            </div>
+            <div className="bg-muted/20 rounded-xl p-3 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Open Interest</div>
+              {analysis.openInterest ? (
+                <>
+                  <div className={`font-bold text-xs ${analysis.openInterest.change > 1 ? "text-green-400" : analysis.openInterest.change < -1 ? "text-red-400" : "text-foreground"}`}>
+                    {analysis.openInterest.change >= 0 ? "+" : ""}{analysis.openInterest.change.toFixed(2)}%
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {(analysis.openInterest.value / 1e6).toFixed(2)}M USDT
+                  </div>
+                </>
+              ) : <div className="text-xs text-muted-foreground">N/A</div>}
+            </div>
+            <div className="bg-muted/20 rounded-xl p-3 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Funding Rate</div>
+              {analysis.fundingRate ? (
+                <>
+                  <div className={`font-bold text-xs ${analysis.fundingRate.rate > 0.05 ? "text-orange-400" : analysis.fundingRate.rate < -0.05 ? "text-blue-400" : "text-foreground"}`}>
+                    {analysis.fundingRate.rate >= 0 ? "+" : ""}{analysis.fundingRate.rate.toFixed(4)}%
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {analysis.fundingRate.rate > 0.05 ? "Longs bayar" : analysis.fundingRate.rate < -0.05 ? "Shorts bayar" : "Netral"}
+                  </div>
+                </>
+              ) : <div className="text-xs text-muted-foreground">N/A</div>}
+            </div>
+          </div>
+
+          {/* Entry Details + Scalp Targets */}
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Entry & Target</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="bg-muted/30 rounded-xl p-3 border border-border">
+                <div className="text-xs text-muted-foreground mb-1">Entry</div>
+                <div className="font-bold text-sm">${fmt(analysis.entryPrice, 4)}</div>
+                <div className="text-[10px] text-muted-foreground">Leverage: <span className="text-primary font-semibold">{analysis.recommendedLeverage}x</span></div>
+              </div>
+              <div className={`rounded-xl p-3 border ${isShort ? "bg-green-950/20 border-green-500/20" : "bg-red-950/20 border-red-500/20"}`}>
+                <div className="text-xs text-muted-foreground mb-1">Stop Loss</div>
+                <div className={`font-bold text-sm ${isShort ? "text-green-400" : "text-red-400"}`}>${fmt(analysis.stopLoss, 4)}</div>
+                <div className="text-[10px] text-muted-foreground">{isShort ? "↑ atas entry" : "↓ bawah entry"}</div>
+              </div>
+              <div className={`rounded-xl p-3 border ${isShort ? "bg-red-950/20 border-red-500/20" : "bg-green-950/20 border-green-500/20"}`}>
+                <div className="text-xs text-muted-foreground mb-1">TP Scalp 0.5%</div>
+                <div className={`font-bold text-sm ${isShort ? "text-red-400" : "text-green-400"}`}>${fmt(analysis.scalpTargets.tp05pct, 4)}</div>
+                <div className="text-[10px] text-muted-foreground">Quick exit</div>
+              </div>
+              <div className={`rounded-xl p-3 border ${isShort ? "bg-red-950/20 border-red-500/20" : "bg-green-950/20 border-green-500/20"}`}>
+                <div className="text-xs text-muted-foreground mb-1">TP Scalp 1%</div>
+                <div className={`font-bold text-sm ${isShort ? "text-red-400" : "text-green-400"}`}>${fmt(analysis.scalpTargets.tp1pct, 4)}</div>
+                <div className="text-[10px] text-muted-foreground">R/R {analysis.riskRewardRatio.toFixed(1)}x</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Supply & Demand Zones */}
+          {(analysis.supplyDemandZones.supplyZone || analysis.supplyDemandZones.demandZone) && (
+            <div className="grid grid-cols-2 gap-2">
+              {analysis.supplyDemandZones.demandZone && (
+                <div className="bg-green-950/15 rounded-xl p-3 border border-green-500/20">
+                  <div className="text-[10px] text-green-400 font-semibold mb-1">DEMAND ZONE</div>
+                  <div className="text-xs font-bold text-green-400">${fmt(analysis.supplyDemandZones.demandZone.low, 4)}</div>
+                  <div className="text-[10px] text-muted-foreground">– ${fmt(analysis.supplyDemandZones.demandZone.high, 4)}</div>
+                </div>
+              )}
+              {analysis.supplyDemandZones.supplyZone && (
+                <div className="bg-red-950/15 rounded-xl p-3 border border-red-500/20">
+                  <div className="text-[10px] text-red-400 font-semibold mb-1">SUPPLY ZONE</div>
+                  <div className="text-xs font-bold text-red-400">${fmt(analysis.supplyDemandZones.supplyZone.high, 4)}</div>
+                  <div className="text-[10px] text-muted-foreground">– ${fmt(analysis.supplyDemandZones.supplyZone.low, 4)}</div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Reasons + Warnings */}
           <div className="grid sm:grid-cols-2 gap-3">
             {analysis.reasons.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className={`text-xs font-semibold uppercase tracking-wide ${isShort ? "text-red-400" : "text-green-400"}`}>
-                  Alasan {isShort ? "Short" : "Long"}
+                  Konfirmasi {isShort ? "SHORT" : "LONG"} ({analysis.reasons.length})
                 </div>
                 {analysis.reasons.map((r, i) => (
                   <div key={i} className={`flex items-start gap-2 text-xs rounded-lg px-3 py-2 ${isShort ? "bg-red-950/20 border border-red-500/15" : "bg-green-950/20 border border-green-500/15"}`}>
@@ -300,8 +430,8 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
               </div>
             )}
             {analysis.warnings.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-xs font-semibold text-yellow-400 uppercase tracking-wide">Peringatan</div>
+              <div className="space-y-1.5">
+                <div className="text-xs font-semibold text-yellow-400 uppercase tracking-wide">Peringatan ({analysis.warnings.length})</div>
                 {analysis.warnings.map((w, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs bg-yellow-950/20 border border-yellow-500/15 rounded-lg px-3 py-2">
                     <AlertTriangle className="h-3.5 w-3.5 text-yellow-400 shrink-0 mt-0.5" />
@@ -318,11 +448,11 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {[
                 { label: "EMA 20", val: `$${fmt(analysis.indicators.ema20, 4)}`, sub: analysis.indicators.emaAlignment, good: isShort ? analysis.indicators.ema20 > analysis.entryPrice : analysis.indicators.ema20 < analysis.entryPrice },
-                { label: "EMA 50", val: `$${fmt(analysis.indicators.ema50, 4)}`, sub: isShort ? "price below?" : "price above?", good: isShort ? analysis.entryPrice < analysis.indicators.ema50 : analysis.entryPrice > analysis.indicators.ema50 },
                 { label: "EMA 200", val: `$${fmt(analysis.indicators.ema200, 4)}`, sub: analysis.indicators.emaAlignment, good: isShort ? analysis.indicators.emaAlignment === "bearish" : analysis.indicators.emaAlignment === "bullish" },
                 { label: "VWAP", val: `$${fmt(analysis.indicators.vwap, 4)}`, sub: `Price ${analysis.indicators.priceVsVwap} VWAP`, good: isShort ? analysis.indicators.priceVsVwap === "below" : analysis.indicators.priceVsVwap === "above" },
                 { label: "RSI 14", val: analysis.indicators.rsi14.toFixed(1), sub: analysis.indicators.rsiZone, good: analysis.indicators.rsiZone === "neutral" },
-                { label: "Volume", val: `${(analysis.indicators.volumeRatio * 100).toFixed(0)}%`, sub: "vs avg", good: analysis.indicators.volumeRatio >= 1 },
+                { label: "Volume", val: `${(analysis.indicators.volumeRatio * 100).toFixed(0)}%`, sub: "vs avg", good: analysis.indicators.volumeRatio >= 1.2 },
+                { label: "ATR 14", val: `$${fmt(analysis.indicators.atr14, 4)}`, sub: `${((analysis.indicators.atr14 / analysis.entryPrice) * 100).toFixed(2)}% volatilitas`, good: analysis.indicators.atr14 < analysis.entryPrice * 0.025 },
               ].map((ind) => (
                 <div key={ind.label} className={`rounded-lg p-2.5 border text-xs ${ind.good ? (isShort ? "bg-red-950/15 border-red-500/20" : "bg-green-950/15 border-green-500/20") : "bg-muted/20 border-border"}`}>
                   <div className="text-muted-foreground mb-0.5">{ind.label}</div>
@@ -402,10 +532,10 @@ function AnalysisModal({ analysis, config, onClose, onExecute, executing }: {
               <CheckCircle2 className={`h-5 w-5 shrink-0 mt-0.5 ${isShort ? "text-red-400" : "text-green-400"}`} />
               <div>
                 <div className={`font-semibold mb-1 ${isShort ? "text-red-400" : "text-green-400"}`}>
-                  Setup Valid — Siap {isShort ? "SHORT" : "LONG"}
+                  ⚡ Setup Valid — Siap Scalp {isShort ? "SHORT" : "LONG"}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {analysis.confirmations} konfirmasi · RR {analysis.riskRewardRatio.toFixed(1)}x · {analysis.overallConfidence}% confidence
+                  {analysis.confirmations} konfirmasi · {analysis.indicatorAgreementPct}% indikator setuju · RR {analysis.riskRewardRatio.toFixed(1)}x · Leverage {analysis.recommendedLeverage}x
                 </div>
               </div>
             </div>
@@ -932,9 +1062,9 @@ export default function Trading() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <ArrowUpDown className="h-6 w-6 text-primary" />AI Futures Bot
+            <Zap className="h-6 w-6 text-yellow-400" />AI Scalping Bot
           </h1>
-          <p className="text-sm text-muted-foreground">Bybit Perpetual · LONG + SHORT · Auto Close/Reverse</p>
+          <p className="text-sm text-muted-foreground">Bybit Futures · MACD · Market Structure · OI · Funding Rate · Min 80% Conf</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => void loadAll(true)} disabled={refreshing}>
