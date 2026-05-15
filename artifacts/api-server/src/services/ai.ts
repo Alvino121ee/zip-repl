@@ -6,7 +6,7 @@ const client = new OpenAI({
   baseURL: "https://api.kissapi.ai/v1",
 });
 
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-opus-4-7";
 
 const SYSTEM_PROMPT = `Kamu adalah AI analis keuangan bernama "KristalAI" yang ahli dalam pasar crypto dan saham Indonesia (IDX). 
 Kamu membantu trader dan investor memahami kondisi pasar, menganalisis aset, dan membuat keputusan trading yang lebih baik.
