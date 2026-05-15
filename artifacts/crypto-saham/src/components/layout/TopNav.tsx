@@ -9,7 +9,8 @@ import {
   Menu,
   Bell,
   Search,
-  Zap
+  Zap,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export function TopNav() {
                   <MobileNavItem href="/stocks" icon={LineChart}>Stock Market</MobileNavItem>
                   <MobileNavItem href="/predictions" icon={Activity}>Predictions</MobileNavItem>
                   <MobileNavItem href="/news" icon={Newspaper}>News</MobileNavItem>
+                  <MobileNavItem href="/trading" icon={Bot}>Auto Trading</MobileNavItem>
                 </nav>
               </div>
             </SheetContent>
