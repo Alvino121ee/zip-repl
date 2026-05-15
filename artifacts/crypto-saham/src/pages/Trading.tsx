@@ -93,6 +93,15 @@ function pnlColor(v: string) {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+function smartQty(price: number, usdtAmount: number): string {
+  if (!price || price <= 0) return "—";
+  const raw = usdtAmount / price;
+  if (price >= 10000) return Math.max(0.001, Math.floor(raw * 1000) / 1000).toFixed(3);
+  if (price >= 100)   return Math.max(0.01,  Math.floor(raw * 100)  / 100 ).toFixed(2);
+  if (price >= 1)     return Math.max(1,      Math.floor(raw * 10)   / 10  ).toFixed(1);
+  return Math.max(10, Math.floor(raw)).toFixed(0);
+}
+
 function SignalCard({
   sig,
   config,
@@ -105,9 +114,10 @@ function SignalCard({
   executing: string | null;
 }) {
   const isStrong = sig.signal === "strong_buy";
-  const qty = (Math.min(config.maxPositionUSDT, 50) / sig.price).toFixed(4);
-  const sl = sig.stopLoss ?? (sig.price * (1 - config.stopLossPct / 100));
-  const tp = sig.takeProfit ?? (sig.price * (1 + config.takeProfitPct / 100));
+  const hasPrice = sig.price > 0;
+  const qty = smartQty(sig.price, config.maxPositionUSDT);
+  const sl = hasPrice ? (sig.stopLoss ?? sig.price * (1 - config.stopLossPct / 100)) : null;
+  const tp = hasPrice ? (sig.takeProfit ?? sig.price * (1 + config.takeProfitPct / 100)) : null;
   const isExec = executing === sig.bybitSymbol;
 
   return (
@@ -152,11 +162,11 @@ function SignalCard({
           </div>
           <div className="bg-red-950/20 rounded p-2 border border-red-500/20">
             <div className="text-muted-foreground">Stop Loss</div>
-            <div className="font-medium text-red-400">${formatUSDT(sl)}</div>
+            <div className="font-medium text-red-400">{sl != null ? `$${formatUSDT(sl)}` : "—"}</div>
           </div>
           <div className="bg-green-950/20 rounded p-2 border border-green-500/20">
             <div className="text-muted-foreground">Take Profit</div>
-            <div className="font-medium text-green-400">${formatUSDT(tp)}</div>
+            <div className="font-medium text-green-400">{tp != null ? `$${formatUSDT(tp)}` : "—"}</div>
           </div>
         </div>
 

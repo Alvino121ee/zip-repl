@@ -258,7 +258,8 @@ export async function getHighConfidenceSignals() {
       (p) =>
         (p.signal === "strong_buy" || p.signal === "buy") &&
         p.confidence >= autoConfig.minConfidence &&
-        toBybitSymbol(p.symbol) !== null
+        toBybitSymbol(p.symbol) !== null &&
+        p.currentPrice > 0
     )
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 10)
@@ -268,7 +269,7 @@ export async function getHighConfidenceSignals() {
       bybitSymbol: toBybitSymbol(p.symbol)!,
       signal: p.signal,
       confidence: p.confidence,
-      price: p.price,
+      price: p.currentPrice,
       riskLevel: p.riskLevel,
       stopLoss: p.stopLoss,
       takeProfit: p.takeProfit,
