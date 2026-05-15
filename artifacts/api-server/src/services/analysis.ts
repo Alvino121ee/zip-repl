@@ -98,6 +98,9 @@ export interface FullAnalysis {
   fundingRate: { rate: number; nextFundingTime: number } | null;
   fakeBreakout: FakeBreakout;
   supplyDemandZones: SupplyDemandZones;
+  signalGrade: "A" | "B" | "C";
+  trendStrength: number;
+  rsiDivergence: "bullish" | "bearish" | "none";
   multiTimeframe: Record<string, TimeframeSignal>;
   supportResistance: {
     support: number[];
@@ -246,6 +249,44 @@ function swingLows(klines: Kline[], lookback = 5): number[] {
       lows.push(l);
   }
   return lows.slice(-6);
+}
+
+function bollinger(closes: number[], period = 20, mult = 2): { upper: number; middle: number; lower: number; bandWidth: number } {
+  const slice = closes.slice(-period);
+  if (slice.length < period) return { upper: closes[closes.length - 1] * 1.02, middle: closes[closes.length - 1], lower: closes[closes.length - 1] * 0.98, bandWidth: 0.04 };
+  const sma = slice.reduce((a, b) => a + b, 0) / period;
+  const variance = slice.reduce((a, b) => a + (b - sma) ** 2, 0) / period;
+  const stdDev = Math.sqrt(variance);
+  const band = stdDev * mult;
+  return { upper: sma + band, middle: sma, lower: sma - band, bandWidth: sma > 0 ? (band * 2) / sma : 0 };
+}
+
+function consecutiveCandleDirection(klines: Kline[], n = 6): number {
+  const recent = klines.slice(-n);
+  let bull = 0, bear = 0;
+  for (const k of recent) {
+    if (k.close > k.open * 1.0001) bull++;
+    else if (k.close < k.open * 0.9999) bear++;
+  }
+  return bull - bear; // +6 = all bull, -6 = all bear
+}
+
+function detectRsiDivergence(klines: Kline[], closes: number[]): "bullish" | "bearish" | "none" {
+  const half = 15;
+  if (klines.length < half * 2 + 14 || closes.length < half * 2 + 14) return "none";
+  const firstKlines = klines.slice(-(half * 2), -half);
+  const secondKlines = klines.slice(-half);
+  const priceHigh1 = Math.max(...firstKlines.map((k) => k.high));
+  const priceHigh2 = Math.max(...secondKlines.map((k) => k.high));
+  const priceLow1 = Math.min(...firstKlines.map((k) => k.low));
+  const priceLow2 = Math.min(...secondKlines.map((k) => k.low));
+  const rsi1 = rsi(closes.slice(-(half * 2 + 14), -half));
+  const rsi2 = rsi(closes.slice(-(half + 14)));
+  // Bearish divergence: price HH but RSI LH
+  if (priceHigh2 > priceHigh1 * 1.003 && rsi2 < rsi1 - 4) return "bearish";
+  // Bullish divergence: price LL but RSI HL
+  if (priceLow2 < priceLow1 * 0.997 && rsi2 > rsi1 + 4) return "bullish";
+  return "none";
 }
 
 function detectCandlePattern(klines: Kline[]): string | null {
@@ -504,6 +545,20 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const tfBearish = Object.values(multiTimeframe).filter((t) => t.trend === "down").length;
   const tfTotal = Object.values(multiTimeframe).length;
 
+  // ── Smart: weighted MTF, Bollinger Bands, candle direction, RSI divergence ──
+  const bb = bollinger(closes, 20, 2);
+  const candleDirection = consecutiveCandleDirection(primary, 6);
+  const rsiDiv = detectRsiDivergence(primary, closes);
+  const mtf1h = multiTimeframe["1h"] ?? multiTimeframe["15m"];
+  const mtf15m = multiTimeframe["15m"];
+  const mtf5m  = multiTimeframe["5m"];
+  const mtf1m  = multiTimeframe["1m"];
+  const bullMtfWeighted = (mtf1h?.trend === "up" ? 3 : 0) + (mtf15m?.trend === "up" ? 2 : 0) + (mtf5m?.trend === "up" ? 1 : 0) + (mtf1m?.trend === "up" ? 0.5 : 0);
+  const bearMtfWeighted = (mtf1h?.trend === "down" ? 3 : 0) + (mtf15m?.trend === "down" ? 2 : 0) + (mtf5m?.trend === "down" ? 1 : 0) + (mtf1m?.trend === "down" ? 0.5 : 0);
+  const MTF_MAX = 6.5;
+  const bullMtfRatio = bullMtfWeighted / MTF_MAX;
+  const bearMtfRatio = bearMtfWeighted / MTF_MAX;
+
   const distToSupport = nearestSupport > 0 ? (price - nearestSupport) / price : 1;
   const distToResistance = nearestResistance > 0 ? (nearestResistance - price) / price : 1;
   const pattern15m = detectCandlePattern(primary);
@@ -543,11 +598,16 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   bullCheck(priceVsVwap === "above", 12, `Harga di atas VWAP ($${vwapVal.toFixed(4)}) — buyers in control`, "Harga di bawah VWAP — seller dominan");
   bullCheck(rsiVal >= 45 && rsiVal <= 68, 12, `RSI ${rsiVal.toFixed(0)} di zona bullish optimal (45–68)`, `RSI ${rsiVal.toFixed(0)} di luar zona optimal`);
   bullCheck(volRatio >= 1.2, 12, `Volume spike ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi kuat`, `Volume rendah (${(volRatio * 100).toFixed(0)}%)`);
-  bullCheck(tfBullish >= 3, 18, `${tfBullish}/${tfTotal} timeframe bullish — konfirmasi multi-TF kuat`, `Hanya ${tfBullish}/${tfTotal} TF bullish`);
+  bullCheck(bullMtfRatio >= 0.6, 20, `MTF weighted ${(bullMtfRatio * 100).toFixed(0)}% bullish (1h×3 + 15m×2 + 5m + 1m×0.5)`, `MTF bullish lemah (${(bullMtfRatio * 100).toFixed(0)}%) — 1h/15m tidak konfirmasi`);
   bullCheck(macdData.trend === "bullish", 12, `MACD ${macdData.crossover === "golden" ? "golden cross" : "bullish"} — momentum naik`, "MACD bearish / sideways");
   bullCheck(marketStructure.structure === "bullish", 12, `Market structure HH+HL — uptrend terstruktur`, "Market structure tidak bullish");
   bullCheck(distToSupport < 0.02, 8, `Harga dekat support ($${nearestSupport.toFixed(4)}) — area beli optimal`, "");
   bullCheck(!fakeBreakout.isFakeBreakoutUp, 4, "", "Fake breakout resistance terdeteksi — waspada");
+  bullCheck(price <= bb.lower * 1.015, 8, `Harga dekat Bollinger Band bawah — zona beli teknikal optimal`, "");
+  if (candleDirection >= 3) { bullScore += 6; bullConf++; bullReasons.push(`${candleDirection}/6 candle terakhir bullish — momentum kuat`); bullIndicatorAgree++; bullIndicatorTotal++; }
+  else if (candleDirection <= -4) { bullScore -= 8; bullWarnings.push(`${Math.abs(candleDirection)} candle bearish berturut — kontra bullish`); bullIndicatorTotal++; }
+  if (rsiDiv === "bullish") { bullScore += 7; bullConf++; bullReasons.push("RSI bullish divergence — konfirmasi reversal naik"); bullIndicatorAgree++; bullIndicatorTotal++; }
+  else if (rsiDiv === "bearish") { bullWarnings.push("RSI bearish divergence — harga naik tapi RSI melemah, waspada reversal"); bullIndicatorTotal++; }
   if (pattern15m?.includes("Bullish")) { bullScore += 10; bullConf++; bullReasons.push(`Candle pattern: ${pattern15m}`); bullIndicatorAgree++; }
   if (pattern15m?.includes("Bearish")) { bullScore -= 10; bullWarnings.push(`Candle: ${pattern15m} — kontra bullish`); }
   bullIndicatorTotal++;
@@ -584,11 +644,16 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   bearCheck(priceVsVwap === "below", 12, `Harga di bawah VWAP ($${vwapVal.toFixed(4)}) — sellers in control`, "Harga di atas VWAP — buyers masih dominan");
   bearCheck(rsiVal <= 55 && rsiVal >= 32, 12, `RSI ${rsiVal.toFixed(0)} di zona bearish optimal (32–55)`, `RSI ${rsiVal.toFixed(0)} di luar zona optimal`);
   bearCheck(volRatio >= 1.2, 12, `Volume spike ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi bearish`, `Volume rendah (${(volRatio * 100).toFixed(0)}%)`);
-  bearCheck(tfBearish >= 3, 18, `${tfBearish}/${tfTotal} timeframe bearish — konfirmasi multi-TF kuat`, `Hanya ${tfBearish}/${tfTotal} TF bearish`);
+  bearCheck(bearMtfRatio >= 0.6, 20, `MTF weighted ${(bearMtfRatio * 100).toFixed(0)}% bearish (1h×3 + 15m×2 + 5m + 1m×0.5)`, `MTF bearish lemah (${(bearMtfRatio * 100).toFixed(0)}%) — 1h/15m tidak konfirmasi`);
   bearCheck(macdData.trend === "bearish", 12, `MACD ${macdData.crossover === "death" ? "death cross" : "bearish"} — momentum turun`, "MACD bullish / sideways");
   bearCheck(marketStructure.structure === "bearish", 12, `Market structure LH+LL — downtrend terstruktur`, "Market structure tidak bearish");
   bearCheck(distToResistance < 0.02, 8, `Harga dekat resistance ($${nearestResistance.toFixed(4)}) — area short optimal`, "");
   bearCheck(!fakeBreakout.isFakeBreakoutDown, 4, "", "Fake breakout support terdeteksi — waspada");
+  bearCheck(price >= bb.upper * 0.985, 8, `Harga dekat Bollinger Band atas — zona short teknikal optimal`, "");
+  if (candleDirection <= -3) { bearScore += 6; bearConf++; bearReasons.push(`${Math.abs(candleDirection)}/6 candle terakhir bearish — momentum turun kuat`); bearIndicatorAgree++; bearIndicatorTotal++; }
+  else if (candleDirection >= 4) { bearScore -= 8; bearWarnings.push(`${candleDirection} candle bullish berturut — kontra bearish`); bearIndicatorTotal++; }
+  if (rsiDiv === "bearish") { bearScore += 7; bearConf++; bearReasons.push("RSI bearish divergence — harga naik tapi RSI melemah, konfirmasi distribusi"); bearIndicatorAgree++; bearIndicatorTotal++; }
+  else if (rsiDiv === "bullish") { bearWarnings.push("RSI bullish divergence — potensi reversal naik, waspada saat short"); bearIndicatorTotal++; }
   if (pattern15m?.includes("Bearish")) { bearScore += 10; bearConf++; bearReasons.push(`Candle pattern: ${pattern15m}`); bearIndicatorAgree++; }
   if (pattern15m?.includes("Bullish")) { bearScore -= 10; bearWarnings.push(`Candle: ${pattern15m} — kontra bearish`); }
   bearIndicatorTotal++;

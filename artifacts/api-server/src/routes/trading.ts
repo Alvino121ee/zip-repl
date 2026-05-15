@@ -6,6 +6,7 @@ import {
   placeOrder,
   cancelOrder,
   closePosition,
+  closeAllPositions,
   setPositionTPSL,
   getHighConfidenceSignals,
   scanBybitUniverse,
@@ -200,6 +201,18 @@ router.put("/trading/config", (req, res) => {
 // GET /api/trading/log
 router.get("/trading/log", (_req, res) => {
   res.json(tradeLog);
+});
+
+// POST /api/trading/close-all  — closes ALL open positions
+router.post("/trading/close-all", async (req, res) => {
+  try {
+    const result = await closeAllPositions();
+    req.log.info(result, "Close-all positions executed");
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Failed to close all positions");
+    res.status(502).json({ error: String(err) });
+  }
 });
 
 // GET /api/trading/universe  — top Bybit universe candidates

@@ -157,6 +157,9 @@ interface FullAnalysis {
     supplyZone: { high: number; low: number } | null;
     demandZone: { high: number; low: number } | null;
   };
+  signalGrade?: "A" | "B" | "C";
+  trendStrength?: number;
+  rsiDivergence?: "bullish" | "bearish" | "none";
   multiTimeframe: Record<string, TimeframeSignal>;
   supportResistance: { support: number[]; resistance: number[]; nearestSupport: number; nearestResistance: number };
 }
@@ -948,6 +951,7 @@ export default function Trading() {
   const [executing, setExecuting] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const [closing, setClosing] = useState<string | null>(null);
+  const [closingAll, setClosingAll] = useState(false);
   const [activeAnalysis, setActiveAnalysis] = useState<FullAnalysis | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signals" | "positions" | "log">("signals");
@@ -1055,6 +1059,20 @@ export default function Trading() {
       setActiveAnalysis(null); setPendingSig(null);
     } catch (err) { toast({ title: "Order gagal", description: String(err), variant: "destructive" }); }
     finally { setExecuting(null); }
+  }
+
+  async function handleCloseAll() {
+    setClosingAll(true);
+    try {
+      const result = await apiFetch<{ closed: number; errors: string[] }>("/api/trading/close-all", { method: "POST" });
+      if (result.errors.length > 0) {
+        toast({ title: `${result.closed} posisi ditutup, ${result.errors.length} gagal`, description: result.errors[0], variant: "destructive" });
+      } else {
+        toast({ title: `✅ ${result.closed} posisi berhasil ditutup`, description: "Semua posisi sudah di-close." });
+      }
+      void loadAll(true);
+    } catch (err) { toast({ title: "Gagal close all", description: String(err), variant: "destructive" }); }
+    finally { setClosingAll(false); }
   }
 
   async function handleClosePosition(pos: Position) {

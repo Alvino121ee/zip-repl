@@ -276,6 +276,36 @@ export async function closePosition(symbol: string, side: "Buy" | "Sell", qty: s
   });
 }
 
+/**
+ * Close ALL open positions — fetches current positions and places a reduceOnly
+ * opposite market order for each one.
+ */
+export async function closeAllPositions(): Promise<{ closed: number; errors: string[] }> {
+  const result = await bybitGet<{ list: Array<{ symbol: string; side: string; size: string }> }>(
+    "/v5/position/list",
+    { category: "linear", settleCoin: "USDT" }
+  );
+  const positions = (result.list ?? []).filter((p) => parseFloat(p.size) > 0);
+  const errors: string[] = [];
+  let closed = 0;
+
+  await Promise.allSettled(
+    positions.map(async (p) => {
+      try {
+        const closeSide = p.side === "Buy" ? "Sell" : "Buy";
+        await closePosition(p.symbol, closeSide as "Buy" | "Sell", p.size);
+        closed++;
+        logger.info({ symbol: p.symbol, side: p.side, size: p.size }, "closeAllPositions: closed");
+      } catch (err) {
+        logger.error({ symbol: p.symbol, err }, "closeAllPositions: failed to close");
+        errors.push(`${p.symbol}: ${String(err)}`);
+      }
+    })
+  );
+
+  return { closed, errors };
+}
+
 // ─── Symbol mapping ────────────────────────────────────────────────────────────
 
 const SYMBOL_MAP: Record<string, string> = {
