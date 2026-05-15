@@ -4,7 +4,8 @@ import {
   ArrowLeft, Activity, BookOpen,
   Target, ShieldAlert, ArrowUpCircle, ArrowDownCircle, Zap, Info,
   BarChart2, Layers, TrendingUp, TrendingDown, Minus,
-  Volume2, ArrowUp, ArrowDown,
+  Volume2, ArrowUp, ArrowDown, AlertTriangle, Brain, Flame, Eye,
+  CandlestickChart, GitBranch,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -117,9 +118,12 @@ function buildMarketAnalysis(
   change24h: number,
   change7d: number | null,
   volumeTrend: string,
-  ema7: number | null,
+  ema7input: number | null,
   signal: string,
+  backendVwap?: number | null,
+  backendEma25?: number | null,
 ): MarketAnalysis {
+  const ema7 = ema7input;
   const srRange = resistance - support;
 
   // ── Support & Resistance levels ──────────────────────────────────────────
@@ -183,12 +187,11 @@ function buildMarketAnalysis(
       : "Volume normal — tidak ada konfirmasi khusus dari volume";
 
   // ── EMA & VWAP ───────────────────────────────────────────────────────────
-  // VWAP approximation: Typical Price = (H + L + C) / 3
-  const vwap = (support + resistance + price) / 3;
+  // Prefer backend-computed values, fall back to approximations
+  const vwap = (backendVwap && backendVwap > 0) ? backendVwap : (support + resistance + price) / 3;
 
-  // EMA25 approximation via 7d change extrapolation (rough)
-  const ema25 = change7d !== null
-    ? price / (1 + (change7d * 3.57 / 100))
+  const ema25 = (backendEma25 && backendEma25 > 0) ? backendEma25
+    : change7d !== null ? price / (1 + (change7d * 3.57 / 100))
     : null;
 
   const threshold = 0.002; // 0.2% tolerance for "at" status
@@ -541,20 +544,422 @@ function EmaVwapPanel({
   );
 }
 
+/* ═══════════════════════════ MARKET STRUCTURE PANEL ════════════════════════ */
+
+interface BackendIndicators {
+  marketStructure?: string;
+  higherHighs?: boolean;
+  higherLows?: boolean;
+  lowerHighs?: boolean;
+  lowerLows?: boolean;
+  breakOfStructure?: boolean;
+  bosDirection?: string;
+  changeOfCharacter?: boolean;
+  cochDirection?: string;
+  candlePattern?: string;
+  rejectionCandle?: boolean;
+  momentumCandle?: boolean;
+  fomoAlert?: boolean;
+  stopHuntRisk?: string;
+  liquidationRisk?: string;
+  leverageWarning?: boolean;
+  riskRewardRatio?: number;
+  macd?: { value: number; signal: number; histogram: number; bullish: boolean };
+  bollingerBands?: { upper: number; middle: number; lower: number; position: number };
+  orderBlocks?: { bullish: number | null; bearish: number | null };
+  fairValueGap?: { exists: boolean; upper: number | null; lower: number | null; direction: string };
+  supplyZone?: number;
+  demandZone?: number;
+  multiTimeframeAlignment?: string;
+  ema7?: number;
+  ema25?: number;
+  ema99?: number;
+}
+
+function StructurePanel({ ind, fmt }: { ind: BackendIndicators; fmt: (v: number) => string }) {
+  const structure = ind.marketStructure ?? "ranging";
+  const structureColor = structure === "uptrend" ? "text-green-400" : structure === "downtrend" ? "text-red-400" : "text-yellow-400";
+  const structureBg = structure === "uptrend" ? "bg-green-500/10 border-green-500/30" : structure === "downtrend" ? "bg-red-500/10 border-red-500/30" : "bg-yellow-500/10 border-yellow-500/30";
+  const structureLabel = structure === "uptrend" ? "Uptrend" : structure === "downtrend" ? "Downtrend" : "Ranging / Sideways";
+
+  const mtfColor = ind.multiTimeframeAlignment === "aligned_bull" ? "text-green-400" : ind.multiTimeframeAlignment === "aligned_bear" ? "text-red-400" : "text-yellow-400";
+  const mtfLabel = ind.multiTimeframeAlignment === "aligned_bull" ? "Bullish (Semua Timeframe Searah)" : ind.multiTimeframeAlignment === "aligned_bear" ? "Bearish (Semua Timeframe Searah)" : "Mixed (Timeframe Bertentangan)";
+
+  return (
+    <div className="space-y-3">
+      {/* Market Structure Badge */}
+      <div className={`rounded-xl border p-3.5 ${structureBg}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Market Structure</p>
+            <p className={`text-lg font-bold mt-0.5 ${structureColor}`}>{structureLabel}</p>
+          </div>
+          <GitBranch className={`h-6 w-6 ${structureColor}`} />
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          {[
+            { label: "Higher Highs", val: ind.higherHighs, bull: true },
+            { label: "Higher Lows",  val: ind.higherLows,  bull: true },
+            { label: "Lower Highs",  val: ind.lowerHighs,  bull: false },
+            { label: "Lower Lows",   val: ind.lowerLows,   bull: false },
+          ].map((item) => (
+            <div key={item.label} className={`rounded-lg border px-2.5 py-1.5 flex items-center justify-between ${item.val ? (item.bull ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5") : "border-border bg-muted/10"}`}>
+              <span className="text-xs text-muted-foreground">{item.label}</span>
+              <span className={`text-xs font-bold ${item.val ? (item.bull ? "text-green-400" : "text-red-400") : "text-muted-foreground"}`}>
+                {item.val ? "✓" : "–"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* BOS */}
+      {ind.breakOfStructure && (
+        <div className={`rounded-xl border p-3 flex items-start gap-2.5 ${ind.bosDirection === "bullish" ? "border-green-500/40 bg-green-500/5" : "border-red-500/40 bg-red-500/5"}`}>
+          <div className={`text-xl shrink-0`}>{ind.bosDirection === "bullish" ? "⬆️" : "⬇️"}</div>
+          <div>
+            <p className={`text-sm font-bold ${ind.bosDirection === "bullish" ? "text-green-400" : "text-red-400"}`}>
+              Break of Structure ({ind.bosDirection === "bullish" ? "Bullish" : "Bearish"}) Terkonfirmasi
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              {ind.bosDirection === "bullish"
+                ? "Harga berhasil breakout di atas swing high sebelumnya — konfirmasi kelanjutan uptrend"
+                : "Harga breakdown di bawah swing low sebelumnya — konfirmasi kelanjutan downtrend"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* CHOCH */}
+      {ind.changeOfCharacter && (
+        <div className={`rounded-xl border p-3 flex items-start gap-2.5 ${ind.cochDirection === "bullish" ? "border-blue-500/40 bg-blue-500/5" : "border-orange-500/40 bg-orange-500/5"}`}>
+          <div className="text-xl shrink-0">🔄</div>
+          <div>
+            <p className={`text-sm font-bold ${ind.cochDirection === "bullish" ? "text-blue-400" : "text-orange-400"}`}>
+              Change of Character (CHOCH) — {ind.cochDirection === "bullish" ? "Potensi Reversal Bullish" : "Potensi Reversal Bearish"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              {ind.cochDirection === "bullish"
+                ? "Karakter pergerakan berubah dari bearish ke bullish — indikasi awal pembalikan tren"
+                : "Karakter pergerakan berubah dari bullish ke bearish — waspadai pembalikan tren"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Candle Pattern */}
+      {ind.candlePattern && ind.candlePattern !== "none" && (
+        <div className="rounded-xl border border-border p-3 space-y-1">
+          <div className="flex items-center gap-2">
+            <CandlestickChart className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pola Candlestick</p>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold capitalize">{ind.candlePattern.replace(/_/g, " ")}</p>
+            <div className="flex gap-1.5">
+              {ind.rejectionCandle && <Badge className="text-[10px] bg-blue-500/20 text-blue-400 border-blue-500/30">Rejection</Badge>}
+              {ind.momentumCandle && <Badge className="text-[10px] bg-orange-500/20 text-orange-400 border-orange-500/30">Momentum</Badge>}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {ind.candlePattern === "hammer" ? "Hammer: Rejection bullish dari level support — potential reversal" :
+             ind.candlePattern === "shooting_star" ? "Shooting Star: Rejection bearish dari resistance — potential reversal" :
+             ind.candlePattern === "bullish_engulfing" ? "Bullish Engulfing: Momentum candle beli kuat mengalahkan candle sebelumnya" :
+             ind.candlePattern === "bearish_engulfing" ? "Bearish Engulfing: Momentum candle jual kuat — sinyal bearish" :
+             ind.candlePattern === "doji" ? "Doji: Indecision candle — pasar tidak punya arah jelas, tunggu konfirmasi" :
+             ind.candlePattern === "momentum_bull" ? "Momentum Candle Bullish: Candle besar dengan close mendekati high — kekuatan beli dominan" :
+             ind.candlePattern === "momentum_bear" ? "Momentum Candle Bearish: Candle besar merah dengan close mendekati low — kekuatan jual dominan" :
+             "Pola candlestick standar"}
+          </p>
+        </div>
+      )}
+
+      {/* MTF Alignment */}
+      <div className={`rounded-xl border p-3 ${ind.multiTimeframeAlignment === "aligned_bull" ? "border-green-500/30 bg-green-500/5" : ind.multiTimeframeAlignment === "aligned_bear" ? "border-red-500/30 bg-red-500/5" : "border-yellow-500/30 bg-yellow-500/5"}`}>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Multi-Timeframe Alignment</p>
+        <p className={`text-sm font-bold ${mtfColor}`}>{mtfLabel}</p>
+        <p className="text-xs text-muted-foreground mt-1">Analisis keselarasan sinyal dari timeframe 24 jam dan 7 hari</p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════ SMC PANEL ══════════════════════════════════════ */
+
+function SMCPanel({ ind, fmt }: { ind: BackendIndicators; fmt: (v: number) => string }) {
+  const ob = ind.orderBlocks;
+  const fvg = ind.fairValueGap;
+
+  return (
+    <div className="space-y-3">
+      {/* Explainer */}
+      <div className="bg-muted/30 rounded-xl border border-border p-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Smart Money Concepts (SMC)</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          SMC mengidentifikasi area di mana institusi (smart money) telah menempatkan order besar. Order Block dan Fair Value Gap adalah zona kunci untuk entry & exit.
+        </p>
+      </div>
+
+      {/* Order Blocks */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-muted/40 px-3 py-1.5 flex items-center gap-2">
+          <Brain className="h-3.5 w-3.5 text-muted-foreground" />
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Order Blocks (Zona Institusi)</p>
+        </div>
+        <div className="p-3 space-y-2">
+          {ob?.bullish ? (
+            <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-2.5">
+              <p className="text-[10px] text-green-400 font-semibold uppercase">Bullish Order Block</p>
+              <p className="text-sm font-bold tabular-nums">{fmt(ob.bullish)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Zona demand institusional — area beli yang kuat</p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">Tidak ada Bullish OB aktif saat ini</p>
+          )}
+          {ob?.bearish ? (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-2.5">
+              <p className="text-[10px] text-red-400 font-semibold uppercase">Bearish Order Block</p>
+              <p className="text-sm font-bold tabular-nums">{fmt(ob.bearish)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Zona supply institusional — area jual yang kuat</p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">Tidak ada Bearish OB aktif saat ini</p>
+          )}
+        </div>
+      </div>
+
+      {/* Fair Value Gap */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-muted/40 px-3 py-1.5 flex items-center gap-2">
+          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Fair Value Gap (Imbalance)</p>
+        </div>
+        <div className="p-3">
+          {fvg?.exists ? (
+            <div className={`rounded-lg border p-2.5 ${fvg.direction === "bullish" ? "border-green-500/30 bg-green-500/5" : "border-red-500/30 bg-red-500/5"}`}>
+              <div className="flex items-center justify-between mb-1">
+                <p className={`text-[10px] font-semibold uppercase ${fvg.direction === "bullish" ? "text-green-400" : "text-red-400"}`}>
+                  FVG {fvg.direction === "bullish" ? "Bullish" : "Bearish"} Terdeteksi
+                </p>
+                <Badge className={`text-[10px] ${fvg.direction === "bullish" ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}>
+                  Imbalance
+                </Badge>
+              </div>
+              {fvg.upper && fvg.lower && (
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <div><p className="text-[10px] text-muted-foreground">Upper</p><p className="text-xs font-mono">{fmt(fvg.upper)}</p></div>
+                  <div><p className="text-[10px] text-muted-foreground">Lower</p><p className="text-xs font-mono">{fmt(fvg.lower)}</p></div>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                {fvg.direction === "bullish"
+                  ? "Terdapat gap harga ke atas — harga cenderung kembali mengisi gap ini sebelum melanjutkan naik"
+                  : "Terdapat gap harga ke bawah — area ini kemungkinan akan menjadi resistance saat harga retest"}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">Tidak ada Fair Value Gap signifikan saat ini</p>
+          )}
+        </div>
+      </div>
+
+      {/* Supply & Demand Zones */}
+      {(ind.supplyZone || ind.demandZone) && (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-muted/40 px-3 py-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Supply & Demand Zones</p>
+          </div>
+          <div className="p-3 space-y-2">
+            {ind.supplyZone && (
+              <div className="flex items-center justify-between p-2 rounded-lg bg-red-500/5 border border-red-500/20">
+                <div>
+                  <p className="text-[10px] text-red-400 font-semibold uppercase">Supply Zone</p>
+                  <p className="text-xs text-muted-foreground">Area tekanan jual institusional</p>
+                </div>
+                <p className="text-sm font-bold text-red-400 tabular-nums">{fmt(ind.supplyZone)}</p>
+              </div>
+            )}
+            {ind.demandZone && (
+              <div className="flex items-center justify-between p-2 rounded-lg bg-green-500/5 border border-green-500/20">
+                <div>
+                  <p className="text-[10px] text-green-400 font-semibold uppercase">Demand Zone</p>
+                  <p className="text-xs text-muted-foreground">Area tekanan beli institusional</p>
+                </div>
+                <p className="text-sm font-bold text-green-400 tabular-nums">{fmt(ind.demandZone)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Education */}
+      <div className="bg-muted/20 rounded-lg p-2.5 space-y-1">
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Cara Trading dengan SMC</p>
+        <ul className="space-y-1">
+          {[
+            "Tunggu harga kembali ke Order Block sebelum entry",
+            "FVG sering menjadi magnet harga — harga cenderung mengisinya",
+            "Supply Zone = area resistance institusional (waspadai rejection)",
+            "Demand Zone = area support institusional (potensi bounce kuat)",
+            "Kombinasikan OB + FVG + BOS untuk konfirmasi sinyal kuat",
+          ].map((r, i) => (
+            <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+              <span className="text-primary/60 shrink-0">•</span> {r}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════ MACD + BOLLINGER PANEL ════════════════════════ */
+
+function MACDPanel({ ind, price, fmt }: { ind: BackendIndicators; price: number; fmt: (v: number) => string }) {
+  const macd = ind.macd;
+  const bb = ind.bollingerBands;
+
+  return (
+    <div className="space-y-3">
+      {/* MACD */}
+      {macd && (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-muted/40 px-3 py-1.5 flex items-center justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">MACD (12, 26, 9)</p>
+            <Badge className={`text-[10px] ${macd.bullish ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}>
+              {macd.bullish ? "Bullish" : "Bearish"}
+            </Badge>
+          </div>
+          <div className="p-3 space-y-2">
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-muted/30 p-2">
+                <p className="text-[10px] text-muted-foreground">MACD Line</p>
+                <p className={`text-sm font-bold ${macd.value > 0 ? "text-green-400" : "text-red-400"}`}>
+                  {macd.value > 0 ? "+" : ""}{macd.value.toFixed(2)}
+                </p>
+              </div>
+              <div className="rounded-lg bg-muted/30 p-2">
+                <p className="text-[10px] text-muted-foreground">Signal</p>
+                <p className="text-sm font-bold">{macd.signal.toFixed(2)}</p>
+              </div>
+              <div className={`rounded-lg p-2 ${macd.histogram > 0 ? "bg-green-500/10" : "bg-red-500/10"}`}>
+                <p className="text-[10px] text-muted-foreground">Histogram</p>
+                <p className={`text-sm font-bold ${macd.histogram > 0 ? "text-green-400" : "text-red-400"}`}>
+                  {macd.histogram > 0 ? "+" : ""}{macd.histogram.toFixed(2)}
+                </p>
+              </div>
+            </div>
+            {/* MACD bar visual */}
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Histogram</p>
+              <div className="flex items-center gap-1 h-6">
+                <div className="flex-1 bg-red-500/20 h-full rounded-l flex items-center justify-end pr-1">
+                  {!macd.bullish && <div className="bg-red-500 h-3/4 rounded" style={{ width: `${Math.min(100, Math.abs(macd.histogram / price) * 20000)}%` }} />}
+                </div>
+                <div className="w-px h-full bg-border" />
+                <div className="flex-1 bg-green-500/20 h-full rounded-r flex items-center pl-1">
+                  {macd.bullish && <div className="bg-green-500 h-3/4 rounded" style={{ width: `${Math.min(100, Math.abs(macd.histogram / price) * 20000)}%` }} />}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {macd.bullish && macd.value > 0 ? "MACD bullish di atas zero line — sinyal beli kuat, momentum positif terkonfirmasi" :
+               macd.bullish && macd.value < 0 ? "Histogram berbalik positif — potensi reversal, perhatikan zero-line cross" :
+               !macd.bullish && macd.value < 0 ? "MACD bearish di bawah zero line — tekanan jual berlanjut" :
+               "Histogram berbalik negatif — momentum melemah, waspadai koreksi"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Bollinger Bands */}
+      {bb && (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="bg-muted/40 px-3 py-1.5 flex items-center justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Bollinger Bands (20, 2σ)</p>
+            <Badge className={`text-[10px] ${bb.position > 0.8 ? "bg-red-500/20 text-red-400 border-red-500/30" : bb.position < 0.2 ? "bg-green-500/20 text-green-400 border-green-500/30" : "border-border"}`}>
+              {bb.position > 0.8 ? "Overbought" : bb.position < 0.2 ? "Oversold" : `Pos: ${(bb.position * 100).toFixed(0)}%`}
+            </Badge>
+          </div>
+          <div className="p-3 space-y-2">
+            {/* Band levels */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-red-500/5 border border-red-500/20 p-2">
+                <p className="text-[10px] text-red-400">Upper Band</p>
+                <p className="text-xs font-bold tabular-nums">{fmt(bb.upper)}</p>
+              </div>
+              <div className="rounded-lg bg-muted/30 border border-border p-2">
+                <p className="text-[10px] text-muted-foreground">Middle (SMA)</p>
+                <p className="text-xs font-bold tabular-nums">{fmt(bb.middle)}</p>
+              </div>
+              <div className="rounded-lg bg-green-500/5 border border-green-500/20 p-2">
+                <p className="text-[10px] text-green-400">Lower Band</p>
+                <p className="text-xs font-bold tabular-nums">{fmt(bb.lower)}</p>
+              </div>
+            </div>
+            {/* Position bar */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-green-400">Lower</span>
+                <span className="text-[10px] text-muted-foreground">Posisi Harga dalam Band</span>
+                <span className="text-[10px] text-red-400">Upper</span>
+              </div>
+              <div className="relative w-full h-4 rounded-full bg-gradient-to-r from-green-500/30 via-muted/30 to-red-500/30 overflow-hidden">
+                <div
+                  className="absolute top-1 bottom-1 w-2 rounded-full bg-white shadow"
+                  style={{ left: `${Math.max(2, Math.min(96, bb.position * 100))}%`, transform: "translateX(-50%)" }}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {bb.position > 0.9 ? "Harga di atas upper band — kondisi overbought ekstrem, potensi reversal atau continuation breakout" :
+               bb.position > 0.7 ? "Harga mendekati upper band — pasar panas, waspadai koreksi" :
+               bb.position < 0.1 ? "Harga di bawah lower band — kondisi oversold ekstrem, potensi rebound kuat" :
+               bb.position < 0.3 ? "Harga mendekati lower band — area demand potensial, perhatikan sinyal beli" :
+               "Harga dalam area tengah band — tidak ada sinyal ekstrem, pasar konsolidasi"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Education */}
+      <div className="bg-muted/20 rounded-lg p-2.5 space-y-1">
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Cara Membaca MACD & Bollinger</p>
+        <ul className="space-y-1">
+          {[
+            "MACD cross ke atas signal line = sinyal beli (bullish crossover)",
+            "Histogram positif di atas zero = momentum bullish kuat",
+            "Harga sentuh lower Bollinger Band = oversold (potensi beli)",
+            "Harga sentuh upper Bollinger Band = overbought (potensi jual)",
+            "Band menyempit (squeeze) = volatilitas rendah, breakout akan datang",
+          ].map((r, i) => (
+            <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+              <span className="text-primary/60 shrink-0">•</span> {r}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function MarketAnalysisPanel({
-  analysis, price, isCrypto,
+  analysis, price, isCrypto, backendInd,
 }: {
-  analysis: MarketAnalysis; price: number; isCrypto: boolean;
+  analysis: MarketAnalysis; price: number; isCrypto: boolean; backendInd?: BackendIndicators;
 }) {
-  const [activeTab, setActiveTab] = useState<"sr" | "flow" | "volume" | "ema">("sr");
+  const [activeTab, setActiveTab] = useState<"sr" | "flow" | "volume" | "ema" | "structure" | "smc" | "macd">("sr");
   const currency = isCrypto ? "USD" : "IDR";
   const fmt = (v: number) => formatCurrency(v, currency);
 
   const tabs = [
-    { id: "sr",     icon: Layers,   label: "Support/Resistance" },
-    { id: "flow",   icon: BarChart2, label: "Order Flow" },
-    { id: "volume", icon: Volume2,   label: "Volume" },
-    { id: "ema",    icon: TrendingUp, label: "EMA / VWAP" },
+    { id: "sr",        icon: Layers,          label: "S/R" },
+    { id: "structure", icon: GitBranch,        label: "Struktur" },
+    { id: "smc",       icon: Brain,            label: "SMC" },
+    { id: "macd",      icon: Activity,         label: "MACD" },
+    { id: "flow",      icon: BarChart2,        label: "Order Flow" },
+    { id: "volume",    icon: Volume2,          label: "Volume" },
+    { id: "ema",       icon: TrendingUp,       label: "EMA/VWAP" },
   ] as const;
 
   return (
@@ -601,17 +1006,33 @@ function MarketAnalysisPanel({
             Vol {analysis.volumeStatus === "high" ? "Tinggi" : analysis.volumeStatus === "low" ? "Rendah" : "Normal"}
             {analysis.volumeConfirm ? " ✓" : ""}
           </Badge>
+          {backendInd?.breakOfStructure && (
+            <Badge variant="outline" className={`text-[10px] ${backendInd.bosDirection === "bullish" ? "border-green-400/40 text-green-400" : "border-red-400/40 text-red-400"}`}>
+              BOS {backendInd.bosDirection === "bullish" ? "↑" : "↓"}
+            </Badge>
+          )}
+          {backendInd?.changeOfCharacter && (
+            <Badge variant="outline" className="text-[10px] border-blue-400/40 text-blue-400">CHOCH</Badge>
+          )}
           {analysis.emaCross !== "neutral" && (
             <Badge variant="outline" className={`text-[10px] ${
               analysis.emaCross === "golden" ? "border-yellow-400/40 text-yellow-400" : "border-blue-400/40 text-blue-400"
             }`}>
-              {analysis.emaCross === "golden" ? "✨ Golden Cross" : "💧 Death Cross"}
+              {analysis.emaCross === "golden" ? "✨ Golden" : "💧 Death"}
+            </Badge>
+          )}
+          {backendInd?.macd && (
+            <Badge variant="outline" className={`text-[10px] ${backendInd.macd.bullish ? "border-green-400/40 text-green-400" : "border-red-400/40 text-red-400"}`}>
+              MACD {backendInd.macd.bullish ? "↑" : "↓"}
             </Badge>
           )}
           <p className="text-xs text-muted-foreground ml-1 flex-1">
             {activeTab === "sr" ? analysis.srComment :
              activeTab === "flow" ? analysis.orderFlowLabel :
              activeTab === "volume" ? analysis.volumeComment :
+             activeTab === "structure" ? (backendInd?.marketStructure === "uptrend" ? "Struktur pasar bullish: HH & HL terkonfirmasi" : backendInd?.marketStructure === "downtrend" ? "Struktur pasar bearish: LH & LL aktif" : "Pasar ranging, belum ada arah tren jelas") :
+             activeTab === "smc" ? "Smart Money: Order Block & Fair Value Gap untuk entry presisi" :
+             activeTab === "macd" ? (backendInd?.macd?.bullish ? "MACD bullish — momentum positif" : "MACD bearish — momentum negatif") :
              analysis.maComment}
           </p>
         </div>
@@ -619,6 +1040,15 @@ function MarketAnalysisPanel({
         {/* Panel content */}
         {activeTab === "sr" && (
           <SRLadder levels={analysis.srLevels} currentPrice={price} fmt={fmt} />
+        )}
+        {activeTab === "structure" && backendInd && (
+          <StructurePanel ind={backendInd} fmt={fmt} />
+        )}
+        {activeTab === "smc" && backendInd && (
+          <SMCPanel ind={backendInd} fmt={fmt} />
+        )}
+        {activeTab === "macd" && backendInd && (
+          <MACDPanel ind={backendInd} price={price} fmt={fmt} />
         )}
         {activeTab === "flow" && (
           <OrderFlowGauge
@@ -860,16 +1290,49 @@ export default function PredictionDetail() {
         detail.technicalIndicators?.support, detail.technicalIndicators?.resistance,
       ) : null;
 
-  const marketAnalysis = detail?.currentPrice && detail?.technicalIndicators
+  const ti = detail?.technicalIndicators;
+  const backendInd: BackendIndicators | undefined = ti ? {
+    marketStructure: (ti as any).marketStructure,
+    higherHighs: (ti as any).higherHighs,
+    higherLows: (ti as any).higherLows,
+    lowerHighs: (ti as any).lowerHighs,
+    lowerLows: (ti as any).lowerLows,
+    breakOfStructure: (ti as any).breakOfStructure,
+    bosDirection: (ti as any).bosDirection,
+    changeOfCharacter: (ti as any).changeOfCharacter,
+    cochDirection: (ti as any).cochDirection,
+    candlePattern: (ti as any).candlePattern,
+    rejectionCandle: (ti as any).rejectionCandle,
+    momentumCandle: (ti as any).momentumCandle,
+    fomoAlert: (ti as any).fomoAlert,
+    stopHuntRisk: (ti as any).stopHuntRisk,
+    liquidationRisk: (ti as any).liquidationRisk,
+    leverageWarning: (ti as any).leverageWarning,
+    riskRewardRatio: (ti as any).riskRewardRatio,
+    macd: (ti as any).macd,
+    bollingerBands: (ti as any).bollingerBands,
+    orderBlocks: (ti as any).orderBlocks,
+    fairValueGap: (ti as any).fairValueGap,
+    supplyZone: (ti as any).supplyZone,
+    demandZone: (ti as any).demandZone,
+    multiTimeframeAlignment: (ti as any).multiTimeframeAlignment,
+    ema7: (ti as any).ema7,
+    ema25: (ti as any).ema25,
+    ema99: (ti as any).ema99,
+  } : undefined;
+
+  const marketAnalysis = detail?.currentPrice && ti
     ? buildMarketAnalysis(
         detail.currentPrice,
-        detail.technicalIndicators.support ?? detail.currentPrice * 0.95,
-        detail.technicalIndicators.resistance ?? detail.currentPrice * 1.05,
+        ti.support ?? detail.currentPrice * 0.95,
+        ti.resistance ?? detail.currentPrice * 1.05,
         detail.priceChange24h ?? 0,
         detail.priceChange7d ?? null,
-        detail.technicalIndicators.volumeTrend ?? "stable",
-        detail.technicalIndicators.movingAverage7d ?? null,
+        ti.volumeTrend ?? "stable",
+        ti.movingAverage7d ?? null,
         detail.signal ?? "neutral",
+        backendInd?.ema7 ? (ti as any).vwap : null,
+        backendInd?.ema25 ?? null,
       ) : null;
 
   if (error) {
@@ -969,12 +1432,54 @@ export default function PredictionDetail() {
             </Card>
           )}
 
-          {/* Market Analysis Panel (S/R, Order Flow, Volume, EMA/VWAP) */}
+          {/* Risk Alert Bar */}
+          {backendInd && (backendInd.fomoAlert || backendInd.stopHuntRisk === "high" || backendInd.liquidationRisk === "high" || backendInd.leverageWarning) && (
+            <Card className="border-orange-500/40 bg-orange-500/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <AlertTriangle className="h-5 w-5 text-orange-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-bold text-orange-400">Peringatan Risiko Terdeteksi</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">AI mendeteksi kondisi risiko tinggi pada aset ini</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {backendInd.fomoAlert && (
+                    <div className="flex items-center gap-1.5 rounded-lg bg-red-500/10 border border-red-500/30 px-2.5 py-1.5">
+                      <Flame className="h-3.5 w-3.5 text-red-400" />
+                      <span className="text-xs font-semibold text-red-400">FOMO Alert — Waspadai Beli di Puncak</span>
+                    </div>
+                  )}
+                  {backendInd.stopHuntRisk === "high" && (
+                    <div className="flex items-center gap-1.5 rounded-lg bg-orange-500/10 border border-orange-500/30 px-2.5 py-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5 text-orange-400" />
+                      <span className="text-xs font-semibold text-orange-400">Stop Hunt Risk Tinggi</span>
+                    </div>
+                  )}
+                  {backendInd.liquidationRisk === "high" && (
+                    <div className="flex items-center gap-1.5 rounded-lg bg-red-500/10 border border-red-500/30 px-2.5 py-1.5">
+                      <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
+                      <span className="text-xs font-semibold text-red-400">Risiko Likuidasi Tinggi</span>
+                    </div>
+                  )}
+                  {backendInd.leverageWarning && (
+                    <div className="flex items-center gap-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-2.5 py-1.5">
+                      <Zap className="h-3.5 w-3.5 text-yellow-400" />
+                      <span className="text-xs font-semibold text-yellow-400">Leverage Warning — Volatilitas Tinggi</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Market Analysis Panel (S/R, Struktur, SMC, MACD, Order Flow, Volume, EMA/VWAP) */}
           {marketAnalysis && (
             <MarketAnalysisPanel
               analysis={marketAnalysis}
               price={detail?.currentPrice ?? 0}
               isCrypto={isCrypto}
+              backendInd={backendInd}
             />
           )}
 
@@ -1049,38 +1554,88 @@ export default function PredictionDetail() {
               </Card>
             )}
 
-            {detail?.technicalIndicators && (
+            {ti && (
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Indikator Teknikal</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Indikator Teknikal Lengkap</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <TechIndicatorRow label="RSI (14)" value={detail.technicalIndicators.rsi.toFixed(1)}
-                    badge={detail.technicalIndicators.rsi > 70 ? "Overbought" : detail.technicalIndicators.rsi < 30 ? "Oversold" : "Normal"} />
-                  <TechIndicatorRow label="Tren" value={detail.technicalIndicators.trend} />
-                  <TechIndicatorRow label="Momentum" value={detail.technicalIndicators.momentum} />
-                  <TechIndicatorRow label="Volume Trend" value={detail.technicalIndicators.volumeTrend} />
-                  {detail.technicalIndicators.support > 0 && (
-                    <TechIndicatorRow label="Support (S1)" value={formatCurrency(detail.technicalIndicators.support, isCrypto ? "USD" : "IDR")} />
+                  {/* Core */}
+                  <TechIndicatorRow label="RSI (14)" value={ti.rsi.toFixed(1)}
+                    badge={ti.rsi > 70 ? "Overbought" : ti.rsi < 30 ? "Oversold" : "Normal"} />
+                  <TechIndicatorRow label="Tren" value={ti.trend} />
+                  <TechIndicatorRow label="Market Structure" value={(backendInd?.marketStructure ?? ti.trend) as string}
+                    badge={backendInd?.breakOfStructure ? "BOS ✓" : undefined} />
+                  <TechIndicatorRow label="Momentum" value={ti.momentum} />
+                  <TechIndicatorRow label="Multi-TF Alignment" value={backendInd?.multiTimeframeAlignment ?? "–"}
+                    badge={backendInd?.multiTimeframeAlignment === "aligned_bull" ? "Bullish" : backendInd?.multiTimeframeAlignment === "aligned_bear" ? "Bearish" : "Mixed"} />
+                  <TechIndicatorRow label="Candle Pattern" value={backendInd?.candlePattern?.replace(/_/g, " ") ?? "–"} />
+                  {/* Volume */}
+                  <TechIndicatorRow label="Volume Trend" value={ti.volumeTrend}
+                    badge={backendInd?.riskRewardRatio ? `R/R: ${backendInd.riskRewardRatio}x` : undefined} />
+                  {/* S/R */}
+                  {ti.support > 0 && (
+                    <TechIndicatorRow label="Support (S1)" value={formatCurrency(ti.support, isCrypto ? "USD" : "IDR")} />
                   )}
-                  {detail.technicalIndicators.resistance > 0 && (
-                    <TechIndicatorRow label="Resistance (R1)" value={formatCurrency(detail.technicalIndicators.resistance, isCrypto ? "USD" : "IDR")} />
+                  {ti.resistance > 0 && (
+                    <TechIndicatorRow label="Resistance (R1)" value={formatCurrency(ti.resistance, isCrypto ? "USD" : "IDR")} />
                   )}
-                  {marketAnalysis?.vwap && (
-                    <TechIndicatorRow label="VWAP" value={formatCurrency(marketAnalysis.vwap, isCrypto ? "USD" : "IDR")}
-                      badge={marketAnalysis.priceVsVwap === "above" ? "Bullish" : marketAnalysis.priceVsVwap === "below" ? "Bearish" : "At VWAP"} />
+                  {backendInd?.demandZone && (
+                    <TechIndicatorRow label="Demand Zone" value={formatCurrency(backendInd.demandZone, isCrypto ? "USD" : "IDR")}
+                      badge="Supply/Demand" />
                   )}
-                  {detail.technicalIndicators.movingAverage7d && (
-                    <TechIndicatorRow label="EMA 7D" value={formatCurrency(detail.technicalIndicators.movingAverage7d, isCrypto ? "USD" : "IDR")}
-                      badge={marketAnalysis?.priceVsEma7 === "above" ? "Above" : marketAnalysis?.priceVsEma7 === "below" ? "Below" : "At"} />
+                  {backendInd?.supplyZone && (
+                    <TechIndicatorRow label="Supply Zone" value={formatCurrency(backendInd.supplyZone, isCrypto ? "USD" : "IDR")} />
                   )}
-                  {marketAnalysis?.ema25 && (
-                    <TechIndicatorRow label="EMA 25D (est.)" value={formatCurrency(marketAnalysis.ema25, isCrypto ? "USD" : "IDR")} />
+                  {/* EMA */}
+                  {backendInd?.ema7 && (
+                    <TechIndicatorRow label="EMA 7" value={formatCurrency(backendInd.ema7, isCrypto ? "USD" : "IDR")}
+                      badge={detail?.currentPrice && detail.currentPrice > backendInd.ema7 ? "Above" : "Below"} />
+                  )}
+                  {backendInd?.ema25 && (
+                    <TechIndicatorRow label="EMA 25" value={formatCurrency(backendInd.ema25, isCrypto ? "USD" : "IDR")}
+                      badge={detail?.currentPrice && detail.currentPrice > backendInd.ema25 ? "Above" : "Below"} />
+                  )}
+                  {backendInd?.ema99 && (
+                    <TechIndicatorRow label="EMA 99" value={formatCurrency(backendInd.ema99, isCrypto ? "USD" : "IDR")}
+                      badge={detail?.currentPrice && detail.currentPrice > backendInd.ema99 ? "Above" : "Below"} />
                   )}
                   {marketAnalysis?.emaCross !== "neutral" && (
                     <TechIndicatorRow label="EMA Cross"
                       value={marketAnalysis?.emaCross === "golden" ? "✨ Golden Cross" : "💧 Death Cross"}
                       badge={marketAnalysis?.emaCross === "golden" ? "Bullish" : "Bearish"} />
+                  )}
+                  {/* MACD */}
+                  {backendInd?.macd && (
+                    <TechIndicatorRow label="MACD"
+                      value={`${backendInd.macd.value > 0 ? "+" : ""}${backendInd.macd.value.toFixed(2)}`}
+                      badge={backendInd.macd.bullish ? "Bullish" : "Bearish"} />
+                  )}
+                  {backendInd?.macd && (
+                    <TechIndicatorRow label="MACD Histogram"
+                      value={`${backendInd.macd.histogram > 0 ? "+" : ""}${backendInd.macd.histogram.toFixed(2)}`} />
+                  )}
+                  {/* Bollinger */}
+                  {backendInd?.bollingerBands && (
+                    <TechIndicatorRow label="Bollinger Position"
+                      value={`${(backendInd.bollingerBands.position * 100).toFixed(0)}%`}
+                      badge={backendInd.bollingerBands.position > 0.8 ? "Overbought" : backendInd.bollingerBands.position < 0.2 ? "Oversold" : "Normal"} />
+                  )}
+                  {/* SMC */}
+                  {backendInd?.fairValueGap?.exists && (
+                    <TechIndicatorRow label="Fair Value Gap"
+                      value={backendInd.fairValueGap.direction === "bullish" ? "Bullish FVG" : "Bearish FVG"}
+                      badge="SMC" />
+                  )}
+                  {/* Risk */}
+                  <TechIndicatorRow label="Stop Hunt Risk" value={backendInd?.stopHuntRisk ?? "–"} />
+                  <TechIndicatorRow label="Liquidation Risk" value={backendInd?.liquidationRisk ?? "–"} />
+                  {(backendInd?.riskRewardRatio ?? 0) > 0 && (
+                    <TechIndicatorRow label="Risk/Reward" value={`${backendInd?.riskRewardRatio}:1`}
+                      badge={(backendInd?.riskRewardRatio ?? 0) >= 2 ? "Good" : "Low"} />
+                  )}
+                  {backendInd?.fomoAlert && (
+                    <TechIndicatorRow label="FOMO Alert" value="⚠️ Aktif — Waspadai Entry" />
                   )}
                 </CardContent>
               </Card>
