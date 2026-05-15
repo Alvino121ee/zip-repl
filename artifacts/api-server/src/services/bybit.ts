@@ -247,6 +247,24 @@ export async function cancelOrder(orderId: string, symbol: string) {
   });
 }
 
+/**
+ * Close an existing position by placing a reduceOnly opposite order.
+ * side = the NEW order side (opposite of position):
+ *   to close a LONG (Buy position) → pass side="Sell"
+ *   to close a SHORT (Sell position) → pass side="Buy"
+ */
+export async function closePosition(symbol: string, side: "Buy" | "Sell", qty: string) {
+  return bybitPost<{ orderId: string }>("/v5/order/create", {
+    category: "linear",
+    symbol,
+    side,
+    orderType: "Market",
+    qty,
+    timeInForce: "IOC",
+    reduceOnly: true,
+  });
+}
+
 // ─── Symbol mapping ────────────────────────────────────────────────────────────
 
 const SYMBOL_MAP: Record<string, string> = {
@@ -269,27 +287,32 @@ export function toBybitSymbol(symbol: string): string | null {
 
 export async function getHighConfidenceSignals() {
   const preds = await getCryptoPredictions(50);
-  return preds
+  const mapped = preds
     .filter(
       (p) =>
-        (p.signal === "strong_buy" || p.signal === "buy") &&
+        (p.signal === "strong_buy" || p.signal === "buy" || p.signal === "strong_sell" || p.signal === "sell") &&
         p.confidence >= autoConfig.minConfidence &&
         toBybitSymbol(p.symbol) !== null &&
         p.currentPrice > 0
     )
     .sort((a, b) => b.confidence - a.confidence)
-    .slice(0, 10)
-    .map((p) => ({
-      assetId: p.assetId,
-      symbol: p.symbol,
-      bybitSymbol: toBybitSymbol(p.symbol)!,
-      signal: p.signal as "strong_buy" | "buy",
-      confidence: p.confidence,
-      price: p.currentPrice,
-      riskLevel: p.riskLevel,
-      stopLoss: p.stopLoss,
-      takeProfit: p.takeProfit,
-    }));
+    .slice(0, 20)
+    .map((p) => {
+      const isSell = p.signal === "strong_sell" || p.signal === "sell";
+      return {
+        assetId: p.assetId,
+        symbol: p.symbol,
+        bybitSymbol: toBybitSymbol(p.symbol)!,
+        signal: p.signal as "strong_buy" | "buy" | "strong_sell" | "sell",
+        side: (isSell ? "Sell" : "Buy") as "Buy" | "Sell",
+        confidence: p.confidence,
+        price: p.currentPrice,
+        riskLevel: p.riskLevel,
+        stopLoss: p.stopLoss,
+        takeProfit: p.takeProfit,
+      };
+    });
+  return mapped;
 }
 
 // ─── Bybit Universe Scanner ────────────────────────────────────────────────────
@@ -310,7 +333,8 @@ export interface UniverseCandidate {
   change24h: number;
   volume24hUsdt: number;
   score: number;
-  signal: "strong_buy" | "buy";
+  signal: "strong_buy" | "buy" | "strong_sell" | "sell";
+  side: "Buy" | "Sell";
   confidence: number;
   limitPrice: number;
 }
@@ -330,52 +354,58 @@ export async function scanBybitUniverse(): Promise<UniverseCandidate[]> {
     return universeCache.list;
   }
 
-  // Public endpoint — no auth needed
   const res = await fetch(`${BYBIT_BASE}/v5/market/tickers?category=linear`);
-  const data = (await res.json()) as {
-    retCode: number;
-    result: { list: BybitTicker[] };
-  };
+  const data = (await res.json()) as { retCode: number; result: { list: BybitTicker[] } };
   if (data.retCode !== 0) throw new Error(`Bybit tickers: retCode ${data.retCode}`);
 
-  const candidates: UniverseCandidate[] = [];
+  const longs: UniverseCandidate[] = [];
+  const shorts: UniverseCandidate[] = [];
 
   for (const t of data.result.list) {
     if (!t.symbol.endsWith("USDT")) continue;
     if (t.symbol.includes("PERP")) continue;
     if (UNIVERSE_BLACKLIST.has(t.symbol)) continue;
 
-    const price      = parseFloat(t.lastPrice);
-    const change24h  = parseFloat(t.price24hPcnt) * 100; // → %
-    const turnover   = parseFloat(t.turnover24h);         // USDT volume
-    const high24h    = parseFloat(t.highPrice24h);
-    const low24h     = parseFloat(t.lowPrice24h);
+    const price     = parseFloat(t.lastPrice);
+    const change24h = parseFloat(t.price24hPcnt) * 100;
+    const turnover  = parseFloat(t.turnover24h);
+    const high24h   = parseFloat(t.highPrice24h);
+    const low24h    = parseFloat(t.lowPrice24h);
 
-    if (price < 0.001)          continue; // too cheap → lot-size problems
-    if (turnover < 2_000_000)   continue; // min 2M USDT/day liquidity
-    if (change24h < 0.5)        continue; // must be moving up
-    if (change24h > 30)         continue; // skip extreme pumps
+    if (price < 0.001)       continue;
+    if (turnover < 2_000_000) continue;
 
-    // Recovery = where is current price in today's range (0=at low, 1=at high)
     const range    = high24h - low24h;
     const recovery = range > 0 ? (price - low24h) / range : 0.5;
 
-    // Score: momentum × volume_weight × range_position
-    const score = change24h * Math.log10(Math.max(turnover, 1)) * (0.4 + recovery * 0.6);
+    // ── LONG candidates: moving up ──────────────────────────────────────────
+    if (change24h >= 0.5 && change24h <= 30) {
+      const score = change24h * Math.log10(Math.max(turnover, 1)) * (0.4 + recovery * 0.6);
+      const signal: "strong_buy" | "buy" = change24h >= 4 ? "strong_buy" : "buy";
+      const confidence = Math.min(99, Math.round(45 + score * 0.7));
+      const limitPrice = price * (1 - autoConfig.limitOffsetPct / 100);
+      longs.push({ symbol: t.symbol, price, change24h, volume24hUsdt: turnover, score, signal, side: "Buy", confidence, limitPrice });
+    }
 
-    const signal: "strong_buy" | "buy" = change24h >= 4 ? "strong_buy" : "buy";
-    const confidence = Math.min(99, Math.round(45 + score * 0.7));
-
-    // Limit price: offset % below current market price
-    const limitPrice = price * (1 - autoConfig.limitOffsetPct / 100);
-
-    candidates.push({ symbol: t.symbol, price, change24h, volume24hUsdt: turnover, score, signal, confidence, limitPrice });
+    // ── SHORT candidates: moving down ────────────────────────────────────────
+    if (change24h <= -0.5 && change24h >= -25) {
+      const drop = Math.abs(change24h);
+      // Range position inverted: 0=at high (worst short), 1=at low (best short — already committed)
+      const shortPos = range > 0 ? 1 - recovery : 0.5;
+      const score = drop * Math.log10(Math.max(turnover, 1)) * (0.4 + shortPos * 0.6);
+      const signal: "strong_sell" | "sell" = drop >= 4 ? "strong_sell" : "sell";
+      const confidence = Math.min(99, Math.round(45 + score * 0.7));
+      // Limit price: slightly above current for short entry
+      const limitPrice = price * (1 + autoConfig.limitOffsetPct / 100);
+      shorts.push({ symbol: t.symbol, price, change24h, volume24hUsdt: turnover, score, signal, side: "Sell", confidence, limitPrice });
+    }
   }
 
-  candidates.sort((a, b) => b.score - a.score);
-  const top = candidates.slice(0, 20);
+  longs.sort((a, b) => b.score - a.score);
+  shorts.sort((a, b) => b.score - a.score);
+  const top = [...longs.slice(0, 10), ...shorts.slice(0, 10)];
   universeCache = { list: top, at: Date.now() };
-  logger.info({ total: data.result.list.length, passed: candidates.length, top: top.length }, "Bybit universe scan complete");
+  logger.info({ total: data.result.list.length, longs: longs.length, shorts: shorts.length, top: top.length }, "Bybit universe scan complete (bidirectional)");
   return top;
 }
 

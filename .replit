@@ -28,5 +28,15 @@ localPort = 8081
 externalPort = 80
 
 [[ports]]
+localPort = 8082
+externalPort = 3001
+
+[[ports]]
 localPort = 18124
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+BYBIT_API_SECRET = "sXloKDXA2bYzW9Ma5vPT6FXro80rivozXTHJ"
+BYBIT_API_KEY = "QCItDBxxHWG5C6OJiI"

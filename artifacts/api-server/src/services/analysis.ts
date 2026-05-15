@@ -18,7 +18,8 @@ export interface TimeframeSignal {
   interval: string;
   trend: "up" | "down" | "sideways";
   momentum: "strong" | "normal" | "weak";
-  confirmation: boolean;
+  bullishConf: boolean;
+  bearishConf: boolean;
   ema20: number;
   ema50: number;
   rsi: number;
@@ -32,13 +33,17 @@ export interface FullAnalysis {
   analyzedAt: number;
   marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
   overallConfidence: number;
+  side: "Buy" | "Sell" | null;
   shouldEnter: boolean;
   waitReason: string | null;
+  // Should exit an EXISTING position?
+  shouldExitLong: boolean;
+  shouldExitShort: boolean;
+  exitReason: string | null;
   entryPrice: number;
   stopLoss: number;
   takeProfit: number;
   riskRewardRatio: number;
-  side: "Buy" | "Sell";
   reasons: string[];
   warnings: string[];
   confirmations: number;
@@ -73,8 +78,6 @@ async function fetchKlines(symbol: string, interval: string, limit = 200): Promi
     result: { list: string[][] };
   };
   if (data.retCode !== 0) throw new Error(`Kline fetch failed: ${data.retCode}`);
-
-  // Bybit returns newest first → reverse so index 0 = oldest
   return data.result.list
     .map((r) => ({
       time: parseInt(r[0]),
@@ -95,14 +98,8 @@ function ema(values: number[], period: number): number[] {
   const result: number[] = [];
   let prev = values.slice(0, period).reduce((a, b) => a + b, 0) / period;
   for (let i = 0; i < values.length; i++) {
-    if (i < period - 1) {
-      result.push(NaN);
-      continue;
-    }
-    if (i === period - 1) {
-      result.push(prev);
-      continue;
-    }
+    if (i < period - 1) { result.push(NaN); continue; }
+    if (i === period - 1) { result.push(prev); continue; }
     prev = values[i] * k + prev * (1 - k);
     result.push(prev);
   }
@@ -121,8 +118,7 @@ function rsi(closes: number[], period = 14): number {
   const avgGain = gains.slice(-period).reduce((a, b) => a + b, 0) / period;
   const avgLoss = losses.slice(-period).reduce((a, b) => a + b, 0) / period;
   if (avgLoss === 0) return 100;
-  const rs = avgGain / avgLoss;
-  return 100 - 100 / (1 + rs);
+  return 100 - 100 / (1 + avgGain / avgLoss);
 }
 
 function atr(klines: Kline[], period = 14): number {
@@ -135,13 +131,11 @@ function atr(klines: Kline[], period = 14): number {
 }
 
 function vwap(klines: Kline[]): number {
-  // Session VWAP: use last 100 candles as "session"
   const slice = klines.slice(-100);
-  let cumPV = 0;
-  let cumV = 0;
+  let cumPV = 0, cumV = 0;
   for (const k of slice) {
-    const typicalPrice = (k.high + k.low + k.close) / 3;
-    cumPV += typicalPrice * k.volume;
+    const tp = (k.high + k.low + k.close) / 3;
+    cumPV += tp * k.volume;
     cumV += k.volume;
   }
   return cumV > 0 ? cumPV / cumV : klines[klines.length - 1].close;
@@ -157,9 +151,9 @@ function swingHighs(klines: Kline[], lookback = 5): number[] {
   const highs: number[] = [];
   for (let i = lookback; i < klines.length - lookback; i++) {
     const h = klines[i].high;
-    const isHigh = klines.slice(i - lookback, i).every((k) => k.high <= h) &&
-      klines.slice(i + 1, i + lookback + 1).every((k) => k.high <= h);
-    if (isHigh) highs.push(h);
+    if (klines.slice(i - lookback, i).every((k) => k.high <= h) &&
+        klines.slice(i + 1, i + lookback + 1).every((k) => k.high <= h))
+      highs.push(h);
   }
   return highs.slice(-6);
 }
@@ -168,9 +162,9 @@ function swingLows(klines: Kline[], lookback = 5): number[] {
   const lows: number[] = [];
   for (let i = lookback; i < klines.length - lookback; i++) {
     const l = klines[i].low;
-    const isLow = klines.slice(i - lookback, i).every((k) => k.low >= l) &&
-      klines.slice(i + 1, i + lookback + 1).every((k) => k.low >= l);
-    if (isLow) lows.push(l);
+    if (klines.slice(i - lookback, i).every((k) => k.low >= l) &&
+        klines.slice(i + 1, i + lookback + 1).every((k) => k.low >= l))
+      lows.push(l);
   }
   return lows.slice(-6);
 }
@@ -179,30 +173,15 @@ function detectCandlePattern(klines: Kline[]): string | null {
   const last = klines[klines.length - 1];
   const prev = klines[klines.length - 2];
   if (!last || !prev) return null;
-
   const body = Math.abs(last.close - last.open);
-  const range = last.high - last.low;
+  const range = last.high - last.low || 0.0001;
   const lowerWick = Math.min(last.open, last.close) - last.low;
   const upperWick = last.high - Math.max(last.open, last.close);
-  const doji = body / (range || 1) < 0.1;
-  const bullishEngulf =
-    prev.close < prev.open &&
-    last.close > last.open &&
-    last.close > prev.open &&
-    last.open < prev.close;
-  const hammer =
-    lowerWick > body * 2 &&
-    upperWick < body * 0.5 &&
-    last.close > last.open;
-  const shootingStar =
-    upperWick > body * 2 &&
-    lowerWick < body * 0.5 &&
-    last.close < last.open;
-
-  if (bullishEngulf) return "Bullish Engulfing";
-  if (hammer) return "Hammer (Bullish)";
-  if (shootingStar) return "Shooting Star (Bearish)";
-  if (doji) return "Doji (Indecision)";
+  if (prev.close < prev.open && last.close > last.open && last.close > prev.open && last.open < prev.close) return "Bullish Engulfing";
+  if (prev.close > prev.open && last.close < last.open && last.close < prev.open && last.open > prev.close) return "Bearish Engulfing";
+  if (lowerWick > body * 2 && upperWick < body * 0.5 && last.close > last.open) return "Hammer (Bullish)";
+  if (upperWick > body * 2 && lowerWick < body * 0.5 && last.close < last.open) return "Shooting Star (Bearish)";
+  if (body / range < 0.1) return "Doji (Indecision)";
   return null;
 }
 
@@ -210,16 +189,11 @@ function detectCandlePattern(klines: Kline[]): string | null {
 
 function analyzeTimeframe(klines: Kline[], interval: string): TimeframeSignal {
   if (klines.length < 50) {
-    return {
-      interval, trend: "sideways", momentum: "weak", confirmation: false,
-      ema20: 0, ema50: 0, rsi: 50, volumeRatio: 1, candlePattern: null,
-      note: "Insufficient data",
-    };
+    return { interval, trend: "sideways", momentum: "weak", bullishConf: false, bearishConf: false,
+      ema20: 0, ema50: 0, rsi: 50, volumeRatio: 1, candlePattern: null, note: "Insufficient data" };
   }
-
   const closes = klines.map((k) => k.close);
   const price = closes[closes.length - 1];
-
   const ema20s = ema(closes, 20);
   const ema50s = ema(closes, 50);
   const e20 = ema20s[ema20s.length - 1];
@@ -234,14 +208,10 @@ function analyzeTimeframe(klines: Kline[], interval: string): TimeframeSignal {
   const bearishEma = e20 < e50 && price < e20;
   const trend: "up" | "down" | "sideways" = bullishEma ? "up" : bearishEma ? "down" : "sideways";
   const strongMomentum = volRatio > 1.5 && (rsiVal > 55 || rsiVal < 45);
-  const momentum: "strong" | "normal" | "weak" = strongMomentum
-    ? "strong"
-    : volRatio > 0.8
-    ? "normal"
-    : "weak";
+  const momentum: "strong" | "normal" | "weak" = strongMomentum ? "strong" : volRatio > 0.8 ? "normal" : "weak";
 
-  const confirmation =
-    trend === "up" && rsiVal > 45 && rsiVal < 75 && volRatio >= 0.9;
+  const bullishConf = trend === "up" && rsiVal > 45 && rsiVal < 75 && volRatio >= 0.9;
+  const bearishConf = trend === "down" && rsiVal < 55 && rsiVal > 25 && volRatio >= 0.9;
 
   let note = "";
   if (trend === "up") note = `EMA bullish, RSI ${rsiVal.toFixed(0)}`;
@@ -250,51 +220,37 @@ function analyzeTimeframe(klines: Kline[], interval: string): TimeframeSignal {
   if (volRatio > 1.5) note += " · Volume spike";
   if (pattern) note += ` · ${pattern}`;
 
-  return { interval, trend, momentum, confirmation, ema20: e20, ema50: e50, rsi: rsiVal, volumeRatio: volRatio, candlePattern: pattern, note };
+  return { interval, trend, momentum, bullishConf, bearishConf, ema20: e20, ema50: e50,
+    rsi: rsiVal, volumeRatio: volRatio, candlePattern: pattern, note };
 }
 
 // ─── Full analysis ────────────────────────────────────────────────────────────
 
-// Cache to avoid hammering kline API
 const analysisCache = new Map<string, { data: FullAnalysis; at: number }>();
-const CACHE_TTL = 30_000; // 30s
+const CACHE_TTL = 30_000;
 
 export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const cached = analysisCache.get(symbol);
   if (cached && Date.now() - cached.at < CACHE_TTL) return cached.data;
 
-  logger.info({ symbol }, "Running full technical analysis");
+  logger.info({ symbol }, "Running full bidirectional technical analysis");
 
   const intervals: [string, string, number][] = [
-    ["1", "1m", 200],
-    ["5", "5m", 200],
-    ["15", "15m", 200],
-    ["60", "1h", 200],
+    ["1", "1m", 200], ["5", "5m", 200], ["15", "15m", 200], ["60", "1h", 200],
   ];
 
   const klineMap: Record<string, Kline[]> = {};
+  await Promise.all(intervals.map(async ([bybitInterval, label, limit]) => {
+    try { klineMap[label] = await fetchKlines(symbol, bybitInterval, limit); }
+    catch (err) { logger.warn({ symbol, interval: label, err }, "Failed to fetch klines"); klineMap[label] = []; }
+  }));
 
-  await Promise.all(
-    intervals.map(async ([bybitInterval, label, limit]) => {
-      try {
-        klineMap[label] = await fetchKlines(symbol, bybitInterval, limit);
-      } catch (err) {
-        logger.warn({ symbol, interval: label, err }, "Failed to fetch klines");
-        klineMap[label] = [];
-      }
-    })
-  );
-
-  // Use 15m as primary timeframe for indicators
   const primary = klineMap["15m"];
-  if (!primary || primary.length < 50) {
-    throw new Error(`Insufficient data for ${symbol}`);
-  }
+  if (!primary || primary.length < 50) throw new Error(`Insufficient data for ${symbol}`);
 
   const closes = primary.map((k) => k.close);
   const price = closes[closes.length - 1];
 
-  // EMA on 15m
   const ema20s = ema(closes, 20);
   const ema50s = ema(closes, 50);
   const ema200s = ema(closes, Math.min(200, closes.length));
@@ -308,204 +264,236 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const avgVol = avgVolume(primary);
   const currVol = primary[primary.length - 1].volume;
   const volRatio = avgVol > 0 ? currVol / avgVol : 1;
-
   const priceVsVwap: "above" | "below" = price > vwapVal ? "above" : "below";
-
   const emaAlignment: "bullish" | "bearish" | "mixed" =
     e20 > e50 && e50 > e200 ? "bullish" :
     e20 < e50 && e50 < e200 ? "bearish" : "mixed";
-
   const rsiZone: "overbought" | "oversold" | "neutral" =
     rsiVal > 70 ? "overbought" : rsiVal < 30 ? "oversold" : "neutral";
 
-  // Support / Resistance from 1h
   const hourly = klineMap["1h"].length > 20 ? klineMap["1h"] : primary;
   const rawResistance = swingHighs(hourly).filter((h) => h > price).sort((a, b) => a - b);
   const rawSupport = swingLows(hourly).filter((l) => l < price).sort((a, b) => b - a);
   const nearestResistance = rawResistance[0] ?? price * 1.03;
   const nearestSupport = rawSupport[0] ?? price * 0.97;
 
-  // Timeframe signals
   const multiTimeframe: Record<string, TimeframeSignal> = {};
   for (const [, label] of intervals) {
     multiTimeframe[label] = analyzeTimeframe(klineMap[label] ?? [], label);
   }
 
-  // Score confirmations
-  const reasons: string[] = [];
-  const warnings: string[] = [];
-  let score = 0;
-  let confirmations = 0;
-
-  // EMA alignment
-  if (emaAlignment === "bullish") {
-    reasons.push("EMA 20 > 50 > 200 — Tren bullish jangka panjang");
-    score += 25;
-    confirmations++;
-  } else if (emaAlignment === "bearish") {
-    warnings.push("EMA bearish alignment — tren jangka panjang turun");
-    score -= 10;
-  } else {
-    warnings.push("EMA belum selaras — pasar masih ranging");
-  }
-
-  // Price vs EMA20
-  if (price > e20) {
-    reasons.push(`Harga (${price.toFixed(4)}) di atas EMA20 (${e20.toFixed(4)}) — momentum bullish`);
-    score += 10;
-    confirmations++;
-  } else {
-    warnings.push(`Harga di bawah EMA20 — konfirmasi belum kuat`);
-    score -= 5;
-  }
-
-  // Price vs VWAP
-  if (priceVsVwap === "above") {
-    reasons.push(`Harga di atas VWAP (${vwapVal.toFixed(4)}) — buyers in control`);
-    score += 15;
-    confirmations++;
-  } else {
-    warnings.push(`Harga di bawah VWAP — seller masih dominan`);
-    score -= 10;
-  }
-
-  // RSI
-  if (rsiVal >= 45 && rsiVal <= 65) {
-    reasons.push(`RSI ${rsiVal.toFixed(0)} — zona bullish optimal (45–65)`);
-    score += 15;
-    confirmations++;
-  } else if (rsiVal > 65 && rsiVal < 75) {
-    reasons.push(`RSI ${rsiVal.toFixed(0)} — momentum kuat, belum overbought`);
-    score += 8;
-  } else if (rsiVal >= 75) {
-    warnings.push(`RSI ${rsiVal.toFixed(0)} — overbought, risiko reversal tinggi`);
-    score -= 15;
-  } else if (rsiVal < 35) {
-    warnings.push(`RSI ${rsiVal.toFixed(0)} — oversold, tren mungkin berlanjut turun`);
-    score -= 10;
-  }
-
-  // Volume
-  if (volRatio >= 1.5) {
-    reasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi kuat`);
-    score += 15;
-    confirmations++;
-  } else if (volRatio >= 1.0) {
-    reasons.push(`Volume normal (${(volRatio * 100).toFixed(0)}% rata-rata)`);
-    score += 5;
-  } else {
-    warnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}% rata-rata) — signal tidak terkonfirmasi`);
-    score -= 5;
-  }
-
-  // Multi-timeframe
   const tfBullish = Object.values(multiTimeframe).filter((t) => t.trend === "up").length;
+  const tfBearish = Object.values(multiTimeframe).filter((t) => t.trend === "down").length;
   const tfTotal = Object.values(multiTimeframe).length;
-  if (tfBullish >= 3) {
-    reasons.push(`${tfBullish}/${tfTotal} timeframe bullish — konfirmasi multi-TF kuat`);
-    score += 20;
-    confirmations++;
-  } else if (tfBullish === 2) {
-    reasons.push(`${tfBullish}/${tfTotal} timeframe bullish — konfirmasi cukup`);
-    score += 10;
-    confirmations++;
-  } else {
-    warnings.push(`Hanya ${tfBullish}/${tfTotal} timeframe bullish — konfirmasi lemah`);
-    score -= 10;
-  }
 
-  // Candle pattern on 15m
+  const distToSupport = nearestSupport > 0 ? (price - nearestSupport) / price : 1;
+  const distToResistance = nearestResistance > 0 ? (nearestResistance - price) / price : 1;
   const pattern15m = detectCandlePattern(primary);
-  if (pattern15m && pattern15m.includes("Bullish")) {
-    reasons.push(`Candle pattern: ${pattern15m} — konfirmasi reversal/continuation`);
-    score += 10;
-    confirmations++;
-  } else if (pattern15m && pattern15m.includes("Bearish")) {
-    warnings.push(`Candle pattern: ${pattern15m} — potensi reversal bearish`);
-    score -= 10;
+
+  // ── Bullish scoring ──────────────────────────────────────────────────────────
+  let bullScore = 0;
+  let bullConf = 0;
+  const bullReasons: string[] = [];
+  const bullWarnings: string[] = [];
+
+  if (emaAlignment === "bullish") {
+    bullReasons.push("EMA 20 > 50 > 200 — tren bullish jangka panjang"); bullScore += 25; bullConf++;
+  } else if (emaAlignment === "bearish") {
+    bullWarnings.push("EMA bearish alignment — tren jangka panjang turun"); bullScore -= 10;
+  } else { bullWarnings.push("EMA belum selaras — pasar masih ranging"); }
+
+  if (price > e20) {
+    bullReasons.push(`Harga di atas EMA20 ($${e20.toFixed(4)}) — momentum bullish`); bullScore += 10; bullConf++;
+  } else { bullWarnings.push("Harga di bawah EMA20"); bullScore -= 5; }
+
+  if (priceVsVwap === "above") {
+    bullReasons.push(`Harga di atas VWAP ($${vwapVal.toFixed(4)}) — buyers in control`); bullScore += 15; bullConf++;
+  } else { bullWarnings.push("Harga di bawah VWAP — seller dominan"); bullScore -= 10; }
+
+  if (rsiVal >= 45 && rsiVal <= 65) {
+    bullReasons.push(`RSI ${rsiVal.toFixed(0)} — zona bullish optimal (45–65)`); bullScore += 15; bullConf++;
+  } else if (rsiVal > 65 && rsiVal < 75) {
+    bullReasons.push(`RSI ${rsiVal.toFixed(0)} — momentum kuat`); bullScore += 8;
+  } else if (rsiVal >= 75) {
+    bullWarnings.push(`RSI ${rsiVal.toFixed(0)} — overbought, risiko reversal`); bullScore -= 15;
+  } else if (rsiVal < 35) {
+    bullWarnings.push(`RSI ${rsiVal.toFixed(0)} — oversold, perlu konfirmasi`); bullScore -= 5;
   }
 
-  // Price near support
-  const distToSupport = (price - nearestSupport) / price;
+  if (volRatio >= 1.5) {
+    bullReasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata`); bullScore += 15; bullConf++;
+  } else if (volRatio >= 1.0) {
+    bullReasons.push(`Volume normal`); bullScore += 5;
+  } else { bullWarnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%)`); bullScore -= 5; }
+
+  if (tfBullish >= 3) {
+    bullReasons.push(`${tfBullish}/${tfTotal} timeframe bullish — konfirmasi multi-TF kuat`); bullScore += 20; bullConf++;
+  } else if (tfBullish === 2) {
+    bullReasons.push(`${tfBullish}/${tfTotal} timeframe bullish`); bullScore += 10; bullConf++;
+  } else { bullWarnings.push(`Hanya ${tfBullish}/${tfTotal} TF bullish`); bullScore -= 10; }
+
+  if (pattern15m?.includes("Bullish")) {
+    bullReasons.push(`Candle: ${pattern15m}`); bullScore += 10; bullConf++;
+  } else if (pattern15m?.includes("Bearish")) {
+    bullWarnings.push(`Candle: ${pattern15m} — potensi reversal bearish`); bullScore -= 10;
+  }
+
   if (distToSupport < 0.015) {
-    reasons.push(`Harga dekat support (${nearestSupport.toFixed(4)}) — area beli yang bagus`);
-    score += 10;
-    confirmations++;
+    bullReasons.push(`Harga dekat support ($${nearestSupport.toFixed(4)}) — area beli optimal`); bullScore += 10; bullConf++;
   }
-
-  // Price near resistance — risk
-  const distToResistance = (nearestResistance - price) / price;
   if (distToResistance < 0.008) {
-    warnings.push(`Harga sangat dekat resistance (${nearestResistance.toFixed(4)}) — risiko rejection tinggi`);
-    score -= 15;
+    bullWarnings.push(`Terlalu dekat resistance ($${nearestResistance.toFixed(4)})`); bullScore -= 15;
   }
 
-  // ATR-based SL/TP
-  const slDistance = Math.max(atrVal * 1.5, price * 0.015);
+  // ── Bearish scoring ──────────────────────────────────────────────────────────
+  let bearScore = 0;
+  let bearConf = 0;
+  const bearReasons: string[] = [];
+  const bearWarnings: string[] = [];
+
+  if (emaAlignment === "bearish") {
+    bearReasons.push("EMA 20 < 50 < 200 — tren bearish jangka panjang"); bearScore += 25; bearConf++;
+  } else if (emaAlignment === "bullish") {
+    bearWarnings.push("EMA bullish alignment — kontra tren"); bearScore -= 10;
+  } else { bearWarnings.push("EMA belum selaras — ranging"); }
+
+  if (price < e20) {
+    bearReasons.push(`Harga di bawah EMA20 ($${e20.toFixed(4)}) — momentum bearish`); bearScore += 10; bearConf++;
+  } else { bearWarnings.push("Harga masih di atas EMA20"); bearScore -= 5; }
+
+  if (priceVsVwap === "below") {
+    bearReasons.push(`Harga di bawah VWAP ($${vwapVal.toFixed(4)}) — sellers in control`); bearScore += 15; bearConf++;
+  } else { bearWarnings.push("Harga di atas VWAP — buyer masih dominan"); bearScore -= 10; }
+
+  if (rsiVal <= 55 && rsiVal >= 35) {
+    bearReasons.push(`RSI ${rsiVal.toFixed(0)} — zona bearish optimal (35–55)`); bearScore += 15; bearConf++;
+  } else if (rsiVal < 35 && rsiVal > 25) {
+    bearReasons.push(`RSI ${rsiVal.toFixed(0)} — momentum turun kuat`); bearScore += 8;
+  } else if (rsiVal <= 25) {
+    bearWarnings.push(`RSI ${rsiVal.toFixed(0)} — oversold, risiko reversal`); bearScore -= 15;
+  } else if (rsiVal > 65) {
+    bearWarnings.push(`RSI ${rsiVal.toFixed(0)} — overbought, butuh konfirmasi short`); bearScore -= 5;
+  }
+
+  if (volRatio >= 1.5) {
+    bearReasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata — konfirmasi bearish kuat`); bearScore += 15; bearConf++;
+  } else if (volRatio >= 1.0) {
+    bearReasons.push(`Volume normal`); bearScore += 5;
+  } else { bearWarnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%)`); bearScore -= 5; }
+
+  if (tfBearish >= 3) {
+    bearReasons.push(`${tfBearish}/${tfTotal} timeframe bearish — konfirmasi multi-TF kuat`); bearScore += 20; bearConf++;
+  } else if (tfBearish === 2) {
+    bearReasons.push(`${tfBearish}/${tfTotal} timeframe bearish`); bearScore += 10; bearConf++;
+  } else { bearWarnings.push(`Hanya ${tfBearish}/${tfTotal} TF bearish`); bearScore -= 10; }
+
+  if (pattern15m?.includes("Bearish")) {
+    bearReasons.push(`Candle: ${pattern15m} — konfirmasi reversal bearish`); bearScore += 10; bearConf++;
+  } else if (pattern15m?.includes("Bullish")) {
+    bearWarnings.push(`Candle: ${pattern15m} — kontra arah short`); bearScore -= 10;
+  }
+
+  if (distToResistance < 0.015) {
+    bearReasons.push(`Harga dekat resistance ($${nearestResistance.toFixed(4)}) — area short optimal`); bearScore += 10; bearConf++;
+  }
+  if (distToSupport < 0.008) {
+    bearWarnings.push(`Terlalu dekat support ($${nearestSupport.toFixed(4)})`); bearScore -= 15;
+  }
+
+  // ── Determine direction ──────────────────────────────────────────────────────
+  const bullConfidence = Math.min(99, Math.max(10, Math.round(50 + bullScore)));
+  const bearConfidence = Math.min(99, Math.max(10, Math.round(50 + bearScore)));
+
+  let marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS";
+  let side: "Buy" | "Sell" | null;
+  let overallConfidence: number;
+  let confirmations: number;
+  let reasons: string[];
+  let warnings: string[];
+
+  if (bullScore > bearScore && bullConfidence >= 60) {
+    marketDirection = "BULLISH"; side = "Buy";
+    overallConfidence = bullConfidence; confirmations = bullConf;
+    reasons = bullReasons; warnings = bullWarnings;
+  } else if (bearScore > bullScore && bearConfidence >= 60) {
+    marketDirection = "BEARISH"; side = "Sell";
+    overallConfidence = bearConfidence; confirmations = bearConf;
+    reasons = bearReasons; warnings = bearWarnings;
+  } else {
+    marketDirection = "SIDEWAYS"; side = null;
+    overallConfidence = Math.max(bullConfidence, bearConfidence);
+    confirmations = Math.max(bullConf, bearConf);
+    reasons = []; warnings = ["Market ranging — tidak ada arah yang dominan"];
+  }
+
+  // ── SL / TP (direction-aware, ATR-based) ───────────────────────────────────
+  const slDistance = Math.max(atrVal * 1.5, price * 0.012);
   const tpDistance = slDistance * 2.5;
   const entryPrice = price;
-  const stopLoss = entryPrice - slDistance;
-  const takeProfit = entryPrice + tpDistance;
+
+  let stopLoss: number;
+  let takeProfit: number;
+
+  if (side === "Sell") {
+    stopLoss = entryPrice + slDistance;   // SL above entry for shorts
+    takeProfit = entryPrice - tpDistance; // TP below entry for shorts
+  } else {
+    stopLoss = entryPrice - slDistance;   // SL below entry for longs
+    takeProfit = entryPrice + tpDistance; // TP above entry for longs
+  }
+
   const riskRewardRatio = tpDistance / slDistance;
 
-  // Normalize confidence
-  const overallConfidence = Math.min(99, Math.max(10, Math.round(50 + score)));
-
-  // Market direction
-  const marketDirection: "BULLISH" | "BEARISH" | "SIDEWAYS" =
-    tfBullish >= 3 && emaAlignment === "bullish" ? "BULLISH" :
-    tfBullish <= 1 && emaAlignment === "bearish" ? "BEARISH" :
-    "SIDEWAYS";
-
-  // Entry decision
-  let shouldEnter = overallConfidence >= 65 && confirmations >= 3 && marketDirection !== "BEARISH";
+  // ── Entry & exit decisions ──────────────────────────────────────────────────
+  let shouldEnter = overallConfidence >= 65 && confirmations >= 3 && side !== null;
   let waitReason: string | null = null;
 
   if (!shouldEnter) {
-    if (marketDirection === "BEARISH") waitReason = "Tren bearish — hindari entry long";
-    else if (overallConfidence < 65) waitReason = `Confidence terlalu rendah (${overallConfidence}%) — tunggu setup lebih baik`;
+    if (side === null) waitReason = "Market sideways — tidak ada setup yang jelas, tunggu breakout";
+    else if (overallConfidence < 65) waitReason = `Confidence rendah (${overallConfidence}%) — butuh lebih banyak konfirmasi`;
     else if (confirmations < 3) waitReason = `Hanya ${confirmations} konfirmasi — butuh minimal 3`;
     else waitReason = "Kondisi market belum optimal";
   }
 
-  if (rsiVal >= 75) {
+  // Hard stops
+  if (side === "Buy" && rsiVal >= 78) {
     shouldEnter = false;
-    waitReason = `RSI ${rsiVal.toFixed(0)} overbought — tunggu pullback`;
+    waitReason = `RSI ${rsiVal.toFixed(0)} overbought ekstrem — tunggu pullback sebelum long`;
+  }
+  if (side === "Sell" && rsiVal <= 22) {
+    shouldEnter = false;
+    waitReason = `RSI ${rsiVal.toFixed(0)} oversold ekstrem — tunggu rebound sebelum short`;
   }
 
+  // ── Exit signals for existing positions ─────────────────────────────────────
+  // Existing LONG should exit if market is now clearly BEARISH
+  const shouldExitLong =
+    marketDirection === "BEARISH" &&
+    bearConfidence >= 68 &&
+    bearConf >= 3;
+
+  // Existing SHORT should exit if market is now clearly BULLISH
+  const shouldExitShort =
+    marketDirection === "BULLISH" &&
+    bullConfidence >= 68 &&
+    bullConf >= 3;
+
+  let exitReason: string | null = null;
+  if (shouldExitLong) exitReason = `Tren berbalik BEARISH (${bearConfidence}% confidence, ${bearConf} konfirmasi) — close LONG`;
+  if (shouldExitShort) exitReason = `Tren berbalik BULLISH (${bullConfidence}% confidence, ${bullConf} konfirmasi) — close SHORT`;
+
   const analysis: FullAnalysis = {
-    symbol,
-    analyzedAt: Date.now(),
-    marketDirection,
-    overallConfidence,
-    shouldEnter,
-    waitReason,
-    entryPrice,
-    stopLoss,
-    takeProfit,
-    riskRewardRatio,
-    side: "Buy",
-    reasons,
-    warnings,
-    confirmations,
-    indicators: {
-      ema20: e20, ema50: e50, ema200: e200,
-      vwap: vwapVal, rsi14: rsiVal, atr14: atrVal,
-      volumeRatio: volRatio, priceVsVwap, emaAlignment, rsiZone,
-    },
+    symbol, analyzedAt: Date.now(), marketDirection, overallConfidence, side,
+    shouldEnter, waitReason, shouldExitLong, shouldExitShort, exitReason,
+    entryPrice, stopLoss, takeProfit, riskRewardRatio,
+    reasons, warnings, confirmations,
+    indicators: { ema20: e20, ema50: e50, ema200: e200, vwap: vwapVal, rsi14: rsiVal,
+      atr14: atrVal, volumeRatio: volRatio, priceVsVwap, emaAlignment, rsiZone },
     multiTimeframe,
-    supportResistance: {
-      support: rawSupport.slice(0, 3),
-      resistance: rawResistance.slice(0, 3),
-      nearestSupport,
-      nearestResistance,
-    },
+    supportResistance: { support: rawSupport.slice(0, 3), resistance: rawResistance.slice(0, 3), nearestSupport, nearestResistance },
   };
 
   analysisCache.set(symbol, { data: analysis, at: Date.now() });
-  logger.info(
-    { symbol, confidence: overallConfidence, shouldEnter, confirmations, direction: marketDirection },
-    "Analysis complete"
-  );
+  logger.info({ symbol, confidence: overallConfidence, shouldEnter, side, marketDirection, confirmations }, "Analysis complete");
   return analysis;
 }
