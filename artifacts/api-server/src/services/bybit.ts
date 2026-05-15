@@ -118,15 +118,59 @@ export async function getOpenOrders() {
   });
 }
 
+// ─── Price formatting ──────────────────────────────────────────────────────────
+
+/**
+ * Format price to the correct decimal precision for Bybit.
+ * Uses price magnitude to guess tick size — avoids needing instrument info API.
+ */
+export function formatPrice(price: number): string {
+  if (price >= 10000) return price.toFixed(1);
+  if (price >= 1000) return price.toFixed(2);
+  if (price >= 10) return price.toFixed(3);
+  if (price >= 1) return price.toFixed(4);
+  if (price >= 0.01) return price.toFixed(5);
+  return price.toFixed(6);
+}
+
+/**
+ * Format quantity respecting Bybit's minimum lot sizes.
+ * Rounds to appropriate precision based on coin price (proxy for step size).
+ */
+export function formatQty(rawQty: number, coinPrice: number): string {
+  let qty: number;
+  if (coinPrice >= 10000) {
+    // BTC-like: step 0.001, min 0.001
+    qty = Math.max(0.001, Math.floor(rawQty * 1000) / 1000);
+    return qty.toFixed(3);
+  }
+  if (coinPrice >= 100) {
+    // ETH/BNB-like: step 0.01, min 0.01
+    qty = Math.max(0.01, Math.floor(rawQty * 100) / 100);
+    return qty.toFixed(2);
+  }
+  if (coinPrice >= 1) {
+    // UNI/SOL/LINK-like: step 0.1, min 1
+    qty = Math.max(1, Math.floor(rawQty * 10) / 10);
+    return qty.toFixed(1);
+  }
+  // DOGE/XRP/ADA-like: step 1, min 10
+  qty = Math.max(10, Math.floor(rawQty));
+  return qty.toFixed(0);
+}
+
+// ─── Order placement ───────────────────────────────────────────────────────────
+
 export interface PlaceOrderParams {
   symbol: string;
   side: "Buy" | "Sell";
   qty: string;
-  price?: number;
-  stopLoss?: string;
-  takeProfit?: string;
 }
 
+/**
+ * Place a clean market order — NO inline TP/SL.
+ * TP/SL must be set separately via setPositionTPSL after fill.
+ */
 export async function placeOrder(params: PlaceOrderParams) {
   const body: Record<string, unknown> = {
     category: "linear",
@@ -136,11 +180,47 @@ export async function placeOrder(params: PlaceOrderParams) {
     qty: params.qty,
   };
 
-  if (params.stopLoss) body.stopLoss = params.stopLoss;
-  if (params.takeProfit) body.takeProfit = params.takeProfit;
-  if (autoConfig.leverage > 1) body.leverage = String(autoConfig.leverage);
+  if (autoConfig.leverage > 1) {
+    await bybitPost("/v5/position/set-leverage", {
+      category: "linear",
+      symbol: params.symbol,
+      buyLeverage: String(autoConfig.leverage),
+      sellLeverage: String(autoConfig.leverage),
+    }).catch(() => {});
+  }
 
   return bybitPost<{ orderId: string }>("/v5/order/create", body);
+}
+
+// ─── Position TP/SL ────────────────────────────────────────────────────────────
+
+export interface SetTPSLParams {
+  symbol: string;
+  takeProfit?: number;
+  stopLoss?: number;
+}
+
+/**
+ * Set TP/SL on an existing position.
+ * Uses /v5/position/trading-stop which is the correct endpoint.
+ */
+export async function setPositionTPSL(params: SetTPSLParams) {
+  const body: Record<string, unknown> = {
+    category: "linear",
+    symbol: params.symbol,
+    tpslMode: "Full",
+    tpOrderType: "Market",
+    slOrderType: "Market",
+  };
+
+  if (params.takeProfit !== undefined && params.takeProfit > 0) {
+    body.takeProfit = formatPrice(params.takeProfit);
+  }
+  if (params.stopLoss !== undefined && params.stopLoss > 0) {
+    body.stopLoss = formatPrice(params.stopLoss);
+  }
+
+  return bybitPost<unknown>("/v5/position/trading-stop", body);
 }
 
 export async function cancelOrder(orderId: string, symbol: string) {
@@ -224,9 +304,9 @@ async function runAutoTradeCycle() {
       if (activeSymbols.has(sig.bybitSymbol)) continue;
       if (sig.riskLevel === "high") continue;
 
-      const qty = (maxPerTrade / sig.price).toFixed(4);
-      const sl = (sig.price * (1 - autoConfig.stopLossPct / 100)).toFixed(4);
-      const tp = (sig.price * (1 + autoConfig.takeProfitPct / 100)).toFixed(4);
+      const qty = formatQty(maxPerTrade / sig.price, sig.price);
+      const slPrice = sig.price * (1 - autoConfig.stopLossPct / 100);
+      const tpPrice = sig.price * (1 + autoConfig.takeProfitPct / 100);
 
       const logEntry: TradeLogEntry = {
         id: crypto.randomUUID(),
@@ -241,14 +321,14 @@ async function runAutoTradeCycle() {
       };
 
       try {
-        const order = await placeOrder({
+        const order = await placeOrder({ symbol: sig.bybitSymbol, side: "Buy", qty });
+
+        // Set TP/SL separately after order is placed
+        await setPositionTPSL({
           symbol: sig.bybitSymbol,
-          side: "Buy",
-          qty,
-          price: sig.price,
-          stopLoss: sl,
-          takeProfit: tp,
-        });
+          takeProfit: tpPrice,
+          stopLoss: slPrice,
+        }).catch((e) => logger.warn({ e, symbol: sig.bybitSymbol }, "Failed to set TP/SL after auto-order"));
 
         logEntry.status = "executed";
         logEntry.orderId = order.orderId;
