@@ -17,6 +17,7 @@ import {
   type AutoTradingConfig,
 } from "../services/bybit.js";
 import { analyzeSymbol } from "../services/analysis.js";
+import { scanScalp5m, analyzeScalp5m, getSessionStats, resetSessionStats, SCALP_PAIRS } from "../services/scalping5m.js";
 
 const router = Router();
 
@@ -243,6 +244,43 @@ router.get("/trading/analyze/:symbol", async (req, res) => {
     req.log.error({ err, symbol }, "Analysis failed");
     res.status(502).json({ error: String(err) });
   }
+});
+
+// ─── 5M Scalping Routes ────────────────────────────────────────────────────────
+
+// GET /api/trading/scalp5m/signals — scan all 4 pairs
+router.get("/trading/scalp5m/signals", async (req, res) => {
+  try {
+    const signals = await scanScalp5m();
+    res.json(signals);
+  } catch (err) {
+    req.log.error({ err }, "5M scalp scan failed");
+    res.status(502).json({ error: String(err) });
+  }
+});
+
+// GET /api/trading/scalp5m/analyze/:symbol
+router.get("/trading/scalp5m/analyze/:symbol", async (req, res) => {
+  const sym = req.params.symbol.toUpperCase();
+  const pair = SCALP_PAIRS.find((p) => p.symbol === sym);
+  try {
+    const result = await analyzeScalp5m(sym, pair?.displayName ?? sym);
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err, sym }, "5M scalp analyze failed");
+    res.status(502).json({ error: String(err) });
+  }
+});
+
+// GET /api/trading/scalp5m/session
+router.get("/trading/scalp5m/session", (_req, res) => {
+  res.json(getSessionStats());
+});
+
+// POST /api/trading/scalp5m/session/reset
+router.post("/trading/scalp5m/session/reset", (_req, res) => {
+  resetSessionStats();
+  res.json({ ok: true });
 });
 
 export default router;

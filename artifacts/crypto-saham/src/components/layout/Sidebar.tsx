@@ -7,6 +7,7 @@ import {
   Newspaper, 
   LineChart,
   Bot,
+  Timer,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -26,6 +27,7 @@ export function Sidebar() {
           <div className="my-2" />
           <div className="px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1">Trading</div>
           <NavItem href="/trading" icon={Bot}>Auto Trading</NavItem>
+          <NavItem href="/scalping5m" icon={Timer}>Scalping 5M</NavItem>
         </nav>
       </div>
     </aside>

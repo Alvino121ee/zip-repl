@@ -1,0 +1,137 @@
+# Strategi Scalping Crypto 5 Menit
+
+## Parameter Manajemen Risiko
+- Risiko per trade: **1â€“2% dari modal**
+- Minimum RR ratio: **1:1.5**
+- Maksimal trade per sesi: **3â€“5 kali**
+- Daily loss limit: **Berhenti jika rugi 3% modal di hari itu**
+
+---
+
+## Pasangan Terbaik untuk Crypto Scalping
+- BTC/USDT
+- ETH/USDT
+- SOL/USDT
+- BNB/USDT
+- Hindari altcoin kapitalisasi kecil (likuiditas rendah = spread lebar)
+
+---
+
+## Sesi Trading Terbaik (WIB)
+- **New York open:** 20:00 â€“ 23:00 WIB (volatilitas tinggi, volume besar)
+- **London open:** 14:00 â€“ 17:00 WIB
+- **Hindari:** 01:00 â€“ 07:00 WIB (volume rendah, mudah dimanipulasi)
+
+---
+
+## Indikator yang Digunakan
+
+### 1. EMA 9 & EMA 21
+- EMA 9 di atas EMA 21 = **bullish bias**
+- EMA 9 di bawah EMA 21 = **bearish bias**
+- Crossover = sinyal entry potensial
+
+### 2. RSI (14)
+- Overbought: RSI > 70 (jangan buka BUY baru)
+- Oversold: RSI < 30 (jangan buka SELL baru)
+- Zona ideal BUY: RSI 50â€“65
+- Zona ideal SELL: RSI 35â€“50
+
+### 3. Volume
+- Volume di atas rata-rata = sinyal valid
+- Volume rendah = abaikan sinyal, tunggu konfirmasi
+
+### 4. Support & Resistance (dari TF 15M)
+- Gambar level S/R dari timeframe 15 menit sebagai acuan SL dan TP
+
+---
+
+## Setup Entry LONG (BUY)
+
+**Kondisi wajib terpenuhi semua:**
+1. EMA 9 memotong ke atas EMA 21 (golden cross di TF 5M)
+2. RSI berada di rentang 50â€“65 (bukan overbought)
+3. Harga bounce dari support atau breakout resistance dengan volume tinggi
+4. Tren TF 15M searah (bullish)
+
+**Eksekusi:**
+- Entry: Pembukaan candle berikutnya setelah sinyal terkonfirmasi
+- Stop Loss: 1â€“2% di bawah low candle sinyal (atau di bawah support terdekat)
+- Take Profit: 1.5Ã— jarak SL (minimal RR 1:1.5)
+
+---
+
+## Setup Entry SHORT (SELL)
+
+**Kondisi wajib terpenuhi semua:**
+1. EMA 9 memotong ke bawah EMA 21 (death cross di TF 5M)
+2. RSI berada di rentang 35â€“50 (bukan oversold)
+3. Harga rejection dari resistance atau breakdown support dengan volume meningkat
+4. Tren TF 15M searah (bearish)
+
+**Eksekusi:**
+- Entry: Pembukaan candle berikutnya setelah konfirmasi
+- Stop Loss: 1â€“2% di atas high candle sinyal (atau di atas resistance terdekat)
+- Take Profit: 1.5Ã— jarak SL (minimal RR 1:1.5)
+
+---
+
+## Aturan Wajib & Filter
+
+### Hal yang HARUS dilakukan:
+- Selalu pasang SL sebelum entry â€” tidak ada trade tanpa SL
+- Cek kalender berita kripto setiap hari (CoinMarketCal)
+- Catat setiap trade di jurnal (entry, SL, TP, alasan, hasil)
+- Gunakan leverage rendah: maksimal 5x untuk pemula, 10x untuk yang sudah berpengalaman
+- Konfirmasi sinyal dari TF 15M sebelum entry di TF 5M
+
+### Hal yang HARUS DIHINDARI:
+- Jangan trade saat listing token baru di bursa besar (spike tidak terprediksi)
+- Jangan trade saat FUD/FOMO besar di media sosial
+- Jangan tambah posisi yang sedang rugi (averaging down)
+- Jangan pindah SL menjauhi harga karena tidak mau cut loss
+- Jangan masuk terlalu banyak trade karena bosan menunggu
+
+---
+
+## Tips Khusus Crypto (Berbeda dari Forex)
+
+1. **Perhatikan funding rate** (khusus futures perpetual): Funding rate tinggi positif = pasar terlalu bullish, potensi koreksi. Gunakan sebagai filter tambahan.
+
+2. **Cek dominasi BTC (BTC.D):** Jika BTC.D naik, altcoin cenderung turun. Trade BTC/USDT lebih aman saat dominasi BTC bergerak kuat.
+
+3. **Spread dan likuiditas:** Periksa order book sebelum entry. Jika spread lebar atau order book tipis, skip trade tersebut.
+
+4. **Hati-hati weekend:** Volume crypto sering turun di akhir pekan, sinyal lebih sering palsu.
+
+5. **Exchange:** Gunakan Binance atau Bybit untuk likuiditas terbaik dan spread terkecil.
+
+---
+
+## Target Realistis
+
+| Modal | Target Harian (%) | Target Harian (Rp) |
+|-------|------------------|---------------------|
+| Rp 5 juta | 0.5â€“1% | Rp 25.000â€“50.000 |
+| Rp 10 juta | 0.5â€“1% | Rp 50.000â€“100.000 |
+| Rp 50 juta | 0.5â€“1% | Rp 250.000â€“500.000 |
+
+> Konsistensi kecil setiap hari jauh lebih baik daripada mengejar profit besar sekali lalu rugi besar.
+
+---
+
+## Checklist Sebelum Entry (Wajib Centang Semua)
+
+- [ ] EMA crossover terkonfirmasi di TF 5M
+- [ ] RSI di zona yang tepat (bukan OB/OS)
+- [ ] Volume di atas rata-rata
+- [ ] Arah tren TF 15M searah
+- [ ] Tidak ada berita besar dalam 30 menit ke depan
+- [ ] SL sudah ditentukan sebelum entry
+- [ ] RR minimal 1:1.5 terpenuhi
+- [ ] Belum mencapai batas 3â€“5 trade hari ini
+- [ ] Daily loss limit belum tercapai
+
+---
+
+*Disclaimer: Trading crypto mengandung risiko tinggi. Strategi ini bukan jaminan profit. Selalu gunakan akun demo terlebih dahulu sebelum masuk ke akun live dengan uang nyata.*

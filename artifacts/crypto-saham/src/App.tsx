@@ -17,6 +17,7 @@ import Predictions from "@/pages/Predictions";
 import PredictionDetail from "@/pages/PredictionDetail";
 import News from "@/pages/News";
 import Trading from "@/pages/Trading";
+import Scalping5M from "@/pages/Scalping5M";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ function Router() {
         <Route path="/predictions/:assetType/:assetId" component={PredictionDetail} />
         <Route path="/news" component={News} />
         <Route path="/trading" component={Trading} />
+        <Route path="/scalping5m" component={Scalping5M} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
