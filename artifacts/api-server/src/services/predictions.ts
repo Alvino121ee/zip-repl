@@ -2,6 +2,8 @@ import { getCryptoList } from "./coingecko.js";
 import { getIDXStockQuotes } from "./stocks.js";
 import { getCryptoNews, getStockNews, analyzeSentiment } from "./news.js";
 import { cache, TTL } from "./cache.js";
+import { aiBatchPredictions, type AIAssetInput } from "./ai.js";
+import { logger } from "../lib/logger.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1030,6 +1032,61 @@ export async function getCryptoPredictions(limit: number): Promise<PredictionRes
   });
 
   predictions.sort((a, b) => Math.abs(b.sentimentScore) - Math.abs(a.sentimentScore));
+
+  // ── AI Brain: Override rule-based signals with AI analysis ──────────────────
+  try {
+    const aiInputs: AIAssetInput[] = predictions.map((p) => {
+      const ind = p.technicalIndicators;
+      return {
+        assetId: p.assetId,
+        assetName: p.assetName,
+        assetType: p.assetType,
+        symbol: p.symbol,
+        currentPrice: p.currentPrice,
+        change24h: p.priceChange24h,
+        change7d: p.priceChange7d ?? null,
+        rsi: ind?.rsi ?? 50,
+        macdBullish: ind?.macd?.bullish ?? false,
+        macdHistogram: ind?.macd?.histogram ?? 0,
+        bbPosition: ind?.bollingerBands?.position ?? 0.5,
+        emaScore: p.sentimentScore,
+        volumeRatio: ind?.volumeRatio ?? 1,
+        trend: ind?.trend ?? "sideways",
+        bosActive: ind?.breakOfStructure ?? false,
+        bosDirection: ind?.bosDirection ?? "none",
+        fvgExists: ind?.fairValueGap?.exists ?? false,
+        fvgDirection: ind?.fairValueGap?.direction ?? "none",
+        support: ind?.support ?? p.currentPrice * 0.95,
+        resistance: ind?.resistance ?? p.currentPrice * 1.05,
+        sentimentScore: p.sentimentScore,
+        positiveNews: p.positiveNews,
+        negativeNews: p.negativeNews,
+        newsCount: p.newsCount,
+      };
+    });
+
+    const aiResults = await aiBatchPredictions(aiInputs);
+    const aiMap = new Map(aiResults.map((r) => [r.assetId, r]));
+
+    for (const pred of predictions) {
+      const ai = aiMap.get(pred.assetId);
+      if (!ai) continue;
+      pred.signal = ai.signal;
+      pred.confidence = Math.max(30, Math.min(95, ai.confidence));
+      pred.sentimentScore = ai.sentimentScore;
+      pred.reasons = ai.reasons;
+      if (pred.technicalIndicators && ai.stopLoss > 0) {
+        pred.technicalIndicators.stopLoss = ai.stopLoss;
+        pred.technicalIndicators.takeProfit = ai.takeProfit;
+      }
+    }
+
+    logger.info({ count: aiResults.length }, "AI brain enhanced crypto predictions");
+  } catch (err) {
+    logger.warn({ err }, "AI brain failed — using rule-based predictions");
+  }
+
+  predictions.sort((a, b) => Math.abs(b.sentimentScore) - Math.abs(a.sentimentScore));
   cache.set(cacheKey, predictions, TTL.PREDICTIONS);
   return predictions;
 }
@@ -1103,6 +1160,60 @@ export async function getStockPredictions(limit: number): Promise<PredictionResu
       technicalIndicators: indicators,
     };
   });
+
+  predictions.sort((a, b) => Math.abs(b.sentimentScore) - Math.abs(a.sentimentScore));
+
+  // ── AI Brain: Override rule-based signals with AI analysis ──────────────────
+  try {
+    const aiInputs: AIAssetInput[] = predictions.map((p) => {
+      const ind = p.technicalIndicators;
+      return {
+        assetId: p.assetId,
+        assetName: p.assetName,
+        assetType: p.assetType,
+        symbol: p.symbol,
+        currentPrice: p.currentPrice,
+        change24h: p.priceChange24h,
+        change7d: null,
+        rsi: ind?.rsi ?? 50,
+        macdBullish: ind?.macd?.bullish ?? false,
+        macdHistogram: ind?.macd?.histogram ?? 0,
+        bbPosition: ind?.bollingerBands?.position ?? 0.5,
+        emaScore: p.sentimentScore,
+        volumeRatio: ind?.volumeRatio ?? 1,
+        trend: ind?.trend ?? "sideways",
+        bosActive: ind?.breakOfStructure ?? false,
+        bosDirection: ind?.bosDirection ?? "none",
+        fvgExists: ind?.fairValueGap?.exists ?? false,
+        fvgDirection: ind?.fairValueGap?.direction ?? "none",
+        support: ind?.support ?? p.currentPrice * 0.95,
+        resistance: ind?.resistance ?? p.currentPrice * 1.05,
+        sentimentScore: p.sentimentScore,
+        positiveNews: p.positiveNews,
+        negativeNews: p.negativeNews,
+        newsCount: p.newsCount,
+      };
+    });
+
+    const aiResults = await aiBatchPredictions(aiInputs);
+    const aiMap = new Map(aiResults.map((r) => [r.assetId, r]));
+
+    for (const pred of predictions) {
+      const ai = aiMap.get(pred.assetId);
+      if (!ai) continue;
+      pred.signal = ai.signal;
+      pred.confidence = Math.max(30, Math.min(95, ai.confidence));
+      pred.sentimentScore = ai.sentimentScore;
+      pred.reasons = ai.reasons;
+      if (pred.technicalIndicators && ai.stopLoss > 0) {
+        pred.technicalIndicators.stopLoss = ai.stopLoss;
+        pred.technicalIndicators.takeProfit = ai.takeProfit;
+      }
+    }
+    logger.info({ count: aiResults.length }, "AI brain enhanced stock predictions");
+  } catch (err) {
+    logger.warn({ err }, "AI brain failed — using rule-based stock predictions");
+  }
 
   predictions.sort((a, b) => Math.abs(b.sentimentScore) - Math.abs(a.sentimentScore));
   cache.set(cacheKey, predictions, TTL.PREDICTIONS);
