@@ -83,9 +83,9 @@ router.post("/trading/order", async (req, res) => {
     const result = await placeOrder({ symbol, side, qty });
     req.log.info({ symbol, side, qty, orderId: result.orderId }, "Manual order placed");
 
-    // Set TP/SL separately after order fill
+    // Wait 1.5s for market order to settle before setting TP/SL
     if (takeProfit || stopLoss) {
-      await setPositionTPSL({ symbol, takeProfit, stopLoss })
+      await setPositionTPSL({ symbol, takeProfit, stopLoss }, 1500)
         .catch((e) => req.log.warn({ e, symbol }, "Failed to set TP/SL after order"));
     }
 

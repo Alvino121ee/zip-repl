@@ -142,27 +142,29 @@ export function formatPrice(price: number): string {
 
 /**
  * Format quantity respecting Bybit's minimum lot sizes.
- * Rounds to appropriate precision based on coin price (proxy for step size).
+ * Ensures order value >= MIN_ORDER_USDT ($5) to avoid Bybit error 110094.
  */
+const MIN_ORDER_USDT = 5.5; // slightly above $5 to give headroom
+
 export function formatQty(rawQty: number, coinPrice: number): string {
+  // Ensure raw qty is enough to clear the $5 minimum
+  const minQtyForMinOrder = coinPrice > 0 ? MIN_ORDER_USDT / coinPrice : rawQty;
+  const safeRaw = Math.max(rawQty, minQtyForMinOrder);
+
   let qty: number;
   if (coinPrice >= 10000) {
-    // BTC-like: step 0.001, min 0.001
-    qty = Math.max(0.001, Math.floor(rawQty * 1000) / 1000);
+    qty = Math.max(0.001, Math.floor(safeRaw * 1000) / 1000);
     return qty.toFixed(3);
   }
   if (coinPrice >= 100) {
-    // ETH/BNB-like: step 0.01, min 0.01
-    qty = Math.max(0.01, Math.floor(rawQty * 100) / 100);
+    qty = Math.max(0.01, Math.floor(safeRaw * 100) / 100);
     return qty.toFixed(2);
   }
   if (coinPrice >= 1) {
-    // UNI/SOL/LINK-like: step 0.1, min 1
-    qty = Math.max(1, Math.floor(rawQty * 10) / 10);
+    qty = Math.max(1, Math.floor(safeRaw * 10) / 10);
     return qty.toFixed(1);
   }
-  // DOGE/XRP/ADA-like: step 1, min 10
-  qty = Math.max(10, Math.floor(rawQty));
+  qty = Math.max(10, Math.floor(safeRaw));
   return qty.toFixed(0);
 }
 
@@ -217,13 +219,17 @@ export interface SetTPSLParams {
 }
 
 /**
- * Set TP/SL on an existing position.
- * Uses /v5/position/trading-stop which is the correct endpoint.
+ * Set TP/SL on an existing position via /v5/position/trading-stop.
+ * positionIdx=0 = one-way mode (default for most accounts).
+ * Waits `delayMs` before calling to let a freshly placed market order settle.
  */
-export async function setPositionTPSL(params: SetTPSLParams) {
+export async function setPositionTPSL(params: SetTPSLParams, delayMs = 0) {
+  if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+
   const body: Record<string, unknown> = {
     category: "linear",
     symbol: params.symbol,
+    positionIdx: 0,          // one-way mode — required by Bybit
     tpslMode: "Full",
     tpOrderType: "Market",
     slOrderType: "Market",
@@ -643,8 +649,8 @@ async function runAutoTradeCycle() {
           price: autoConfig.orderType === "Limit" ? cand.limitPrice : undefined,
         });
 
-        // Always set TP/SL via trading-stop after fill (works for both Buy and Sell)
-        await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice })
+        // Wait 1.5s for market order to fill before setting TP/SL
+        await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice }, 1500)
           .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL"));
 
         logEntry.status = "executed";
