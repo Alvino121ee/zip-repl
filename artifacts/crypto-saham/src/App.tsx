@@ -18,6 +18,7 @@ import PredictionDetail from "@/pages/PredictionDetail";
 import News from "@/pages/News";
 import Trading from "@/pages/Trading";
 import Scalping5M from "@/pages/Scalping5M";
+import AI from "@/pages/AI";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +41,7 @@ function Router() {
         <Route path="/news" component={News} />
         <Route path="/trading" component={Trading} />
         <Route path="/scalping5m" component={Scalping5M} />
+        <Route path="/ai" component={AI} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
