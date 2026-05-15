@@ -101,7 +101,7 @@ export default function Dashboard() {
     { query: { refetchInterval: REFETCH_STOCKS } as any }
   );
 
-  const idxStocks = (stocks ?? [])
+  const idxStocks = (Array.isArray(stocks) ? stocks : [])
     .filter((s) => s.symbol?.endsWith(".JK") || s.exchange?.includes("IDX") || s.exchange?.includes("Jakarta"))
     .slice(0, 8);
 
@@ -318,7 +318,7 @@ export default function Dashboard() {
           <CardContent>
             {predLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
               <div className="divide-y divide-border/50">
-                {(predictions ?? []).map((p) => (
+                {(Array.isArray(predictions) ? predictions : []).map((p) => (
                   <Link key={p.assetId} href={`/predictions/${p.assetType}/${p.assetId}`}>
                     <div className="flex items-center justify-between py-2.5 first:pt-1 last:pb-1 hover:bg-muted/30 rounded px-1 -mx-1 transition-colors cursor-pointer">
                       <div className="flex items-center gap-3">
