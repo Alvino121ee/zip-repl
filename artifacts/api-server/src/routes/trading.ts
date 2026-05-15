@@ -11,6 +11,7 @@ import {
   tradeLog,
   startAutoEngine,
   stopAutoEngine,
+  engineStatus,
   type AutoTradingConfig,
 } from "../services/bybit.js";
 
@@ -170,6 +171,21 @@ router.put("/trading/config", (req, res) => {
 // GET /api/trading/log
 router.get("/trading/log", (_req, res) => {
   res.json(tradeLog.slice(0, 50));
+});
+
+// GET /api/trading/engine-status
+router.get("/trading/engine-status", (_req, res) => {
+  res.json({
+    ...engineStatus,
+    config: {
+      enabled: autoConfig.enabled,
+      mode: autoConfig.mode,
+      maxPositions: autoConfig.maxPositions,
+      minConfidence: autoConfig.minConfidence,
+      maxPositionUSDT: autoConfig.maxPositionUSDT,
+      intervalMs: autoConfig.intervalMs,
+    },
+  });
 });
 
 export default router;

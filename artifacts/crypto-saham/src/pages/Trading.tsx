@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Activity, AlertTriangle, Bot, CheckCircle2, ChevronDown, ChevronUp,
-  CircleDollarSign, Loader2, Power, RefreshCw, Settings, ShieldAlert,
-  TrendingUp, Wallet, XCircle, Zap, Target,
+  CircleDollarSign, Clock, Loader2, Power, RefreshCw, Settings, ShieldAlert,
+  TrendingUp, Wallet, XCircle, Zap, Target, Bell,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,25 @@ interface TradeLog {
   orderId?: string;
 }
 
+interface EngineStatusData {
+  running: boolean;
+  analyzing: boolean;
+  lastCycleAt: number | null;
+  nextCycleAt: number | null;
+  cycleCount: number;
+  lastSignalsFound: number;
+  lastOrdersPlaced: number;
+  lastError: string | null;
+  config: {
+    enabled: boolean;
+    mode: string;
+    maxPositions: number;
+    minConfidence: number;
+    maxPositionUSDT: number;
+    intervalMs: number;
+  };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
@@ -91,53 +110,72 @@ function pnlColor(v: string) {
   return n >= 0 ? "text-green-400" : "text-red-400";
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 function smartQty(price: number, usdtAmount: number): string {
-  if (!price || price <= 0) return "—";
+  if (!price || price === 0) return "—";
   const raw = usdtAmount / price;
   if (price >= 10000) return Math.max(0.001, Math.floor(raw * 1000) / 1000).toFixed(3);
-  if (price >= 100)   return Math.max(0.01,  Math.floor(raw * 100)  / 100 ).toFixed(2);
-  if (price >= 1)     return Math.max(1,      Math.floor(raw * 10)   / 10  ).toFixed(1);
+  if (price >= 100) return Math.max(0.01, Math.floor(raw * 100) / 100).toFixed(2);
+  if (price >= 1) return Math.max(1, Math.floor(raw * 10) / 10).toFixed(1);
   return Math.max(10, Math.floor(raw)).toFixed(0);
 }
 
+function timeAgo(ts: number | null): string {
+  if (!ts) return "—";
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 5) return "baru saja";
+  if (diff < 60) return `${diff}s lalu`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m lalu`;
+  return `${Math.floor(diff / 3600)}j lalu`;
+}
+
+function timeUntil(ts: number | null): string {
+  if (!ts) return "—";
+  const diff = Math.ceil((ts - Date.now()) / 1000);
+  if (diff <= 0) return "segera…";
+  return `${diff}s`;
+}
+
+// ─── Signal Badge ─────────────────────────────────────────────────────────────
+
+function SignalBadge({ signal }: { signal: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    strong_buy: { label: "⚡ STRONG BUY", cls: "bg-green-500/20 text-green-400 border-green-500/40" },
+    buy:        { label: "↑ BUY",         cls: "bg-blue-500/20  text-blue-400  border-blue-500/40"  },
+  };
+  const m = map[signal] ?? { label: signal.toUpperCase(), cls: "bg-muted text-muted-foreground border-border" };
+  return (
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+}
+
+// ─── Signal Card ──────────────────────────────────────────────────────────────
+
 function SignalCard({
-  sig,
-  config,
-  onExecute,
-  executing,
+  sig, config, onExecute, executing,
 }: {
   sig: Signal;
   config: AutoConfig;
   onExecute: (sig: Signal) => void;
   executing: string | null;
 }) {
-  const isStrong = sig.signal === "strong_buy";
-  const hasPrice = sig.price > 0;
   const qty = smartQty(sig.price, config.maxPositionUSDT);
-  const sl = hasPrice ? (sig.stopLoss ?? sig.price * (1 - config.stopLossPct / 100)) : null;
-  const tp = hasPrice ? (sig.takeProfit ?? sig.price * (1 + config.takeProfitPct / 100)) : null;
+  const sl = sig.stopLoss ?? sig.price * (1 - config.stopLossPct / 100);
+  const tp = sig.takeProfit ?? sig.price * (1 + config.takeProfitPct / 100);
   const isExec = executing === sig.bybitSymbol;
 
   return (
-    <Card className={`border ${isStrong ? "border-green-500/40 bg-green-950/10" : "border-primary/20"}`}>
+    <Card className="border-border/60">
       <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-start justify-between mb-3">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg">{sig.symbol}</span>
-              <Badge className={isStrong ? "bg-green-600 text-white" : "bg-blue-600 text-white"}>
-                {isStrong ? "⚡ STRONG BUY" : "▲ BUY"}
-              </Badge>
-              {sig.riskLevel === "low" && (
-                <Badge variant="outline" className="text-green-400 border-green-400/40 text-xs">Low Risk</Badge>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">{sig.bybitSymbol}</div>
+            <div className="font-bold text-base">{sig.symbol}</div>
+            <div className="text-xs text-muted-foreground">{sig.bybitSymbol}</div>
           </div>
           <div className="text-right">
-            <div className="text-sm font-semibold">${formatUSDT(sig.price)}</div>
+            <SignalBadge signal={sig.signal} />
+            <div className="text-sm font-semibold mt-1">${formatUSDT(sig.price)}</div>
             <div className="text-xs text-muted-foreground">Current Price</div>
           </div>
         </div>
@@ -188,7 +226,14 @@ function SignalCard({
         {config.mode === "auto" && config.enabled && (
           <div className="flex items-center gap-1.5 text-xs text-green-400">
             <Bot className="h-3.5 w-3.5" />
-            <span>Auto-trading will execute when conditions met</span>
+            <span>Auto-engine akan eksekusi saat kondisi terpenuhi</span>
+          </div>
+        )}
+
+        {config.mode === "auto" && !config.enabled && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Power className="h-3.5 w-3.5" />
+            <span>Aktifkan engine untuk auto-eksekusi</span>
           </div>
         )}
       </CardContent>
@@ -196,63 +241,61 @@ function SignalCard({
   );
 }
 
-function PositionRow({
-  pos,
-  onSetTPSL,
-}: {
-  pos: Position;
-  onSetTPSL: (pos: Position) => void;
-}) {
-  const pnl = parseFloat(pos.unrealisedPnl);
+// ─── Position Row ─────────────────────────────────────────────────────────────
+
+function PositionRow({ pos, onSetTPSL }: { pos: Position; onSetTPSL: (p: Position) => void }) {
+  const pnl = parseFloat(pos.unrealisedPnl ?? "0");
   const pct = parseFloat(pos.percentage ?? "0");
 
   return (
-    <div className="py-3 border-b border-border last:border-0">
-      <div className="flex items-center justify-between gap-2 text-sm">
-        <div className="flex items-center gap-3 min-w-0">
-          <Badge variant={pos.side === "Buy" ? "default" : "destructive"} className="shrink-0 text-xs">
-            {pos.side === "Buy" ? "LONG" : "SHORT"}
+    <div className="flex items-start justify-between py-3 border-b border-border last:border-0 gap-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-semibold text-sm">{pos.symbol}</span>
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-400 border-blue-500/40">
+            {pos.side}
           </Badge>
-          <div className="min-w-0">
-            <div className="font-semibold truncate">{pos.symbol}</div>
-            <div className="text-xs text-muted-foreground">
-              {pos.size} @ ${formatUSDT(pos.avgPrice)} · {pos.leverage}x
-            </div>
-          </div>
+          <span className="text-xs text-muted-foreground">{pos.leverage}x</span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="text-right">
-            <div className={`font-semibold ${pnlColor(pos.unrealisedPnl)}`}>
-              {pnl >= 0 ? "+" : ""}{formatUSDT(pnl)} USDT
-            </div>
-            <div className={`text-xs ${pnlColor(pos.percentage)}`}>
-              {pct >= 0 ? "+" : ""}{pct.toFixed(2)}%
-            </div>
-          </div>
-          <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => onSetTPSL(pos)}>
-            <Target className="h-3 w-3 mr-1" />
-            TP/SL
-          </Button>
+        <div className="text-xs text-muted-foreground space-y-0.5">
+          <div>Ukuran: <span className="text-foreground">{pos.size}</span></div>
+          <div>Avg Price: <span className="text-foreground">${formatUSDT(pos.avgPrice)}</span></div>
+          <div>Mark Price: <span className="text-foreground">${formatUSDT(pos.markPrice)}</span></div>
         </div>
+      </div>
+      <div className="text-right shrink-0">
+        <div className={`font-bold text-base ${pnlColor(pos.unrealisedPnl)}`}>
+          {pnl >= 0 ? "+" : ""}{formatUSDT(pnl)} USDT
+        </div>
+        <div className={`text-xs ${pnlColor(pos.unrealisedPnl)}`}>
+          ({pct >= 0 ? "+" : ""}{pct.toFixed(2)}%)
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-2 text-xs h-7 px-2"
+          onClick={() => onSetTPSL(pos)}
+        >
+          <Target className="h-3 w-3 mr-1" /> TP/SL
+        </Button>
       </div>
     </div>
   );
 }
 
+// ─── TPSL Dialog ──────────────────────────────────────────────────────────────
+
 function TPSLDialog({
-  pos,
-  config,
-  onClose,
-  onSave,
+  pos, config, onClose, onSave,
 }: {
   pos: Position;
   config: AutoConfig;
   onClose: () => void;
   onSave: (symbol: string, tp: number, sl: number) => Promise<void>;
 }) {
-  const markPrice = parseFloat(pos.markPrice || pos.avgPrice);
-  const [tp, setTp] = useState(+(markPrice * (1 + config.takeProfitPct / 100)).toFixed(4));
-  const [sl, setSl] = useState(+(markPrice * (1 - config.stopLossPct / 100)).toFixed(4));
+  const markPrice = parseFloat(pos.markPrice);
+  const [tp, setTp] = useState(markPrice * (1 + config.takeProfitPct / 100));
+  const [sl, setSl] = useState(markPrice * (1 - config.stopLossPct / 100));
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
@@ -263,49 +306,42 @@ function TPSLDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-background border border-border rounded-xl shadow-2xl w-[340px] p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-card border border-border rounded-xl p-5 w-full max-w-sm shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <div className="font-bold text-base flex items-center gap-2">
             <Target className="h-4 w-4 text-primary" />
             Set TP/SL — {pos.symbol}
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">×</button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
         </div>
 
-        <div className="text-xs text-muted-foreground mb-4">
-          Mark Price: <span className="font-semibold text-foreground">${formatUSDT(markPrice)}</span>
-          &nbsp;·&nbsp;Entry: <span className="font-semibold text-foreground">${formatUSDT(pos.avgPrice)}</span>
-        </div>
-
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
-            <label className="text-xs text-green-400 font-medium block mb-1">Take Profit (USDT)</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Take Profit (USDT)</label>
             <input
               type="number"
-              step="any"
               value={tp}
               onChange={(e) => setTp(parseFloat(e.target.value))}
-              className="w-full rounded-md border border-green-500/40 bg-muted/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+              className="w-full bg-background border border-green-500/40 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 text-green-400"
             />
           </div>
           <div>
-            <label className="text-xs text-red-400 font-medium block mb-1">Stop Loss (USDT)</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Stop Loss (USDT)</label>
             <input
               type="number"
-              step="any"
               value={sl}
               onChange={(e) => setSl(parseFloat(e.target.value))}
-              className="w-full rounded-md border border-red-500/40 bg-muted/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="w-full bg-background border border-red-500/40 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 text-red-400"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-4 text-xs text-muted-foreground">
+        <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-center">
           <div className="bg-green-950/20 border border-green-500/20 rounded p-2">
             <div>Profit target</div>
             <div className="text-green-400 font-semibold">
-              +{(((tp - markPrice) / markPrice) * 100).toFixed(2)}%
+              {(((tp - markPrice) / markPrice) * 100).toFixed(2)}%
             </div>
           </div>
           <div className="bg-red-950/20 border border-red-500/20 rounded p-2">
@@ -328,6 +364,77 @@ function TPSLDialog({
   );
 }
 
+// ─── Engine Status Panel ──────────────────────────────────────────────────────
+
+function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; config: AutoConfig }) {
+  const [, forceUpdate] = useState(0);
+
+  // Tick every second to update countdown
+  useEffect(() => {
+    const id = setInterval(() => forceUpdate((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!config.enabled || config.mode !== "auto") return null;
+
+  const isAnalyzing = stat?.analyzing ?? false;
+  const lastCycle = stat?.lastCycleAt ?? null;
+  const nextCycle = stat?.nextCycleAt ?? null;
+  const cycleCount = stat?.cycleCount ?? 0;
+  const lastSignals = stat?.lastSignalsFound ?? 0;
+  const lastOrders = stat?.lastOrdersPlaced ?? 0;
+  const lastError = stat?.lastError ?? null;
+
+  return (
+    <div className="mt-3 rounded-lg bg-green-950/20 border border-green-500/20 p-3 space-y-2">
+      {/* Analyzing indicator */}
+      {isAnalyzing ? (
+        <div className="flex items-center gap-2 text-sm text-green-300 font-medium">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Sedang menganalisis sinyal…</span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+          </span>
+          Engine aktif — scan otomatis berjalan
+        </div>
+      )}
+
+      {/* Timing info */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Clock className="h-3 w-3" />
+          <span>Scan terakhir: <span className="text-foreground">{timeAgo(lastCycle)}</span></span>
+        </div>
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <Activity className="h-3 w-3" />
+          <span>Berikutnya: <span className="text-foreground">{timeUntil(nextCycle)}</span></span>
+        </div>
+      </div>
+
+      {/* Last cycle stats */}
+      {cycleCount > 0 && (
+        <div className="flex gap-3 text-xs text-muted-foreground">
+          <span>Scan ke-<span className="text-foreground font-medium">{cycleCount}</span></span>
+          <span>Sinyal ditemukan: <span className="text-foreground font-medium">{lastSignals}</span></span>
+          <span>Order: <span className={lastOrders > 0 ? "text-green-400 font-medium" : "text-foreground font-medium"}>{lastOrders}</span></span>
+        </div>
+      )}
+
+      {/* Error display */}
+      {lastError && (
+        <div className="flex items-center gap-1.5 text-xs text-red-400 bg-red-950/30 rounded p-2 border border-red-500/20">
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          <span className="truncate">{lastError}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Trading() {
@@ -346,16 +453,20 @@ export default function Trading() {
     leverage: 1,
     intervalMs: 60_000,
   });
+  const [engineStat, setEngineStat] = useState<EngineStatusData | null>(null);
   const [tradeLogs, setTradeLogs] = useState<TradeLog[]>([]);
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [executing, setExecuting] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signals" | "positions" | "log">("signals");
   const [tpslPos, setTpslPos] = useState<Position | null>(null);
 
-  async function loadAll(silent = false) {
+  const prevPosCount = useRef<number>(-1);
+
+  const loadAll = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     else setRefreshing(true);
 
@@ -369,9 +480,26 @@ export default function Trading() {
       ]);
 
       if (sigRes.status === "fulfilled") setSignals(sigRes.value);
-      if (posRes.status === "fulfilled") setPositions(posRes.value.list ?? []);
       if (cfgRes.status === "fulfilled") setConfig(cfgRes.value);
       if (logRes.status === "fulfilled") setTradeLogs(logRes.value);
+
+      if (posRes.status === "fulfilled") {
+        const newPositions = posRes.value.list ?? [];
+        const newCount = newPositions.length;
+
+        // Detect new position opened
+        if (prevPosCount.current >= 0 && newCount > prevPosCount.current) {
+          const diff = newCount - prevPosCount.current;
+          toast({
+            title: `🔔 ${diff} Posisi Baru Dibuka!`,
+            description: `Kamu sekarang punya ${newCount} posisi aktif di Bybit. Cek tab Positions.`,
+          });
+          setActiveTab("positions");
+        }
+        prevPosCount.current = newCount;
+        setPositions(newPositions);
+      }
+
       if (balRes.status === "fulfilled") {
         const coins = balRes.value.list?.[0]?.coin ?? [];
         const usdt = coins.find((c) => c.coin === "USDT");
@@ -383,11 +511,37 @@ export default function Trading() {
       setLoading(false);
       setRefreshing(false);
     }
-  }
+  }, [toast]);
 
-  useEffect(() => { void loadAll(); }, []);
+  const loadEngineStat = useCallback(async () => {
+    try {
+      const stat = await apiFetch<EngineStatusData>("/api/trading/engine-status");
+      setEngineStat(stat);
+    } catch {
+      // silently ignore
+    }
+  }, []);
+
+  // Initial load
+  useEffect(() => { void loadAll(); }, [loadAll]);
+
+  // Poll engine status every 5s when in auto mode
+  useEffect(() => {
+    void loadEngineStat();
+    const id = setInterval(() => { void loadEngineStat(); }, 5000);
+    return () => clearInterval(id);
+  }, [loadEngineStat]);
+
+  // Auto-refresh all data every 30s when engine is active
+  useEffect(() => {
+    if (!config.enabled || config.mode !== "auto") return;
+    const id = setInterval(() => { void loadAll(true); }, 30_000);
+    return () => clearInterval(id);
+  }, [config.enabled, config.mode, loadAll]);
 
   async function updateConfig(patch: Partial<AutoConfig>) {
+    const isToggle = "enabled" in patch;
+    if (isToggle) setToggling(true);
     const next = { ...config, ...patch };
     setConfig(next);
     try {
@@ -396,8 +550,21 @@ export default function Trading() {
         body: JSON.stringify(patch),
       });
       setConfig(updated);
+
+      if (isToggle && "enabled" in patch) {
+        if (patch.enabled) {
+          toast({ title: "Engine Aktif", description: "Auto-trading engine dimulai. Scan sinyal tiap " + Math.round(updated.intervalMs / 1000) + "s." });
+          // Trigger first status refresh
+          setTimeout(() => { void loadEngineStat(); }, 500);
+        } else {
+          toast({ title: "Engine Dimatikan", description: "Auto-trading dihentikan." });
+        }
+      }
     } catch (err) {
+      setConfig(config); // revert on error
       toast({ title: "Config error", description: String(err), variant: "destructive" });
+    } finally {
+      if (isToggle) setToggling(false);
     }
   }
 
@@ -416,26 +583,19 @@ export default function Trading() {
       const slPrice = sig.stopLoss ?? sig.price * (1 - config.stopLossPct / 100);
       const tpPrice = sig.takeProfit ?? sig.price * (1 + config.takeProfitPct / 100);
 
-      // Place market order first (no inline TP/SL to avoid Bybit precision errors)
       await apiFetch("/api/trading/order", {
         method: "POST",
-        body: JSON.stringify({
-          symbol: sig.bybitSymbol,
-          side: "Buy",
-          qty,
-          takeProfit: tpPrice,
-          stopLoss: slPrice,
-        }),
+        body: JSON.stringify({ symbol: sig.bybitSymbol, side: "Buy", qty, takeProfit: tpPrice, stopLoss: slPrice }),
       });
 
       toast({
-        title: "Order Placed",
-        description: `Buy ${qty} ${sig.symbol} — TP/SL being set on position`,
+        title: "✅ Order Berhasil!",
+        description: `Buy ${qty} ${sig.symbol} @ $${formatUSDT(sig.price)} — TP/SL sedang diset`,
       });
 
       setTimeout(() => { void loadAll(true); }, 2500);
     } catch (err) {
-      toast({ title: "Order Failed", description: String(err), variant: "destructive" });
+      toast({ title: "Order Gagal", description: String(err), variant: "destructive" });
     } finally {
       setExecuting(null);
     }
@@ -447,10 +607,10 @@ export default function Trading() {
         method: "POST",
         body: JSON.stringify({ symbol, takeProfit: tp, stopLoss: sl }),
       });
-      toast({ title: "TP/SL Updated", description: `${symbol} TP: $${tp.toFixed(4)} · SL: $${sl.toFixed(4)}` });
+      toast({ title: "✅ TP/SL Diperbarui", description: `${symbol} TP: $${tp.toFixed(4)} · SL: $${sl.toFixed(4)}` });
       void loadAll(true);
     } catch (err) {
-      toast({ title: "TP/SL Failed", description: String(err), variant: "destructive" });
+      toast({ title: "TP/SL Gagal", description: String(err), variant: "destructive" });
     }
   }
 
@@ -492,6 +652,37 @@ export default function Trading() {
         </div>
       </div>
 
+      {/* Open Positions Warning Banner */}
+      {positions.length > 0 && (
+        <div className="flex items-start gap-3 rounded-lg border border-orange-500/40 bg-orange-950/20 px-4 py-3">
+          <Bell className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-orange-300">
+              {positions.length} Posisi Sedang Terbuka
+            </div>
+            <div className="text-xs text-orange-300/70 mt-0.5 space-y-0.5">
+              {positions.map((p) => {
+                const pnl = parseFloat(p.unrealisedPnl ?? "0");
+                return (
+                  <span key={p.symbol + p.side} className="inline-flex items-center gap-1 mr-3">
+                    <span className="font-medium">{p.symbol}</span>
+                    <span className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
+                      {pnl >= 0 ? "+" : ""}{formatUSDT(pnl)} USDT
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <button
+            className="text-xs text-orange-400 hover:text-orange-300 shrink-0 underline underline-offset-2"
+            onClick={() => setActiveTab("positions")}
+          >
+            Lihat posisi
+          </button>
+        </div>
+      )}
+
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
@@ -506,12 +697,15 @@ export default function Trading() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`cursor-pointer transition-colors ${positions.length > 0 ? "border-orange-500/40" : ""}`}
+          onClick={() => positions.length > 0 && setActiveTab("positions")}
+        >
           <CardContent className="p-4 flex items-center gap-3">
-            <Activity className="h-5 w-5 text-blue-400 shrink-0" />
+            <Activity className={`h-5 w-5 shrink-0 ${positions.length > 0 ? "text-orange-400" : "text-blue-400"}`} />
             <div>
               <div className="text-xs text-muted-foreground">Open Positions</div>
-              <div className="font-bold text-lg">{positions.length}</div>
+              <div className={`font-bold text-lg ${positions.length > 0 ? "text-orange-400" : ""}`}>{positions.length}</div>
             </div>
           </CardContent>
         </Card>
@@ -576,26 +770,54 @@ export default function Trading() {
             </Tabs>
           </div>
 
+          {/* Full Auto limits info */}
+          {config.mode === "auto" && (
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
+                <Activity className="h-3 w-3" /> Max {config.maxPositions} posisi
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
+                <TrendingUp className="h-3 w-3" /> Confidence ≥ {config.minConfidence}%
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
+                <Wallet className="h-3 w-3" /> Maks ${config.maxPositionUSDT}/trade
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
+                <Clock className="h-3 w-3" /> Scan tiap {Math.round(config.intervalMs / 1000)}s
+              </span>
+            </div>
+          )}
+
           {/* Power toggle */}
-          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
+          <div className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+            config.enabled
+              ? "border-green-500/40 bg-green-950/10"
+              : "border-border bg-muted/20"
+          }`}>
             <div className="flex items-center gap-2">
               <Power className={`h-4 w-4 ${config.enabled ? "text-green-400" : "text-muted-foreground"}`} />
               <div>
-                <div className="text-sm font-medium">
-                  {config.enabled ? "Engine Aktif" : "Engine Mati"}
+                <div className={`text-sm font-medium ${config.enabled ? "text-green-400" : ""}`}>
+                  {toggling ? "Memperbarui…" : config.enabled ? "Engine Aktif" : "Engine Mati"}
                 </div>
-                {config.mode === "auto" && (
-                  <div className="text-xs text-muted-foreground">
-                    Scan sinyal tiap {config.intervalMs / 1000}s
-                  </div>
-                )}
+                <div className="text-xs text-muted-foreground">
+                  {config.mode === "auto"
+                    ? config.enabled
+                      ? `Otomatis scan & order berjalan`
+                      : "Aktifkan untuk mulai auto-trading"
+                    : "Semi-auto: konfirmasi tiap order"}
+                </div>
               </div>
             </div>
             <Switch
               checked={config.enabled}
+              disabled={toggling}
               onCheckedChange={(v) => void updateConfig({ enabled: v })}
             />
           </div>
+
+          {/* Engine real-time status (Full Auto only) */}
+          <EngineStatusPanel stat={engineStat} config={config} />
 
           {/* Settings panel */}
           {settingsOpen && (
@@ -685,7 +907,7 @@ export default function Trading() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize ${
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
@@ -694,8 +916,15 @@ export default function Trading() {
               {tab === "signals"
                 ? `Signals (${signals.length})`
                 : tab === "positions"
-                ? `Positions (${positions.length})`
-                : "Trade Log"}
+                ? (
+                  <span className={positions.length > 0 ? "text-orange-400" : ""}>
+                    Positions ({positions.length})
+                    {positions.length > 0 && (
+                      <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
+                    )}
+                  </span>
+                )
+                : `Trade Log (${tradeLogs.length})`}
             </button>
           ))}
         </div>

@@ -276,6 +276,30 @@ export async function getHighConfidenceSignals() {
     }));
 }
 
+// ─── Engine status tracking ────────────────────────────────────────────────────
+
+export interface EngineStatus {
+  running: boolean;
+  analyzing: boolean;
+  lastCycleAt: number | null;
+  nextCycleAt: number | null;
+  cycleCount: number;
+  lastSignalsFound: number;
+  lastOrdersPlaced: number;
+  lastError: string | null;
+}
+
+export const engineStatus: EngineStatus = {
+  running: false,
+  analyzing: false,
+  lastCycleAt: null,
+  nextCycleAt: null,
+  cycleCount: 0,
+  lastSignalsFound: 0,
+  lastOrdersPlaced: 0,
+  lastError: null,
+};
+
 // ─── Auto-trading engine ───────────────────────────────────────────────────────
 
 let autoInterval: ReturnType<typeof setInterval> | null = null;
@@ -283,6 +307,8 @@ let autoInterval: ReturnType<typeof setInterval> | null = null;
 async function runAutoTradeCycle() {
   if (!autoConfig.enabled || autoConfig.mode !== "auto") return;
 
+  engineStatus.analyzing = true;
+  engineStatus.lastError = null;
   logger.info("Auto-trade cycle started");
 
   try {
@@ -299,6 +325,9 @@ async function runAutoTradeCycle() {
     const availableUSDT = parseFloat(usdtCoin?.walletBalance ?? "0");
 
     const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.05);
+
+    engineStatus.lastSignalsFound = signals.length;
+    let ordersPlaced = 0;
 
     for (const sig of signals) {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
@@ -334,6 +363,7 @@ async function runAutoTradeCycle() {
         logEntry.status = "executed";
         logEntry.orderId = order.orderId;
         activeSymbols.add(sig.bybitSymbol);
+        ordersPlaced++;
         logger.info({ symbol: sig.bybitSymbol, qty, orderId: order.orderId }, "Auto-trade executed");
       } catch (err) {
         logEntry.status = "rejected";
@@ -344,14 +374,27 @@ async function runAutoTradeCycle() {
       tradeLog.unshift(logEntry);
       if (tradeLog.length > 200) tradeLog.splice(200);
     }
+
+    engineStatus.lastOrdersPlaced = ordersPlaced;
   } catch (err) {
     logger.error({ err }, "Auto-trade cycle error");
+    engineStatus.lastError = String(err);
+  } finally {
+    engineStatus.analyzing = false;
+    engineStatus.lastCycleAt = Date.now();
+    engineStatus.cycleCount++;
+    engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
   }
 }
 
 export function startAutoEngine() {
   if (autoInterval) clearInterval(autoInterval);
-  autoInterval = setInterval(runAutoTradeCycle, autoConfig.intervalMs);
+  engineStatus.running = true;
+  engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+  autoInterval = setInterval(() => {
+    engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+    void runAutoTradeCycle();
+  }, autoConfig.intervalMs);
   logger.info({ intervalMs: autoConfig.intervalMs }, "Auto-trading engine started");
 }
 
@@ -360,5 +403,8 @@ export function stopAutoEngine() {
     clearInterval(autoInterval);
     autoInterval = null;
   }
+  engineStatus.running = false;
+  engineStatus.analyzing = false;
+  engineStatus.nextCycleAt = null;
   logger.info("Auto-trading engine stopped");
 }
