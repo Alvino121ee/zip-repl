@@ -366,7 +366,7 @@ export default function Dashboard() {
         <CardContent>
           {cryptoLoading ? <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div> : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {(cryptos ?? []).map((coin) => (
+              {(Array.isArray(cryptos) ? cryptos : []).map((coin) => (
                 <Link key={coin.id} href="/crypto">
                   <div className="flex items-center gap-2.5 p-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer">
                     <img src={coin.image} alt={coin.name} className="w-8 h-8 rounded-full bg-muted shrink-0"

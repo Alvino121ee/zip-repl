@@ -176,12 +176,13 @@ export default function Predictions() {
     { query: { refetchInterval: lockMs } as any },
   );
 
+  const predArray = Array.isArray(predictions) ? predictions : [];
   const grouped = {
-    strong_buy: (predictions ?? []).filter((p) => p.signal === "strong_buy"),
-    buy: (predictions ?? []).filter((p) => p.signal === "buy"),
-    neutral: (predictions ?? []).filter((p) => p.signal === "neutral"),
-    sell: (predictions ?? []).filter((p) => p.signal === "sell"),
-    strong_sell: (predictions ?? []).filter((p) => p.signal === "strong_sell"),
+    strong_buy: predArray.filter((p) => p.signal === "strong_buy"),
+    buy: predArray.filter((p) => p.signal === "buy"),
+    neutral: predArray.filter((p) => p.signal === "neutral"),
+    sell: predArray.filter((p) => p.signal === "sell"),
+    strong_sell: predArray.filter((p) => p.signal === "strong_sell"),
   };
 
   return (
@@ -246,7 +247,7 @@ export default function Predictions() {
             Gagal memuat prediksi. Silakan coba lagi.
           </CardContent>
         </Card>
-      ) : (predictions ?? []).length === 0 ? (
+      ) : predArray.length === 0 ? (
         <Card>
           <CardContent className="py-16 text-center text-muted-foreground text-sm">
             Tidak ada prediksi tersedia untuk kategori ini.
@@ -254,7 +255,7 @@ export default function Predictions() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(predictions ?? []).map((p) => (
+          {predArray.map((p) => (
             <Link key={`${p.assetType}-${p.assetId}`} href={`/predictions/${p.assetType}/${p.assetId}`}>
               <Card className="hover:border-primary/40 transition-colors cursor-pointer group h-full">
                 <CardContent className="p-4 flex flex-col gap-3 h-full">

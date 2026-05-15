@@ -24,7 +24,7 @@ export default function Crypto() {
     { query: { refetchInterval: REFETCH_MS } as any },
   );
 
-  const filtered = (coins ?? [])
+  const filtered = (Array.isArray(coins) ? coins : [])
     .filter((c) =>
       search === "" ||
       c.name.toLowerCase().includes(search.toLowerCase()) ||

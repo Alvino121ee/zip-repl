@@ -145,7 +145,7 @@ export default function News() {
             Gagal memuat berita. Silakan coba lagi.
           </CardContent>
         </Card>
-      ) : (news ?? []).length === 0 ? (
+      ) : (Array.isArray(news) ? news : []).length === 0 ? (
         <Card>
           <CardContent className="py-16 text-center text-muted-foreground text-sm">
             Tidak ada berita tersedia saat ini.
@@ -153,7 +153,7 @@ export default function News() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {(news ?? []).map((item) => (
+          {(Array.isArray(news) ? news : []).map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
         </div>

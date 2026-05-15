@@ -39,7 +39,7 @@ export default function Stocks() {
     { query: { refetchInterval: REFETCH_MS } as any },
   );
 
-  const idxStocks = (stocks ?? []).filter(
+  const idxStocks = (Array.isArray(stocks) ? stocks : []).filter(
     (s) => s.exchange?.includes("IDX") || s.exchange?.includes("Jakarta") || s.symbol?.endsWith(".JK")
   );
 
