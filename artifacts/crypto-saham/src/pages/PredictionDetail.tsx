@@ -36,8 +36,16 @@ type Signal = "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
 
 /* ═══════════════════════════ TRADE SETUP ═══════════════════════════════════ */
 
+interface DirectionSignal {
+  label: string;
+  value: string;
+  bull: boolean | null; // true=bullish green, false=bearish red, null=neutral
+}
+
 interface TradeSetup {
   direction: "LONG" | "SHORT" | null;
+  directionOverridden: boolean; // true when bearish/bullish evidence overrode the base signal
+  directionSignals: DirectionSignal[];
   entryLow: number; entryHigh: number;
   stopLoss: number; slPct: number;
   tp1: number; tp1Pct: number; tp1RR: number;
@@ -46,12 +54,95 @@ interface TradeSetup {
   leverage: number; maxLeverage: number;
 }
 
+interface TradeSetupOpts {
+  backendInd?: BackendIndicators;
+  sentimentScore?: number;
+  rsi?: number;
+}
+
 function buildTradeSetup(
   signal: Signal, price: number, confidence: number,
   change24h: number, support?: number | null, resistance?: number | null,
+  opts?: TradeSetupOpts,
 ): TradeSetup | null {
   if (signal === "neutral" || price <= 0) return null;
-  const isLong = signal === "buy" || signal === "strong_buy";
+
+  // ── Direction override: count bearish vs bullish evidence ─────────────────
+  let bearish = 0;
+  let bullish = 0;
+  const b = opts?.backendInd;
+  const sent = opts?.sentimentScore ?? 0;
+  const rsi = opts?.rsi ?? 50;
+
+  if (b) {
+    if (!b.macd?.bullish)                                         bearish += 2;
+    else                                                          bullish += 2;
+    if (b.marketStructure === "downtrend")                        bearish += 3;
+    else if (b.marketStructure === "uptrend")                     bullish += 3;
+    if (b.multiTimeframeAlignment === "aligned_bear")             bearish += 2;
+    else if (b.multiTimeframeAlignment === "aligned_bull")        bullish += 2;
+    if (["bearish_engulfing","shooting_star","momentum_bear"].includes(b.candlePattern ?? "")) bearish += 1;
+    if (["bullish_engulfing","hammer","momentum_bull"].includes(b.candlePattern ?? ""))        bullish += 1;
+    if (b.bosDirection === "bearish")                             bearish += 1;
+    if (b.bosDirection === "bullish")                             bullish += 1;
+  }
+  if (sent < -0.4)      bearish += 3; // very negative news
+  else if (sent < -0.1) bearish += 1;
+  else if (sent > 0.4)  bullish += 2;
+  else if (sent > 0.1)  bullish += 1;
+  if (rsi > 78)         bearish += 2; // extreme overbought → reversal risk
+  if (rsi < 22)         bullish += 2; // extreme oversold → bounce
+
+  // Base direction from AI signal
+  let baseIsLong = signal === "buy" || signal === "strong_buy";
+  let directionOverridden = false;
+
+  // Override only when evidence is decisive AND signal is not a "strong" conviction signal
+  if (signal === "buy" && bearish >= 5 && bearish > bullish + 2) {
+    baseIsLong = false;
+    directionOverridden = true;
+  } else if (signal === "sell" && bullish >= 5 && bullish > bearish + 2) {
+    baseIsLong = true;
+    directionOverridden = true;
+  }
+  const isLong = baseIsLong;
+
+  // ── Direction signal cards for display ────────────────────────────────────
+  const directionSignals: DirectionSignal[] = [
+    {
+      label: "Sentimen Berita",
+      value: sent < -0.3 ? "Sangat Negatif" : sent < -0.1 ? "Negatif" : sent > 0.3 ? "Sangat Positif" : sent > 0.1 ? "Positif" : "Netral",
+      bull: sent < -0.1 ? false : sent > 0.1 ? true : null,
+    },
+    {
+      label: "MACD",
+      value: b?.macd ? (b.macd.bullish ? `Bullish (${b.macd.histogram > 0 ? "+" : ""}${b.macd.histogram.toFixed(2)})` : `Bearish (${b.macd.histogram > 0 ? "+" : ""}${b.macd.histogram.toFixed(2)})`) : "–",
+      bull: b?.macd ? b.macd.bullish : null,
+    },
+    {
+      label: "Struktur Pasar",
+      value: b?.marketStructure === "uptrend" ? "Uptrend (HH/HL)" : b?.marketStructure === "downtrend" ? "Downtrend (LH/LL)" : "Ranging/Sideways",
+      bull: b?.marketStructure === "uptrend" ? true : b?.marketStructure === "downtrend" ? false : null,
+    },
+    {
+      label: "Multi-Timeframe",
+      value: b?.multiTimeframeAlignment === "aligned_bull" ? "Bullish Semua TF" : b?.multiTimeframeAlignment === "aligned_bear" ? "Bearish Semua TF" : "Mixed / Tidak Selaras",
+      bull: b?.multiTimeframeAlignment === "aligned_bull" ? true : b?.multiTimeframeAlignment === "aligned_bear" ? false : null,
+    },
+    {
+      label: "RSI (14)",
+      value: rsi > 70 ? `${rsi.toFixed(0)} – Overbought` : rsi < 30 ? `${rsi.toFixed(0)} – Oversold` : `${rsi.toFixed(0)} – Normal`,
+      bull: rsi > 70 ? false : rsi < 30 ? true : null,
+    },
+    {
+      label: "Pola Candle",
+      value: b?.candlePattern ? b.candlePattern.replace(/_/g, " ") : "none",
+      bull: ["bullish_engulfing","hammer","momentum_bull"].includes(b?.candlePattern ?? "") ? true
+          : ["bearish_engulfing","shooting_star","momentum_bear"].includes(b?.candlePattern ?? "") ? false : null,
+    },
+  ];
+
+  // ── Price levels ──────────────────────────────────────────────────────────
   const entryLow  = price * (isLong ? 0.997 : 1.003);
   const entryHigh = price * (isLong ? 1.003 : 1.007);
   const vol = Math.min(Math.abs(change24h), 20);
@@ -72,6 +163,8 @@ function buildTradeSetup(
   const leverage = Math.min(baseLev + confBonus, 20);
   return {
     direction: isLong ? "LONG" : "SHORT",
+    directionOverridden,
+    directionSignals,
     entryLow, entryHigh, stopLoss,
     slPct: parseFloat(actualSlPct.toFixed(2)),
     tp1: tp(1.5), tp1Pct: tpPct(1.5), tp1RR: 1.5,
@@ -1193,7 +1286,7 @@ function FuturesTradingGuide({ setup, isCrypto, assetName }: {
                   <div>
                     <p className={`text-[11px] font-semibold uppercase tracking-wider ${t.textColor}`}>{t.label}</p>
                     <p className="text-lg font-extrabold tabular-nums mt-0.5">{fmt(t.price)}</p>
-                    <p className={`text-xs mt-0.5 ${t.textColor}`}>+{t.pct}% dari entry · {t.note}</p>
+                    <p className={`text-xs mt-0.5 ${t.textColor}`}>{isLong ? "+" : "-"}{t.pct}% dari entry · {t.note}</p>
                   </div>
                   <div className="text-right min-w-[80px]">
                     <p className="text-[10px] text-muted-foreground">Risk/Reward</p>
@@ -1243,6 +1336,36 @@ function FuturesTradingGuide({ setup, isCrypto, assetName }: {
           </ol>
         </div>
 
+        {/* Direction signals panel */}
+        <div>
+          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <Brain className="h-3.5 w-3.5" /> Dasar Analisis Posisi {isLong ? "LONG" : "SHORT"}
+          </p>
+          {setup.directionOverridden && (
+            <div className="mb-2 flex items-center gap-1.5 rounded-lg bg-orange-500/10 border border-orange-500/30 px-2.5 py-1.5">
+              <AlertTriangle className="h-3 w-3 text-orange-400 shrink-0" />
+              <span className="text-[11px] text-orange-400 font-semibold">
+                Arah diubah AI: bukti {isLong ? "bullish" : "bearish"} dari multiple indikator mengalahkan sinyal dasar
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-1 gap-1">
+            {setup.directionSignals.map((s) => (
+              <div key={s.label} className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-muted/30 border border-border">
+                <span className="text-xs text-muted-foreground">{s.label}</span>
+                <span className={`text-xs font-semibold ${s.bull === true ? "text-green-400" : s.bull === false ? "text-red-400" : "text-yellow-400"}`}>
+                  {s.bull === true ? "▲ " : s.bull === false ? "▼ " : "– "}{s.value}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-2">
+            {isLong
+              ? "AI merekomendasikan LONG karena sinyal bullish lebih dominan dari indikator teknikal dan sentimen berita."
+              : "AI merekomendasikan SHORT karena sinyal bearish mendominasi — harga diperkirakan akan turun berdasarkan teknikal dan/atau sentimen berita negatif."}
+          </p>
+        </div>
+
         {/* Disclaimer */}
         <div className="flex items-start gap-2 p-3 bg-yellow-500/5 border border-yellow-500/20 rounded-lg">
           <Info className="h-3.5 w-3.5 text-yellow-400 shrink-0 mt-0.5" />
@@ -1282,14 +1405,7 @@ export default function PredictionDetail() {
   const priceMin = Math.min(...(history?.prices ?? []).map((p) => p.price)) * 0.999;
   const priceMax = Math.max(...(history?.prices ?? []).map((p) => p.price)) * 1.001;
 
-  // Computed setups
-  const tradeSetup = detail?.signal && detail?.currentPrice
-    ? buildTradeSetup(
-        detail.signal as Signal, detail.currentPrice,
-        detail.confidence ?? 50, detail.priceChange24h ?? 0,
-        detail.technicalIndicators?.support, detail.technicalIndicators?.resistance,
-      ) : null;
-
+  // Computed setups — backendInd must come before tradeSetup (used for direction override)
   const ti = detail?.technicalIndicators;
   const backendInd: BackendIndicators | undefined = ti ? {
     marketStructure: (ti as any).marketStructure,
@@ -1320,6 +1436,18 @@ export default function PredictionDetail() {
     ema25: (ti as any).ema25,
     ema99: (ti as any).ema99,
   } : undefined;
+
+  const tradeSetup = detail?.signal && detail?.currentPrice
+    ? buildTradeSetup(
+        detail.signal as Signal, detail.currentPrice,
+        detail.confidence ?? 50, detail.priceChange24h ?? 0,
+        ti?.support, ti?.resistance,
+        {
+          backendInd,
+          sentimentScore: detail.sentimentScore ?? 0,
+          rsi: ti ? (ti as any).rsi : 50,
+        },
+      ) : null;
 
   const marketAnalysis = detail?.currentPrice && ti
     ? buildMarketAnalysis(
