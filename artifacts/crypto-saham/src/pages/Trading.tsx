@@ -660,7 +660,7 @@ function SettingsPanel({ config, onChange, onClose }: {
               <div className="grid grid-cols-2 gap-2">
                 {(opts as string[]).map((o) => (
                   <button key={o} onClick={() => onChange({ [key as string]: o } as Partial<AutoConfig>)}
-                    className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${(config as Record<string, unknown>)[key as string] === o ? "bg-primary/20 border-primary text-primary" : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"}`}>
+                    className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${(config as unknown as Record<string, unknown>)[key as string] === o ? "bg-primary/20 border-primary text-primary" : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"}`}>
                     {(labels as Record<string, string>)[o]}
                   </button>
                 ))}
@@ -678,7 +678,7 @@ function SettingsPanel({ config, onChange, onClose }: {
           ].map(({ key, label, min, max, step, display }) => (
             <div key={key}>
               <div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">{label}</span><span className="font-semibold">{display}</span></div>
-              <Slider min={min} max={max} step={step} value={[(config as Record<string, unknown>)[key] as number]}
+              <Slider min={min} max={max} step={step} value={[(config as unknown as Record<string, unknown>)[key] as number]}
                 onValueChange={([v]) => onChange({ [key]: v } as Partial<AutoConfig>)} className="w-full" />
             </div>
           ))}

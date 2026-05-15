@@ -5,6 +5,7 @@ import {
   getOpenOrders,
   placeOrder,
   cancelOrder,
+  closePosition,
   setPositionTPSL,
   getHighConfidenceSignals,
   scanBybitUniverse,
@@ -118,6 +119,29 @@ router.post("/trading/position/tpsl", async (req, res) => {
   }
 });
 
+// POST /api/trading/close-position  — closes an open position (reduceOnly market order)
+router.post("/trading/close-position", async (req, res) => {
+  const { symbol, side, qty } = req.body as {
+    symbol: string;
+    side: "Buy" | "Sell";  // side of the CLOSING order (opposite of open position)
+    qty: string;
+  };
+
+  if (!symbol || !side || !qty) {
+    res.status(400).json({ error: "symbol, side, qty are required" });
+    return;
+  }
+
+  try {
+    const result = await closePosition(symbol, side, qty);
+    req.log.info({ symbol, side, qty, orderId: result.orderId }, "Position closed");
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Failed to close position");
+    res.status(502).json({ error: String(err) });
+  }
+});
+
 // DELETE /api/trading/order/:orderId
 router.delete("/trading/order/:orderId", async (req, res) => {
   const { orderId } = req.params;
@@ -156,7 +180,7 @@ router.put("/trading/config", (req, res) => {
 
   for (const key of allowed) {
     if (key in update) {
-      (autoConfig as Record<string, unknown>)[key] = update[key];
+      (autoConfig as unknown as Record<string, unknown>)[key] = update[key];
     }
   }
 

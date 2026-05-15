@@ -307,9 +307,6 @@ export async function getHighConfidenceSignals() {
         side: (isSell ? "Sell" : "Buy") as "Buy" | "Sell",
         confidence: p.confidence,
         price: p.currentPrice,
-        riskLevel: p.riskLevel,
-        stopLoss: p.stopLoss,
-        takeProfit: p.takeProfit,
       };
     });
   return mapped;
@@ -456,7 +453,7 @@ async function runAutoTradeCycle() {
     // ── 1. Scan for candidates ───────────────────────────────────────────────
     let candidates: Array<{
       symbol: string; price: number; confidence: number;
-      signal: string; limitPrice: number;
+      signal: string; side: "Buy" | "Sell"; limitPrice: number;
     }>;
 
     if (autoConfig.scanSource === "universe") {
@@ -469,47 +466,121 @@ async function runAutoTradeCycle() {
           price: c.price,
           confidence: c.confidence,
           signal: c.signal,
+          side: c.side,
           limitPrice: c.limitPrice,
         }));
     } else {
       const raw = await getHighConfidenceSignals();
       engineStatus.totalScanned = raw.length;
-      candidates = raw.map((c) => ({
-        symbol: c.bybitSymbol,
-        price: c.price,
-        confidence: c.confidence,
-        signal: c.signal,
-        limitPrice: c.price * (1 - autoConfig.limitOffsetPct / 100),
-      }));
+      candidates = raw.map((c) => {
+        const isSell = c.signal === "strong_sell" || c.signal === "sell";
+        return {
+          symbol: c.bybitSymbol,
+          price: c.price,
+          confidence: c.confidence,
+          signal: c.signal,
+          side: (isSell ? "Sell" : "Buy") as "Buy" | "Sell",
+          limitPrice: isSell
+            ? c.price * (1 + autoConfig.limitOffsetPct / 100)
+            : c.price * (1 - autoConfig.limitOffsetPct / 100),
+        };
+      });
     }
 
     engineStatus.lastSignalsFound = candidates.length;
-    if (candidates.length === 0) {
-      logger.info("No candidates found this cycle");
-      return;
-    }
 
     // ── 2. Get current state ─────────────────────────────────────────────────
-    const posResult = await getPositions() as { list: { symbol: string }[] };
-    const activeSymbols = new Set((posResult.list ?? []).map((p) => p.symbol));
+    const posResult = await getPositions() as {
+      list: { symbol: string; side: string; size: string; avgPrice: string }[]
+    };
+    const openPositions = posResult.list ?? [];
+    const activeSymbols = new Set(openPositions.map((p) => p.symbol));
 
     const balResult = await getWalletBalance() as {
       list: { coin: { coin: string; walletBalance: string }[] }[];
     };
     const usdtCoin = balResult.list?.[0]?.coin?.find((c) => c.coin === "USDT");
     const availableUSDT = parseFloat(usdtCoin?.walletBalance ?? "0");
-
-    // Max per trade: smaller of config limit or 20% of available balance
     const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.2);
 
-    // ── 3. Execute orders (with full AI analysis gate) ───────────────────────
+    // ── 3. Position management — auto close/reverse on trend change ──────────
     let ordersPlaced = 0;
+
+    for (const pos of openPositions) {
+      if (!pos.size || parseFloat(pos.size) === 0) continue;
+
+      let posAnalysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+      try { posAnalysis = await analyzeSymbol(pos.symbol); }
+      catch (err) { logger.warn({ err, symbol: pos.symbol }, "Analysis failed for position monitoring"); continue; }
+
+      const isLong = pos.side === "Buy";
+      const shouldClose = isLong ? posAnalysis.shouldExitLong : posAnalysis.shouldExitShort;
+
+      if (!shouldClose) continue;
+
+      // Close the existing position
+      const closeSide: "Buy" | "Sell" = isLong ? "Sell" : "Buy";
+      try {
+        const closeOrder = await closePosition(pos.symbol, closeSide, pos.size);
+        const closeMsg = posAnalysis.exitReason ?? `Tren berbalik — auto close ${isLong ? "LONG" : "SHORT"}`;
+        logger.info({ symbol: pos.symbol, closeSide, size: pos.size, orderId: closeOrder.orderId }, closeMsg);
+        tradeLog.unshift({
+          id: crypto.randomUUID(), timestamp: Date.now(),
+          symbol: pos.symbol, side: closeSide, qty: pos.size,
+          price: parseFloat(pos.avgPrice), confidence: posAnalysis.overallConfidence,
+          signal: "close", status: "executed", reason: closeMsg, orderId: closeOrder.orderId,
+        });
+        if (tradeLog.length > 200) tradeLog.splice(200);
+        activeSymbols.delete(pos.symbol);
+
+        // Immediately open opposite direction if analysis has a clear new entry
+        if (posAnalysis.shouldEnter && posAnalysis.side && posAnalysis.side !== pos.side) {
+          const reversePrice = posAnalysis.entryPrice;
+          const reverseQty = formatQty(maxPerTrade / reversePrice, reversePrice);
+          const reverseSL = posAnalysis.stopLoss;
+          const reverseTP = posAnalysis.takeProfit;
+
+          try {
+            const reverseOrder = await placeOrder({
+              symbol: pos.symbol, side: posAnalysis.side,
+              qty: reverseQty, orderType: "Market",
+            });
+            await setPositionTPSL({ symbol: pos.symbol, takeProfit: reverseTP, stopLoss: reverseSL })
+              .catch((e) => logger.warn({ e, symbol: pos.symbol }, "Failed to set TP/SL on reverse"));
+            const reverseLabel = posAnalysis.side === "Buy" ? "LONG" : "SHORT";
+            const reverseMsg = `Reverse ke ${reverseLabel} — ${posAnalysis.reasons[0] ?? "tren baru terkonfirmasi"}`;
+            tradeLog.unshift({
+              id: crypto.randomUUID(), timestamp: Date.now(),
+              symbol: pos.symbol, side: posAnalysis.side, qty: reverseQty,
+              price: reversePrice, confidence: posAnalysis.overallConfidence,
+              signal: reverseLabel.toLowerCase(), status: "executed",
+              reason: reverseMsg, orderId: reverseOrder.orderId,
+            });
+            if (tradeLog.length > 200) tradeLog.splice(200);
+            activeSymbols.add(pos.symbol);
+            ordersPlaced++;
+            logger.info({ symbol: pos.symbol, side: posAnalysis.side, qty: reverseQty, orderId: reverseOrder.orderId }, `Auto-reversed to ${reverseLabel}`);
+          } catch (err) {
+            logger.warn({ err, symbol: pos.symbol }, "Failed to place reverse order");
+          }
+        }
+      } catch (err) {
+        logger.warn({ err, symbol: pos.symbol }, "Failed to close position for reversal");
+      }
+    }
+
+    // ── 4. Open new positions from candidate signals ─────────────────────────
+    if (candidates.length === 0) {
+      logger.info("No new candidates this cycle");
+      engineStatus.lastOrdersPlaced = ordersPlaced;
+      return;
+    }
 
     for (const cand of candidates) {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
       if (activeSymbols.has(cand.symbol)) continue;
 
-      // ── Full technical analysis gate ─────────────────────────────────────
+      // Full AI analysis gate — must confirm the candidate's intended direction
       let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
       try {
         analysis = await analyzeSymbol(cand.symbol);
@@ -517,7 +588,7 @@ async function runAutoTradeCycle() {
         logger.warn({ err, symbol: cand.symbol }, "Analysis unavailable, skipping");
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
-          symbol: cand.symbol, side: "Buy", qty: "0", price: cand.price,
+          symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
           confidence: cand.confidence, signal: cand.signal,
           status: "rejected", reason: `Analysis failed: ${String(err)}`,
         });
@@ -525,60 +596,65 @@ async function runAutoTradeCycle() {
         continue;
       }
 
-      if (!analysis.shouldEnter) {
-        logger.info({ symbol: cand.symbol, reason: analysis.waitReason }, "Entry skipped by analysis");
+      // Analysis must agree with the candidate's direction
+      if (!analysis.shouldEnter || analysis.side !== cand.side) {
+        const reason = !analysis.shouldEnter
+          ? (analysis.waitReason ?? "Kondisi belum optimal")
+          : `Analysis arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
+        logger.info({ symbol: cand.symbol, reason }, "Entry skipped by analysis");
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
-          symbol: cand.symbol, side: "Buy", qty: "0", price: cand.price,
+          symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
           confidence: analysis.overallConfidence, signal: cand.signal,
-          status: "rejected",
-          reason: analysis.waitReason ?? "Kondisi belum optimal",
+          status: "rejected", reason,
         });
         if (tradeLog.length > 200) tradeLog.splice(200);
         continue;
       }
 
+      const tradeSide = analysis.side; // "Buy" or "Sell"
       const execPrice = autoConfig.orderType === "Limit" ? cand.limitPrice : cand.price;
       const qty = formatQty(maxPerTrade / execPrice, execPrice);
-      const slPrice = analysis.stopLoss > 0 ? analysis.stopLoss : execPrice * (1 - autoConfig.stopLossPct / 100);
-      const tpPrice = analysis.takeProfit > 0 ? analysis.takeProfit : execPrice * (1 + autoConfig.takeProfitPct / 100);
-      const reasonSummary = analysis.reasons.slice(0, 2).join(" | ");
 
+      // Direction-aware SL/TP fallback
+      const slPrice = analysis.stopLoss > 0
+        ? analysis.stopLoss
+        : tradeSide === "Sell"
+          ? execPrice * (1 + autoConfig.stopLossPct / 100)
+          : execPrice * (1 - autoConfig.stopLossPct / 100);
+      const tpPrice = analysis.takeProfit > 0
+        ? analysis.takeProfit
+        : tradeSide === "Sell"
+          ? execPrice * (1 - autoConfig.takeProfitPct / 100)
+          : execPrice * (1 + autoConfig.takeProfitPct / 100);
+
+      const reasonSummary = analysis.reasons.slice(0, 2).join(" | ");
       const logEntry: TradeLogEntry = {
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        symbol: cand.symbol,
-        side: "Buy",
-        qty,
-        price: execPrice,
-        confidence: analysis.overallConfidence,
-        signal: cand.signal,
-        status: "pending",
-        reason: reasonSummary,
+        id: crypto.randomUUID(), timestamp: Date.now(),
+        symbol: cand.symbol, side: tradeSide, qty, price: execPrice,
+        confidence: analysis.overallConfidence, signal: cand.signal,
+        status: "pending", reason: reasonSummary,
       };
 
       try {
         const order = await placeOrder({
-          symbol: cand.symbol,
-          side: "Buy",
-          qty,
+          symbol: cand.symbol, side: tradeSide, qty,
           orderType: autoConfig.orderType,
           price: autoConfig.orderType === "Limit" ? cand.limitPrice : undefined,
         });
 
-        if (autoConfig.orderType === "Market") {
-          await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice })
-            .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL"));
-        }
+        // Always set TP/SL via trading-stop after fill (works for both Buy and Sell)
+        await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice })
+          .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL"));
 
         logEntry.status = "executed";
         logEntry.orderId = order.orderId;
         activeSymbols.add(cand.symbol);
         ordersPlaced++;
         logger.info(
-          { symbol: cand.symbol, qty, orderType: autoConfig.orderType, orderId: order.orderId,
-            confidence: analysis.overallConfidence, confirmations: analysis.confirmations },
-          "Auto-trade placed (passed full analysis)"
+          { symbol: cand.symbol, side: tradeSide, qty, orderId: order.orderId,
+            confidence: analysis.overallConfidence, confirmations: analysis.confirmations, slPrice, tpPrice },
+          `Auto-trade ${tradeSide === "Sell" ? "SHORT" : "LONG"} placed`
         );
       } catch (err) {
         logEntry.status = "rejected";
