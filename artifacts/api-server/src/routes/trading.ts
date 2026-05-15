@@ -199,7 +199,7 @@ router.put("/trading/config", (req, res) => {
 
 // GET /api/trading/log
 router.get("/trading/log", (_req, res) => {
-  res.json(tradeLog.slice(0, 50));
+  res.json(tradeLog);
 });
 
 // GET /api/trading/universe  — top Bybit universe candidates
