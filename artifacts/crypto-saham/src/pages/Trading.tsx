@@ -49,6 +49,9 @@ interface AutoConfig {
   maxPositions: number;
   leverage: number;
   intervalMs: number;
+  orderType: "Market" | "Limit";
+  limitOffsetPct: number;
+  scanSource: "universe" | "predictions";
 }
 
 interface TradeLog {
@@ -452,6 +455,9 @@ export default function Trading() {
     maxPositions: 5,
     leverage: 1,
     intervalMs: 60_000,
+    orderType: "Market",
+    limitOffsetPct: 0.3,
+    scanSource: "universe",
   });
   const [engineStat, setEngineStat] = useState<EngineStatusData | null>(null);
   const [tradeLogs, setTradeLogs] = useState<TradeLog[]>([]);
@@ -773,11 +779,19 @@ export default function Trading() {
           {/* Full Auto limits info */}
           {config.mode === "auto" && (
             <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1 text-xs bg-primary/10 border border-primary/20 rounded-full px-3 py-1 text-primary">
+                <Bot className="h-3 w-3" />
+                {config.scanSource === "universe" ? "Semua token Bybit" : "Prediksi AI"}
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
+                <Zap className="h-3 w-3" />
+                {config.orderType === "Market" ? "Market Order" : `Limit −${config.limitOffsetPct}%`}
+              </span>
               <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
                 <Activity className="h-3 w-3" /> Max {config.maxPositions} posisi
               </span>
               <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
-                <TrendingUp className="h-3 w-3" /> Confidence ≥ {config.minConfidence}%
+                <TrendingUp className="h-3 w-3" /> Score ≥ {config.minConfidence}%
               </span>
               <span className="inline-flex items-center gap-1 text-xs bg-muted/50 rounded-full px-3 py-1 text-muted-foreground">
                 <Wallet className="h-3 w-3" /> Maks ${config.maxPositionUSDT}/trade
@@ -821,78 +835,157 @@ export default function Trading() {
 
           {/* Settings panel */}
           {settingsOpen && (
-            <div className="space-y-4 pt-2 border-t border-border">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Min Confidence</span>
-                    <span className="font-semibold">{config.minConfidence}%</span>
-                  </div>
-                  <Slider
-                    min={60} max={95} step={5}
-                    value={[config.minConfidence]}
-                    onValueChange={([v]) => void updateConfig({ minConfidence: v! })}
-                  />
+            <div className="space-y-5 pt-3 border-t border-border">
+
+              {/* ── Scan Source ───────────────────────────────────────────── */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sumber Scan</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => void updateConfig({ scanSource: "universe" })}
+                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
+                      config.scanSource === "universe"
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-muted/20 text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
+                      <Bot className="h-3.5 w-3.5" /> Semua Token Bybit
+                    </div>
+                    <div className="text-[11px] leading-snug opacity-80">
+                      Scan ratusan token, pilih momentum terbaik hari ini
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => void updateConfig({ scanSource: "predictions" })}
+                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
+                      config.scanSource === "predictions"
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-muted/20 text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
+                      <TrendingUp className="h-3.5 w-3.5" /> Prediksi AI
+                    </div>
+                    <div className="text-[11px] leading-snug opacity-80">
+                      Hanya koin dari halaman Predictions dengan sinyal BUY
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Order Type ────────────────────────────────────────────── */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Jenis Order</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => void updateConfig({ orderType: "Market" })}
+                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
+                      config.orderType === "Market"
+                        ? "border-green-500/60 bg-green-950/20 text-foreground"
+                        : "border-border bg-muted/20 text-muted-foreground hover:border-green-500/30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
+                      <Zap className="h-3.5 w-3.5 text-green-400" /> Market Order
+                    </div>
+                    <div className="text-[11px] leading-snug opacity-80">
+                      Beli langsung di harga pasar sekarang — pasti terisi
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => void updateConfig({ orderType: "Limit" })}
+                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-colors ${
+                      config.orderType === "Limit"
+                        ? "border-blue-500/60 bg-blue-950/20 text-foreground"
+                        : "border-border bg-muted/20 text-muted-foreground hover:border-blue-500/30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
+                      <Target className="h-3.5 w-3.5 text-blue-400" /> Limit Order
+                    </div>
+                    <div className="text-[11px] leading-snug opacity-80">
+                      Pasang harga target, terisi saat pasar turun ke harga itu
+                    </div>
+                  </button>
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Max per Trade (USDT)</span>
-                    <span className="font-semibold">${config.maxPositionUSDT}</span>
+                {/* Limit offset slider — only shown when Limit is selected */}
+                {config.orderType === "Limit" && (
+                  <div className="mt-3 p-3 bg-blue-950/10 border border-blue-500/20 rounded-lg">
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Beli di bawah harga pasar</span>
+                      <span className="font-semibold text-blue-400">−{config.limitOffsetPct}%</span>
+                    </div>
+                    <Slider
+                      min={0.1} max={3} step={0.1}
+                      value={[config.limitOffsetPct]}
+                      onValueChange={([v]) => void updateConfig({ limitOffsetPct: v! })}
+                    />
+                    <div className="text-[11px] text-muted-foreground mt-1.5">
+                      Contoh: harga pasar $100, limit order dipasang di ${(100 * (1 - config.limitOffsetPct / 100)).toFixed(2)}
+                    </div>
                   </div>
-                  <Slider
-                    min={10} max={500} step={10}
-                    value={[config.maxPositionUSDT]}
-                    onValueChange={([v]) => void updateConfig({ maxPositionUSDT: v! })}
-                  />
-                </div>
+                )}
+              </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Stop Loss</span>
-                    <span className="font-semibold text-red-400">{config.stopLossPct}%</span>
+              {/* ── Risk & Position Controls ──────────────────────────────── */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Kontrol Risiko</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Min Score / Confidence</span>
+                      <span className="font-semibold">{config.minConfidence}%</span>
+                    </div>
+                    <Slider min={40} max={90} step={5} value={[config.minConfidence]}
+                      onValueChange={([v]) => void updateConfig({ minConfidence: v! })} />
                   </div>
-                  <Slider
-                    min={1} max={10} step={0.5}
-                    value={[config.stopLossPct]}
-                    onValueChange={([v]) => void updateConfig({ stopLossPct: v! })}
-                  />
-                </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Take Profit</span>
-                    <span className="font-semibold text-green-400">{config.takeProfitPct}%</span>
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Max per Trade (USDT)</span>
+                      <span className="font-semibold">${config.maxPositionUSDT}</span>
+                    </div>
+                    <Slider min={10} max={500} step={10} value={[config.maxPositionUSDT]}
+                      onValueChange={([v]) => void updateConfig({ maxPositionUSDT: v! })} />
                   </div>
-                  <Slider
-                    min={1} max={20} step={0.5}
-                    value={[config.takeProfitPct]}
-                    onValueChange={([v]) => void updateConfig({ takeProfitPct: v! })}
-                  />
-                </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Max Positions</span>
-                    <span className="font-semibold">{config.maxPositions}</span>
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Stop Loss</span>
+                      <span className="font-semibold text-red-400">{config.stopLossPct}%</span>
+                    </div>
+                    <Slider min={1} max={10} step={0.5} value={[config.stopLossPct]}
+                      onValueChange={([v]) => void updateConfig({ stopLossPct: v! })} />
                   </div>
-                  <Slider
-                    min={1} max={10} step={1}
-                    value={[config.maxPositions]}
-                    onValueChange={([v]) => void updateConfig({ maxPositions: v! })}
-                  />
-                </div>
 
-                <div>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Leverage</span>
-                    <span className="font-semibold">{config.leverage}x</span>
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Take Profit</span>
+                      <span className="font-semibold text-green-400">{config.takeProfitPct}%</span>
+                    </div>
+                    <Slider min={1} max={20} step={0.5} value={[config.takeProfitPct]}
+                      onValueChange={([v]) => void updateConfig({ takeProfitPct: v! })} />
                   </div>
-                  <Slider
-                    min={1} max={10} step={1}
-                    value={[config.leverage]}
-                    onValueChange={([v]) => void updateConfig({ leverage: v! })}
-                  />
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Max Posisi Bersamaan</span>
+                      <span className="font-semibold">{config.maxPositions}</span>
+                    </div>
+                    <Slider min={1} max={10} step={1} value={[config.maxPositions]}
+                      onValueChange={([v]) => void updateConfig({ maxPositions: v! })} />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-muted-foreground">Leverage</span>
+                      <span className="font-semibold">{config.leverage}x</span>
+                    </div>
+                    <Slider min={1} max={10} step={1} value={[config.leverage]}
+                      onValueChange={([v]) => void updateConfig({ leverage: v! })} />
+                  </div>
                 </div>
               </div>
             </div>

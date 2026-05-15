@@ -19,6 +19,9 @@ export interface AutoTradingConfig {
   maxPositions: number;
   leverage: number;
   intervalMs: number;
+  orderType: "Market" | "Limit";
+  limitOffsetPct: number; // buy this % below current price for limit orders
+  scanSource: "universe" | "predictions";
 }
 
 export const autoConfig: AutoTradingConfig = {
@@ -31,6 +34,9 @@ export const autoConfig: AutoTradingConfig = {
   maxPositions: 5,
   leverage: 1,
   intervalMs: 60_000,
+  orderType: "Market",
+  limitOffsetPct: 0.3,
+  scanSource: "universe",
 };
 
 export const tradeLog: TradeLogEntry[] = [];
@@ -165,20 +171,29 @@ export interface PlaceOrderParams {
   symbol: string;
   side: "Buy" | "Sell";
   qty: string;
+  orderType?: "Market" | "Limit";
+  price?: number; // required for Limit orders
 }
 
 /**
- * Place a clean market order — NO inline TP/SL.
+ * Place a market or limit order — NO inline TP/SL.
  * TP/SL must be set separately via setPositionTPSL after fill.
  */
 export async function placeOrder(params: PlaceOrderParams) {
+  const type = params.orderType ?? "Market";
+
   const body: Record<string, unknown> = {
     category: "linear",
     symbol: params.symbol,
     side: params.side,
-    orderType: "Market",
+    orderType: type,
     qty: params.qty,
+    timeInForce: type === "Limit" ? "GTC" : "IOC",
   };
+
+  if (type === "Limit" && params.price != null && params.price > 0) {
+    body.price = formatPrice(params.price);
+  }
 
   if (autoConfig.leverage > 1) {
     await bybitPost("/v5/position/set-leverage", {
@@ -249,7 +264,7 @@ export function toBybitSymbol(symbol: string): string | null {
   return SYMBOL_MAP[s] ?? (s.endsWith("USDT") ? s : null);
 }
 
-// ─── Signal scanner ────────────────────────────────────────────────────────────
+// ─── Signal scanner (predictions-based) ───────────────────────────────────────
 
 export async function getHighConfidenceSignals() {
   const preds = await getCryptoPredictions(50);
@@ -267,13 +282,100 @@ export async function getHighConfidenceSignals() {
       assetId: p.assetId,
       symbol: p.symbol,
       bybitSymbol: toBybitSymbol(p.symbol)!,
-      signal: p.signal,
+      signal: p.signal as "strong_buy" | "buy",
       confidence: p.confidence,
       price: p.currentPrice,
       riskLevel: p.riskLevel,
       stopLoss: p.stopLoss,
       takeProfit: p.takeProfit,
     }));
+}
+
+// ─── Bybit Universe Scanner ────────────────────────────────────────────────────
+
+interface BybitTicker {
+  symbol: string;
+  lastPrice: string;
+  price24hPcnt: string;
+  turnover24h: string;
+  highPrice24h: string;
+  lowPrice24h: string;
+  volume24h: string;
+}
+
+export interface UniverseCandidate {
+  symbol: string;
+  price: number;
+  change24h: number;
+  volume24hUsdt: number;
+  score: number;
+  signal: "strong_buy" | "buy";
+  confidence: number;
+  limitPrice: number;
+}
+
+// Skip coins with known lot-size / liquidity issues
+const UNIVERSE_BLACKLIST = new Set([
+  "LUNA2USDT", "LUNAUSDT", "USTCUSDT", "BTTUSDT", "BTTCUSDT",
+  "SHIBUSDT", "PEPE1000USDT", "LUNCUSDT",
+]);
+
+// Cache for 45 seconds to avoid hammering the public endpoint
+let universeCache: { list: UniverseCandidate[]; at: number } | null = null;
+const UNIVERSE_TTL = 45_000;
+
+export async function scanBybitUniverse(): Promise<UniverseCandidate[]> {
+  if (universeCache && Date.now() - universeCache.at < UNIVERSE_TTL) {
+    return universeCache.list;
+  }
+
+  // Public endpoint — no auth needed
+  const res = await fetch(`${BYBIT_BASE}/v5/market/tickers?category=linear`);
+  const data = (await res.json()) as {
+    retCode: number;
+    result: { list: BybitTicker[] };
+  };
+  if (data.retCode !== 0) throw new Error(`Bybit tickers: retCode ${data.retCode}`);
+
+  const candidates: UniverseCandidate[] = [];
+
+  for (const t of data.result.list) {
+    if (!t.symbol.endsWith("USDT")) continue;
+    if (t.symbol.includes("PERP")) continue;
+    if (UNIVERSE_BLACKLIST.has(t.symbol)) continue;
+
+    const price      = parseFloat(t.lastPrice);
+    const change24h  = parseFloat(t.price24hPcnt) * 100; // → %
+    const turnover   = parseFloat(t.turnover24h);         // USDT volume
+    const high24h    = parseFloat(t.highPrice24h);
+    const low24h     = parseFloat(t.lowPrice24h);
+
+    if (price < 0.001)          continue; // too cheap → lot-size problems
+    if (turnover < 2_000_000)   continue; // min 2M USDT/day liquidity
+    if (change24h < 0.5)        continue; // must be moving up
+    if (change24h > 30)         continue; // skip extreme pumps
+
+    // Recovery = where is current price in today's range (0=at low, 1=at high)
+    const range    = high24h - low24h;
+    const recovery = range > 0 ? (price - low24h) / range : 0.5;
+
+    // Score: momentum × volume_weight × range_position
+    const score = change24h * Math.log10(Math.max(turnover, 1)) * (0.4 + recovery * 0.6);
+
+    const signal: "strong_buy" | "buy" = change24h >= 4 ? "strong_buy" : "buy";
+    const confidence = Math.min(99, Math.round(45 + score * 0.7));
+
+    // Limit price: offset % below current market price
+    const limitPrice = price * (1 - autoConfig.limitOffsetPct / 100);
+
+    candidates.push({ symbol: t.symbol, price, change24h, volume24hUsdt: turnover, score, signal, confidence, limitPrice });
+  }
+
+  candidates.sort((a, b) => b.score - a.score);
+  const top = candidates.slice(0, 20);
+  universeCache = { list: top, at: Date.now() };
+  logger.info({ total: data.result.list.length, passed: candidates.length, top: top.length }, "Bybit universe scan complete");
+  return top;
 }
 
 // ─── Engine status tracking ────────────────────────────────────────────────────
@@ -287,6 +389,9 @@ export interface EngineStatus {
   lastSignalsFound: number;
   lastOrdersPlaced: number;
   lastError: string | null;
+  totalScanned: number;
+  scanSource: "universe" | "predictions";
+  orderType: "Market" | "Limit";
 }
 
 export const engineStatus: EngineStatus = {
@@ -298,6 +403,9 @@ export const engineStatus: EngineStatus = {
   lastSignalsFound: 0,
   lastOrdersPlaced: 0,
   lastError: null,
+  totalScanned: 0,
+  scanSource: "universe",
+  orderType: "Market",
 };
 
 // ─── Auto-trading engine ───────────────────────────────────────────────────────
@@ -309,12 +417,48 @@ async function runAutoTradeCycle() {
 
   engineStatus.analyzing = true;
   engineStatus.lastError = null;
-  logger.info("Auto-trade cycle started");
+  engineStatus.scanSource = autoConfig.scanSource;
+  engineStatus.orderType = autoConfig.orderType;
+  logger.info({ scanSource: autoConfig.scanSource, orderType: autoConfig.orderType }, "Auto-trade cycle started");
 
   try {
-    const signals = await getHighConfidenceSignals();
-    if (signals.length === 0) return;
+    // ── 1. Scan for candidates ───────────────────────────────────────────────
+    let candidates: Array<{
+      symbol: string; price: number; confidence: number;
+      signal: string; limitPrice: number;
+    }>;
 
+    if (autoConfig.scanSource === "universe") {
+      const raw = await scanBybitUniverse();
+      engineStatus.totalScanned = raw.length;
+      candidates = raw
+        .filter((c) => c.confidence >= autoConfig.minConfidence)
+        .map((c) => ({
+          symbol: c.symbol,
+          price: c.price,
+          confidence: c.confidence,
+          signal: c.signal,
+          limitPrice: c.limitPrice,
+        }));
+    } else {
+      const raw = await getHighConfidenceSignals();
+      engineStatus.totalScanned = raw.length;
+      candidates = raw.map((c) => ({
+        symbol: c.bybitSymbol,
+        price: c.price,
+        confidence: c.confidence,
+        signal: c.signal,
+        limitPrice: c.price * (1 - autoConfig.limitOffsetPct / 100),
+      }));
+    }
+
+    engineStatus.lastSignalsFound = candidates.length;
+    if (candidates.length === 0) {
+      logger.info("No candidates found this cycle");
+      return;
+    }
+
+    // ── 2. Get current state ─────────────────────────────────────────────────
     const posResult = await getPositions() as { list: { symbol: string }[] };
     const activeSymbols = new Set((posResult.list ?? []).map((p) => p.symbol));
 
@@ -324,51 +468,57 @@ async function runAutoTradeCycle() {
     const usdtCoin = balResult.list?.[0]?.coin?.find((c) => c.coin === "USDT");
     const availableUSDT = parseFloat(usdtCoin?.walletBalance ?? "0");
 
-    const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.05);
+    // Max per trade: smaller of config limit or 20% of available balance
+    const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.2);
 
-    engineStatus.lastSignalsFound = signals.length;
+    // ── 3. Execute orders ────────────────────────────────────────────────────
     let ordersPlaced = 0;
 
-    for (const sig of signals) {
+    for (const cand of candidates) {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
-      if (activeSymbols.has(sig.bybitSymbol)) continue;
-      if (sig.riskLevel === "high") continue;
+      if (activeSymbols.has(cand.symbol)) continue;
 
-      const qty = formatQty(maxPerTrade / sig.price, sig.price);
-      const slPrice = sig.price * (1 - autoConfig.stopLossPct / 100);
-      const tpPrice = sig.price * (1 + autoConfig.takeProfitPct / 100);
+      const execPrice = autoConfig.orderType === "Limit" ? cand.limitPrice : cand.price;
+      const qty = formatQty(maxPerTrade / execPrice, execPrice);
+      const slPrice = execPrice * (1 - autoConfig.stopLossPct / 100);
+      const tpPrice = execPrice * (1 + autoConfig.takeProfitPct / 100);
 
       const logEntry: TradeLogEntry = {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        symbol: sig.bybitSymbol,
+        symbol: cand.symbol,
         side: "Buy",
         qty,
-        price: sig.price,
-        confidence: sig.confidence,
-        signal: sig.signal,
+        price: execPrice,
+        confidence: cand.confidence,
+        signal: cand.signal,
         status: "pending",
       };
 
       try {
-        const order = await placeOrder({ symbol: sig.bybitSymbol, side: "Buy", qty });
+        const order = await placeOrder({
+          symbol: cand.symbol,
+          side: "Buy",
+          qty,
+          orderType: autoConfig.orderType,
+          price: autoConfig.orderType === "Limit" ? cand.limitPrice : undefined,
+        });
 
-        // Set TP/SL separately after order is placed
-        await setPositionTPSL({
-          symbol: sig.bybitSymbol,
-          takeProfit: tpPrice,
-          stopLoss: slPrice,
-        }).catch((e) => logger.warn({ e, symbol: sig.bybitSymbol }, "Failed to set TP/SL after auto-order"));
+        // For market orders, set TP/SL immediately; for limit, TP/SL set on fill
+        if (autoConfig.orderType === "Market") {
+          await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice })
+            .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL after market order"));
+        }
 
         logEntry.status = "executed";
         logEntry.orderId = order.orderId;
-        activeSymbols.add(sig.bybitSymbol);
+        activeSymbols.add(cand.symbol);
         ordersPlaced++;
-        logger.info({ symbol: sig.bybitSymbol, qty, orderId: order.orderId }, "Auto-trade executed");
+        logger.info({ symbol: cand.symbol, qty, orderType: autoConfig.orderType, orderId: order.orderId }, "Auto-trade placed");
       } catch (err) {
         logEntry.status = "rejected";
         logEntry.reason = String(err);
-        logger.warn({ err, symbol: sig.bybitSymbol }, "Auto-trade order failed");
+        logger.warn({ err, symbol: cand.symbol }, "Auto-trade order failed");
       }
 
       tradeLog.unshift(logEntry);

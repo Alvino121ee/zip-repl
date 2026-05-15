@@ -7,6 +7,7 @@ import {
   cancelOrder,
   setPositionTPSL,
   getHighConfidenceSignals,
+  scanBybitUniverse,
   autoConfig,
   tradeLog,
   startAutoEngine,
@@ -149,6 +150,7 @@ router.put("/trading/config", (req, res) => {
   const allowed: (keyof AutoTradingConfig)[] = [
     "enabled", "mode", "minConfidence", "maxPositionUSDT",
     "stopLossPct", "takeProfitPct", "maxPositions", "leverage", "intervalMs",
+    "orderType", "limitOffsetPct", "scanSource",
   ];
 
   for (const key of allowed) {
@@ -171,6 +173,17 @@ router.put("/trading/config", (req, res) => {
 // GET /api/trading/log
 router.get("/trading/log", (_req, res) => {
   res.json(tradeLog.slice(0, 50));
+});
+
+// GET /api/trading/universe  — top Bybit universe candidates
+router.get("/trading/universe", async (req, res) => {
+  try {
+    const candidates = await scanBybitUniverse();
+    res.json(candidates);
+  } catch (err) {
+    req.log.error({ err }, "Universe scan failed");
+    res.status(502).json({ error: String(err) });
+  }
 });
 
 // GET /api/trading/engine-status
