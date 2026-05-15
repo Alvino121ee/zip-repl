@@ -53,6 +53,8 @@ interface AutoConfig {
   orderType: "Market" | "Limit";
   limitOffsetPct: number;
   scanSource: "universe" | "predictions";
+  scalpEnabled: boolean;
+  scalpTargetUSDT: number;
 }
 
 interface TradeLog {
@@ -78,7 +80,10 @@ interface EngineStatusData {
   lastSignalsFound: number;
   lastOrdersPlaced: number;
   lastError: string | null;
-  config: { enabled: boolean; mode: string; maxPositions: number; minConfidence: number; maxPositionUSDT: number; intervalMs: number };
+  scalpMonitoring: boolean;
+  scalpCurrentNetPnl: number;
+  scalpLastTriggerAt: number | null;
+  config: { enabled: boolean; mode: string; maxPositions: number; minConfidence: number; maxPositionUSDT: number; intervalMs: number; scalpEnabled: boolean; scalpTargetUSDT: number };
 }
 
 interface TimeframeSignal {
@@ -629,6 +634,17 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
           <span>Order: <span className={`font-medium ${(stat?.lastOrdersPlaced ?? 0) > 0 ? "text-green-400" : "text-foreground"}`}>{stat?.lastOrdersPlaced}</span></span>
         </div>
       )}
+      {config.scalpEnabled && (
+        <div className={`flex items-center justify-between text-xs rounded px-2 py-1.5 border ${(stat?.scalpCurrentNetPnl ?? 0) >= (config.scalpTargetUSDT ?? 1) ? "bg-yellow-500/10 border-yellow-500/40 text-yellow-300" : "bg-muted/40 border-border text-muted-foreground"}`}>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span>⚡</span>
+            Scalp monitor {stat?.scalpMonitoring ? "(checking…)" : "aktif"}
+          </span>
+          <span className="font-mono">
+            {(stat?.scalpCurrentNetPnl ?? 0) >= 0 ? "+" : ""}${((stat?.scalpCurrentNetPnl ?? 0)).toFixed(3)} / ${config.scalpTargetUSDT}
+          </span>
+        </div>
+      )}
       {stat?.lastError && (
         <div className="flex items-center gap-1.5 text-xs text-red-400 bg-red-950/30 rounded p-2 border border-red-500/20">
           <AlertTriangle className="h-3 w-3 shrink-0" /><span className="truncate">{stat.lastError}</span>
@@ -682,6 +698,40 @@ function SettingsPanel({ config, onChange, onClose }: {
                 onValueChange={([v]) => onChange({ [key]: v } as Partial<AutoConfig>)} className="w-full" />
             </div>
           ))}
+
+          {/* ── Scalp Mode ─────────────────────────────────────────── */}
+          <div className="pt-2 border-t border-border">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-sm font-medium flex items-center gap-1.5">
+                  <span>⚡</span> Auto-Scalp Mode
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">Tutup semua posisi saat net PnL ≥ target, lalu langsung cari entry baru</div>
+              </div>
+              <button
+                onClick={() => onChange({ scalpEnabled: !config.scalpEnabled })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.scalpEnabled ? "bg-yellow-500" : "bg-muted"}`}
+              >
+                <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${config.scalpEnabled ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
+            </div>
+            {config.scalpEnabled && (
+              <div>
+                <div className="flex justify-between text-xs mb-1.5">
+                  <span className="text-muted-foreground">Target Net PnL (setelah fee Bybit 0.055%)</span>
+                  <span className="font-semibold text-yellow-400">${config.scalpTargetUSDT.toFixed(2)} USDT</span>
+                </div>
+                <Slider min={0.5} max={10} step={0.25} value={[config.scalpTargetUSDT]}
+                  onValueChange={([v]) => onChange({ scalpTargetUSDT: v })} className="w-full" />
+                <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                  <span>$0.50</span><span>$10.00</span>
+                </div>
+                <div className="mt-2 text-[11px] text-yellow-500/80 bg-yellow-500/5 border border-yellow-500/20 rounded p-2">
+                  Monitor berjalan setiap 10 detik. Net = unrealisedPnL − fee close (size × mark × 0.055%)
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -727,6 +777,7 @@ export default function Trading() {
     enabled: false, mode: "semi", minConfidence: 80, maxPositionUSDT: 50,
     stopLossPct: 2, takeProfitPct: 4, maxPositions: 5, leverage: 1,
     intervalMs: 60_000, orderType: "Market", limitOffsetPct: 0.3, scanSource: "universe",
+    scalpEnabled: false, scalpTargetUSDT: 1.0,
   });
   const [engineStat, setEngineStat] = useState<EngineStatusData | null>(null);
   const [tradeLogs, setTradeLogs] = useState<TradeLog[]>([]);
@@ -901,11 +952,35 @@ export default function Trading() {
           <div className="text-xs text-muted-foreground">USDT</div>
         </CardContent></Card>
 
-        <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-1"><CircleDollarSign className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Open PnL</span></div>
-          <div className={`font-bold text-lg ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>{totalPnl >= 0 ? "+" : ""}{fmt(totalPnl)} USDT</div>
-          <div className="text-xs text-muted-foreground">{positions.length} posisi aktif</div>
-        </CardContent></Card>
+        <Card className={config.scalpEnabled && positions.length > 0 ? "border-yellow-500/40" : ""}>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Open PnL</span>
+              {config.scalpEnabled && <span className="text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-1.5 rounded border border-yellow-500/30">SCALP</span>}
+            </div>
+            <div className={`font-bold text-lg ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>{totalPnl >= 0 ? "+" : ""}{fmt(totalPnl)} USDT</div>
+            {config.scalpEnabled ? (
+              <div className="mt-1.5">
+                <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                  <span>Net target</span>
+                  <span className="font-semibold text-yellow-400">${fmt(engineStat?.scalpCurrentNetPnl ?? 0, 3)} / ${config.scalpTargetUSDT}</span>
+                </div>
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${(engineStat?.scalpCurrentNetPnl ?? 0) >= config.scalpTargetUSDT ? "bg-yellow-400" : "bg-yellow-600"}`}
+                    style={{ width: `${Math.min(100, Math.max(0, ((engineStat?.scalpCurrentNetPnl ?? 0) / config.scalpTargetUSDT) * 100))}%` }}
+                  />
+                </div>
+                {engineStat?.scalpLastTriggerAt && (
+                  <div className="text-[10px] text-yellow-400 mt-1">⚡ Last scalp: {timeAgo(engineStat.scalpLastTriggerAt)}</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">{positions.length} posisi aktif</div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card><CardContent className="p-4">
           <div className="flex items-center gap-2 mb-1"><BarChart2 className="h-4 w-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">Sinyal</span></div>

@@ -21,8 +21,11 @@ export interface AutoTradingConfig {
   leverage: number;
   intervalMs: number;
   orderType: "Market" | "Limit";
-  limitOffsetPct: number; // buy this % below current price for limit orders
+  limitOffsetPct: number;
   scanSource: "universe" | "predictions";
+  // ── Scalping ──────────────────────────────────────────────────────────────
+  scalpEnabled: boolean;    // auto-close all positions when net profit >= target
+  scalpTargetUSDT: number;  // net profit target after Bybit taker fees
 }
 
 export const autoConfig: AutoTradingConfig = {
@@ -38,6 +41,8 @@ export const autoConfig: AutoTradingConfig = {
   orderType: "Market",
   limitOffsetPct: 0.3,
   scanSource: "universe",
+  scalpEnabled: false,
+  scalpTargetUSDT: 1.0,
 };
 
 export const tradeLog: TradeLogEntry[] = [];
@@ -414,6 +419,9 @@ export async function scanBybitUniverse(): Promise<UniverseCandidate[]> {
 
 // ─── Engine status tracking ────────────────────────────────────────────────────
 
+// Bybit taker fee rate (0.055% per side, so close-leg fee = value × 0.00055)
+const BYBIT_TAKER_FEE = 0.00055;
+
 export interface EngineStatus {
   running: boolean;
   analyzing: boolean;
@@ -426,6 +434,11 @@ export interface EngineStatus {
   totalScanned: number;
   scanSource: "universe" | "predictions";
   orderType: "Market" | "Limit";
+  // Scalp monitor
+  scalpMonitoring: boolean;
+  scalpLastCheckAt: number | null;
+  scalpCurrentNetPnl: number;
+  scalpLastTriggerAt: number | null;
 }
 
 export const engineStatus: EngineStatus = {
@@ -440,7 +453,91 @@ export const engineStatus: EngineStatus = {
   totalScanned: 0,
   scanSource: "universe",
   orderType: "Market",
+  scalpMonitoring: false,
+  scalpLastCheckAt: null,
+  scalpCurrentNetPnl: 0,
+  scalpLastTriggerAt: null,
 };
+
+// ─── Scalp monitor ────────────────────────────────────────────────────────────
+
+let scalpInterval: ReturnType<typeof setInterval> | null = null;
+
+async function runScalpMonitor() {
+  if (!autoConfig.scalpEnabled) return;
+  if (engineStatus.analyzing) return; // don't interfere with a running cycle
+
+  try {
+    engineStatus.scalpMonitoring = true;
+    const posResult = await getPositions() as {
+      list: { symbol: string; side: string; size: string; avgPrice: string; unrealisedPnl: string; markPrice: string }[]
+    };
+    const positions = (posResult.list ?? []).filter((p) => parseFloat(p.size) > 0);
+
+    if (positions.length === 0) {
+      engineStatus.scalpCurrentNetPnl = 0;
+      engineStatus.scalpLastCheckAt = Date.now();
+      return;
+    }
+
+    // Net PnL = unrealisedPnl − close-leg taker fee for each position
+    // Close fee = size × markPrice × BYBIT_TAKER_FEE
+    let totalNetPnl = 0;
+    for (const pos of positions) {
+      const pnl = parseFloat(pos.unrealisedPnl ?? "0");
+      const size = parseFloat(pos.size ?? "0");
+      const mark = parseFloat(pos.markPrice ?? "0");
+      const closeFee = size * mark * BYBIT_TAKER_FEE;
+      totalNetPnl += pnl - closeFee;
+    }
+
+    engineStatus.scalpCurrentNetPnl = totalNetPnl;
+    engineStatus.scalpLastCheckAt = Date.now();
+
+    logger.debug({ totalNetPnl, target: autoConfig.scalpTargetUSDT, positions: positions.length }, "Scalp monitor check");
+
+    if (totalNetPnl < autoConfig.scalpTargetUSDT) return;
+
+    // ── Target reached — close ALL positions ──────────────────────────────────
+    logger.info({ totalNetPnl, target: autoConfig.scalpTargetUSDT }, "Scalp target reached — closing all positions");
+
+    for (const pos of positions) {
+      const closeSide: "Buy" | "Sell" = pos.side === "Buy" ? "Sell" : "Buy";
+      try {
+        const order = await closePosition(pos.symbol, closeSide, pos.size);
+        const fee = parseFloat(pos.size) * parseFloat(pos.markPrice) * BYBIT_TAKER_FEE;
+        const net = parseFloat(pos.unrealisedPnl) - fee;
+        tradeLog.unshift({
+          id: crypto.randomUUID(), timestamp: Date.now(),
+          symbol: pos.symbol, side: closeSide, qty: pos.size,
+          price: parseFloat(pos.markPrice),
+          confidence: 100, signal: "scalp_close",
+          status: "executed",
+          reason: `Scalp target $${autoConfig.scalpTargetUSDT} reached — net $${net.toFixed(3)} (fee $${fee.toFixed(4)})`,
+          orderId: order.orderId,
+        });
+        if (tradeLog.length > 200) tradeLog.splice(200);
+        logger.info({ symbol: pos.symbol, closeSide, net: net.toFixed(3) }, "Scalp close executed");
+      } catch (err) {
+        logger.warn({ err, symbol: pos.symbol }, "Scalp close failed");
+      }
+    }
+
+    engineStatus.scalpLastTriggerAt = Date.now();
+    engineStatus.scalpCurrentNetPnl = 0;
+
+    // ── Immediately trigger a new analysis cycle to find the next trade ───────
+    setTimeout(() => {
+      logger.info("Scalp: triggering new entry cycle after close");
+      void runAutoTradeCycle();
+    }, 3000); // wait 3s for positions to fully close before scanning
+
+  } catch (err) {
+    logger.warn({ err }, "Scalp monitor error");
+  } finally {
+    engineStatus.scalpMonitoring = false;
+  }
+}
 
 // ─── Auto-trading engine ───────────────────────────────────────────────────────
 
@@ -686,22 +783,35 @@ async function runAutoTradeCycle() {
 
 export function startAutoEngine() {
   if (autoInterval) clearInterval(autoInterval);
+  if (scalpInterval) clearInterval(scalpInterval);
+
   engineStatus.running = true;
   engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+
+  // Main trade cycle
   autoInterval = setInterval(() => {
     engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
     void runAutoTradeCycle();
   }, autoConfig.intervalMs);
-  logger.info({ intervalMs: autoConfig.intervalMs }, "Auto-trading engine started");
+
+  // Scalp monitor — runs every 10 seconds independently
+  scalpInterval = setInterval(() => {
+    void runScalpMonitor();
+  }, 10_000);
+
+  // Run both immediately on start
+  void runAutoTradeCycle();
+  void runScalpMonitor();
+
+  logger.info({ intervalMs: autoConfig.intervalMs, scalpEnabled: autoConfig.scalpEnabled }, "Auto-trading engine started");
 }
 
 export function stopAutoEngine() {
-  if (autoInterval) {
-    clearInterval(autoInterval);
-    autoInterval = null;
-  }
+  if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
+  if (scalpInterval) { clearInterval(scalpInterval); scalpInterval = null; }
   engineStatus.running = false;
   engineStatus.analyzing = false;
+  engineStatus.scalpMonitoring = false;
   engineStatus.nextCycleAt = null;
   logger.info("Auto-trading engine stopped");
 }

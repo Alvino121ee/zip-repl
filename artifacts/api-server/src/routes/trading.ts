@@ -176,6 +176,7 @@ router.put("/trading/config", (req, res) => {
     "enabled", "mode", "minConfidence", "maxPositionUSDT",
     "stopLossPct", "takeProfitPct", "maxPositions", "leverage", "intervalMs",
     "orderType", "limitOffsetPct", "scanSource",
+    "scalpEnabled", "scalpTargetUSDT",
   ];
 
   for (const key of allowed) {
@@ -222,6 +223,8 @@ router.get("/trading/engine-status", (_req, res) => {
       minConfidence: autoConfig.minConfidence,
       maxPositionUSDT: autoConfig.maxPositionUSDT,
       intervalMs: autoConfig.intervalMs,
+      scalpEnabled: autoConfig.scalpEnabled,
+      scalpTargetUSDT: autoConfig.scalpTargetUSDT,
     },
   });
 });
