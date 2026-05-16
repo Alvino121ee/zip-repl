@@ -1,7 +1,20 @@
 import crypto from "crypto";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
 import { getCryptoPredictions } from "./predictions.js";
 import { analyzeSymbol } from "./analysis.js";
+import { logActivity } from "./activity-log.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, "../../data");
+const CONFIG_FILE = join(DATA_DIR, "trading-config.json");
+const TRADE_LOG_FILE = join(DATA_DIR, "trade-log.json");
+
+function ensureDataDir() {
+  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+}
 
 const BYBIT_BASE = "https://api.bybit.com";
 const API_KEY = process.env.BYBIT_API_KEY ?? "";
@@ -46,6 +59,50 @@ export const autoConfig: AutoTradingConfig = {
 };
 
 export const tradeLog: TradeLogEntry[] = [];
+
+// ─── Config + TradeLog Persistence ────────────────────────────────────────────
+
+(function loadTradingConfig() {
+  try {
+    ensureDataDir();
+    if (!existsSync(CONFIG_FILE)) return;
+    const saved = JSON.parse(readFileSync(CONFIG_FILE, "utf-8")) as Partial<AutoTradingConfig>;
+    Object.assign(autoConfig, saved);
+    logger.info({ config: autoConfig }, "Trading config loaded from disk");
+  } catch (err) {
+    logger.warn({ err }, "Failed to load trading config");
+  }
+})();
+
+export function saveTradingConfig() {
+  try {
+    ensureDataDir();
+    writeFileSync(CONFIG_FILE, JSON.stringify(autoConfig, null, 2), "utf-8");
+  } catch (err) {
+    logger.warn({ err }, "Failed to save trading config");
+  }
+}
+
+(function loadTradeLog() {
+  try {
+    ensureDataDir();
+    if (!existsSync(TRADE_LOG_FILE)) return;
+    const saved = JSON.parse(readFileSync(TRADE_LOG_FILE, "utf-8")) as TradeLogEntry[];
+    tradeLog.push(...saved.slice(0, 500));
+    logger.info({ count: tradeLog.length }, "Trade log loaded from disk");
+  } catch (err) {
+    logger.warn({ err }, "Failed to load trade log");
+  }
+})();
+
+export function saveTradeLog() {
+  try {
+    ensureDataDir();
+    writeFileSync(TRADE_LOG_FILE, JSON.stringify(tradeLog.slice(0, 500), null, 2), "utf-8");
+  } catch (err) {
+    logger.warn({ err }, "Failed to save trade log");
+  }
+}
 
 export interface TradeLogEntry {
   id: string;
@@ -582,12 +639,16 @@ async function runAutoTradeCycle() {
   engineStatus.orderType = autoConfig.orderType;
   logger.info({ scanSource: autoConfig.scanSource, orderType: autoConfig.orderType }, "Auto-trade cycle started");
 
+  logActivity({ source: "auto", level: "scan", message: "Memulai siklus analisis pasar..." });
+
   try {
     // ── 1. Scan for candidates ───────────────────────────────────────────────
     let candidates: Array<{
       symbol: string; price: number; confidence: number;
       signal: string; side: "Buy" | "Sell"; limitPrice: number;
     }>;
+
+    logActivity({ source: "auto", level: "scan", message: `Memindai pasar via ${autoConfig.scanSource === "universe" ? "Bybit Universe" : "AI Predictions"}...` });
 
     if (autoConfig.scanSource === "universe") {
       const raw = await scanBybitUniverse();
@@ -621,6 +682,7 @@ async function runAutoTradeCycle() {
     }
 
     engineStatus.lastSignalsFound = candidates.length;
+    logActivity({ source: "auto", level: "info", message: `Ditemukan ${candidates.length} kandidat dari ${engineStatus.totalScanned} pasang yang dipindai (min. confidence: ${autoConfig.minConfidence}%)` });
 
     // ── 2. Get current state ─────────────────────────────────────────────────
     const posResult = await getPositions() as {
@@ -729,12 +791,15 @@ async function runAutoTradeCycle() {
         continue;
       }
 
+      logActivity({ source: "auto", level: "scan", message: `Menganalisis ${cand.symbol} (confidence: ${cand.confidence}%)...`, symbol: cand.symbol, confidence: cand.confidence });
+
       // Analysis must agree with the candidate's direction
       if (!analysis.shouldEnter || analysis.side !== cand.side) {
         const reason = !analysis.shouldEnter
           ? (analysis.waitReason ?? "Kondisi belum optimal")
           : `Analysis arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
         logger.info({ symbol: cand.symbol, reason }, "Entry skipped by analysis");
+        logActivity({ source: "auto", level: "info", message: `Skip ${cand.symbol}: ${reason}`, symbol: cand.symbol });
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
           symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
@@ -769,6 +834,9 @@ async function runAutoTradeCycle() {
         status: "pending", reason: reasonSummary,
       };
 
+      const direction = tradeSide === "Sell" ? "SHORT" : "LONG";
+      logActivity({ source: "auto", level: "signal", message: `⚡ Membuka posisi ${direction} ${cand.symbol} @ $${execPrice.toFixed(4)} (confidence: ${analysis.overallConfidence}% | ${autoConfig.orderType})`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+
       try {
         const order = await placeOrder({
           symbol: cand.symbol, side: tradeSide, qty,
@@ -784,25 +852,37 @@ async function runAutoTradeCycle() {
         logEntry.orderId = order.orderId;
         activeSymbols.add(cand.symbol);
         ordersPlaced++;
+        logActivity({ source: "auto", level: "success", message: `✓ Posisi ${direction} ${cand.symbol} berhasil dibuka | TP: $${tpPrice.toFixed(4)} | SL: $${slPrice.toFixed(4)}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
         logger.info(
           { symbol: cand.symbol, side: tradeSide, qty, orderId: order.orderId,
             confidence: analysis.overallConfidence, confirmations: analysis.confirmations, slPrice, tpPrice },
-          `Auto-trade ${tradeSide === "Sell" ? "SHORT" : "LONG"} placed`
+          `Auto-trade ${direction} placed`
         );
       } catch (err) {
         logEntry.status = "rejected";
         logEntry.reason = String(err);
+        logActivity({ source: "auto", level: "error", message: `✕ Gagal membuka posisi ${cand.symbol}: ${String(err)}`, symbol: cand.symbol });
         logger.warn({ err, symbol: cand.symbol }, "Auto-trade order failed");
       }
 
       tradeLog.unshift(logEntry);
       if (tradeLog.length > 200) tradeLog.splice(200);
+      saveTradeLog();
+    }
+
+    if (ordersPlaced === 0 && candidates.length > 0) {
+      logActivity({ source: "auto", level: "info", message: "Tidak ada order valid — semua kandidat difilter oleh analisis AI" });
+    } else if (candidates.length === 0) {
+      logActivity({ source: "auto", level: "info", message: "Tidak ada kandidat memenuhi syarat saat ini — menunggu siklus berikutnya" });
+    } else {
+      logActivity({ source: "auto", level: "success", message: `Siklus ke-${engineStatus.cycleCount + 1} selesai — ${ordersPlaced} order berhasil dieksekusi` });
     }
 
     engineStatus.lastOrdersPlaced = ordersPlaced;
   } catch (err) {
     logger.error({ err }, "Auto-trade cycle error");
     engineStatus.lastError = String(err);
+    logActivity({ source: "auto", level: "error", message: `Error siklus trading: ${String(err)}` });
   } finally {
     engineStatus.analyzing = false;
     engineStatus.lastCycleAt = Date.now();

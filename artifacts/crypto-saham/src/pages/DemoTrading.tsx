@@ -4,8 +4,10 @@ import {
   Wallet, BarChart2, Trophy, Zap, Clock, XCircle, CheckCircle2,
   AlertTriangle, RotateCcw, Bot, Timer, Activity,
   ChevronDown, ChevronUp, Brain, Target, Shield, Flame,
-  TrendingDown as DrawdownIcon, BookOpen, Cpu, Star, AlertCircle,
+  TrendingDown as DrawdownIcon, BookOpen, Cpu, Star, AlertCircle, Terminal,
 } from "lucide-react";
+import { AILiveStatus } from "@/components/shared/AILiveStatus";
+import { ActivityFeed } from "@/components/shared/ActivityFeed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -858,7 +860,7 @@ function TabAnalitik({ log, balance }: { log: DemoTradeLog[]; balance: DemoBalan
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
 
-type TabKey = "auto" | "scalp" | "otak" | "analitik" | "log";
+type TabKey = "auto" | "scalp" | "otak" | "analitik" | "log" | "aktivitas";
 
 export default function DemoTrading() {
   const { toast } = useToast();
@@ -1081,6 +1083,7 @@ export default function DemoTrading() {
     { key: "otak", label: "Otak AI", icon: Brain, badge: brainStats?.mistakeCount },
     { key: "analitik", label: "Analitik", icon: BarChart2 },
     { key: "log", label: "Log", icon: Clock, badge: log.length },
+    { key: "aktivitas", label: "AI Live", icon: Terminal },
   ];
 
   return (
@@ -1461,6 +1464,14 @@ export default function DemoTrading() {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* ── Tab: AI Live ──────────────────────────────────────────────────── */}
+      {tab === "aktivitas" && (
+        <div className="space-y-4">
+          <AILiveStatus source="demo" pollInterval={2000} />
+          <ActivityFeed source="demo" maxEntries={80} height="h-96" />
+        </div>
       )}
     </div>
   );

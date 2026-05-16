@@ -5,6 +5,7 @@ import { logger } from "../lib/logger.js";
 import { analyzeSymbol } from "./analysis.js";
 import { scanBybitUniverse } from "./bybit.js";
 import { scanScalp5m } from "./scalping5m.js";
+import { logActivity } from "./activity-log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -131,6 +132,31 @@ export const demoConfig: DemoConfig = {
   scalpStopLossPct: 1,
   scalpTakeProfitPct: 2,
 };
+
+// ─── Demo Config Persistence ──────────────────────────────────────────────────
+
+const DEMO_CONFIG_FILE = join(DATA_DIR, "demo-config.json");
+
+(function loadDemoConfig() {
+  try {
+    ensureDataDir();
+    if (!existsSync(DEMO_CONFIG_FILE)) return;
+    const saved = JSON.parse(readFileSync(DEMO_CONFIG_FILE, "utf-8")) as Partial<DemoConfig>;
+    Object.assign(demoConfig, saved);
+    logger.info({ config: demoConfig }, "Demo config loaded from disk");
+  } catch (err) {
+    logger.warn({ err }, "Failed to load demo config");
+  }
+})();
+
+export function saveDemoConfig() {
+  try {
+    ensureDataDir();
+    writeFileSync(DEMO_CONFIG_FILE, JSON.stringify(demoConfig, null, 2), "utf-8");
+  } catch (err) {
+    logger.warn({ err }, "Failed to save demo config");
+  }
+}
 
 export const demoEngineStatus: DemoEngineStatus = {
   autoRunning: false,
@@ -409,26 +435,49 @@ async function runAutoEngineCycle() {
   demoEngineStatus.lastCycleAt = Date.now();
   demoEngineStatus.cycleCount++;
 
+  logActivity({ source: "demo", level: "scan", message: "Memulai siklus analisis pasar demo..." });
+
   try {
+    logActivity({ source: "demo", level: "scan", message: "Memindai pasar Bybit untuk peluang trading..." });
     const candidates = await scanBybitUniverse();
     demoEngineStatus.lastSignalsFound = candidates.length;
+
+    const qualified = candidates.filter(c => c.confidence >= demoConfig.minConfidence);
+    logActivity({
+      source: "demo", level: "info",
+      message: `Ditemukan ${qualified.length} kandidat dari ${candidates.length} pasang yang dipindai (min. confidence: ${demoConfig.minConfidence}%)`,
+    });
 
     const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
     const available = state.balance - usedMargin;
     const maxPerTrade = Math.min(demoConfig.maxPositionUSDT, available * 0.25);
+
+    if (state.positions.length >= demoConfig.maxPositions) {
+      logActivity({ source: "demo", level: "warning", message: `Batas maksimum ${demoConfig.maxPositions} posisi tercapai — tidak membuka posisi baru` });
+    }
 
     for (const cand of candidates) {
       if (state.positions.length >= demoConfig.maxPositions) break;
       if (cand.confidence < demoConfig.minConfidence) continue;
       if (state.positions.find((p) => p.symbol === cand.symbol)) continue;
 
+      logActivity({ source: "demo", level: "scan", message: `Menganalisis ${cand.symbol} (confidence: ${cand.confidence}%)...`, symbol: cand.symbol, confidence: cand.confidence });
+
       let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
       try { analysis = await analyzeSymbol(cand.symbol); } catch { continue; }
-      if (!analysis || !analysis.shouldEnter || !analysis.side) continue;
-      if (analysis.overallConfidence < demoConfig.minConfidence) continue;
+      if (!analysis || !analysis.shouldEnter || !analysis.side) {
+        logActivity({ source: "demo", level: "info", message: `Skip ${cand.symbol}: tidak ada setup entry yang valid`, symbol: cand.symbol });
+        continue;
+      }
+      if (analysis.overallConfidence < demoConfig.minConfidence) {
+        logActivity({ source: "demo", level: "info", message: `Skip ${cand.symbol}: confidence ${analysis.overallConfidence}% di bawah minimum ${demoConfig.minConfidence}%`, symbol: cand.symbol });
+        continue;
+      }
+
+      const direction = analysis.side === "Buy" ? "LONG" : "SHORT";
 
       if (demoConfig.autoMode === "semi") {
-        // In semi mode, just log the signal, don't auto-open
+        logActivity({ source: "demo", level: "signal", message: `[Semi] Sinyal ${direction} ${cand.symbol} terdeteksi — tidak dibuka otomatis (mode semi)`, symbol: cand.symbol, confidence: analysis.overallConfidence });
         state.log.unshift({
           id: crypto.randomUUID(),
           timestamp: Date.now(),
@@ -453,6 +502,8 @@ async function runAutoEngineCycle() {
       }
 
       // Auto mode — open position
+      logActivity({ source: "demo", level: "signal", message: `⚡ Membuka posisi demo ${direction} ${cand.symbol} @ $${analysis.entryPrice.toFixed(4)} (confidence: ${analysis.overallConfidence}%)`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+
       const sl = analysis.side === "Buy"
         ? analysis.entryPrice * (1 - demoConfig.stopLossPct / 100)
         : analysis.entryPrice * (1 + demoConfig.stopLossPct / 100);
@@ -474,10 +525,18 @@ async function runAutoEngineCycle() {
         source: "auto",
       });
 
+      logActivity({ source: "demo", level: "success", message: `✓ Posisi demo ${direction} ${cand.symbol} berhasil dibuka @ $${analysis.entryPrice.toFixed(4)} | TP: $${tp.toFixed(4)} | SL: $${sl.toFixed(4)}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
       logger.info({ symbol: cand.symbol, side: analysis.side, confidence: analysis.overallConfidence }, "Demo auto position opened");
+    }
+
+    if (qualified.length === 0) {
+      logActivity({ source: "demo", level: "info", message: "Tidak ada peluang trading valid saat ini — menunggu siklus berikutnya" });
+    } else {
+      logActivity({ source: "demo", level: "info", message: `Siklus ke-${demoEngineStatus.cycleCount} selesai — ${state.positions.length} posisi aktif` });
     }
   } catch (err) {
     demoEngineStatus.lastError = String(err);
+    logActivity({ source: "demo", level: "error", message: `Error siklus demo: ${String(err)}` });
     logger.error({ err }, "Demo auto engine cycle error");
   } finally {
     demoEngineStatus.autoAnalyzing = false;

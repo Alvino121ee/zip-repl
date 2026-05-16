@@ -15,10 +15,13 @@ import {
   startAutoEngine,
   stopAutoEngine,
   engineStatus,
+  saveTradingConfig,
+  saveTradeLog,
   type AutoTradingConfig,
 } from "../services/bybit.js";
 import { analyzeSymbol } from "../services/analysis.js";
 import { scanScalp5m, analyzeScalp5m, getSessionStats, resetSessionStats, SCALP_PAIRS } from "../services/scalping5m.js";
+import { getActivity, type ActivitySource } from "../services/activity-log.js";
 
 const router = Router();
 
@@ -187,6 +190,8 @@ router.put("/trading/config", (req, res) => {
     }
   }
 
+  saveTradingConfig();
+
   if (autoConfig.enabled && !wasEnabled) {
     startAutoEngine();
   } else if (!autoConfig.enabled && wasEnabled) {
@@ -196,6 +201,17 @@ router.put("/trading/config", (req, res) => {
   }
 
   res.json(autoConfig);
+});
+
+// GET /api/trading/activity — AI activity log (used by both auto and demo)
+router.get("/trading/activity", (req, res) => {
+  const source = req.query.source as string | undefined;
+  const limit = Math.min(200, parseInt(String(req.query.limit ?? "50"), 10));
+  const since = req.query.since ? parseInt(String(req.query.since), 10) : undefined;
+
+  const sources = source ? source.split(",") as ActivitySource[] : undefined;
+  const entries = getActivity({ source: sources, limit, since });
+  res.json(entries);
 });
 
 // GET /api/trading/log

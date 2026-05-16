@@ -3,8 +3,10 @@ import {
   Activity, AlertTriangle, Bot, CheckCircle2,
   CircleDollarSign, Clock, Loader2, Power, RefreshCw, Settings, ShieldAlert,
   TrendingUp, TrendingDown, Wallet, XCircle, Zap, Target,
-  BarChart2, Shield, Minus, ArrowUpDown,
+  BarChart2, Shield, Minus, ArrowUpDown, Terminal,
 } from "lucide-react";
+import { AILiveStatus } from "@/components/shared/AILiveStatus";
+import { ActivityFeed } from "@/components/shared/ActivityFeed";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -954,7 +956,7 @@ export default function Trading() {
   const [closingAll, setClosingAll] = useState(false);
   const [activeAnalysis, setActiveAnalysis] = useState<FullAnalysis | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"signals" | "positions" | "log">("signals");
+  const [activeTab, setActiveTab] = useState<"signals" | "positions" | "log" | "aktivitas">("signals");
   const [tpslPos, setTpslPos] = useState<Position | null>(null);
   const [closePos, setClosePos] = useState<Position | null>(null);
   const [pendingSig, setPendingSig] = useState<Signal | null>(null);
@@ -1191,16 +1193,17 @@ export default function Trading() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border gap-1">
-        {(["signals", "positions", "log"] as const).map((tab) => (
+      <div className="flex border-b border-border gap-1 overflow-x-auto">
+        {(["signals", "positions", "log", "aktivitas"] as const).map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
             {tab === "signals" ? `Signals (${signals.length})`
               : tab === "positions" ? (
                 <span className={positions.length > 0 ? "text-orange-400" : ""}>
                   Positions ({positions.length}){positions.length > 0 && <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />}
                 </span>
-              ) : `Trade Log (${tradeLogs.length})`}
+              ) : tab === "log" ? `Trade Log (${tradeLogs.length})`
+              : <span className="flex items-center gap-1.5"><Terminal className="h-3.5 w-3.5" />AI Live</span>}
           </button>
         ))}
       </div>
@@ -1296,6 +1299,14 @@ export default function Trading() {
             </div>
           ))}
         </CardContent></Card>
+      )}
+
+      {/* AI Live Tab */}
+      {activeTab === "aktivitas" && (
+        <div className="space-y-4">
+          <AILiveStatus source="auto" pollInterval={2000} />
+          <ActivityFeed source="auto" maxEntries={80} height="h-96" />
+        </div>
       )}
 
       {/* Modals */}

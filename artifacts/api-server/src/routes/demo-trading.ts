@@ -13,6 +13,7 @@ import {
   startDemoScalpEngine,
   stopDemoScalpEngine,
   triggerDemoEngineCycle,
+  saveDemoConfig,
   type DemoConfig,
 } from "../services/demo-trading.js";
 import { analyzeSymbol } from "../services/analysis.js";
@@ -55,6 +56,8 @@ router.put("/demo/config", (req, res) => {
   for (const key of allowed) {
     if (key in update) (demoConfig as unknown as Record<string, unknown>)[key] = update[key];
   }
+
+  saveDemoConfig();
 
   // Auto engine lifecycle
   if (demoConfig.autoEnabled && !wasAutoEnabled) startDemoAutoEngine();
