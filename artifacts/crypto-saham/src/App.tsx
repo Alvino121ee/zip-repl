@@ -19,6 +19,7 @@ import News from "@/pages/News";
 import Trading from "@/pages/Trading";
 import Scalping5M from "@/pages/Scalping5M";
 import AI from "@/pages/AI";
+import PredictionLocks from "@/pages/PredictionLocks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ function Router() {
         <Route path="/trading" component={Trading} />
         <Route path="/scalping5m" component={Scalping5M} />
         <Route path="/ai" component={AI} />
+        <Route path="/prediction-locks" component={PredictionLocks} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

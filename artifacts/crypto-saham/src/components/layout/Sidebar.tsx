@@ -9,6 +9,7 @@ import {
   Bot,
   Timer,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -24,6 +25,7 @@ export function Sidebar() {
           <div className="my-2" />
           <div className="px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1">Intelligence</div>
           <NavItem href="/predictions" icon={Activity}>Predictions</NavItem>
+          <NavItem href="/prediction-locks" icon={ShieldCheck}>Prediction Locks</NavItem>
           <NavItem href="/news" icon={Newspaper}>News Feed</NavItem>
           <div className="my-2" />
           <div className="px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1">Trading</div>

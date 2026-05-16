@@ -1,0 +1,33 @@
+[
+  {
+    "id": "3dd468a9-45be-4ac5-a122-a44e918be037",
+    "assetId": "bitcoin",
+    "assetName": "Bitcoin",
+    "assetType": "crypto",
+    "symbol": "BTC",
+    "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    "direction": "LONG",
+    "entryPrice": 67500,
+    "lockedAt": 1778964797280,
+    "lockDurationMs": 3600000,
+    "expiresAt": 1778968397280,
+    "confidence": 78,
+    "signal": "strong_buy",
+    "reasoning": [
+      "EMA 20 cross EMA 50 bullish",
+      "Volume naik 40% di atas rata-rata",
+      "RSI 58 momentum kuat",
+      "Support level $67k terkonfirmasi"
+    ],
+    "strategy": "rule-based-35-indicator",
+    "status": "active",
+    "result": null,
+    "finalPrice": null,
+    "priceDeltaPct": null,
+    "virtualPnl": null,
+    "maxDrawdown": null,
+    "marketVolatility": null,
+    "validatedAt": null,
+    "aiLearning": null
+  }
+]
