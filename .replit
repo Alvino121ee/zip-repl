@@ -49,7 +49,7 @@ waitForPort = 8080
 outputType = "console"
 
 [agent]
-stack = "PNPM_WORKSPACE"
+stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
 
 [postMerge]
@@ -83,5 +83,3 @@ externalPort = 3000
 [userenv]
 
 [userenv.shared]
-BYBIT_API_SECRET = "sXloKDXA2bYzW9Ma5vPT6FXro80rivozXTHJ"
-BYBIT_API_KEY = "QCItDBxxHWG5C6OJiI"

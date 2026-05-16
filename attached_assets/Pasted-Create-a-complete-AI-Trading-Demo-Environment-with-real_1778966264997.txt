@@ -1,0 +1,190 @@
+Create a complete AI Trading Demo Environment with real-market simulation and virtual balance system for training, testing, learning, and strategy perfection.
+
+GOAL:
+The demo system must behave exactly like real trading using live market data, but without using real money. This environment will be used to train the AI, test strategies, improve prediction quality, and perfect the trading engine before entering real trading.
+
+MAIN FEATURES:
+
+1. Demo Trading Account
+Create virtual demo accounts with:
+- Virtual balance
+- Adjustable starting capital
+- Demo PNL tracking
+- Equity tracking
+- Margin tracking
+- Leverage simulation
+- Fee simulation
+- Liquidation simulation
+- Risk exposure tracking
+
+The demo balance must feel exactly like real futures trading.
+
+2. Real Market Integration
+Use real-time market data from exchanges:
+- Bybit
+- Binance
+- Hyperliquid
+- OKX
+
+Features:
+- Real candles
+- Real orderbook
+- Real volume
+- Real price movement
+- Real spread
+- Real volatility
+
+Demo trades must execute based on actual live market conditions.
+
+3. Full Futures Simulation
+Support:
+- LONG / SHORT
+- Leverage
+- Stop Loss
+- Take Profit
+- Partial TP
+- Trailing Stop
+- Cross Margin
+- Isolated Margin
+
+Simulate:
+- Liquidation
+- Slippage
+- Fees
+- Funding fees
+- Sudden volatility
+
+4. AI Self Training Mode
+The AI must actively use the demo environment to train itself.
+
+AI should:
+- Open demo trades
+- Test strategies
+- Analyze outcomes
+- Record mistakes
+- Improve confidence scoring
+- Learn market behavior
+- Adapt to market conditions
+- Compare strategy performance
+
+AI must continuously improve through live demo experience.
+
+5. Prediction Lock Integration
+Every demo trade must support prediction lock:
+- Lock entry price
+- Lock timeframe
+- Validate result after time expires
+- Save outcome permanently
+
+6. Strategy Learning System
+AI must track:
+- Winrate
+- Drawdown
+- Risk/reward
+- Accuracy by timeframe
+- Accuracy by pair
+- Accuracy by market condition
+- Accuracy by strategy
+
+AI must automatically:
+- Reduce weak strategies
+- Increase strong strategy usage
+- Avoid repeated failures
+
+7. Advanced Market Analysis
+AI must analyze:
+- Orderflow
+- Volume
+- EMA
+- VWAP
+- RSI
+- MACD
+- Liquidity zones
+- Support resistance
+- Smart money concepts
+- Market structure
+- Manipulation detection
+- Fake breakout detection
+- Multi timeframe confirmation
+
+8. Market Condition Detection
+AI must identify:
+- Trending market
+- Sideways market
+- High volatility
+- Low liquidity
+- News volatility
+- Manipulation zones
+
+AI strategy must adapt automatically depending on conditions.
+
+9. Demo Leaderboard & Analytics
+Create dashboard showing:
+- Total trades
+- Winrate
+- Profit factor
+- Sharpe ratio
+- Best strategy
+- Worst strategy
+- Daily performance
+- Weekly performance
+- Monthly performance
+- Accuracy graphs
+- Equity curve
+- Heatmap analytics
+
+10. Replay & Backtesting
+Create replay system:
+- Replay previous trades
+- Replay market conditions
+- Analyze failed entries
+- Analyze missed opportunities
+
+Allow AI to study past mistakes and improve.
+
+11. Smart Risk Management
+AI must:
+- Avoid overtrading
+- Avoid emotional trading behavior
+- Reduce leverage during unstable markets
+- Use tighter risk control during losses
+- Increase caution after consecutive failures
+
+12. Adaptive Intelligence
+The AI must become smarter over time.
+
+The system should:
+- Continuously learn
+- Adapt dynamically
+- Improve strategy selection
+- Improve timing
+- Improve confidence scoring
+- Improve entry precision
+- Improve exit precision
+
+13. Human-Like Trading Logic
+AI must trade like a professional institutional trader:
+- Patient
+- Selective
+- Data-driven
+- High probability focused
+- Avoid random entries
+- Wait for confirmation
+- Focus only on best setups
+
+14. UI/UX FEATURES
+Create professional interface:
+- Live charts
+- Demo wallet
+- Open positions
+- Trade history
+- Prediction lock cards
+- AI analysis panel
+- Confidence visualization
+- Market condition status
+- Risk meter
+- Strategy performance table
+- Live trade logs
+
+15. FINAL GOAL
+The demo environment must become a complete AI trading laboratory where the AI can safely learn, evolve, train, optimize strategies, and reach the highest possible trading accuracy before using real money.
