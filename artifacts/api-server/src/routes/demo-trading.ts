@@ -12,6 +12,7 @@ import {
   stopDemoAutoEngine,
   startDemoScalpEngine,
   stopDemoScalpEngine,
+  triggerDemoEngineCycle,
   type DemoConfig,
 } from "../services/demo-trading.js";
 import { analyzeSymbol } from "../services/analysis.js";
@@ -109,6 +110,15 @@ router.post("/demo/reset", (_req, res) => {
   stopDemoScalpEngine();
   resetDemo();
   res.json({ ok: true, message: "Demo trading direset ke $10,000" });
+});
+
+// POST /api/demo/engine/trigger — paksa siklus scan langsung tanpa menunggu timer
+router.post("/demo/engine/trigger", (_req, res) => {
+  if (!demoEngineStatus.autoRunning && !demoEngineStatus.scalpRunning) {
+    return res.status(400).json({ error: "Engine belum aktif. Aktifkan terlebih dahulu." });
+  }
+  triggerDemoEngineCycle();
+  res.json({ ok: true, message: "Siklus pindai dipaksa — hasil akan muncul dalam beberapa detik" });
 });
 
 // GET /api/demo/signals — same as real auto trading signals

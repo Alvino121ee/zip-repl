@@ -125,7 +125,7 @@ export const demoConfig: DemoConfig = {
   takeProfitPct: 4,
   maxPositions: 5,
   leverage: 5,
-  intervalMs: 60_000,
+  intervalMs: 20_000,       // 20 detik — lebih responsif
   scalpMinConfidence: 75,
   scalpMaxPositionUSDT: 300,
   scalpStopLossPct: 1,
@@ -573,8 +573,16 @@ export function startDemoScalpEngine() {
   runScalpEngineCycle().catch(() => {});
   scalpTimer = setInterval(() => {
     runScalpEngineCycle().catch(() => {});
-  }, 60_000);
+  }, 20_000);    // 20 detik — lebih responsif
   logger.info("Demo scalp engine started");
+}
+
+// Trigger manual — paksa satu siklus langsung tanpa menunggu timer
+export function triggerDemoEngineCycle(): void {
+  runAutoEngineCycle().catch((err) => logger.error({ err }, "Manual trigger error"));
+  if (demoEngineStatus.scalpRunning) {
+    runScalpEngineCycle().catch((err) => logger.error({ err }, "Manual scalp trigger error"));
+  }
 }
 
 export function stopDemoScalpEngine() {

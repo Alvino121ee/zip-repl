@@ -870,12 +870,13 @@ export default function DemoTrading() {
   const [engineStatus, setEngineStatus] = useState<DemoEngineStatus | null>(null);
   const [scalpSignals, setScalpSignals] = useState<Scalp5mSignal[]>([]);
   const [brainStats, setBrainStats] = useState<BrainStats | null>(null);
-  const [aiMode, setAiMode] = useState(false);
+  const [aiMode, setAiMode] = useState(() => localStorage.getItem("demo_ai_mode") === "true");
   const [aiRec, setAiRec] = useState<BrainConfigRecommendation | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [loadingSignals, setLoadingSignals] = useState(false);
   const [executingId, setExecutingId] = useState<string | null>(null);
   const [mereset, setMereset] = useState(false);
+  const [triggeringNow, setTriggeringNow] = useState(false);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -919,6 +920,21 @@ export default function DemoTrading() {
     const id = setInterval(() => { fetchAll(); fetchBrain(); }, 10_000);
     return () => clearInterval(id);
   }, [fetchAll, fetchBrain]);
+
+  // Simpan aiMode ke localStorage setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem("demo_ai_mode", String(aiMode));
+  }, [aiMode]);
+
+  // Saat halaman pertama kali dimuat, jika aiMode=true dari localStorage, fetch rekomendasi brain
+  useEffect(() => {
+    if (aiMode && !aiRec) {
+      apiFetch<BrainConfigRecommendation>("/api/ai/brain/recommend-config")
+        .then(rec => setAiRec(rec))
+        .catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (tab === "scalp") fetchScalp();
@@ -1033,6 +1049,19 @@ export default function DemoTrading() {
     }
   }
 
+  async function pindaiSekarang() {
+    setTriggeringNow(true);
+    try {
+      await apiFetch("/api/demo/engine/trigger", { method: "POST" });
+      toast({ title: "⚡ Pindai dipaksa!", description: "Engine sedang mencari sinyal — cek log dalam 5 detik" });
+      setTimeout(() => fetchAll(), 3_000);
+    } catch (err: any) {
+      toast({ title: "Gagal memaksa pindai", description: err.message, variant: "destructive" });
+    } finally {
+      setTriggeringNow(false);
+    }
+  }
+
   async function resetBrain() {
     try {
       await apiFetch("/api/ai/brain/reset", { method: "POST" });
@@ -1124,20 +1153,34 @@ export default function DemoTrading() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className={`rounded-xl border p-3 flex items-center justify-between ${
+              <div className={`rounded-xl border p-3 space-y-2 ${
                 engineStatus.autoRunning ? "border-green-500/30 bg-green-500/5" : "border-border bg-muted/20"
               }`}>
-                <div>
-                  <p className={`text-sm font-bold ${engineStatus.autoRunning ? "text-green-400" : "text-muted-foreground"}`}>
-                    {engineStatus.autoRunning ? "🟢 Berjalan" : "⚪ Berhenti"}
-                    {engineStatus.autoAnalyzing && " · Menganalisis..."}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {engineStatus.lastCycleAt ? `Siklus terakhir: ${timeAgo(engineStatus.lastCycleAt)}` : "Belum pernah berjalan"}
-                    {engineStatus.cycleCount > 0 && ` · ${engineStatus.cycleCount} siklus`}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-bold ${engineStatus.autoRunning ? "text-green-400" : "text-muted-foreground"}`}>
+                      {engineStatus.autoRunning ? "🟢 Berjalan" : "⚪ Berhenti"}
+                      {engineStatus.autoAnalyzing && " · Menganalisis..."}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {engineStatus.lastCycleAt ? `Siklus terakhir: ${timeAgo(engineStatus.lastCycleAt)}` : "Belum pernah berjalan"}
+                      {engineStatus.cycleCount > 0 && ` · ${engineStatus.cycleCount} siklus`}
+                    </p>
+                  </div>
+                  <Switch checked={config.autoEnabled} onCheckedChange={v => updateConfig({ autoEnabled: v })} />
                 </div>
-                <Switch checked={config.autoEnabled} onCheckedChange={v => updateConfig({ autoEnabled: v })} />
+                {engineStatus.autoRunning && (
+                  <button
+                    onClick={pindaiSekarang}
+                    disabled={triggeringNow || engineStatus.autoAnalyzing}
+                    className="w-full flex items-center justify-center gap-2 text-xs font-medium py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {triggeringNow || engineStatus.autoAnalyzing
+                      ? <><RefreshCw className="h-3 w-3 animate-spin" /> Sedang memindai...</>
+                      : <><Zap className="h-3 w-3" /> Pindai Sekarang</>
+                    }
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
