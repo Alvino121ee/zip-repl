@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
-import { client, MODEL } from "./ai.js";
+import { learnFromOutcome, detectMarketCondition } from "./ai-brain.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -128,48 +128,73 @@ async function fetchCurrentPrice(assetId: string, assetType: "crypto" | "stock",
 
 // ─── AI Self-Learning ─────────────────────────────────────────────────────────
 
-async function generateAILearning(lock: LockedPrediction, finalPrice: number): Promise<string> {
-  try {
-    const delta = lock.priceDeltaPct?.toFixed(2) ?? "0";
-    const result = lock.result ?? "NEUTRAL";
+function generateAILearning(lock: LockedPrediction, finalPrice: number): string {
+  const delta = lock.priceDeltaPct?.toFixed(2) ?? "0";
+  const result = lock.result ?? "NEUTRAL";
+  const dir = lock.direction === "LONG" ? "LONG (beli)" : "SHORT (jual)";
 
-    const prompt = `Sebagai institutional trader elite, analisis hasil prediksi berikut dan berikan pembelajaran:
+  const condition = detectMarketCondition({ priceChange24h: lock.priceDeltaPct ?? 0 });
 
-PREDIKSI:
-- Aset: ${lock.assetName} (${lock.symbol})
-- Arah: ${lock.direction} (${lock.direction === "LONG" ? "ekspektasi naik" : "ekspektasi turun"})
-- Harga Entry: ${lock.entryPrice.toFixed(6)}
-- Harga Akhir: ${finalPrice.toFixed(6)}
-- Perubahan: ${delta}%
-- Confidence: ${lock.confidence}%
-- Durasi: ${Math.round(lock.lockDurationMs / 60000)} menit
-- Sinyal: ${lock.signal}
-- Reasoning awal: ${lock.reasoning.slice(0, 3).join("; ")}
+  // Kirim ke brain untuk belajar
+  learnFromOutcome({
+    id: lock.id,
+    symbol: lock.symbol,
+    direction: lock.direction,
+    confidence: lock.confidence,
+    signal: lock.signal,
+    result: result as "WIN" | "LOSS" | "NEUTRAL",
+    priceDeltaPct: lock.priceDeltaPct ?? 0,
+    reasoning: lock.reasoning,
+    indicatorsActive: extractIndicatorsFromReasoning(lock.reasoning),
+    condition,
+    strategy: lock.strategy,
+    virtualPnl: lock.virtualPnl ?? 0,
+  });
 
-HASIL: ${result} (${result === "WIN" ? "Prediksi benar" : result === "LOSS" ? "Prediksi salah" : "Netral/tidak signifikan"})
+  // Buat teks pembelajaran dari brain
+  const lines: string[] = [];
+  lines.push(`📚 **Pembelajaran Brain — ${lock.assetName} (${lock.symbol})**`);
+  lines.push(`Prediksi ${dir} | Entry: ${lock.entryPrice.toFixed(6)} → Akhir: ${finalPrice.toFixed(6)} | Δ ${delta}%`);
+  lines.push(`Hasil: **${result === "WIN" ? "✅ WIN" : result === "LOSS" ? "❌ LOSS" : "➖ NETRAL"}**`);
+  lines.push(``);
 
-Berikan analisis pembelajaran dalam 3-4 poin ringkas:
-1. Mengapa prediksi ${result === "WIN" ? "berhasil" : result === "LOSS" ? "gagal" : "netral"}?
-2. Kondisi pasar apa yang memengaruhi hasil?
-3. Pelajaran untuk prediksi berikutnya (apa yang harus diperbaiki/dipertahankan)?
-4. Confidence score ${lock.confidence}% — apakah tepat untuk setup ini?
-
-Format: Poin-poin singkat, bahasa Indonesia, max 200 kata.`;
-
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: "Kamu adalah AI trading analyst yang belajar dari setiap prediksi. Berikan analisis singkat dan actionable." },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 350,
-      temperature: 0.5,
-    });
-
-    return response.choices[0]?.message?.content ?? "Analisis pembelajaran tidak tersedia.";
-  } catch {
-    return "Analisis pembelajaran tidak tersedia (AI offline).";
+  if (result === "WIN") {
+    lines.push(`1. Prediksi benar — pasar bergerak sesuai arah ${dir}.`);
+    lines.push(`2. Confidence ${lock.confidence}% terbukti akurat untuk setup ini.`);
+    lines.push(`3. Pertahankan: konfirmasi sinyal ${lock.signal.replace(/_/g, " ")} di kondisi serupa.`);
+    lines.push(`4. Brain mencatat pola sukses ini untuk digunakan kembali.`);
+  } else if (result === "LOSS") {
+    lines.push(`1. Prediksi salah — pasar bergerak ${Math.abs(parseFloat(delta)).toFixed(2)}% berlawanan arah.`);
+    lines.push(`2. Kondisi ${condition.replace(/_/g, " ")} kemungkinan tidak ideal untuk ${dir}.`);
+    lines.push(`3. Perbaikan: perkuat konfirmasi multi-timeframe dan volume sebelum entry.`);
+    lines.push(`4. Brain mengurangi bobot indikator yang berkontribusi pada prediksi ini.`);
+  } else {
+    lines.push(`1. Pergerakan ${Math.abs(parseFloat(delta)).toFixed(2)}% terlalu kecil untuk dikonfirmasi.`);
+    lines.push(`2. Timing entry perlu diperbaiki — tunggu breakout yang lebih jelas.`);
+    lines.push(`3. Confidence ${lock.confidence}% mungkin terlalu tinggi untuk setup tanpa momentum.`);
+    lines.push(`4. Brain mencatat: kondisi sideways memerlukan konfirmasi volume lebih kuat.`);
   }
+
+  return lines.join("\n");
+}
+
+function extractIndicatorsFromReasoning(reasoning: string[]): string[] {
+  const indicators: string[] = [];
+  const text = reasoning.join(" ").toLowerCase();
+  if (text.includes("rsi") && (text.includes("oversold") || text.includes("< 30"))) indicators.push("rsi_oversold");
+  if (text.includes("rsi") && (text.includes("overbought") || text.includes("> 70"))) indicators.push("rsi_overbought");
+  if (text.includes("ema") && text.includes("golden")) indicators.push("ema_golden_cross");
+  if (text.includes("ema") && text.includes("death")) indicators.push("ema_death_cross");
+  if (text.includes("macd") && text.includes("bull")) indicators.push("macd_bullish");
+  if (text.includes("macd") && text.includes("bear")) indicators.push("macd_bearish");
+  if (text.includes("volume")) indicators.push("volume_spike");
+  if (text.includes("bos") || text.includes("break of structure")) indicators.push("bos_bullish");
+  if (text.includes("order block")) indicators.push("order_block_demand");
+  if (text.includes("fvg") || text.includes("fair value")) indicators.push("fvg_bullish");
+  if (text.includes("vwap")) indicators.push("vwap_above");
+  if (text.includes("multi") && text.includes("timeframe")) indicators.push("multi_tf_aligned");
+  if (indicators.length === 0) indicators.push("momentum_strong");
+  return indicators;
 }
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -215,8 +240,8 @@ async function validateLock(lock: LockedPrediction): Promise<void> {
     validatedAt: Date.now(),
   };
 
-  // Generate AI learning analysis
-  updated.aiLearning = await generateAILearning(updated, finalPrice);
+  // Brain belajar dari hasil — sinkron, tidak perlu await
+  updated.aiLearning = generateAILearning(updated, finalPrice);
 
   locks.set(lock.id, updated);
   saveToDisk();

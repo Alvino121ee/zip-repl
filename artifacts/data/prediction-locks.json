@@ -53,15 +53,15 @@
       "Harga di atas EMA 7, 25, dan 99 — konfirmasi tren naik"
     ],
     "strategy": "rule-based-35-indicator",
-    "status": "active",
-    "result": null,
-    "finalPrice": null,
-    "priceDeltaPct": null,
-    "virtualPnl": null,
-    "maxDrawdown": null,
-    "marketVolatility": null,
-    "validatedAt": null,
-    "aiLearning": null
+    "status": "validated",
+    "result": "NEUTRAL",
+    "finalPrice": 656.35,
+    "priceDeltaPct": -0.04416423001948764,
+    "virtualPnl": -0.04416423001948764,
+    "maxDrawdown": -0.04416423001948764,
+    "marketVolatility": "low",
+    "validatedAt": 1778966882114,
+    "aiLearning": "📚 **Pembelajaran Brain — BNB (BNB)**\nPrediksi LONG (beli) | Entry: 656.640000 → Akhir: 656.350000 | Δ -0.04%\nHasil: **➖ NETRAL**\n\n1. Pergerakan 0.04% terlalu kecil untuk dikonfirmasi.\n2. Timing entry perlu diperbaiki — tunggu breakout yang lebih jelas.\n3. Confidence 77% mungkin terlalu tinggi untuk setup tanpa momentum.\n4. Brain mencatat: kondisi sideways memerlukan konfirmasi volume lebih kuat."
   },
   {
     "id": "d17c65e9-0c0c-44e8-aa84-d6656e9a67aa",
@@ -86,15 +86,15 @@
       "Harga di atas EMA jangka pendek — bias bullish"
     ],
     "strategy": "rule-based-35-indicator",
-    "status": "active",
-    "result": null,
-    "finalPrice": null,
-    "priceDeltaPct": null,
-    "virtualPnl": null,
-    "maxDrawdown": null,
-    "marketVolatility": null,
-    "validatedAt": null,
-    "aiLearning": null
+    "status": "validated",
+    "result": "NEUTRAL",
+    "finalPrice": 86.63,
+    "priceDeltaPct": -0.046152071074196666,
+    "virtualPnl": 0.046152071074196666,
+    "maxDrawdown": 0.046152071074196666,
+    "marketVolatility": "low",
+    "validatedAt": 1778966882137,
+    "aiLearning": "📚 **Pembelajaran Brain — Solana (SOL)**\nPrediksi SHORT (jual) | Entry: 86.670000 → Akhir: 86.630000 | Δ -0.05%\nHasil: **➖ NETRAL**\n\n1. Pergerakan 0.05% terlalu kecil untuk dikonfirmasi.\n2. Timing entry perlu diperbaiki — tunggu breakout yang lebih jelas.\n3. Confidence 72% mungkin terlalu tinggi untuk setup tanpa momentum.\n4. Brain mencatat: kondisi sideways memerlukan konfirmasi volume lebih kuat."
   },
   {
     "id": "e3a975ed-2ccc-4a97-82a0-76142060e75e",

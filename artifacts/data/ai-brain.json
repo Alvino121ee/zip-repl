@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "learningCycles": 2,
+  "totalPredictions": 2,
+  "totalWins": 0,
+  "totalLosses": 0,
+  "lastUpdated": 1778966882137,
+  "indicatorStats": {
+    "rsi_oversold": {
+      "name": "RSI Oversold",
+      "correct": 0,
+      "total": 2,
+      "weight": 0.3
+    },
+    "rsi_overbought": {
+      "name": "RSI Overbought",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "ema_golden_cross": {
+      "name": "EMA Golden Cross",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "ema_death_cross": {
+      "name": "EMA Death Cross",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "macd_bullish": {
+      "name": "MACD Bullish",
+      "correct": 0,
+      "total": 2,
+      "weight": 0.3
+    },
+    "macd_bearish": {
+      "name": "MACD Bearish",
+      "correct": 0,
+      "total": 1,
+      "weight": 0.3
+    },
+    "volume_spike": {
+      "name": "Volume Spike",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "bos_bullish": {
+      "name": "Break of Structure Bullish",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "bos_bearish": {
+      "name": "Break of Structure Bearish",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "order_block_demand": {
+      "name": "Order Block Demand",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "order_block_supply": {
+      "name": "Order Block Supply",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "fvg_bullish": {
+      "name": "Fair Value Gap Bullish",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "fvg_bearish": {
+      "name": "Fair Value Gap Bearish",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "vwap_above": {
+      "name": "Price Above VWAP",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "vwap_below": {
+      "name": "Price Below VWAP",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "bb_squeeze": {
+      "name": "Bollinger Band Squeeze",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    },
+    "multi_tf_aligned": {
+      "name": "Multi-Timeframe Aligned",
+      "correct": 0,
+      "total": 1,
+      "weight": 0.3
+    },
+    "high_volatility": {
+      "name": "High Volatility",
+      "correct": 0,
+      "total": 0,
+      "weight": 0.8
+    },
+    "momentum_strong": {
+      "name": "Strong Momentum",
+      "correct": 0,
+      "total": 0,
+      "weight": 1
+    }
+  },
+  "symbolPerformance": {
+    "BNB": {
+      "symbol": "BNB",
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 1,
+      "totalPnl": -0.04416423001948764,
+      "avgConfidence": 77,
+      "lastTrade": 1778966882115,
+      "consecutiveLosses": 0,
+      "avoidUntil": null
+    },
+    "SOL": {
+      "symbol": "SOL",
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 1,
+      "totalPnl": 0.046152071074196666,
+      "avgConfidence": 72,
+      "lastTrade": 1778966882137,
+      "consecutiveLosses": 0,
+      "avoidUntil": null
+    }
+  },
+  "conditionPerformance": {
+    "trending_up": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    },
+    "trending_down": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    },
+    "sideways": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 2
+    },
+    "volatile": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    },
+    "low_liquidity": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    }
+  },
+  "strategyWeights": {
+    "scalp_5m": {
+      "name": "Scalping 5M",
+      "weight": 1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "swing_1h": {
+      "name": "Swing 1H",
+      "weight": 1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "bos_choch": {
+      "name": "BOS/CHOCH",
+      "weight": 1.1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "order_block": {
+      "name": "Order Block",
+      "weight": 1.1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "smart_money": {
+      "name": "Smart Money",
+      "weight": 1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "momentum": {
+      "name": "Momentum",
+      "weight": 1,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "reversal": {
+      "name": "Reversal",
+      "weight": 0.9,
+      "wins": 0,
+      "losses": 0,
+      "lastAdjusted": 0
+    },
+    "rule-based-35-indicator": {
+      "name": "rule-based-35-indicator",
+      "weight": 0.4,
+      "wins": 0,
+      "losses": 2,
+      "lastAdjusted": 1778966882137
+    }
+  },
+  "mistakes": [],
+  "successPatterns": [],
+  "consecutiveLosses": 0,
+  "maxDrawdownSeen": 0,
+  "bestWinStreak": 0,
+  "currentWinStreak": 0
+}
