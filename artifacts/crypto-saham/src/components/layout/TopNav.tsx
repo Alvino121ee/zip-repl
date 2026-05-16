@@ -11,6 +11,10 @@ import {
   Search,
   Zap,
   Bot,
+  Timer,
+  FlaskConical,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,13 +38,22 @@ export function TopNav() {
                   <Zap className="h-5 w-5 text-primary fill-primary" />
                   <span className="tracking-wide">VINZ <span className="text-primary">PREDICT</span></span>
                 </Link>
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-col gap-1">
+                  <p className="px-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mb-1 mt-2">Umum</p>
                   <MobileNavItem href="/" icon={BarChart2}>Dashboard</MobileNavItem>
+                  <p className="px-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mb-1 mt-3">Pasar</p>
                   <MobileNavItem href="/crypto" icon={TrendingUp}>Crypto Market</MobileNavItem>
                   <MobileNavItem href="/stocks" icon={LineChart}>Stock Market</MobileNavItem>
+                  <p className="px-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mb-1 mt-3">Intelijen</p>
                   <MobileNavItem href="/predictions" icon={Activity}>Predictions</MobileNavItem>
-                  <MobileNavItem href="/news" icon={Newspaper}>News</MobileNavItem>
+                  <MobileNavItem href="/prediction-locks" icon={ShieldCheck}>Prediction Locks</MobileNavItem>
+                  <MobileNavItem href="/news" icon={Newspaper}>News Feed</MobileNavItem>
+                  <p className="px-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mb-1 mt-3">Trading</p>
                   <MobileNavItem href="/trading" icon={Bot}>Auto Trading</MobileNavItem>
+                  <MobileNavItem href="/scalping5m" icon={Timer}>Scalping 5M</MobileNavItem>
+                  <MobileNavItem href="/demo-trading" icon={FlaskConical}>Lab Demo Trading</MobileNavItem>
+                  <p className="px-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase mb-1 mt-3">AI</p>
+                  <MobileNavItem href="/ai" icon={Sparkles}>KristalAI</MobileNavItem>
                 </nav>
               </div>
             </SheetContent>
