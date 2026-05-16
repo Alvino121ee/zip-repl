@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { cache } from "./cache.js";
-import { logger } from "../lib/logger.js";
 
 export const client = new OpenAI({
   apiKey: process.env.KISSAPI_API_KEY ?? "",
@@ -9,12 +8,102 @@ export const client = new OpenAI({
 
 export const MODEL = "claude-opus-4-7";
 
-// ─── Shared system prompt ─────────────────────────────────────────────────────
+// ─── Elite Institutional Trader System Prompt ─────────────────────────────────
 
-const SYSTEM_PROMPT = `Kamu adalah KristalAI, mesin analisis keuangan AI yang ahli dalam pasar crypto dan saham Indonesia (IDX).
-Tugasmu adalah menganalisis data pasar secara akurat dan mengembalikan keputusan trading dalam format JSON yang tepat.
-Kamu memahami: RSI, MACD, Bollinger Bands, EMA, support/resistance, Smart Money Concepts (BOS, CHOCH, FVG, Order Blocks), dan manajemen risiko.
-Selalu gunakan Bahasa Indonesia dalam reasoning, tapi format JSON harus valid dan akurat.`;
+const SYSTEM_PROMPT = `You are KristalAI — an elite autonomous AI trading system designed to behave like a world-class professional institutional trader with advanced adaptive intelligence, deep market understanding, and strict psychological discipline.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+- Protect and grow capital intelligently
+- Execute only ultra high-quality setups
+- Focus on quality over quantity
+- Trade rarely but effectively
+- Learn continuously from every outcome
+- Maintain long-term survival and consistency
+- Maximize precision and timing
+
+You are not a gambling bot. You are an intelligent professional trading entity.
+
+==================================================
+TRADING STYLE
+==================================================
+- Focus only on 1–2 trades at a time
+- Only enter when confidence and confirmation are extremely strong
+- Ignore weak setups completely
+- Wait patiently for ideal market conditions
+- Treat patience as a competitive advantage
+- Avoid market noise, emotional entries, and random scalping behavior
+
+You must behave like a sniper, not a machine gun.
+
+==================================================
+CORE MINDSET
+==================================================
+Never: force entries, chase candles, FOMO buy/sell, revenge trade, overtrade, trade from emotion, ignore risk, trust one indicator only.
+
+Always: stay disciplined, analytical, emotionally neutral, patient, adaptive, strategic, risk-aware, statistically aware. Think and analyze before executing.
+
+==================================================
+AI PERSONALITY
+==================================================
+You think and behave like:
+- Institutional trader
+- Professional scalper
+- Quantitative analyst
+- Smart money analyst
+- Market psychologist
+- Risk manager
+- Adaptive AI intelligence
+
+You possess: patience, precision, discipline, adaptability, emotional neutrality, strategic thinking, fast reaction speed, pattern recognition, statistical awareness, deep analysis capability, manipulation detection, trend understanding, liquidity understanding.
+
+==================================================
+FULL MARKET ANALYSIS
+==================================================
+Before ANY trade, deeply analyze:
+
+TREND ANALYSIS: Multi-timeframe trend, market structure, trend continuation probability, trend exhaustion, momentum strength, break of structure, change of character, swing highs/lows.
+
+SMART MONEY ANALYSIS: Liquidity zones, stop hunts, order blocks, fair value gaps, institutional movement, market imbalance, smart money behavior, liquidity grabs.
+
+TECHNICAL ANALYSIS: RSI, EMA, VWAP, MACD, ATR, Bollinger Bands, volume profile, momentum indicators, divergence detection, candle confirmation, fake breakout detection, breakout validation.
+
+VOLUME & ORDER FLOW: Buying pressure, selling pressure, delta imbalance, volume spikes, absorption, momentum acceleration, weak momentum detection.
+
+MARKET CONDITION: Trending/sideways/volatile market, liquidity condition, session timing, spread analysis.
+
+EXTERNAL FACTORS: Economic news, market sentiment, fear & greed index, BTC dominance, correlation analysis, open interest, funding rate, whale activity, macro conditions.
+
+==================================================
+TRADE FILTER SYSTEM
+==================================================
+You only trade if: multiple confirmations align perfectly, market structure is clear, risk-to-reward is excellent, momentum is strong, liquidity confirms movement, probability is very high, setup quality is exceptional.
+
+You must SKIP: unclear setups, weak confirmations, sideways random movement, dangerous news volatility, low liquidity, emotional market conditions, unstable spread, weak momentum.
+
+No setup is better than a bad setup.
+
+==================================================
+CONFIDENCE SYSTEM
+==================================================
+Only enter when: conviction is extremely strong, the setup feels statistically superior, market conditions fully support the trade. Quality is more important than frequency.
+
+==================================================
+PSYCHOLOGY SIMULATION
+==================================================
+Simulate elite trader mentality: calm under pressure, no greed, no fear, no hesitation on strong setups, no impulsive actions, no revenge trading, full discipline at all times.
+
+==================================================
+COMMUNICATION STYLE
+==================================================
+- Respond in Bahasa Indonesia (kecuali user pakai bahasa lain)
+- Berikan analisis konkret dengan angka dan persentase
+- Selalu sertakan disclaimer risiko bila memberikan saran trading
+- Singkat, to-the-point, dan actionable
+- Berpikir seperti institutional trader — sabar, selektif, presisi
+
+PENTING: Kamu BUKAN memberikan saran investasi resmi. Semua analisis bersifat edukatif dan informatif.`;
 
 // ─── Chat interface ───────────────────────────────────────────────────────────
 
@@ -73,7 +162,7 @@ export async function analyzeAsset(data: AnalysisRequest): Promise<string> {
   const cached = cache.get<string>(cacheKey);
   if (cached) return cached;
 
-  const prompt = `Berikan analisis singkat dan actionable untuk ${data.name} (${data.symbol.toUpperCase()}) berdasarkan data:\n\n${buildContextString(data)}\n\nBerikan:\n1. Ringkasan kondisi\n2. Level kunci\n3. Skenario bullish & bearish\n4. Saran risk management\n\nMaksimal 300 kata.`;
+  const prompt = `Sebagai institutional trader elite, analisis ${data.name} (${data.symbol.toUpperCase()}) berdasarkan data:\n\n${buildContextString(data)}\n\nBerikan analisis mendalam dengan:\n1. Penilaian kualitas setup (apakah layak entry atau tidak)\n2. Level kunci: support, resistance, area stop hunt\n3. Skenario bullish dan bearish dengan probabilitas\n4. Risk management: SL, TP, ukuran posisi yang direkomendasikan\n5. Timing: apakah masuk sekarang atau tunggu konfirmasi?\n\nBersikap seperti institutional trader — selektif, sabar, presisi. Jika setup lemah, katakan dengan tegas untuk menunggu.\nMaksimal 350 kata, gunakan format yang rapi dan actionable.`;
 
   const response = await client.chat.completions.create({
     model: MODEL,
@@ -81,7 +170,7 @@ export async function analyzeAsset(data: AnalysisRequest): Promise<string> {
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: prompt },
     ],
-    max_tokens: 600,
+    max_tokens: 700,
     temperature: 0.5,
   });
 
@@ -102,14 +191,19 @@ export async function getMarketSummary(overviewData: {
   const cached = cache.get<string>(cacheKey);
   if (cached) return cached;
 
-  const prompt = `Berikan ringkasan kondisi pasar crypto global saat ini:
+  const prompt = `Sebagai institutional trader elite, berikan penilaian kondisi pasar crypto global saat ini:
+
+DATA PASAR:
 - Fear & Greed Index: ${overviewData.fearGreedIndex} (${overviewData.fearGreedLabel})
 - BTC Dominance: ${overviewData.btcDominance.toFixed(1)}%
 - Total Market Cap: $${(overviewData.totalMarketCap / 1e9).toFixed(0)}B
 - Perubahan 24h: ${overviewData.marketCapChange24h?.toFixed(2) ?? "N/A"}%
 ${overviewData.topMovers ? `- Top Movers: ${overviewData.topMovers.slice(0, 5).map(m => `${m.symbol} ${m.change > 0 ? "+" : ""}${m.change.toFixed(1)}%`).join(", ")}` : ""}
 
-Berikan analisis 2-3 paragraf singkat untuk trader Indonesia.`;
+Berikan analisis 2-3 paragraf dengan perspektif institutional:
+1. Kondisi pasar saat ini dan apakah cocok untuk trading
+2. Risiko tersembunyi dan potensi manipulasi
+3. Rekomendasi strategis untuk trader Indonesia (bersikap seperti institutional — lebih banyak menunggu dari pada bertindak)`;
 
   const response = await client.chat.completions.create({
     model: MODEL,
@@ -117,7 +211,7 @@ Berikan analisis 2-3 paragraf singkat untuk trader Indonesia.`;
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: prompt },
     ],
-    max_tokens: 400,
+    max_tokens: 450,
     temperature: 0.6,
   });
 
@@ -126,312 +220,7 @@ Berikan analisis 2-3 paragraf singkat untuk trader Indonesia.`;
   return result;
 }
 
-// ─── AI Brain: Batch Predictions ──────────────────────────────────────────────
-
-export interface AIAssetInput {
-  assetId: string;
-  assetName: string;
-  assetType: "crypto" | "stock";
-  symbol: string;
-  currentPrice: number;
-  change24h: number;
-  change7d: number | null;
-  rsi: number;
-  macdBullish: boolean;
-  macdHistogram: number;
-  bbPosition: number;
-  emaScore: number;
-  volumeRatio: number;
-  trend: string;
-  bosActive: boolean;
-  bosDirection: string;
-  fvgExists: boolean;
-  fvgDirection: string;
-  support: number;
-  resistance: number;
-  sentimentScore: number;
-  positiveNews: number;
-  negativeNews: number;
-  newsCount: number;
-}
-
-export interface AIPredictionOutput {
-  assetId: string;
-  signal: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
-  confidence: number;
-  sentimentScore: number;
-  reasons: string[];
-  stopLoss: number;
-  takeProfit: number;
-}
-
-export async function aiBatchPredictions(assets: AIAssetInput[]): Promise<AIPredictionOutput[]> {
-  const cacheKey = `ai-batch-pred-${assets.map(a => a.assetId).join("-").slice(0, 80)}-${Math.floor(Date.now() / (15 * 60 * 1000))}`;
-  const cached = cache.get<AIPredictionOutput[]>(cacheKey);
-  if (cached) return cached;
-
-  const assetSummaries = assets.map(a => {
-    const rr = a.resistance > a.support && a.support > 0
-      ? `SL=${a.support.toFixed(2)},TP=${a.resistance.toFixed(2)}`
-      : "SL/TP=auto";
-    return `{id:"${a.assetId}",name:"${a.assetName}",type:"${a.assetType}",sym:"${a.symbol}",price:${a.currentPrice},chg24h:${a.change24h.toFixed(2)}%,chg7d:${a.change7d?.toFixed(2) ?? "N/A"}%,RSI:${a.rsi.toFixed(1)},MACD:${a.macdBullish ? "bullish" : "bearish"}(hist:${a.macdHistogram.toFixed(3)}),BB:${(a.bbPosition * 100).toFixed(0)}%,EMA:${a.emaScore.toFixed(2)},vol:${a.volumeRatio.toFixed(2)}x,trend:${a.trend},BOS:${a.bosActive ? a.bosDirection : "none"},FVG:${a.fvgExists ? a.fvgDirection : "none"},sentiment:${a.sentimentScore.toFixed(2)},news:+${a.positiveNews}/-${a.negativeNews},${rr}}`;
-  }).join("\n");
-
-  const prompt = `Kamu adalah AI trading engine. Analisis setiap aset berikut dan kembalikan sinyal trading dalam JSON.
-
-DATA ASET (${assets.length} aset):
-${assetSummaries}
-
-Kembalikan JSON array PERSIS format ini, tanpa teks lain:
-[
-  {
-    "assetId": "id_aset",
-    "signal": "strong_buy|buy|neutral|sell|strong_sell",
-    "confidence": 30-95,
-    "sentimentScore": -1.0_sampai_1.0,
-    "reasons": ["alasan1_bahasa_indonesia","alasan2","alasan3"],
-    "stopLoss": harga_float,
-    "takeProfit": harga_float
-  }
-]
-
-Panduan signal:
-- strong_buy: RSI<45 + MACD bullish + trend bullish + sentiment positif + BOS/FVG bullish
-- buy: 2-3 faktor bullish
-- neutral: mixed atau sideways
-- sell: 2-3 faktor bearish
-- strong_sell: RSI>65 + MACD bearish + trend bearish + sentiment negatif
-
-Confidence 30-95 (bukan 100).
-SL/TP harus angka harga yang masuk akal (bukan 0).
-Reasons max 4 poin, pakai bahasa Indonesia, spesifik dengan angka.`;
-
-  try {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: "Kamu adalah trading AI engine yang mengembalikan JSON valid tanpa teks tambahan." },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 2000,
-      temperature: 0.3,
-    });
-
-    const raw = response.choices[0]?.message?.content ?? "[]";
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error("No JSON array found in response");
-
-    const parsed = JSON.parse(jsonMatch[0]) as AIPredictionOutput[];
-    const valid = parsed.filter(p =>
-      p.assetId && p.signal && typeof p.confidence === "number" && Array.isArray(p.reasons)
-    );
-
-    logger.info({ count: valid.length, total: assets.length }, "AI batch predictions complete");
-    cache.set(cacheKey, valid, 15 * 60 * 1000);
-    return valid;
-  } catch (err) {
-    logger.error({ err }, "AI batch predictions failed");
-    return [];
-  }
-}
-
-// ─── AI Brain: Scalping Signal ────────────────────────────────────────────────
-
-export interface AIScalpInput {
-  symbol: string;
-  displayName: string;
-  price: number;
-  ema9: number;
-  ema21: number;
-  rsi14: number;
-  volumeRatio: number;
-  trend15m: "bullish" | "bearish" | "sideways";
-  crossoverType: "golden" | "death" | "none";
-  crossoverBarsAgo: number;
-  nearestSupport: number;
-  nearestResistance: number;
-  sessionName: string;
-  sessionQuality: string;
-  wibTime: string;
-  recentCandles: Array<{ o: number; h: number; l: number; c: number; v: number }>;
-}
-
-export interface AIScalpOutput {
-  side: "Buy" | "Sell" | null;
-  confidence: number;
-  entryPrice: number;
-  stopLoss: number;
-  takeProfit: number;
-  riskReward: number;
-  reasons: string[];
-  warnings: string[];
-  isHighRisk: boolean;
-  riskReason: string | null;
-  entryQuality: "at_zone" | "near_zone" | "wait_pullback" | "chase";
-}
-
-export async function aiScalpDecision(input: AIScalpInput): Promise<AIScalpOutput | null> {
-  const cacheKey = `ai-scalp-${input.symbol}-${Math.floor(Date.now() / (2 * 60 * 1000))}`;
-  const cached = cache.get<AIScalpOutput>(cacheKey);
-  if (cached) return cached;
-
-  const recentStr = input.recentCandles.slice(-10).map(c =>
-    `O:${c.o.toFixed(2)} H:${c.h.toFixed(2)} L:${c.l.toFixed(2)} C:${c.c.toFixed(2)} V:${c.v.toFixed(0)}`
-  ).join(" | ");
-
-  const prompt = `Analisis scalping 5M untuk ${input.displayName}:
-
-DATA TEKNIKAL:
-- Harga saat ini: ${input.price}
-- EMA9: ${input.ema9.toFixed(4)} | EMA21: ${input.ema21.toFixed(4)} | ${input.ema9 > input.ema21 ? "EMA9 DIATAS EMA21 (bullish)" : "EMA9 DIBAWAH EMA21 (bearish)"}
-- RSI(14): ${input.rsi14.toFixed(1)}
-- Volume Ratio: ${input.volumeRatio.toFixed(2)}x rata-rata
-- Trend 15M: ${input.trend15m.toUpperCase()}
-- EMA Crossover: ${input.crossoverType === "none" ? "Tidak ada crossover" : `${input.crossoverType} (${input.crossoverBarsAgo} candle lalu)`}
-- Support terdekat: ${input.nearestSupport.toFixed(4)}
-- Resistance terdekat: ${input.nearestResistance.toFixed(4)}
-- Sesi trading: ${input.sessionName} (${input.sessionQuality}) jam ${input.wibTime}
-
-10 CANDLE TERAKHIR (5M):
-${recentStr}
-
-Kembalikan JSON PERSIS format ini tanpa teks lain:
-{
-  "side": "Buy"|"Sell"|null,
-  "confidence": 30-90,
-  "entryPrice": float,
-  "stopLoss": float,
-  "takeProfit": float,
-  "riskReward": float,
-  "reasons": ["reason1_bahasa_indonesia","reason2","reason3"],
-  "warnings": ["warning1_jika_ada"],
-  "isHighRisk": true|false,
-  "riskReason": "alasan_risiko"|null,
-  "entryQuality": "at_zone"|"near_zone"|"wait_pullback"|"chase"
-}
-
-Aturan:
-- null jika kondisi tidak jelas/sideways
-- SL Buy = dibawah support/EMA21, TP = 1.5x jarak SL
-- SL Sell = diatas resistance/EMA21, TP = 1.5x jarak SL
-- isHighRisk=true jika: RSI ekstrem (>72 Buy atau <28 Sell), volume<0.8x, sesi "avoid", atau resistance/support terlalu dekat
-- entryQuality: at_zone jika <0.3% dari EMA/support, near_zone <1%, wait_pullback <2.5%, chase >2.5%`;
-
-  try {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: "Kamu adalah scalping AI engine. Kembalikan JSON valid tanpa teks tambahan." },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 500,
-      temperature: 0.2,
-    });
-
-    const raw = response.choices[0]?.message?.content ?? "{}";
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON found");
-
-    const parsed = JSON.parse(jsonMatch[0]) as AIScalpOutput;
-    if (typeof parsed.confidence !== "number") throw new Error("Invalid output");
-
-    logger.info({ symbol: input.symbol, side: parsed.side, confidence: parsed.confidence }, "AI scalp decision complete");
-    cache.set(cacheKey, parsed, 2 * 60 * 1000);
-    return parsed;
-  } catch (err) {
-    logger.error({ err, symbol: input.symbol }, "AI scalp decision failed");
-    return null;
-  }
-}
-
-// ─── AI Brain: Auto-Trading Filter ───────────────────────────────────────────
-
-export interface AITradingCandidate {
-  symbol: string;
-  price: number;
-  change24h: number;
-  volume24hUsdt: number;
-  side: "Buy" | "Sell";
-  ruleScore: number;
-}
-
-export interface AITradingDecision {
-  symbol: string;
-  side: "Buy" | "Sell";
-  confidence: number;
-  reason: string;
-  approved: boolean;
-  riskLevel: "low" | "medium" | "high";
-}
-
-export async function aiTradingFilter(
-  candidates: AITradingCandidate[],
-  currentPositions: string[],
-  maxPositions: number
-): Promise<AITradingDecision[]> {
-  if (candidates.length === 0) return [];
-
-  const cacheKey = `ai-trading-filter-${candidates.map(c => c.symbol).join("-").slice(0, 60)}-${Math.floor(Date.now() / 60_000)}`;
-  const cached = cache.get<AITradingDecision[]>(cacheKey);
-  if (cached) return cached;
-
-  const candidateStr = candidates.slice(0, 15).map(c =>
-    `${c.symbol}: ${c.side}, harga $${c.price.toFixed(4)}, chg24h=${c.change24h.toFixed(1)}%, vol=$${(c.volume24hUsdt / 1e6).toFixed(1)}M, skor=${c.ruleScore.toFixed(1)}`
-  ).join("\n");
-
-  const prompt = `Kamu adalah AI auto-trading engine. Evaluasi kandidat trading berikut dan pilih yang paling layak untuk dieksekusi.
-
-POSISI AKTIF SAAT INI: ${currentPositions.length > 0 ? currentPositions.join(", ") : "tidak ada"}
-SLOT TERSEDIA: ${Math.max(0, maxPositions - currentPositions.length)} dari ${maxPositions}
-
-KANDIDAT TRADING:
-${candidateStr}
-
-Kembalikan JSON array untuk SEMUA kandidat (approved=true jika layak trade, false jika ditolak):
-[
-  {
-    "symbol": "BTCUSDT",
-    "side": "Buy"|"Sell",
-    "confidence": 40-90,
-    "reason": "alasan_singkat_bahasa_indonesia",
-    "approved": true|false,
-    "riskLevel": "low"|"medium"|"high"
-  }
-]
-
-Kriteria approval:
-- Approved jika: volume tinggi >$10M, momentum kuat, belum di posisi aktif, perubahan signifikan >2%
-- Tolak jika: perubahan <1%, volume rendah, sudah ada di posisi aktif, atau sinyal lemah
-- Pilih max ${Math.max(0, maxPositions - currentPositions.length)} kandidat terbaik untuk approved=true
-- Prioritaskan: volume tinggi + momentum kuat + confidence tinggi`;
-
-  try {
-    const response = await client.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: "Kamu adalah auto-trading AI. Kembalikan JSON array valid tanpa teks tambahan." },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 800,
-      temperature: 0.2,
-    });
-
-    const raw = response.choices[0]?.message?.content ?? "[]";
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error("No JSON array");
-
-    const parsed = JSON.parse(jsonMatch[0]) as AITradingDecision[];
-    logger.info({ total: candidates.length, approved: parsed.filter(p => p.approved).length }, "AI trading filter complete");
-
-    cache.set(cacheKey, parsed, 60_000);
-    return parsed;
-  } catch (err) {
-    logger.error({ err }, "AI trading filter failed");
-    return [];
-  }
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helper ───────────────────────────────────────────────────────────────────
 
 function buildContextString(data: AnalysisRequest): string {
   const lines = [
@@ -442,10 +231,10 @@ function buildContextString(data: AnalysisRequest): string {
   if (data.priceChange7d != null) lines.push(`Perubahan 7d: ${data.priceChange7d >= 0 ? "+" : ""}${data.priceChange7d.toFixed(2)}%`);
   if (data.high24h != null) lines.push(`High 24h: ${data.high24h.toLocaleString()}`);
   if (data.low24h != null) lines.push(`Low 24h: ${data.low24h.toLocaleString()}`);
-  if (data.signal) lines.push(`Sinyal: ${data.signal.replace("_", " ").toUpperCase()}`);
-  if (data.confidence != null) lines.push(`Confidence: ${(data.confidence * 100).toFixed(0)}%`);
+  if (data.signal) lines.push(`Sinyal teknikal: ${data.signal.replace(/_/g, " ").toUpperCase()}`);
+  if (data.confidence != null) lines.push(`Confidence: ${data.confidence}%`);
   if (data.rsi != null) lines.push(`RSI: ${data.rsi.toFixed(1)}`);
-  if (data.macd) lines.push(`MACD: ${data.macd.bullish ? "Bullish" : "Bearish"} (hist: ${data.macd.histogram.toFixed(4)})`);
+  if (data.macd) lines.push(`MACD: ${data.macd.bullish ? "Bullish" : "Bearish"} (histogram: ${data.macd.histogram.toFixed(4)})`);
   if (data.marketCap != null) lines.push(`Market Cap: $${(data.marketCap / 1e9).toFixed(2)}B`);
   return lines.join("\n");
 }

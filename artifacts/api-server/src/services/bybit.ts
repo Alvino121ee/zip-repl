@@ -2,7 +2,6 @@ import crypto from "crypto";
 import { logger } from "../lib/logger.js";
 import { getCryptoPredictions } from "./predictions.js";
 import { analyzeSymbol } from "./analysis.js";
-import { aiTradingFilter } from "./ai.js";
 
 const BYBIT_BASE = "https://api.bybit.com";
 const API_KEY = process.env.BYBIT_API_KEY ?? "";
@@ -622,43 +621,6 @@ async function runAutoTradeCycle() {
     }
 
     engineStatus.lastSignalsFound = candidates.length;
-
-    // ── 1.5. AI Brain: Filter and rank candidates ────────────────────────────
-    if (candidates.length > 0) {
-      try {
-        const aiInputs = candidates.map((c) => ({
-          symbol: c.symbol,
-          price: c.price,
-          change24h: 0,
-          volume24hUsdt: 0,
-          side: c.side,
-          ruleScore: c.confidence,
-        }));
-
-        const posResult0 = await getPositions() as { list: { symbol: string; size: string }[] };
-        const activeNow = (posResult0.list ?? []).filter(p => parseFloat(p.size) > 0).map(p => p.symbol);
-
-        const aiDecisions = await aiTradingFilter(aiInputs, activeNow, autoConfig.maxPositions);
-        const aiApproved = new Set(aiDecisions.filter(d => d.approved).map(d => d.symbol));
-
-        if (aiApproved.size > 0) {
-          candidates = candidates.filter(c => aiApproved.has(c.symbol));
-          logger.info({ approved: aiApproved.size, total: aiDecisions.length }, "AI trading filter applied");
-
-          // Override confidence with AI confidence
-          for (const cand of candidates) {
-            const aiDec = aiDecisions.find(d => d.symbol === cand.symbol);
-            if (aiDec) cand.confidence = aiDec.confidence;
-          }
-        } else {
-          logger.info("AI approved no candidates — using top rule-based picks");
-          candidates = candidates.slice(0, 3);
-        }
-      } catch (err) {
-        logger.warn({ err }, "AI trading filter failed — using rule-based candidates");
-        candidates = candidates.slice(0, 5);
-      }
-    }
 
     // ── 2. Get current state ─────────────────────────────────────────────────
     const posResult = await getPositions() as {

@@ -1,5 +1,4 @@
 import { logger } from "../lib/logger.js";
-import { aiScalpDecision } from "./ai.js";
 
 const BYBIT_BASE = "https://api.bybit.com";
 
@@ -386,106 +385,65 @@ export async function analyzeScalp5m(symbol: string, displayName: string): Promi
   // RR too low
   if (!rrMet && riskReason === null) { isHighRisk = true; riskReason = `RR ${riskReward.toFixed(2)}x di bawah minimum 1.5x`; }
 
-  // ── AI Brain: Replace rule-based scoring with AI decision ───────────────────
-  const recentCandles = klines5m.slice(-10).map((k) => ({
-    o: k.open, h: k.high, l: k.low, c: k.close, v: k.volume,
-  }));
-
-  let aiResult = await aiScalpDecision({
-    symbol, displayName, price,
-    ema9: e9, ema21: e21, rsi14: rsiVal,
-    volumeRatio: volRatio,
-    trend15m,
-    crossoverType: crossover.type,
-    crossoverBarsAgo: crossover.barsAgo,
-    nearestSupport, nearestResistance,
-    sessionName: session.name,
-    sessionQuality: session.quality,
-    wibTime: session.wibTime,
-    recentCandles,
-  }).catch(() => null);
-
-  // Fall back to rule-based if AI fails
-  let aiSide = side;
-  let aiConfidence: number;
-  let aiStopLoss = stopLoss;
-  let aiTakeProfit = takeProfit;
-  let aiOptimalEntry = optimalEntry;
-  let aiEntryQuality = entryQuality;
-  let aiIsHighRisk = isHighRisk;
-  let aiRiskReason = riskReason;
+  // Risk level classification
   let riskLevel: "low" | "medium" | "high" | "extreme";
-  let reasons: string[];
-  let warnings: string[];
+  if (isHighRisk) riskLevel = "extreme";
+  else if (checksPassed === 7) riskLevel = "low";
+  else if (checksPassed >= 5) riskLevel = "medium";
+  else if (checksPassed >= 3) riskLevel = "high";
+  else riskLevel = "extreme";
 
-  if (aiResult) {
-    aiSide = aiResult.side;
-    aiConfidence = Math.min(99, Math.max(0, aiResult.confidence));
-    aiStopLoss = aiResult.stopLoss > 0 ? aiResult.stopLoss : stopLoss;
-    aiTakeProfit = aiResult.takeProfit > 0 ? aiResult.takeProfit : takeProfit;
-    aiOptimalEntry = aiResult.entryPrice > 0 ? aiResult.entryPrice : optimalEntry;
-    aiEntryQuality = aiResult.entryQuality;
-    aiIsHighRisk = aiResult.isHighRisk;
-    aiRiskReason = aiResult.riskReason;
-    reasons = aiResult.reasons.length > 0 ? aiResult.reasons : [`AI: ${aiSide ?? "tidak ada sinyal"}`];
-    warnings = aiResult.warnings;
-    riskLevel = aiIsHighRisk ? "extreme" : aiConfidence >= 70 ? "low" : aiConfidence >= 55 ? "medium" : "high";
-  } else {
-    // Fallback rule-based scoring
-    let score = 0;
-    if (emaCrossover) score += 25; else if (crossover.type !== "none") score += 10;
-    if (rsiInZone) score += 20;
-    if (volumeAboveAvg) score += 15;
-    if (tf15mAligned) score += 20;
-    if (rrMet) score += 10;
-    if (notOverboughtOversold) score += 10;
-    if (inTradingSession) score += 5;
-    aiConfidence = Math.min(99, score);
-    riskLevel = isHighRisk ? "extreme" : checksPassed === 7 ? "low" : checksPassed >= 5 ? "medium" : checksPassed >= 3 ? "high" : "extreme";
+  // Confidence score
+  let score = 0;
+  if (emaCrossover) score += 25;
+  else if (crossover.type !== "none") score += 10;
+  if (rsiInZone) score += 20;
+  if (volumeAboveAvg) score += 15;
+  if (tf15mAligned) score += 20;
+  if (rrMet) score += 10;
+  if (notOverboughtOversold) score += 10;
+  if (inTradingSession) score += 5;
+  const confidence = Math.min(99, score);
 
-    reasons = [];
-    warnings = [];
-    if (emaCrossover) reasons.push(`EMA9/21 ${crossover.type === "golden" ? "golden" : "death"} cross ${crossover.barsAgo === 0 ? "baru saja" : `${crossover.barsAgo} candle lalu`}`);
-    else if (e9 > e21) reasons.push(`EMA9 di atas EMA21 — bias ${side ?? "none"}`);
-    else reasons.push(`EMA9 di bawah EMA21 — bias SHORT`);
-    if (rsiInZone) reasons.push(`RSI ${rsiVal.toFixed(1)} di zona ideal`);
-    else if (rsiVal > 70) warnings.push(`RSI ${rsiVal.toFixed(1)} overbought`);
-    else if (rsiVal < 30) warnings.push(`RSI ${rsiVal.toFixed(1)} oversold`);
-    if (volumeAboveAvg) reasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata`);
-    else warnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%)`);
-    if (tf15mAligned) reasons.push(`TF 15M ${trend15m} — searah`);
-    else warnings.push(`TF 15M ${trend15m} — berlawanan`);
-    if (!rrMet) warnings.push(`RR ${riskReward.toFixed(2)}x di bawah 1.5x`);
-    else reasons.push(`RR ${riskReward.toFixed(2)}x — OK`);
-    if (!inTradingSession) warnings.push(`Sesi ${session.name} — kualitas rendah`);
-    else reasons.push(`Sesi ${session.name} — optimal`);
-  }
+  // Reasons & warnings
+  const reasons: string[] = [];
+  const warnings: string[] = [];
 
-  const finalRR = aiStopLoss > 0 ? Math.abs(aiTakeProfit - aiOptimalEntry) / Math.abs(aiOptimalEntry - aiStopLoss) : riskReward;
+  if (emaCrossover) reasons.push(`EMA9/21 ${crossover.type === "golden" ? "golden" : "death"} cross ${crossover.barsAgo === 0 ? "baru saja" : `${crossover.barsAgo} candle lalu`}`);
+  else if (e9 > e21) reasons.push(`EMA9 ($${e9.toFixed(4)}) di atas EMA21 ($${e21.toFixed(4)}) — bias ${side ?? "none"}`);
+  else reasons.push(`EMA9 ($${e9.toFixed(4)}) di bawah EMA21 ($${e21.toFixed(4)}) — bias SHORT`);
+
+  if (rsiInZone) reasons.push(`RSI ${rsiVal.toFixed(1)} di zona ideal ${side === "Buy" ? "(50–65)" : "(35–50)"}`);
+  else if (rsiVal > 70) warnings.push(`RSI ${rsiVal.toFixed(1)} overbought — hindari BUY baru`);
+  else if (rsiVal < 30) warnings.push(`RSI ${rsiVal.toFixed(1)} oversold — hindari SELL baru`);
+  else warnings.push(`RSI ${rsiVal.toFixed(1)} di luar zona ideal scalping`);
+
+  if (volumeAboveAvg) reasons.push(`Volume ${(volRatio * 100).toFixed(0)}% di atas rata-rata — sinyal valid`);
+  else warnings.push(`Volume rendah (${(volRatio * 100).toFixed(0)}%) — tunggu volume naik`);
+
+  if (tf15mAligned) reasons.push(`TF 15M ${trend15m} — searah dengan signal 5M`);
+  else warnings.push(`TF 15M ${trend15m} — tidak searah, filter aktif`);
+
+  if (!rrMet) warnings.push(`RR ${riskReward.toFixed(2)}x di bawah minimum 1.5x — skip trade ini`);
+  else reasons.push(`Risk/Reward ${riskReward.toFixed(2)}x — memenuhi standar`);
+
+  if (!inTradingSession) warnings.push(`Sesi ${session.name} — kualitas sinyal lebih rendah (terbaik: London/NY open)`);
+  else reasons.push(`Sesi ${session.name} — waktu terbaik untuk scalping`);
 
   const result: Scalp5mSignal = {
-    symbol, displayName,
-    side: aiSide,
-    confidence: aiConfidence,
-    entryPrice: price,
-    stopLoss: aiStopLoss,
-    takeProfit: aiTakeProfit,
-    riskReward: isNaN(finalRR) ? riskReward : finalRR,
+    symbol, displayName, side, confidence, entryPrice: price,
+    stopLoss, takeProfit, riskReward,
     ema9: e9, ema21: e21, rsi14: rsiVal, volumeRatio: volRatio,
     trend15m, crossoverType: crossover.type, crossoverBars: crossover.barsAgo,
     nearestSupport, nearestResistance,
     checklist, allChecksPassed,
-    optimalEntry: aiOptimalEntry,
-    entryQuality: aiEntryQuality,
-    riskLevel,
-    isHighRisk: aiIsHighRisk,
-    riskReason: aiRiskReason,
+    optimalEntry, entryQuality, riskLevel, isHighRisk, riskReason,
     session, analyzedAt: Date.now(),
     reasons, warnings,
   };
 
   cache5m.set(symbol, { data: result, at: Date.now() });
-  logger.info({ symbol, side: aiSide, confidence: aiConfidence, aiUsed: !!aiResult }, "5M AI scalp analysis complete");
+  logger.info({ symbol, side, confidence, allChecksPassed, crossover: crossover.type }, "5M scalp analysis complete");
   return result;
 }
 
