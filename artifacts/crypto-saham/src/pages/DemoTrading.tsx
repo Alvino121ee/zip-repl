@@ -96,6 +96,21 @@ interface BrainStats {
   }[];
 }
 
+interface BrainConfigRecommendation {
+  minConfidence: number;
+  maxPositionUSDT: number;
+  leverage: number;
+  stopLossPct: number;
+  takeProfitPct: number;
+  maxPositions: number;
+  scalpMinConfidence: number;
+  scalpMaxPositionUSDT: number;
+  reasoning: Record<string, string>;
+  riskLevel: "rendah" | "sedang" | "tinggi" | "ekstrем";
+  summary: string;
+  generatedAt: number;
+}
+
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 function fmt(n: number, dec = 2) {
@@ -855,6 +870,9 @@ export default function DemoTrading() {
   const [engineStatus, setEngineStatus] = useState<DemoEngineStatus | null>(null);
   const [scalpSignals, setScalpSignals] = useState<Scalp5mSignal[]>([]);
   const [brainStats, setBrainStats] = useState<BrainStats | null>(null);
+  const [aiMode, setAiMode] = useState(false);
+  const [aiRec, setAiRec] = useState<BrainConfigRecommendation | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const [loadingSignals, setLoadingSignals] = useState(false);
   const [executingId, setExecutingId] = useState<string | null>(null);
   const [mereset, setMereset] = useState(false);
@@ -912,6 +930,60 @@ export default function DemoTrading() {
       setConfig(newCfg);
     } catch (err: any) {
       toast({ title: "Gagal update konfigurasi", description: err.message, variant: "destructive" });
+    }
+  }
+
+  async function aktifkanModeAI(aktif: boolean) {
+    setAiMode(aktif);
+    if (!aktif) return;
+    setAiLoading(true);
+    try {
+      const rec = await apiFetch<BrainConfigRecommendation>("/api/ai/brain/recommend-config");
+      setAiRec(rec);
+      // Terapkan langsung ke konfigurasi
+      await updateConfig({
+        minConfidence: rec.minConfidence,
+        maxPositionUSDT: rec.maxPositionUSDT,
+        leverage: rec.leverage,
+        stopLossPct: rec.stopLossPct,
+        takeProfitPct: rec.takeProfitPct,
+        maxPositions: rec.maxPositions,
+        scalpMinConfidence: rec.scalpMinConfidence,
+        scalpMaxPositionUSDT: rec.scalpMaxPositionUSDT,
+      });
+      toast({
+        title: "🤖 Mode AI Aktif!",
+        description: `Brain mengatur semua parameter. Level risiko: ${rec.riskLevel.toUpperCase()}`,
+      });
+    } catch (err: any) {
+      toast({ title: "Gagal mengaktifkan Mode AI", description: err.message, variant: "destructive" });
+      setAiMode(false);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  async function segarkanAI() {
+    if (!aiMode) return;
+    setAiLoading(true);
+    try {
+      const rec = await apiFetch<BrainConfigRecommendation>("/api/ai/brain/recommend-config");
+      setAiRec(rec);
+      await updateConfig({
+        minConfidence: rec.minConfidence,
+        maxPositionUSDT: rec.maxPositionUSDT,
+        leverage: rec.leverage,
+        stopLossPct: rec.stopLossPct,
+        takeProfitPct: rec.takeProfitPct,
+        maxPositions: rec.maxPositions,
+        scalpMinConfidence: rec.scalpMinConfidence,
+        scalpMaxPositionUSDT: rec.scalpMaxPositionUSDT,
+      });
+      toast({ title: "✅ Konfigurasi AI diperbarui", description: "Brain telah menghitung ulang parameter optimal." });
+    } catch (err: any) {
+      toast({ title: "Gagal menyegarkan AI", description: err.message, variant: "destructive" });
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -1085,32 +1157,113 @@ export default function DemoTrading() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm"><span>Min Confidence</span><span className="font-bold text-primary">{config.minConfidence}%</span></div>
-                <Slider min={60} max={95} step={5} value={[config.minConfidence]} onValueChange={([v]) => updateConfig({ minConfidence: v })} />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm"><span>Posisi Per Trade</span><span className="font-bold text-primary">${config.maxPositionUSDT}</span></div>
-                <Slider min={100} max={2000} step={100} value={[config.maxPositionUSDT]} onValueChange={([v]) => updateConfig({ maxPositionUSDT: v })} />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm"><span>Leverage</span><span className="font-bold text-primary">{config.leverage}x</span></div>
-                <Slider min={1} max={20} step={1} value={[config.leverage]} onValueChange={([v]) => updateConfig({ leverage: v })} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs"><span>Stop Loss</span><span className="text-red-400 font-bold">{config.stopLossPct}%</span></div>
-                  <Slider min={0.5} max={5} step={0.5} value={[config.stopLossPct]} onValueChange={([v]) => updateConfig({ stopLossPct: v })} />
+              {/* ── Mode AI Penuh ─────────────────────────────────────── */}
+              <div className={`rounded-xl border p-3 space-y-3 transition-all ${
+                aiMode ? "border-purple-500/40 bg-purple-500/5" : "border-border bg-muted/10"
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Brain className={`h-4 w-4 ${aiMode ? "text-purple-400" : "text-muted-foreground"}`} />
+                    <div>
+                      <p className={`text-sm font-bold ${aiMode ? "text-purple-400" : "text-foreground"}`}>
+                        Mode AI Penuh
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {aiMode ? "Brain mengontrol semua parameter secara otomatis" : "Aktifkan agar Brain atur semua parameter sendiri"}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={aiMode}
+                    onCheckedChange={aktifkanModeAI}
+                    disabled={aiLoading}
+                  />
                 </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs"><span>Take Profit</span><span className="text-green-400 font-bold">{config.takeProfitPct}%</span></div>
-                  <Slider min={1} max={10} step={0.5} value={[config.takeProfitPct]} onValueChange={([v]) => updateConfig({ takeProfitPct: v })} />
+
+                {aiLoading && (
+                  <div className="flex items-center gap-2 text-xs text-purple-400">
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                    Brain sedang menghitung konfigurasi optimal...
+                  </div>
+                )}
+
+                {aiMode && aiRec && !aiLoading && (
+                  <div className="space-y-2">
+                    {/* Summary Brain */}
+                    <div className={`text-xs rounded-lg p-2.5 border ${
+                      aiRec.riskLevel === "rendah" ? "border-green-500/30 bg-green-500/10 text-green-400"
+                      : aiRec.riskLevel === "tinggi" ? "border-orange-500/30 bg-orange-500/10 text-orange-400"
+                      : aiRec.riskLevel === "ekstrем" ? "border-red-500/30 bg-red-500/10 text-red-400"
+                      : "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
+                    }`}>
+                      {aiRec.summary}
+                    </div>
+
+                    {/* Nilai-nilai yang dipilih AI */}
+                    {[
+                      { label: "Min Confidence", val: `${aiRec.minConfidence}%`, key: "minConfidence", warna: "text-primary" },
+                      { label: "Posisi Per Trade", val: `$${aiRec.maxPositionUSDT}`, key: "maxPositionUSDT", warna: "text-green-400" },
+                      { label: "Leverage", val: `${aiRec.leverage}x`, key: "leverage", warna: "text-yellow-400" },
+                      { label: "Stop Loss", val: `${aiRec.stopLossPct}%`, key: "stopLossPct", warna: "text-red-400" },
+                      { label: "Take Profit", val: `${aiRec.takeProfitPct}%`, key: "takeProfitPct", warna: "text-green-400" },
+                      { label: "Max Posisi", val: `${aiRec.maxPositions}`, key: "maxPositions", warna: "text-primary" },
+                    ].map(({ label, val, key, warna }) => (
+                      <div key={key} className="rounded-lg border border-border bg-background/50 p-2.5 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground font-medium">{label}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-sm font-bold ${warna}`}>{val}</span>
+                            <Badge className="text-[9px] px-1 py-0 h-4 bg-purple-500/20 text-purple-400 border-purple-500/30">AI</Badge>
+                          </div>
+                        </div>
+                        {aiRec.reasoning[key] && (
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">
+                            {aiRec.reasoning[key]}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+
+                    <Button variant="outline" size="sm" onClick={segarkanAI} disabled={aiLoading}
+                      className="w-full h-7 text-xs gap-1.5 border-purple-500/30 text-purple-400 hover:bg-purple-500/10">
+                      <RefreshCw className="h-3 w-3" /> Segarkan Rekomendasi AI
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Slider Manual (hanya tampil jika Mode AI nonaktif) */}
+              {!aiMode && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm"><span>Min Confidence</span><span className="font-bold text-primary">{config.minConfidence}%</span></div>
+                    <Slider min={60} max={95} step={5} value={[config.minConfidence]} onValueChange={([v]) => updateConfig({ minConfidence: v })} />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm"><span>Posisi Per Trade</span><span className="font-bold text-primary">${config.maxPositionUSDT}</span></div>
+                    <Slider min={100} max={2000} step={100} value={[config.maxPositionUSDT]} onValueChange={([v]) => updateConfig({ maxPositionUSDT: v })} />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm"><span>Leverage</span><span className="font-bold text-primary">{config.leverage}x</span></div>
+                    <Slider min={1} max={20} step={1} value={[config.leverage]} onValueChange={([v]) => updateConfig({ leverage: v })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs"><span>Stop Loss</span><span className="text-red-400 font-bold">{config.stopLossPct}%</span></div>
+                      <Slider min={0.5} max={5} step={0.5} value={[config.stopLossPct]} onValueChange={([v]) => updateConfig({ stopLossPct: v })} />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs"><span>Take Profit</span><span className="text-green-400 font-bold">{config.takeProfitPct}%</span></div>
+                      <Slider min={1} max={10} step={0.5} value={[config.takeProfitPct]} onValueChange={([v]) => updateConfig({ takeProfitPct: v })} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm"><span>Max Posisi</span><span className="font-bold text-primary">{config.maxPositions}</span></div>
+                    <Slider min={1} max={10} step={1} value={[config.maxPositions]} onValueChange={([v]) => updateConfig({ maxPositions: v })} />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm"><span>Max Posisi</span><span className="font-bold text-primary">{config.maxPositions}</span></div>
-                <Slider min={1} max={10} step={1} value={[config.maxPositions]} onValueChange={([v]) => updateConfig({ maxPositions: v })} />
-              </div>
+              )}
+
               {engineStatus.lastError && (
                 <div className="flex items-start gap-2 text-xs bg-red-950/20 border border-red-500/20 rounded-lg p-3">
                   <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />

@@ -904,6 +904,210 @@ export function getBrainMemory(): BrainMemory {
   return { ...memory };
 }
 
+// ─── Auto-Config Recommendation ───────────────────────────────────────────────
+
+export interface BrainConfigRecommendation {
+  minConfidence: number;
+  maxPositionUSDT: number;
+  leverage: number;
+  stopLossPct: number;
+  takeProfitPct: number;
+  maxPositions: number;
+  scalpMinConfidence: number;
+  scalpMaxPositionUSDT: number;
+  reasoning: Record<string, string>;
+  riskLevel: "rendah" | "sedang" | "tinggi" | "ekstrем";
+  summary: string;
+  generatedAt: number;
+}
+
+export function getBrainRecommendedConfig(): BrainConfigRecommendation {
+  const totalTrades = memory.totalWins + memory.totalLosses;
+  const winRate = totalTrades > 0 ? (memory.totalWins / totalTrades) * 100 : 50;
+  const consLoss = memory.consecutiveLosses;
+  const winStreak = memory.currentWinStreak;
+  const hasSufficientData = totalTrades >= 5;
+  const reasoning: Record<string, string> = {};
+
+  // ── 1. Min Confidence ──────────────────────────────────────────────────────
+  let minConfidence = 70;
+  if (!hasSufficientData) {
+    minConfidence = 72;
+    reasoning.minConfidence = "Data terbatas — Brain mulai konservatif di 72% untuk mengumpulkan sampel aman.";
+  } else if (consLoss >= 5) {
+    minConfidence = 88;
+    reasoning.minConfidence = `${consLoss}x loss berturut! Brain menaikkan ambang ke 88% — hanya sinyal terkuat yang boleh masuk.`;
+  } else if (consLoss >= 3) {
+    minConfidence = 83;
+    reasoning.minConfidence = `${consLoss}x loss berturut. Brain menaikkan threshold ke 83% untuk menyaring noise.`;
+  } else if (consLoss >= 1) {
+    minConfidence = 75;
+    reasoning.minConfidence = `${consLoss}x loss terakhir. Brain meminta sedikit lebih berhati-hati di 75%.`;
+  } else if (winRate > 70 && winStreak >= 4) {
+    minConfidence = 65;
+    reasoning.minConfidence = `Win rate ${winRate.toFixed(1)}% + streak ${winStreak}x! Brain lebih agresif, turunkan threshold ke 65%.`;
+  } else if (winRate > 60) {
+    minConfidence = 68;
+    reasoning.minConfidence = `Win rate sehat (${winRate.toFixed(1)}%). Brain menjaga threshold di 68% — balance antara kuantitas dan kualitas.`;
+  } else if (winRate < 45) {
+    minConfidence = 80;
+    reasoning.minConfidence = `Win rate rendah (${winRate.toFixed(1)}%). Brain menaikkan filter ke 80% — lebih selektif sampai performa membaik.`;
+  } else {
+    reasoning.minConfidence = `Win rate ${winRate.toFixed(1)}% normal. Threshold 70% optimal untuk kondisi saat ini.`;
+  }
+
+  // ── 2. Ukuran Posisi ───────────────────────────────────────────────────────
+  let maxPositionUSDT = 500;
+  if (!hasSufficientData) {
+    maxPositionUSDT = 200;
+    reasoning.maxPositionUSDT = "Fase belajar awal — Brain memulai dengan $200 per trade untuk meminimalkan risiko.";
+  } else if (consLoss >= 5) {
+    maxPositionUSDT = 100;
+    reasoning.maxPositionUSDT = `BAHAYA! ${consLoss}x loss berturut. Brain memotong posisi ke minimum $100 — modal harus dilindungi.`;
+  } else if (consLoss >= 3) {
+    maxPositionUSDT = 150;
+    reasoning.maxPositionUSDT = `${consLoss}x loss berturut. Brain kurangi posisi ke $150 — mode pemulihan.`;
+  } else if (consLoss >= 2) {
+    maxPositionUSDT = 250;
+    reasoning.maxPositionUSDT = `${consLoss}x loss berturut. Posisi dikurangi ke $250 — berhati-hati.`;
+  } else if (consLoss >= 1) {
+    maxPositionUSDT = 350;
+    reasoning.maxPositionUSDT = "1x loss terakhir. Kurangi sedikit ke $350 untuk menjaga disiplin.";
+  } else if (winRate > 70 && winStreak >= 5) {
+    maxPositionUSDT = 800;
+    reasoning.maxPositionUSDT = `Performa luar biasa! Win rate ${winRate.toFixed(1)}% + ${winStreak}x streak. Brain menaikkan posisi ke $800.`;
+  } else if (winRate > 65 && winStreak >= 3) {
+    maxPositionUSDT = 650;
+    reasoning.maxPositionUSDT = `Performa bagus! Brain menaikkan posisi ke $650 untuk memanfaatkan momentum.`;
+  } else if (winRate > 55) {
+    maxPositionUSDT = 500;
+    reasoning.maxPositionUSDT = `Win rate ${winRate.toFixed(1)}% — posisi standar $500 sudah optimal.`;
+  } else if (winRate < 40) {
+    maxPositionUSDT = 200;
+    reasoning.maxPositionUSDT = `Win rate rendah (${winRate.toFixed(1)}%). Brain kurangi eksposur ke $200 sampai performa membaik.`;
+  } else {
+    reasoning.maxPositionUSDT = "Kondisi normal — $500 per trade adalah balance risiko/reward yang tepat.";
+  }
+
+  // ── 3. Leverage ────────────────────────────────────────────────────────────
+  let leverage = 5;
+  // Cek kondisi pasar terbaik dari memory
+  const volatileStat = memory.conditionPerformance["volatile"];
+  const volatileWR = (volatileStat.wins + volatileStat.losses) > 0
+    ? volatileStat.wins / (volatileStat.wins + volatileStat.losses) : 0.5;
+  const marketVolatile = volatileWR < 0.4 && (volatileStat.wins + volatileStat.losses) >= 3;
+
+  if (consLoss >= 5) {
+    leverage = 2;
+    reasoning.leverage = `KRITIS! ${consLoss}x loss berturut. Brain turunkan leverage ke 2x — lindungi modal dari liquidasi.`;
+  } else if (consLoss >= 3) {
+    leverage = 3;
+    reasoning.leverage = `${consLoss}x loss berturut. Leverage diturunkan ke 3x untuk mengurangi tekanan.`;
+  } else if (consLoss >= 1) {
+    leverage = 4;
+    reasoning.leverage = "Loss terakhir — Brain prudent di leverage 4x.";
+  } else if (marketVolatile) {
+    leverage = 4;
+    reasoning.leverage = "Kondisi volatil terdeteksi dari histori. Brain membatasi leverage di 4x untuk keamanan.";
+  } else if (!hasSufficientData) {
+    leverage = 3;
+    reasoning.leverage = "Data terbatas — Brain konservatif di leverage 3x saat mengumpulkan data awal.";
+  } else if (winRate > 70 && winStreak >= 4) {
+    leverage = 8;
+    reasoning.leverage = `Performa puncak! Win rate ${winRate.toFixed(1)}% + ${winStreak}x streak. Brain berani di leverage 8x.`;
+  } else if (winRate > 60 && !consLoss) {
+    leverage = 6;
+    reasoning.leverage = `Win rate ${winRate.toFixed(1)}% dan tidak ada loss terakhir. Leverage 6x untuk memaksimalkan keuntungan.`;
+  } else if (winRate < 45) {
+    leverage = 3;
+    reasoning.leverage = `Win rate di bawah target (${winRate.toFixed(1)}%). Leverage dikurangi ke 3x.`;
+  } else {
+    reasoning.leverage = "Kondisi seimbang — leverage 5x adalah titik optimal antara profit dan risiko.";
+  }
+
+  // ── 4. Stop Loss ───────────────────────────────────────────────────────────
+  let stopLossPct = 1.5;
+  if (consLoss >= 3) {
+    stopLossPct = 1.0;
+    reasoning.stopLossPct = "Loss beruntun aktif. SL lebih ketat di 1% — potong kerugian lebih cepat.";
+  } else if (marketVolatile) {
+    stopLossPct = 2.0;
+    reasoning.stopLossPct = "Pasar volatil. SL diperlebar ke 2% agar tidak kena stop terlalu dini.";
+  } else if (winRate > 65 && !consLoss) {
+    stopLossPct = 1.0;
+    reasoning.stopLossPct = `Performa tinggi (${winRate.toFixed(1)}%). SL ketat 1% — posisi berkualitas tidak perlu ruang besar.`;
+  } else {
+    reasoning.stopLossPct = "Stop loss 1.5% memberikan ruang gerak cukup tanpa risiko berlebih.";
+  }
+
+  // ── 5. Take Profit ─────────────────────────────────────────────────────────
+  const takeProfitPct = parseFloat((stopLossPct * 2.0).toFixed(1));
+  // Minimal R:R 2:1
+
+  // ── 6. Max Posisi Bersamaan ────────────────────────────────────────────────
+  let maxPositions = 3;
+  if (consLoss >= 5) {
+    maxPositions = 1;
+    reasoning.maxPositions = `${consLoss}x loss berturut — Brain hanya izinkan 1 posisi aktif sekaligus!`;
+  } else if (consLoss >= 3) {
+    maxPositions = 1;
+    reasoning.maxPositions = `${consLoss}x loss berturut. Max 1 posisi aktif — fokus pada satu setup terbaik saja.`;
+  } else if (consLoss >= 2) {
+    maxPositions = 2;
+    reasoning.maxPositions = "2x loss berturut. Batasi ke 2 posisi aktif untuk mengurangi eksposur total.";
+  } else if (winRate > 65 && winStreak >= 3) {
+    maxPositions = 5;
+    reasoning.maxPositions = `Performa tinggi + streak ${winStreak}x. Brain izinkan 5 posisi bersamaan untuk diversifikasi.`;
+  } else if (winRate > 55) {
+    maxPositions = 4;
+    reasoning.maxPositions = "Performa cukup baik — 4 posisi bersamaan untuk diversifikasi portofolio.";
+  } else if (winRate < 45) {
+    maxPositions = 2;
+    reasoning.maxPositions = `Win rate di bawah target. Batasi ke 2 posisi saja untuk mengurangi eksposur.`;
+  } else {
+    reasoning.maxPositions = "3 posisi bersamaan adalah diversifikasi optimal — tidak terlalu fokus, tidak terlalu menyebar.";
+  }
+
+  // ── Scalp settings (lebih agresif, threshold lebih tinggi) ─────────────────
+  const scalpMinConfidence = Math.min(90, minConfidence + 8);
+  const scalpMaxPositionUSDT = Math.round(maxPositionUSDT * 0.6 / 50) * 50; // 60% dari posisi normal
+
+  // ── Risk Level ─────────────────────────────────────────────────────────────
+  let riskLevel: BrainConfigRecommendation["riskLevel"] = "sedang";
+  if (consLoss >= 4 || winRate < 35) riskLevel = "ekstrem";
+  else if (consLoss >= 2 || winRate < 45) riskLevel = "tinggi";
+  else if (winRate > 65 && !consLoss) riskLevel = "rendah";
+
+  // ── Summary ────────────────────────────────────────────────────────────────
+  const summaryLines: string[] = [];
+  if (totalTrades === 0) {
+    summaryLines.push("Konfigurasi awal — Brain belum punya cukup data. Mulai dengan setup konservatif.");
+  } else if (riskLevel === "ekstrem") {
+    summaryLines.push(`⚠️ Mode DARURAT! ${consLoss}x loss berturut atau win rate ${winRate.toFixed(1)}%. Brain memproteksi modal maksimal.`);
+  } else if (riskLevel === "tinggi") {
+    summaryLines.push(`🔴 Perlu perhatian — win rate ${winRate.toFixed(1)}%, ${consLoss}x loss terakhir. Brain berhati-hati.`);
+  } else if (riskLevel === "rendah") {
+    summaryLines.push(`🟢 Performa optimal! Win rate ${winRate.toFixed(1)}%, streak ${winStreak}x. Brain agresif untuk memaksimalkan profit.`);
+  } else {
+    summaryLines.push(`🟡 Kondisi normal — win rate ${winRate.toFixed(1)}%, ${totalTrades} trade dianalisis. Brain menjaga keseimbangan.`);
+  }
+
+  return {
+    minConfidence,
+    maxPositionUSDT,
+    leverage,
+    stopLossPct,
+    takeProfitPct,
+    maxPositions,
+    scalpMinConfidence,
+    scalpMaxPositionUSDT: Math.max(100, scalpMaxPositionUSDT),
+    reasoning,
+    riskLevel,
+    summary: summaryLines.join(" "),
+    generatedAt: Date.now(),
+  };
+}
+
 export function resetBrainMemory() {
   memory = createDefaultMemory();
   saveBrain();

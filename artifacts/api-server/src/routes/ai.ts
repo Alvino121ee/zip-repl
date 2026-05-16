@@ -4,6 +4,7 @@ import {
   generateAssetAnalysis,
   generateMarketSummary,
   getBrainStats,
+  getBrainRecommendedConfig,
   learnFromOutcome,
   adjustConfidence,
   isSymbolEligible,
@@ -69,6 +70,15 @@ router.get("/ai/brain/stats", (_req, res) => {
     res.json(getBrainStats());
   } catch (err) {
     res.status(500).json({ error: "Gagal mengambil statistik brain." });
+  }
+});
+
+// GET /api/ai/brain/recommend-config — Konfigurasi trading optimal dari Brain
+router.get("/ai/brain/recommend-config", (_req, res) => {
+  try {
+    res.json(getBrainRecommendedConfig());
+  } catch (err) {
+    res.status(500).json({ error: "Gagal membuat rekomendasi konfigurasi." });
   }
 });
 

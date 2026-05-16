@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "learningCycles": 2,
-  "totalPredictions": 2,
-  "totalWins": 0,
+  "learningCycles": 3,
+  "totalPredictions": 3,
+  "totalWins": 1,
   "totalLosses": 0,
-  "lastUpdated": 1778966882137,
+  "lastUpdated": 1778968419849,
   "indicatorStats": {
     "rsi_oversold": {
       "name": "RSI Oversold",
@@ -44,9 +44,9 @@
     },
     "volume_spike": {
       "name": "Volume Spike",
-      "correct": 0,
-      "total": 0,
-      "weight": 1
+      "correct": 1,
+      "total": 1,
+      "weight": 2
     },
     "bos_bullish": {
       "name": "Break of Structure Bullish",
@@ -143,6 +143,17 @@
       "lastTrade": 1778966882137,
       "consecutiveLosses": 0,
       "avoidUntil": null
+    },
+    "BTC": {
+      "symbol": "BTC",
+      "wins": 1,
+      "losses": 0,
+      "neutrals": 0,
+      "totalPnl": 15.89925925925926,
+      "avgConfidence": 78,
+      "lastTrade": 1778968419849,
+      "consecutiveLosses": 0,
+      "avoidUntil": null
     }
   },
   "conditionPerformance": {
@@ -162,7 +173,7 @@
       "neutrals": 2
     },
     "volatile": {
-      "wins": 0,
+      "wins": 1,
       "losses": 0,
       "neutrals": 0
     },
@@ -224,16 +235,30 @@
     },
     "rule-based-35-indicator": {
       "name": "rule-based-35-indicator",
-      "weight": 0.4,
-      "wins": 0,
+      "weight": 0.9333333333333333,
+      "wins": 1,
       "losses": 2,
-      "lastAdjusted": 1778966882137
+      "lastAdjusted": 1778968419849
     }
   },
   "mistakes": [],
-  "successPatterns": [],
+  "successPatterns": [
+    {
+      "id": "520381cb-c1cc-4a50-9971-3963f5db2ea2",
+      "timestamp": 1778968419850,
+      "symbol": "BTC",
+      "direction": "LONG",
+      "confidence": 78,
+      "priceDeltaPct": 15.89925925925926,
+      "indicatorsActive": [
+        "volume_spike"
+      ],
+      "condition": "volatile",
+      "usageCount": 1
+    }
+  ],
   "consecutiveLosses": 0,
   "maxDrawdownSeen": 0,
-  "bestWinStreak": 0,
-  "currentWinStreak": 0
+  "bestWinStreak": 1,
+  "currentWinStreak": 1
 }
