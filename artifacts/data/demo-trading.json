@@ -1,7 +1,7 @@
 {
-  "balance": 41.83437095050226,
+  "balance": 41.83148345050226,
   "realizedPnl": -8.09344154949774,
-  "totalFees": 0.1475146420335797,
+  "totalFees": 0.15040214203357968,
   "winCount": 44,
   "lossCount": 21,
   "positions": [
@@ -89,9 +89,62 @@
         "evalCount": 47,
         "urgency": 15
       }
+    },
+    {
+      "id": "bc330444-4909-4069-aa71-0941ca3bf0cf",
+      "symbol": "HYPEUSDT",
+      "displayName": "HYPE/USDT",
+      "side": "Buy",
+      "size": 0.11957635804578066,
+      "entryPrice": 43.905,
+      "markPrice": 43.905,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 43.40785714285715,
+      "takeProfit": 45.14785714285714,
+      "unrealisedPnl": 0,
+      "unrealisedPnlPct": 0,
+      "openedAt": 1779040527366,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.4789) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal",
+      "entryFee": 0.0028875000000000003
     }
   ],
   "log": [
+    {
+      "id": "c57b1642-b255-4a47-b018-a0ae2835a1c8",
+      "timestamp": 1779040527366,
+      "openedAt": 1779040527366,
+      "symbol": "HYPEUSDT",
+      "side": "Buy",
+      "qty": 0.11957635804578066,
+      "entryPrice": 43.905,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $43.9050 | Fee: -$0.0029",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.4789) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
     {
       "id": "4d300998-643d-4f27-b70f-5dfba1ac31ce",
       "timestamp": 1779040524960,
