@@ -1,50 +1,10 @@
 {
-  "balance": 41.28470262974367,
-  "realizedPnl": -8.620009870256332,
-  "totalFees": 0.19060349357217185,
-  "winCount": 48,
+  "balance": 41.34354812117049,
+  "realizedPnl": -8.55827687882951,
+  "totalFees": 0.1964140544009124,
+  "winCount": 49,
   "lossCount": 24,
   "positions": [
-    {
-      "id": "ef834db1-0853-4531-a808-a08350b2386f",
-      "symbol": "HYPEUSDT",
-      "displayName": "HYPE/USDT",
-      "side": "Buy",
-      "size": 0.11907191943934135,
-      "entryPrice": 44.091,
-      "markPrice": 44.581,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 44.2004991,
-      "takeProfit": 54.78063814285716,
-      "unrealisedPnl": 0.0583452405252775,
-      "unrealisedPnlPct": 1.1113379147671905,
-      "openedAt": 1779041742691,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.5869) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 44.637,
-      "humanInstinct": {
-        "lastEvalAt": 1779043401705,
-        "momentumScore": 100,
-        "continuationProb": 75,
-        "greedIndex": 0,
-        "decaySignals": [],
-        "action": "extend_target",
-        "reason": "🚀 Momentum sangat kuat (skor: 100) — Momentum sangat kuat (100) — target diperluas ke $54.7806",
-        "evalCount": 33,
-        "urgency": 30
-      },
-      "trailActivated": true
-    },
     {
       "id": "f27a5ac8-ca19-4d40-a2cf-70be6dd62227",
       "symbol": "QNTUSDT",
@@ -52,13 +12,13 @@
       "side": "Sell",
       "size": 0.06779442148760331,
       "entryPrice": 77.44,
-      "markPrice": 77.68,
+      "markPrice": 77.82,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 78.2144,
       "takeProfit": 75.50399999999999,
-      "unrealisedPnl": -0.016270661157025412,
-      "unrealisedPnlPct": -0.30991735537191256,
+      "unrealisedPnl": -0.02576188016528895,
+      "unrealisedPnlPct": -0.4907024793388371,
       "openedAt": 1779042751494,
       "source": "auto",
       "confidence": 99,
@@ -73,18 +33,18 @@
       "opportunityScore": 100,
       "trailPeakPrice": 77.44,
       "humanInstinct": {
-        "lastEvalAt": 1779043401842,
+        "lastEvalAt": 1779044030026,
         "momentumScore": 38,
         "continuationProb": 2,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume menurun 31% — tanda pelemahan",
+          "Volume menurun 43% — tanda pelemahan",
           "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 12,
+        "evalCount": 25,
         "urgency": 15
       }
     },
@@ -95,13 +55,13 @@
       "side": "Sell",
       "size": 137.94009458749343,
       "entryPrice": 0.03806,
-      "markPrice": 0.03789,
+      "markPrice": 0.03799,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.0384406,
       "takeProfit": 0.037108499999999996,
-      "unrealisedPnl": 0.02344981607987341,
-      "unrealisedPnlPct": 0.4466631634261602,
+      "unrealisedPnl": 0.009655806621123668,
+      "unrealisedPnlPct": 0.1839201261166413,
       "openedAt": 1779042994933,
       "source": "auto",
       "confidence": 99,
@@ -116,19 +76,123 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.03786,
       "humanInstinct": {
-        "lastEvalAt": 1779043361833,
-        "momentumScore": 100,
-        "continuationProb": 60,
+        "lastEvalAt": 1779044038098,
+        "momentumScore": 45,
+        "continuationProb": 11,
         "greedIndex": 0,
-        "decaySignals": [],
+        "decaySignals": [
+          "Volume turun 51% — momentum sangat lemah",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (60%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 6,
+        "reason": "⚡ Probabilitas kelanjutan rendah (11%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 20,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "ece2d0ee-5f9a-442a-870e-b496a8dd66d2",
+      "symbol": "SPACEUSDT",
+      "displayName": "SPACE/USDT",
+      "side": "Sell",
+      "size": 647.3489519112208,
+      "entryPrice": 0.00811,
+      "markPrice": 0.00812,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.008455535714285714,
+      "takeProfit": 0.007246160714285714,
+      "unrealisedPnl": -0.006473489519113067,
+      "unrealisedPnlPct": -0.12330456226882032,
+      "openedAt": 1779043612521,
+      "source": "auto",
+      "confidence": 91,
+      "signal": "institutional_short",
+      "openReason": "Volatil (Waspada) | OppScore:95 | Harga di bawah EMA20 ($0.0083) — momentum bearish; Harga di bawah VWAP ($0.0081) — sellers in control",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "volatile",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 95,
+      "trailPeakPrice": 0.008064,
+      "humanInstinct": {
+        "lastEvalAt": 1779044030231,
+        "momentumScore": 60,
+        "continuationProb": 27,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 7,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "8b66d889-a1bc-4665-bf6f-863322fb2056",
+      "timestamp": 1779043612521,
+      "openedAt": 1779043612521,
+      "symbol": "SPACEUSDT",
+      "side": "Sell",
+      "qty": 647.3489519112208,
+      "entryPrice": 0.00811,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 91,
+      "signal": "institutional_short",
+      "status": "opened",
+      "reason": "Demo SHORT dibuka @ $0.0081 | Fee: -$0.0029",
+      "openReason": "Volatil (Waspada) | OppScore:95 | Harga di bawah EMA20 ($0.0083) — momentum bearish; Harga di bawah VWAP ($0.0081) — sellers in control",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "volatile"
+    },
+    {
+      "id": "0617feca-6e4a-4353-a3e7-f1b40dfb3227",
+      "timestamp": 1779043593728,
+      "openedAt": 1779041742691,
+      "closedAt": 1779043593728,
+      "duration": 1851037,
+      "symbol": "HYPEUSDT",
+      "side": "Sell",
+      "qty": 0.11907191943934135,
+      "entryPrice": 44.091,
+      "closePrice": 44.634,
+      "realizedPnl": 0.06173299142682171,
+      "realizedPnlPct": 1.2315438524869005,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (27%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.5869) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.00581056082874056,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002923060828740559
+    },
     {
       "id": "871ac912-d489-4233-ad95-f00b378ee4c7",
       "timestamp": 1779042994933,
@@ -4541,6 +4605,10 @@
     {
       "timestamp": 1779042985676,
       "balance": 41.31508418036512
+    },
+    {
+      "timestamp": 1779043593728,
+      "balance": 41.3528662943301
     }
   ]
 }

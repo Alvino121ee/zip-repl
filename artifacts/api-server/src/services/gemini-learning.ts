@@ -11,9 +11,13 @@ import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
 import { manualTrain, getBrainStats, saveGroqAnswer } from "./ai-continuous-learning.js";
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY ?? "";
-const GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL   = "llama-3.3-70b-versatile";
+const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_SYSTEM_PROMPT = `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham Indonesia (IDX).
+Berikan jawaban yang mendalam, praktis, dan actionable dalam Bahasa Indonesia.
+Fokus pada pengetahuan trading yang bisa langsung diterapkan oleh trader Indonesia.
+Jawaban harus mencakup: penjelasan konsep, kapan/bagaimana menerapkannya, contoh konkret dengan angka spesifik, dan hal-hal yang harus dihindari.
+Panjang jawaban: 4-6 paragraf yang padat, informatif, dan kaya detail teknikal.`;
 
 const __dirname   = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR    = join(__dirname, "../../data");
@@ -90,6 +94,9 @@ export interface GeminiStatus {
   questionCount: number;
   totalUniqueQuestionsPool: number;
   usedHashesCount: number;
+  apiKeys: ApiKeyStatus[];
+  totalKeysConfigured: number;
+  activeKeysCount: number;
 }
 
 // ─── Pool Topik (14 skill × 12 topik = 168 topik unik) ──────────────────────
@@ -385,6 +392,202 @@ let continuousEnabled   = false;
 let persistedQuestionCount = _saved.questionCount;
 const usedHashes        = new Set<string>(_saved.usedHashes ?? []);
 
+// ─── Multi-Key Management ─────────────────────────────────────────────────────
+
+const KEYS_FILE = join(DATA_DIR, "groq-keys.json");
+const keyRateLimits = new Map<string, number>(); // key → cooldownUntil ms
+
+export interface ApiKeyStatus {
+  hint: string;
+  source: "env" | "stored";
+  status: "active" | "cooldown";
+  cooldownSec?: number;
+  index?: number; // index in stored array (for deletion)
+}
+
+function loadStoredKeys(): string[] {
+  try {
+    if (existsSync(KEYS_FILE))
+      return (JSON.parse(readFileSync(KEYS_FILE, "utf-8")) as { keys?: string[] }).keys?.filter(k => k.length > 10) ?? [];
+  } catch { /* ignore */ }
+  return [];
+}
+
+function saveStoredKeys(keys: string[]): void {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(KEYS_FILE, JSON.stringify({ keys }, null, 2), "utf-8");
+  } catch (e) { logger.warn("Failed to save groq-keys", { error: String(e) }); }
+}
+
+function getEnvKeys(): string[] {
+  return [
+    process.env.GROQ_API_KEY,
+    process.env.GROQ_API_KEY_2,
+    process.env.GROQ_API_KEY_3,
+    process.env.GROQ_API_KEY_4,
+    process.env.GROQ_API_KEY_5,
+  ].filter((k): k is string => Boolean(k) && k.length > 10);
+}
+
+function getAllApiKeys(): string[] {
+  return [...new Set([...getEnvKeys(), ...loadStoredKeys()])];
+}
+
+function maskKey(k: string): string {
+  return k.slice(0, 6) + "•••" + k.slice(-4);
+}
+
+function markRateLimited(key: string): void {
+  keyRateLimits.set(key, Date.now() + 65_000);
+  logger.warn("Groq key rate-limited — 65s cooldown", { key: maskKey(key) });
+}
+
+export function getApiKeyStatus(): ApiKeyStatus[] {
+  const now = Date.now();
+  const envKeys = getEnvKeys();
+  const storedKeys = loadStoredKeys();
+  const allKeys = [...new Set([...envKeys, ...storedKeys])];
+  return allKeys.map(key => {
+    const cooldownUntil = keyRateLimits.get(key) ?? 0;
+    const inCooldown = now < cooldownUntil;
+    const storedIdx = storedKeys.indexOf(key);
+    return {
+      hint: maskKey(key),
+      source: envKeys.includes(key) ? "env" : "stored",
+      status: inCooldown ? "cooldown" : "active",
+      ...(inCooldown ? { cooldownSec: Math.ceil((cooldownUntil - now) / 1000) } : {}),
+      ...(storedIdx >= 0 ? { index: storedIdx } : {}),
+    } as ApiKeyStatus;
+  });
+}
+
+export function addStoredKey(key: string): { ok: boolean; message: string } {
+  const k = key.trim();
+  if (k.length < 20) return { ok: false, message: "Key terlalu pendek" };
+  const stored = loadStoredKeys();
+  const all = getAllApiKeys();
+  if (all.includes(k)) return { ok: false, message: "Key sudah ada" };
+  if (stored.length >= 5) return { ok: false, message: "Maksimal 5 stored key" };
+  stored.push(k);
+  saveStoredKeys(stored);
+  logger.info("Groq key added", { key: maskKey(k) });
+  return { ok: true, message: `Key tersimpan: ${maskKey(k)}` };
+}
+
+export function removeStoredKey(index: number): { ok: boolean; message: string } {
+  const stored = loadStoredKeys();
+  if (index < 0 || index >= stored.length) return { ok: false, message: "Index tidak valid" };
+  const removed = stored.splice(index, 1)[0];
+  saveStoredKeys(stored);
+  return { ok: true, message: `Key ${maskKey(removed)} dihapus` };
+}
+
+// ─── Wikipedia Search + Extractive Summarizer (Fallback tanpa Groq) ───────────
+
+const WIKI_TERMS: Record<string, string> = {
+  patternRecognition:     "candlestick pattern technical analysis",
+  marketReading:          "market structure support resistance technical analysis",
+  trendAnalysis:          "moving average trading strategy MACD trend",
+  volumeAnalysis:         "volume analysis trading on-balance volume VWAP",
+  momentumReading:        "RSI relative strength index momentum divergence",
+  candlePsychology:       "candlestick chart Japanese candlestick pattern",
+  smartMoneyConceptSkill: "smart money concept institutional trading order block",
+  orderflowReading:       "order flow trading market microstructure footprint",
+  riskManagement:         "trading risk management position sizing stop loss",
+  emotionalDiscipline:    "trading psychology behavioral finance discipline",
+  patience:               "trading patience discipline overtrading prevention",
+  selectivity:            "trading strategy selective entry confluence setup",
+  adaptiveIntelligence:   "adaptive trading strategy backtesting algorithm",
+  predictionAccuracy:     "trading probability win rate expectancy system",
+};
+
+const TRADING_KW = [
+  "trading","trader","market","price","buy","sell","risk","profit","loss","stock",
+  "crypto","forex","support","resistance","trend","indicator","signal","strategy",
+  "analysis","pattern","volume","momentum","breakout","reversal","candle","chart",
+  "entry","exit","stop","target","position","portfolio","average","moving","index",
+];
+
+const SKILL_CAT: Record<string, string> = {
+  patternRecognition:"Pola Chart", marketReading:"Konsep Pasar", trendAnalysis:"Indikator Teknikal",
+  volumeAnalysis:"Indikator Teknikal", momentumReading:"Indikator Teknikal", candlePsychology:"Pola Chart",
+  smartMoneyConceptSkill:"Smart Money", orderflowReading:"Smart Money", riskManagement:"Manajemen Risiko",
+  emotionalDiscipline:"Psikologi Trading", patience:"Psikologi Trading", selectivity:"Strategi",
+  adaptiveIntelligence:"Strategi", predictionAccuracy:"Strategi",
+};
+
+async function searchWikipedia(query: string): Promise<{ title: string; extract: string } | null> {
+  try {
+    const s = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=3&format=json&origin=*`,
+      { signal: AbortSignal.timeout(9000) }
+    );
+    if (!s.ok) return null;
+    const [, titles] = await s.json() as [string, string[]];
+    if (!titles?.length) return null;
+
+    const r = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titles[0])}`,
+      { signal: AbortSignal.timeout(9000) }
+    );
+    if (!r.ok) return null;
+    const data = await r.json() as { title: string; extract?: string };
+    if (!data.extract || data.extract.length < 80) return null;
+    return { title: data.title, extract: data.extract };
+  } catch {
+    return null;
+  }
+}
+
+function extractiveSummarize(title: string, text: string, skill: string): string {
+  const sentences = text.replace(/\n+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length >= 40 && s.length <= 380);
+
+  const picked = sentences.length > 3
+    ? sentences
+        .map((s, idx) => ({
+          s, idx,
+          score: Math.max(0, 8 - idx * 0.5)
+            + TRADING_KW.filter(kw => s.toLowerCase().includes(kw)).length * 2.5
+            + (/\d/.test(s) ? 1.5 : 0)
+            + (s.length > 80 && s.length < 240 ? 1 : 0),
+        }))
+        .sort((a, b) => b.score - a.score).slice(0, 7)
+        .sort((a, b) => a.idx - b.idx)
+        .map(p => p.s)
+    : sentences;
+
+  const cat = SKILL_CAT[skill] ?? "Strategi";
+  return `[Sumber: Wikipedia — "${title}"] Kategori: ${cat}\n\n${picked.join(" ")}\n\n` +
+    `Catatan: Konten ini diekstrak otomatis dari Wikipedia karena semua Groq API key sedang cooldown. ` +
+    `Relevansi untuk trading diproses oleh sistem ekstraksi lokal.`;
+}
+
+async function learnFromWikipedia(skill: string, topic: string, category: string): Promise<{ answer: string; xp: number; grade: string }> {
+  const searchTerm = WIKI_TERMS[skill] ?? `${topic} trading`;
+  const article = await searchWikipedia(searchTerm);
+
+  let content: string;
+  if (article) {
+    content = extractiveSummarize(article.title, article.extract, skill);
+    logger.info("Wikipedia fallback learning", { skill, title: article.title });
+  } else {
+    const cat = SKILL_CAT[skill] ?? "Strategi";
+    content = `[Fallback Lokal] Kategori: ${cat}\n\n` +
+      `Konsep "${topic}" adalah area penting dalam ${cat} trading. ` +
+      `Pemahaman mendalam tentang konsep ini membantu trader membuat keputusan lebih baik. ` +
+      `Catatan: Wikipedia tidak dapat diakses saat ini, digunakan ringkasan lokal.`;
+    logger.info("Wikipedia unavailable, local fallback", { skill });
+  }
+
+  const trainResult = manualTrain(content);
+  saveGroqAnswer({ title: `[Wiki] ${topic.slice(0, 80)}`, category, skill, fullAnswer: content, xpGained: trainResult.xpGained });
+  return { answer: content, xp: trainResult.xpGained, grade: trainResult.grade };
+}
+
 // ─── Question Hash ────────────────────────────────────────────────────────────
 
 function makeHash(skill: string, topicIdx: number, angleIdx: number): string {
@@ -466,46 +669,74 @@ function generateQuestionsFromNeeds(count: number): Array<{ category: string; qu
   return questions.slice(0, count);
 }
 
-// ─── Groq API Call ────────────────────────────────────────────────────────────
+// ─── Groq API Call (multi-key rotation + rate-limit tracking) ────────────────
 
 async function callGroq(prompt: string): Promise<string> {
-  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY belum diset");
+  const allKeys = getAllApiKeys();
+  if (!allKeys.length) throw new Error("Tidak ada Groq API key — tambahkan minimal 1 key");
 
-  const resp = await fetch(GROQ_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham Indonesia (IDX).
-Berikan jawaban yang mendalam, praktis, dan actionable dalam Bahasa Indonesia.
-Fokus pada pengetahuan trading yang bisa langsung diterapkan oleh trader Indonesia.
-Jawaban harus mencakup: penjelasan konsep, kapan/bagaimana menerapkannya, contoh konkret dengan angka spesifik, dan hal-hal yang harus dihindari.
-Panjang jawaban: 4-6 paragraf yang padat, informatif, dan kaya detail teknikal.`,
-        },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.82,
-      max_tokens: 1200,
-      top_p: 0.95,
-    }),
-  });
+  const now = Date.now();
+  const available = allKeys.filter(k => (keyRateLimits.get(k) ?? 0) <= now);
 
-  if (!resp.ok) throw new Error(`Groq API error ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
-  const data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } };
-  if (data.error) throw new Error(data.error.message ?? "Unknown Groq error");
-  const text = data.choices?.[0]?.message?.content ?? "";
-  if (!text) throw new Error("Groq mengembalikan jawaban kosong");
-  return text.trim();
+  if (!available.length) {
+    // semua key sedang cooldown
+    throw new Error("ALL_KEYS_RATE_LIMITED");
+  }
+
+  for (const key of available) {
+    try {
+      const resp = await fetch(GROQ_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [
+            { role: "system", content: GROQ_SYSTEM_PROMPT },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.82,
+          max_tokens: 1200,
+          top_p: 0.95,
+        }),
+      });
+
+      if (resp.status === 429) {
+        markRateLimited(key);
+        logger.info("Groq key 429, mencoba key berikutnya", { key: maskKey(key) });
+        continue;
+      }
+
+      if (!resp.ok) throw new Error(`Groq error ${resp.status}: ${(await resp.text()).slice(0, 150)}`);
+
+      const data = (await resp.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        error?: { message?: string };
+      };
+      if (data.error) throw new Error(data.error.message ?? "Unknown Groq error");
+      const text = data.choices?.[0]?.message?.content ?? "";
+      if (!text) throw new Error("Groq mengembalikan jawaban kosong");
+
+      logger.info("Groq answered", { key: maskKey(key), chars: text.length });
+      return text.trim();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg === "ALL_KEYS_RATE_LIMITED") throw err;
+      if (msg.includes("429") || msg.toLowerCase().includes("rate")) {
+        markRateLimited(key);
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw new Error("ALL_KEYS_RATE_LIMITED");
 }
 
 // ─── Session Runner ───────────────────────────────────────────────────────────
 
 export async function runGeminiSession(questionCount = 5): Promise<GeminiSession> {
   if (currentSession?.status === "running") throw new Error("Sesi sedang berjalan");
-  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY belum dikonfigurasi");
+  if (!getAllApiKeys().length) throw new Error("Tidak ada Groq API key — tambahkan minimal 1 key");
 
   persistedQuestionCount = questionCount;
 
@@ -519,8 +750,9 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   currentSession = session;
 
   const focusCategories = [...new Set(questions.map(q => q.category))].join(", ");
+  const keyCount = getAllApiKeys().length;
   session.log.push({ timestamp: Date.now(), type: "info", category: "Sistem",
-    message: `🧠 Sesi #${totalSessionsRun + 1} dimulai — ${questionCount} pertanyaan unik via Groq (${GROQ_MODEL}) | Fokus: ${focusCategories}` });
+    message: `🧠 Sesi #${totalSessionsRun + 1} — ${questionCount} pertanyaan | ${keyCount} key aktif | Fallback: Wikipedia | Fokus: ${focusCategories}` });
 
   for (let i = 0; i < questions.length; i++) {
     const { category, question, skill, hash } = questions[i];
@@ -543,10 +775,30 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         message: `💾 Tersimpan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP | Skill: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
         xpGained: trainResult.xpGained, grade: trainResult.grade });
 
-      logger.info("Groq answer saved", { category, skill, grade: trainResult.grade, xp: trainResult.xpGained });
       await new Promise(r => setTimeout(r, 700));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+
+      if (msg === "ALL_KEYS_RATE_LIMITED") {
+        // ── Semua Groq key cooldown → fallback ke Wikipedia ──
+        session.log.push({ timestamp: Date.now(), type: "info", category,
+          message: `⚠️ Semua Groq key cooldown — beralih ke mode Wikipedia Search untuk topik ini...` });
+        try {
+          const wikiResult = await learnFromWikipedia(skill, question.slice(0, 80), category);
+          usedHashes.add(hash);
+          session.completedQuestions++;
+          session.totalXP += wikiResult.xp;
+          session.log.push({ timestamp: Date.now(), type: "save", category,
+            message: `📖 [Wikipedia Fallback] Grade ${wikiResult.grade}, +${wikiResult.xp} XP — Topik dipelajari dari Wikipedia`,
+            xpGained: wikiResult.xp, grade: wikiResult.grade });
+          await new Promise(r => setTimeout(r, 1500));
+        } catch (wikiErr) {
+          session.log.push({ timestamp: Date.now(), type: "error", category,
+            message: `❌ Wikipedia juga gagal: ${wikiErr instanceof Error ? wikiErr.message : String(wikiErr)}` });
+        }
+        continue;
+      }
+
       session.log.push({ timestamp: Date.now(), type: "error", category, message: `❌ Error: ${msg}` });
       logger.warn("Groq session error", { category, skill, error: msg });
       await new Promise(r => setTimeout(r, 2000));
@@ -649,8 +901,10 @@ if (_saved.continuousEnabled) {
 // ─── Status & Exports ─────────────────────────────────────────────────────────
 
 export function getGeminiStatus(): GeminiStatus {
+  const keys = getApiKeyStatus();
+  const now = Date.now();
   return {
-    hasApiKey: Boolean(GROQ_API_KEY),
+    hasApiKey: getAllApiKeys().length > 0,
     currentSession, lastSession, totalSessionsRun, totalXPEarned,
     autoEnabled, autoIntervalMinutes, nextAutoAt,
     continuousEnabled,
@@ -658,6 +912,9 @@ export function getGeminiStatus(): GeminiStatus {
     questionCount: persistedQuestionCount,
     totalUniqueQuestionsPool: getTotalPool(),
     usedHashesCount: usedHashes.size,
+    apiKeys: keys,
+    totalKeysConfigured: keys.length,
+    activeKeysCount: keys.filter(k => (keyRateLimits.get(getAllApiKeys().find(ak => maskKey(ak) === k.hint) ?? "") ?? 0) <= now).length,
   };
 }
 

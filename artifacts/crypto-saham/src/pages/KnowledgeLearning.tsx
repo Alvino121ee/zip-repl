@@ -92,6 +92,14 @@ interface GeminiSessionData {
   status: "idle" | "running" | "completed" | "error";
 }
 
+interface ApiKeyStatus {
+  hint: string;
+  source: "env" | "stored";
+  status: "active" | "cooldown";
+  cooldownSec?: number;
+  index?: number;
+}
+
 interface GeminiStatusData {
   hasApiKey: boolean;
   currentSession: GeminiSessionData | null;
@@ -104,6 +112,9 @@ interface GeminiStatusData {
   continuousEnabled: boolean;
   totalUniqueQuestionsPool: number;
   usedHashesCount: number;
+  apiKeys: ApiKeyStatus[];
+  totalKeysConfigured: number;
+  activeKeysCount: number;
 }
 
 // ─── Konstanta ────────────────────────────────────────────────────────────────
@@ -224,6 +235,8 @@ export default function KnowledgeLearning() {
   const [geminiRunning, setGeminiRunning] = useState(false);
   const [geminiQuestionCount, setGeminiQuestionCount] = useState(5);
   const [geminiAutoInterval, setGeminiAutoInterval] = useState(60);
+  const [newKeyInput, setNewKeyInput] = useState("");
+  const [keyLoading, setKeyLoading] = useState(false);
 
   const fetchBrain = useCallback(async () => {
     try {
@@ -347,6 +360,40 @@ export default function KnowledgeLearning() {
     } catch (err) {
       toast({ title: "Gagal", description: (err as Error).message, variant: "destructive" });
     }
+  };
+
+  const handleAddKey = async () => {
+    const k = newKeyInput.trim();
+    if (!k) return;
+    setKeyLoading(true);
+    try {
+      const res = await fetch(`${API}/api/gemini-learning/keys`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: k }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setNewKeyInput("");
+        await fetchGeminiStatus();
+        toast({ title: "✅ API Key Ditambahkan", description: data.message });
+      } else {
+        toast({ title: "Gagal", description: data.message, variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Gagal", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setKeyLoading(false);
+    }
+  };
+
+  const handleRemoveKey = async (index: number) => {
+    try {
+      const res = await fetch(`${API}/api/gemini-learning/keys/${index}`, { method: "DELETE" });
+      const data = await res.json();
+      await fetchGeminiStatus();
+      if (data.ok) toast({ title: "🗑 Key Dihapus", description: data.message });
+    } catch {}
   };
 
   const handleSubmit = async () => {
@@ -1176,6 +1223,86 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* ── Manajemen API Key ── */}
+          <Card className="border-slate-700/60">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-400" />
+                Manajemen Groq API Key
+                <span className="ml-auto text-xs text-muted-foreground font-normal">
+                  Maks. 5 key • Rotasi otomatis jika rate limit
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Cara kerja */}
+              <div className="rounded-lg bg-slate-800/50 border border-slate-700/40 p-3 text-[11px] text-muted-foreground leading-relaxed space-y-0.5">
+                <p>🔑 <span className="text-slate-300 font-medium">Key 1 rate limit</span> → otomatis coba Key 2, 3, 4, 5</p>
+                <p>📖 <span className="text-slate-300 font-medium">Semua key cooldown</span> → fallback ke <span className="text-blue-400">Wikipedia Search</span> + ringkas sendiri tanpa Groq</p>
+                <p>✅ Key dari <span className="text-emerald-400">Secrets</span> (env) terbaca otomatis. Key tambahan disimpan di server.</p>
+              </div>
+
+              {/* Daftar key yang ada */}
+              {(geminiStatus?.apiKeys?.length ?? 0) > 0 ? (
+                <div className="space-y-1.5">
+                  {geminiStatus!.apiKeys.map((k, i) => (
+                    <div key={i} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-[11px] ${
+                      k.status === "active"
+                        ? "bg-emerald-500/8 border-emerald-500/20"
+                        : "bg-orange-500/8 border-orange-500/20"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${k.status === "active" ? "bg-emerald-400" : "bg-orange-400 animate-pulse"}`} />
+                      <span className="font-mono text-slate-300 flex-1">{k.hint}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] ${k.source === "env" ? "bg-blue-500/15 text-blue-400" : "bg-slate-600/50 text-slate-400"}`}>
+                        {k.source === "env" ? "Secrets" : "Tersimpan"}
+                      </span>
+                      {k.status === "cooldown" && (
+                        <span className="text-orange-400 text-[10px]">cooldown {k.cooldownSec}dtk</span>
+                      )}
+                      {k.status === "active" && <span className="text-emerald-400 text-[10px]">Aktif</span>}
+                      {k.source === "stored" && k.index !== undefined && (
+                        <button
+                          onClick={() => handleRemoveKey(k.index!)}
+                          className="ml-1 text-red-400/60 hover:text-red-400 transition-colors text-[11px] px-1"
+                          title="Hapus key ini"
+                        >✕</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-2 text-xs text-muted-foreground">
+                  Belum ada key terkonfigurasi — tambahkan di bawah atau via Secrets
+                </div>
+              )}
+
+              {/* Tambah key baru */}
+              {(geminiStatus?.apiKeys?.length ?? 0) < 5 && (
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    placeholder="Masukkan Groq API key (gsk_...)"
+                    value={newKeyInput}
+                    onChange={e => setNewKeyInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleAddKey()}
+                    className="flex-1 text-xs px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleAddKey}
+                    disabled={keyLoading || !newKeyInput.trim()}
+                    className="bg-violet-600 hover:bg-violet-500 text-white text-xs shrink-0"
+                  >
+                    {keyLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : "+ Simpan"}
+                  </Button>
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                Dapatkan API key gratis di <span className="text-violet-400">console.groq.com</span> — buat beberapa akun untuk mendapat lebih banyak key
+              </p>
             </CardContent>
           </Card>
 

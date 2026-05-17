@@ -7,6 +7,9 @@ import {
   stopContinuousMode,
   isContinuousActive,
   getGeminiStatus,
+  getApiKeyStatus,
+  addStoredKey,
+  removeStoredKey,
   getAvailableTopics,
   getTotalQuestions,
   getSkillNeeds,
@@ -24,6 +27,26 @@ router.get("/gemini-learning/topics", (_req, res) => {
 
 router.get("/gemini-learning/skill-needs", (_req, res) => {
   res.json({ skills: getSkillNeeds() });
+});
+
+router.get("/gemini-learning/keys", (_req, res) => {
+  res.json({ keys: getApiKeyStatus() });
+});
+
+router.post("/gemini-learning/keys", (req, res) => {
+  const { key } = (req.body ?? {}) as { key?: string };
+  if (!key?.trim()) {
+    res.status(400).json({ ok: false, message: "Key tidak boleh kosong" });
+    return;
+  }
+  const result = addStoredKey(key.trim());
+  res.status(result.ok ? 200 : 400).json(result);
+});
+
+router.delete("/gemini-learning/keys/:index", (req, res) => {
+  const index = parseInt(req.params.index ?? "-1", 10);
+  const result = removeStoredKey(index);
+  res.status(result.ok ? 200 : 400).json(result);
 });
 
 router.post("/gemini-learning/session", async (req, res) => {
@@ -58,7 +81,7 @@ router.post("/gemini-learning/continuous/start", (req, res) => {
     return;
   }
   startContinuousMode(count).catch(() => {});
-  res.json({ started: true, message: `Mode belajar berkelanjutan dimulai — terus jalan sampai dimatikan (${count} pertanyaan/sesi)` });
+  res.json({ started: true, message: `Mode belajar berkelanjutan dimulai (${count} pertanyaan/sesi)` });
 });
 
 router.post("/gemini-learning/continuous/stop", (_req, res) => {
