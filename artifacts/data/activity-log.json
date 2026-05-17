@@ -1,5 +1,111 @@
 [
   {
+    "id": "5c5824f3-e44e-4885-8dbd-6b88b5255306",
+    "timestamp": 1779035203018,
+    "source": "demo",
+    "level": "info",
+    "message": "C3 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "9383991f-9697-4511-a221-9c09f8ee7590",
+    "timestamp": 1779035203018,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "efd8b1bf-f6b2-4165-840c-ec9b0f9e6442",
+    "timestamp": 1779035200899,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "791048e5-e688-44d5-a1df-3402465aa8bb",
+    "timestamp": 1779035183552,
+    "source": "demo",
+    "level": "success",
+    "message": "C2 · pindai:20 · kandidat:18 · skip:7 · BUKA:2 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ec455874-6d3f-43de-8396-82f89632d13d",
+    "timestamp": 1779035183552,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG KAITOUSDT @ $0.4992 | 99% | Tren Naik Kuat ↑↑ | TP:$0.5374 SL:$0.4839 | RR:2.5x",
+    "symbol": "KAITOUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "312f5473-3363-4fbc-ada8-32b58d0f9d66",
+    "timestamp": 1779035182346,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG SPACEUSDT @ $0.0084 | 99% | Tren Naik Kuat ↑↑ | TP:$0.0094 SL:$0.0080 | RR:2.5x",
+    "symbol": "SPACEUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "e69b564d-fb22-4743-abcf-6a5414b60744",
+    "timestamp": 1779035180897,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "6de0f205-8c8c-48b1-978b-2d96bc1a0ac6",
+    "timestamp": 1779035169267,
+    "source": "demo",
+    "level": "info",
+    "message": "↩ EXIT LONG KAITOUSDT @ $0.4988 | PnL: $+0.05 (+0.95%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+    "symbol": "KAITOUSDT"
+  },
+  {
+    "id": "83f2a64e-0843-4ac1-8bd9-e8d9006472a6",
+    "timestamp": 1779035169265,
+    "source": "demo",
+    "level": "success",
+    "message": "🧠 INSTINCT EXIT LONG KAITOUSDT @ $0.4988 | Profit: +0.95% | 📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+    "symbol": "KAITOUSDT"
+  },
+  {
+    "id": "f672f806-aa11-4535-a6b8-605573a99b61",
+    "timestamp": 1779035169128,
+    "source": "demo",
+    "level": "info",
+    "message": "↩ EXIT LONG SPACEUSDT @ $0.0084 | PnL: $+0.03 (+0.62%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+    "symbol": "SPACEUSDT"
+  },
+  {
+    "id": "95f80fa6-e0b2-4cd7-a6a4-31e0471b883a",
+    "timestamp": 1779035169126,
+    "source": "demo",
+    "level": "success",
+    "message": "🧠 INSTINCT EXIT LONG SPACEUSDT @ $0.0084 | Profit: +0.62% | 📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+    "symbol": "SPACEUSDT"
+  },
+  {
+    "id": "7f411d28-5496-4080-9eaf-7573062ffe16",
+    "timestamp": 1779035162597,
+    "source": "demo",
+    "level": "info",
+    "message": "C1 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "e5c84d58-10c2-4b20-9cc9-61357ad9c65f",
+    "timestamp": 1779035162597,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "4558901d-2066-452a-943c-a7deaa525aa2",
+    "timestamp": 1779035161166,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
     "id": "b703da2b-5181-4d98-8a63-5a003b0ba305",
     "timestamp": 1779034943026,
     "source": "demo",
@@ -4563,114 +4669,5 @@
     "level": "error",
     "message": "✕ Gagal membuka posisi VVVUSDT: Error: Bybit: ab not enough for new order (110007)",
     "symbol": "VVVUSDT"
-  },
-  {
-    "id": "0dccd6fc-0597-450c-90d8-8f73e47cea8e",
-    "timestamp": 1779027422923,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG VVVUSDT @ $14.3000 (confidence: 99% | Market)",
-    "symbol": "VVVUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "3eea9798-2711-4c80-864e-3358ffcc8396",
-    "timestamp": 1779027422922,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi TAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "b5c56216-3dd7-4c36-82d7-15067153f5b0",
-    "timestamp": 1779027422846,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG TAUSDT @ $0.0623 (confidence: 99% | Market)",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "45631d74-d3c7-4d20-817c-ed94f8292725",
-    "timestamp": 1779027422201,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG TAUSDT @ $0.0623 | 99% | Tren Naik ↑ | TP:$0.0647 SL:$0.0614 | RR:2.5x",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "1fd20d6e-21bb-4a65-9a73-9d1675c8a455",
-    "timestamp": 1779027419900,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG TAUSDT @ $0.0624 | PnL: $+0.03 (+0.52%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "823f738a-fc3e-4cf9-b216-2743cbe1febd",
-    "timestamp": 1779027419889,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG TAUSDT @ $0.0624 | Profit: +0.52% | 📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "f7b9a23c-2153-475d-bc56-b1ad1e23ad56",
-    "timestamp": 1779027419646,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "44c49e85-97bd-4c19-8bfa-74cba60e79db",
-    "timestamp": 1779027411810,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG OPENUSDT @ $0.1864 | PnL: $+0.03 (+0.62%) | [Instinct Exit] ⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 38% — tanda pelemahan",
-    "symbol": "OPENUSDT"
-  },
-  {
-    "id": "ca944dfe-b650-4baa-98de-fcb7657c5119",
-    "timestamp": 1779027411799,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG OPENUSDT @ $0.1864 | Profit: +0.62% | ⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 38% — tanda pelemahan",
-    "symbol": "OPENUSDT"
-  },
-  {
-    "id": "77ea90d8-a30b-41be-bf22-d4582f7c1989",
-    "timestamp": 1779027400027,
-    "source": "demo",
-    "level": "info",
-    "message": "C26 · pindai:20 · kandidat:16 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "1a9713d9-e61c-433a-8d3a-da2ace6ad59d",
-    "timestamp": 1779027400026,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "ca8c8837-121c-4cc6-a86d-4e4e037ccf34",
-    "timestamp": 1779027399644,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "2edec916-4c30-4ce6-b926-d001ae963687",
-    "timestamp": 1779027380673,
-    "source": "demo",
-    "level": "info",
-    "message": "C25 · pindai:20 · kandidat:16 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "5a3ae031-865b-4224-a457-b634a976902b",
-    "timestamp": 1779027380673,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
   }
 ]

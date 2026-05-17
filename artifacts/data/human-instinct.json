@@ -1,15 +1,55 @@
 {
-  "totalDecisions": 32,
-  "correctEarlyExits": 32,
+  "totalDecisions": 34,
+  "correctEarlyExits": 34,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.0625,
-  "avgContinuationProbAtExit": 14.25,
+  "avgMomentumAtEarlyExit": 45.411764705882355,
+  "avgContinuationProbAtExit": 13.911764705882353,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "0f678e3a-c156-4222-a409-563644d001c5",
+      "tradeId": "dddd628b-b3bc-4458-9eb9-7af2c17e4c67",
+      "symbol": "KAITOUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.9512244484922158,
+      "momentumScore": 35,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 55% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779035169264,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.9512244484922158,
+      "profitDelta": 0
+    },
+    {
+      "id": "0b77e49f-1629-4a16-9883-f466f2ccb660",
+      "tradeId": "a5671f4e-4e4a-4bae-8df6-b34b6eb5c927",
+      "symbol": "SPACEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6214149139579345,
+      "momentumScore": 35,
+      "continuationProb": 12,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 54% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779035169125,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6214149139579345,
+      "profitDelta": 0
+    },
     {
       "id": "b12a7175-5ecb-42f5-8334-c7fad71f0103",
       "tradeId": "7f437b4f-c5a6-46a8-b5f8-5e5b87f0ed8d",
@@ -654,5 +694,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779034750256
+  "lastUpdated": 1779035169266
 }
