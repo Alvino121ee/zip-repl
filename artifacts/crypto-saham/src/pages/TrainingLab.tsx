@@ -95,6 +95,24 @@ interface AiBrainStats {
   lastSnapshotAt: number | null;
 }
 
+interface AiAdaptiveConfig {
+  confidenceThreshold: number;
+  tpPct: number;
+  slPct: number;
+  maxHoldBars: number;
+  volMultiplier: number;
+  rsiBullMin: number;
+  rsiBearMax: number;
+  rsiOverbought: number;
+  rsiOversold: number;
+  cooldownEntry: number;
+  cooldownExit: number;
+  smcBoost: number;
+  macdSensitivity: number;
+  description: string;
+  skills: Record<string, number>;
+}
+
 interface MemoryBank {
   bestSetups: MemoryEntry[];
   worstSetups: MemoryEntry[];
@@ -221,6 +239,8 @@ export default function TrainingLab() {
   const [memory, setMemory]       = useState<MemoryBank | null>(null);
   const [labState, setLabState]   = useState<LabState | null>(null);
   const [comparison, setComparison] = useState<Record<string, { winRate: number; sharpe: number; pf: number; trades: number }>>({});
+  const [aiConfig, setAiConfig]   = useState<AiAdaptiveConfig | null>(null);
+  const [aiAuto, setAiAuto]       = useState(true);
   const [activeTab, setActiveTab] = useState<"kecerdasan" | "live" | "memori" | "backtest" | "evolusi" | "ajar">("live");
   const [memoryTab, setMemoryTab] = useState<"learnedPatterns" | "bestSetups" | "worstSetups" | "dangerousConditions">("learnedPatterns");
   const [selectedPairs, setSelectedPairs]         = useState<string[]>(["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT"]);
@@ -262,20 +282,26 @@ export default function TrainingLab() {
   const fetchComp   = useCallback(async () => {
     try { const r = await fetch(`${API}/api/training-lab/comparison`); if (r.ok) setComparison(await r.json()); } catch {}
   }, []);
+  const fetchAiConfig = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/ai-config`); if (r.ok) setAiConfig(await r.json()); } catch {}
+  }, []);
 
   useEffect(() => {
-    fetchBrain(); fetchMemory(); fetchLab(); fetchComp();
-  }, [fetchBrain, fetchMemory, fetchLab, fetchComp]);
+    fetchBrain(); fetchMemory(); fetchLab(); fetchComp(); fetchAiConfig();
+  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, fetchAiConfig]);
 
   useEffect(() => {
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(() => {
       fetchBrain();
       if (activeTab === "memori") fetchMemory();
-      if (activeTab === "backtest") { fetchLab(); if (!labState?.isRunning) fetchComp(); }
+      if (activeTab === "backtest") {
+        fetchLab(); fetchAiConfig();
+        if (!labState?.isRunning) fetchComp();
+      }
     }, 2500);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, activeTab, labState?.isRunning]);
+  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, fetchAiConfig, activeTab, labState?.isRunning]);
 
   // Pulse animation saat belajar
   useEffect(() => {
@@ -333,16 +359,24 @@ export default function TrainingLab() {
   };
 
   const handleStartBacktest = async () => {
-    if (selectedPairs.length === 0 || selectedStrategies.length === 0) {
-      toast({ title: "Pilih minimal 1 pair dan 1 strategi", variant: "destructive" }); return;
+    if (selectedPairs.length === 0) {
+      toast({ title: "Pilih minimal 1 pair", variant: "destructive" }); return;
     }
+    if (!aiAuto && selectedStrategies.length === 0) {
+      toast({ title: "Pilih minimal 1 strategi atau aktifkan AI Auto", variant: "destructive" }); return;
+    }
+    const body = aiAuto
+      ? { pairs: selectedPairs, aiAuto: true }
+      : { pairs: selectedPairs, strategies: selectedStrategies, aiAuto: false };
+
     const res = await fetch(`${API}/api/training-lab/start`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pairs: selectedPairs, strategies: selectedStrategies }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
-      toast({ title: "Backtest dimulai!", description: `${selectedPairs.length} pair × ${selectedStrategies.length} strategi` });
-      setTimeout(fetchLab, 500);
+      const data = await res.json();
+      toast({ title: "Backtest dimulai!", description: data.message ?? "" });
+      setTimeout(() => { fetchLab(); fetchAiConfig(); }, 500);
     } else {
       const err = await res.json();
       toast({ title: err.error ?? "Gagal memulai", variant: "destructive" });
@@ -1206,6 +1240,65 @@ export default function TrainingLab() {
       ══════════════════════════════════════════════════════════ */}
       {activeTab === "backtest" && (
         <div className="space-y-4">
+
+          {/* ── Panel Konfigurasi AI Adaptif ── */}
+          {aiConfig && (
+            <Card className="border-violet-500/30 bg-violet-500/5">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <BrainCircuit className="w-4 h-4 text-violet-400" />
+                  <span className="text-sm font-bold text-violet-300">Parameter Strategi Adaptif AI</span>
+                  <Badge variant="outline" className="ml-auto text-[10px] border-violet-500/40 text-violet-300">
+                    IQ {brain?.iq ?? "–"} · {brain?.level ?? ""}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">{aiConfig.description}</p>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {[
+                    { label: "Min Confidence", value: `${aiConfig.confidenceThreshold}%`, icon: "🎯", hint: "Skill: Pengenalan Pola" },
+                    { label: "Take Profit",    value: `${aiConfig.tpPct}%`,              icon: "💰", hint: "Skill: Manajemen Risiko" },
+                    { label: "Stop Loss",      value: `${aiConfig.slPct}%`,              icon: "🛡️", hint: "Skill: Manajemen Risiko" },
+                    { label: "Hold Maks",      value: `${aiConfig.maxHoldBars} bar`,     icon: "⏳", hint: "Skill: Kesabaran" },
+                    { label: "Filter Volume",  value: `×${aiConfig.volMultiplier}`,      icon: "📊", hint: "Skill: Analisis Volume" },
+                    { label: "SMC Boost",      value: `+${aiConfig.smcBoost}`,           icon: "🏦", hint: "Skill: Smart Money" },
+                  ].map(p => (
+                    <div key={p.label} className="bg-slate-800/60 rounded-lg p-2 text-center" title={p.hint}>
+                      <div className="text-base">{p.icon}</div>
+                      <div className="text-xs font-bold text-violet-300 mt-0.5">{p.value}</div>
+                      <div className="text-[9px] text-muted-foreground leading-tight mt-0.5">{p.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+                  <span className="bg-slate-800 px-2 py-0.5 rounded">RSI Bull &gt;{aiConfig.rsiBullMin} | Bear &lt;{aiConfig.rsiBearMax}</span>
+                  <span className="bg-slate-800 px-2 py-0.5 rounded">Reversal OB≥{aiConfig.rsiOverbought} | OS≤{aiConfig.rsiOversold}</span>
+                  <span className="bg-slate-800 px-2 py-0.5 rounded">Cooldown Entry {aiConfig.cooldownEntry} | Exit {aiConfig.cooldownExit} bar</span>
+                  <span className="bg-slate-800 px-2 py-0.5 rounded">RR {(aiConfig.tpPct / aiConfig.slPct).toFixed(1)}:1</span>
+                </div>
+
+                {/* Toggle AI Auto */}
+                <div className="mt-3 flex items-center gap-3 border-t border-violet-500/20 pt-3">
+                  <button
+                    onClick={() => setAiAuto(v => !v)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${aiAuto ? "bg-violet-600" : "bg-slate-600"}`}
+                  >
+                    <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${aiAuto ? "translate-x-4" : "translate-x-1"}`} />
+                  </button>
+                  <div>
+                    <div className="text-xs font-semibold text-violet-300">
+                      {aiAuto ? "🧠 AI Pilih Strategi Otomatis" : "👤 Strategi Dipilih Manual"}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {aiAuto
+                        ? "AI memilih sendiri strategi yang paling cocok dengan skill-nya sekarang"
+                        : "Pilih strategi secara manual di panel di bawah"}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Progress */}
           {labState?.isRunning && (
             <Card className="border-blue-500/30 bg-blue-500/5">

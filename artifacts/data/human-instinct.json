@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 10,
-  "correctEarlyExits": 10,
+  "totalDecisions": 11,
+  "correctEarlyExits": 11,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 41.9,
-  "avgContinuationProbAtExit": 12.8,
+  "avgMomentumAtEarlyExit": 43.63636363636363,
+  "avgContinuationProbAtExit": 14.181818181818182,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "4462223b-8ea3-4b62-b387-6a385e8cd6bf",
+      "tradeId": "4f859350-f0e8-4721-bb26-3b0bd9711e1b",
+      "symbol": "NAORISUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6139534883720938,
+      "momentumScore": 61,
+      "continuationProb": 28,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Potensi fake breakout ke atas — harga kembali di bawah resistance"
+      ],
+      "timestamp": 1779020832253,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6139534883720938,
+      "profitDelta": 0
+    },
     {
       "id": "9b996deb-2d51-4dc7-a91c-bb7daf90c78b",
       "tradeId": "d8c00858-bb8d-4443-8e1f-7b5597541f2e",
@@ -213,5 +233,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779020323200
+  "lastUpdated": 1779020832255
 }

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import {
   runTrainingLab, stopTrainingLab, getTrainingLabState,
-  getTrainingLabResults, getStrategyComparison,
+  getTrainingLabResults, getStrategyComparison, getCurrentAiConfig,
   TRAINING_PAIRS, TRAINING_STRATEGIES, type StrategyName,
 } from "../services/ai-training-lab.js";
 import {
@@ -31,13 +31,20 @@ router.get("/training-lab/pairs",      (_req, res) => res.json({ pairs: TRAINING
 router.get("/training-lab/strategies", (_req, res) => res.json({
   strategies: TRAINING_STRATEGIES.map(s => ({ key: s, label: STRATEGY_LABELS[s] })),
 }));
+// Konfigurasi adaptif AI saat ini (parameter yang akan dipakai backtest)
+router.get("/training-lab/ai-config",  (_req, res) => res.json(getCurrentAiConfig()));
 
 router.post("/training-lab/start", async (req, res) => {
-  const { pairs, strategies } = (req.body ?? {}) as { pairs?: string[]; strategies?: StrategyName[] };
+  const { pairs, strategies, aiAuto } = (req.body ?? {}) as {
+    pairs?: string[];
+    strategies?: StrategyName[];
+    aiAuto?: boolean;
+  };
   const state = getTrainingLabState();
   if (state.isRunning) { res.status(409).json({ error: "Training sedang berjalan" }); return; }
-  runTrainingLab({ pairs, strategies }).catch(() => {});
-  res.json({ started: true, message: "Training lab dimulai" });
+  // aiAuto=true → AI pilih strategi sendiri; false/undefined → pakai pilihan user
+  runTrainingLab({ pairs, strategies, aiAuto }).catch(() => {});
+  res.json({ started: true, message: aiAuto ? "Training lab dimulai — AI memilih strategi otomatis" : "Training lab dimulai" });
 });
 
 router.post("/training-lab/stop", (_req, res) => {

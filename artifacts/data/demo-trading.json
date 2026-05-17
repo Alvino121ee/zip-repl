@@ -1,7 +1,7 @@
 {
-  "balance": 41.43015296160851,
-  "realizedPnl": -8.569847038391478,
-  "winCount": 14,
+  "balance": 41.46238551974805,
+  "realizedPnl": -8.537614480251943,
+  "winCount": 15,
   "lossCount": 14,
   "positions": [
     {
@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 0.3684469085549863,
       "entryPrice": 14.249,
-      "markPrice": 14.2278,
+      "markPrice": 14.2827,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.006642857142857,
       "takeProfit": 14.854892857142858,
-      "unrealisedPnl": -0.007811074461365831,
-      "unrealisedPnlPct": -0.1487823706926825,
+      "unrealisedPnl": 0.012416660818302897,
+      "unrealisedPnlPct": 0.23650782511053142,
       "openedAt": 1779015883455,
       "source": "auto",
       "confidence": 99,
@@ -31,17 +31,18 @@
       "opportunityScore": 100,
       "trailPeakPrice": 14.2836,
       "humanInstinct": {
-        "lastEvalAt": 1779020423839,
-        "momentumScore": 75,
-        "continuationProb": 31,
+        "lastEvalAt": 1779021104636,
+        "momentumScore": 50,
+        "continuationProb": 4,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume sedikit turun 25%",
+          "Volume sedikit turun 19%",
+          "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (31%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 75,
+        "reason": "⚡ Probabilitas kelanjutan rendah (4%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 89,
         "urgency": 15
       }
     },
@@ -52,13 +53,13 @@
       "side": "Sell",
       "size": 7.181942544459645,
       "entryPrice": 0.731,
-      "markPrice": 0.7307,
+      "markPrice": 0.7302,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.7404392857142857,
       "takeProfit": 0.7074017857142856,
-      "unrealisedPnl": 0.002154582763337656,
-      "unrealisedPnlPct": 0.04103967168262202,
+      "unrealisedPnl": 0.00574555403556788,
+      "unrealisedPnlPct": 0.10943912448700725,
       "openedAt": 1779019552321,
       "source": "auto",
       "confidence": 99,
@@ -70,52 +71,118 @@
       ],
       "marketCondition": "trending_down_strong",
       "opportunityScore": 100,
-      "trailPeakPrice": 0.7307,
+      "trailPeakPrice": 0.7287,
       "humanInstinct": {
-        "lastEvalAt": 1779020399894,
-        "momentumScore": 14,
-        "continuationProb": 0,
+        "lastEvalAt": 1779021072707,
+        "momentumScore": 64,
+        "continuationProb": 29,
         "greedIndex": 0,
         "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
           "Candle rejection bawah — tekanan beli kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 16,
+        "reason": "⚡ Probabilitas kelanjutan rendah (29%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 30,
         "urgency": 15
       }
     },
     {
-      "id": "4f859350-f0e8-4721-bb26-3b0bd9711e1b",
+      "id": "7adba1df-0dd8-439e-be1b-931bd4edaab7",
       "symbol": "NAORISUSDT",
       "displayName": "NAORIS/USDT",
       "side": "Buy",
-      "size": 122.09302325581396,
-      "entryPrice": 0.043,
-      "markPrice": 0.043106,
+      "size": 121.13520996769729,
+      "entryPrice": 0.04334,
+      "markPrice": 0.042608,
       "leverage": 1,
       "margin": 5.25,
-      "stopLoss": 0.04139821428571428,
-      "takeProfit": 0.04700446428571428,
-      "unrealisedPnl": 0.012941860465116514,
-      "unrealisedPnlPct": 0.24651162790698122,
-      "openedAt": 1779020327821,
+      "stopLoss": 0.041705,
+      "takeProfit": 0.0474275,
+      "unrealisedPnl": -0.088670973696354,
+      "unrealisedPnlPct": -1.6889709275496,
+      "openedAt": 1779020833466,
       "source": "auto",
-      "confidence": 94,
+      "confidence": 96,
       "signal": "institutional_long",
-      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($0.0420) — momentum bullish; Harga di atas VWAP ($0.0395) — buyers in control",
+      "openReason": "Volatil (Waspada) | OppScore:100 | Harga di atas EMA20 ($0.0421) — momentum bullish; Harga di atas VWAP ($0.0395) — buyers in control",
       "tags": [
         "Auto AI",
         "Kepercayaan Tinggi"
       ],
-      "marketCondition": "ranging",
+      "marketCondition": "volatile",
       "opportunityScore": 100,
-      "trailPeakPrice": 0.043178
+      "trailPeakPrice": 0.043384,
+      "humanInstinct": {
+        "lastEvalAt": 1779021104840,
+        "momentumScore": 85,
+        "continuationProb": 54,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
+        "evalCount": 4,
+        "urgency": 15
+      }
     }
   ],
   "log": [
+    {
+      "id": "4111a3fd-aa79-44f0-83f2-3403f969f39d",
+      "timestamp": 1779020833466,
+      "openedAt": 1779020833466,
+      "symbol": "NAORISUSDT",
+      "side": "Buy",
+      "qty": 121.13520996769729,
+      "entryPrice": 0.04334,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 96,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0433",
+      "openReason": "Volatil (Waspada) | OppScore:100 | Harga di atas EMA20 ($0.0421) — momentum bullish; Harga di atas VWAP ($0.0395) — buyers in control",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "volatile"
+    },
+    {
+      "id": "b63bdaf3-cbd8-4ceb-8ef7-51a05450a1a2",
+      "timestamp": 1779020832254,
+      "openedAt": 1779020327821,
+      "closedAt": 1779020832254,
+      "duration": 504433,
+      "symbol": "NAORISUSDT",
+      "side": "Sell",
+      "qty": 122.09302325581396,
+      "entryPrice": 0.043,
+      "closePrice": 0.043264,
+      "realizedPnl": 0.03223255813953493,
+      "realizedPnlPct": 0.6139534883720938,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 94,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($0.0420) — momentum bullish; Harga di atas VWAP ($0.0395) — buyers in control",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Scalping",
+        "Profit"
+      ],
+      "marketCondition": "ranging"
+    },
     {
       "id": "744b51ba-995d-4b90-bb51-dfea4ea9ac41",
       "timestamp": 1779020327821,
@@ -1811,6 +1878,10 @@
     {
       "timestamp": 1779020323200,
       "balance": 41.408972254276854
+    },
+    {
+      "timestamp": 1779020832254,
+      "balance": 41.458756040481546
     }
   ]
 }
