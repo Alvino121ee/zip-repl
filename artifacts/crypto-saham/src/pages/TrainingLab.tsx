@@ -228,6 +228,23 @@ export default function TrainingLab() {
   const [sortBy, setSortBy] = useState<"winRate" | "sharpe" | "pf">("winRate");
   const [pulse, setPulse] = useState(false);
 
+  // ── Manual Training ──
+  const [manualInput,  setManualInput]  = useState("");
+  const [manualResult, setManualResult] = useState<{
+    xpGained: number;
+    conceptsFound: string[];
+    categoriesHit: string[];
+    skillsImproved: { skill: string; label: string }[];
+    memorySaved: boolean;
+    iqBefore: number;
+    iqAfter: number;
+    grade: "S" | "A" | "B" | "C" | "D";
+    analysis: string;
+    feedback: string;
+  } | null>(null);
+  const [isSubmittingManual, setIsSubmittingManual] = useState(false);
+  const [manualHistory, setManualHistory] = useState<string[]>([]);
+
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const feedRef  = useRef<HTMLDivElement>(null);
 
