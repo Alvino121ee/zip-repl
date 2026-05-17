@@ -124,6 +124,7 @@ export interface DemoStats {
   losses: number;
   winRate: number;
   profitFactor: number;
+  sharpeRatio: number;
   currentBalance: number;
   initialBalance: number;
   totalPnl: number;
@@ -672,6 +673,16 @@ export function getDemoStats(): DemoStats {
   }
   const dailyPnl = Object.entries(dayMap).map(([date, v]) => ({ date, ...v }));
 
+  // Sharpe Ratio dari trade-by-trade returns
+  const tradeReturns = closedTrades.map(t => t.realizedPnlPct ?? 0);
+  let sharpeRatio = 0;
+  if (tradeReturns.length >= 5) {
+    const mean = tradeReturns.reduce((a, b) => a + b, 0) / tradeReturns.length;
+    const variance = tradeReturns.reduce((s, r) => s + Math.pow(r - mean, 2), 0) / tradeReturns.length;
+    const std = Math.sqrt(variance);
+    if (std > 0) sharpeRatio = parseFloat(((mean / std) * Math.sqrt(252)).toFixed(2));
+  }
+
   return {
     totalTrades,
     closedTrades: closedTrades.length,
@@ -679,6 +690,7 @@ export function getDemoStats(): DemoStats {
     losses,
     winRate,
     profitFactor,
+    sharpeRatio,
     currentBalance,
     initialBalance: INITIAL_BALANCE,
     totalPnl,

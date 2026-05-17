@@ -95,6 +95,19 @@ export interface BrainMemory {
   maxDrawdownSeen: number;
   bestWinStreak: number;
   currentWinStreak: number;
+  // Deep analytics additions
+  tradeReturns: number[];                                       // per-trade PnL% for Sharpe calculation
+  confidenceAccuracyBands: Record<string, { correct: number; total: number }>; // "50-59", "60-69", etc.
+}
+
+export interface TradeQualityAnalysis {
+  timingScore: number;        // 0-100: seberapa tepat timing entry
+  entryPrecision: number;     // 0-100: entry di harga yang optimal?
+  exitEfficiency: number;     // 0-100: keluar di titik yang efisien?
+  confidenceCalibration: number; // 0-100: confidence sesuai hasil aktual?
+  overallQuality: number;     // 0-100: rata-rata semua dimensi
+  grade: "A" | "B" | "C" | "D" | "F";
+  insights: string[];
 }
 
 // ─── Default memory ───────────────────────────────────────────────────────────
@@ -157,6 +170,14 @@ function createDefaultMemory(): BrainMemory {
     maxDrawdownSeen: 0,
     bestWinStreak: 0,
     currentWinStreak: 0,
+    tradeReturns: [],
+    confidenceAccuracyBands: {
+      "50-59": { correct: 0, total: 0 },
+      "60-69": { correct: 0, total: 0 },
+      "70-79": { correct: 0, total: 0 },
+      "80-89": { correct: 0, total: 0 },
+      "90-99": { correct: 0, total: 0 },
+    },
   };
 }
 
@@ -187,12 +208,15 @@ function loadBrain() {
     const raw = readFileSync(BRAIN_FILE, "utf-8");
     const saved = JSON.parse(raw) as BrainMemory;
     // Merge with defaults to handle schema additions
+    const defaults = createDefaultMemory();
     memory = {
-      ...createDefaultMemory(),
+      ...defaults,
       ...saved,
       indicatorStats: { ...DEFAULT_INDICATORS, ...saved.indicatorStats },
       conditionPerformance: { ...DEFAULT_CONDITION_PERF, ...saved.conditionPerformance },
       strategyWeights: { ...DEFAULT_STRATEGIES, ...saved.strategyWeights },
+      tradeReturns: Array.isArray(saved.tradeReturns) ? saved.tradeReturns : [],
+      confidenceAccuracyBands: { ...defaults.confidenceAccuracyBands, ...(saved.confidenceAccuracyBands ?? {}) },
     };
     logger.info({
       cycles: memory.learningCycles,
@@ -368,6 +392,23 @@ export function learnFromOutcome(input: LearningInput): void {
       memory.maxDrawdownSeen = Math.min(memory.maxDrawdownSeen, input.virtualPnl);
     }
   }
+
+  // Track trade returns for Sharpe ratio (keep last 1000)
+  const returnPct = isWin ? Math.abs(input.priceDeltaPct) : -Math.abs(input.priceDeltaPct);
+  if (!memory.tradeReturns) memory.tradeReturns = [];
+  memory.tradeReturns.push(returnPct);
+  if (memory.tradeReturns.length > 1000) memory.tradeReturns.splice(0, memory.tradeReturns.length - 1000);
+
+  // Track confidence accuracy by band
+  if (!memory.confidenceAccuracyBands) memory.confidenceAccuracyBands = {};
+  const band =
+    input.confidence >= 90 ? "90-99" :
+    input.confidence >= 80 ? "80-89" :
+    input.confidence >= 70 ? "70-79" :
+    input.confidence >= 60 ? "60-69" : "50-59";
+  if (!memory.confidenceAccuracyBands[band]) memory.confidenceAccuracyBands[band] = { correct: 0, total: 0 };
+  memory.confidenceAccuracyBands[band].total++;
+  if (isWin) memory.confidenceAccuracyBands[band].correct++;
 
   // Update condition performance
   const condPerf = memory.conditionPerformance[input.condition];
@@ -878,11 +919,31 @@ export function getBrainStats() {
     .filter(s => s.wins + s.losses >= 3)
     .sort((a, b) => b.weight - a.weight);
 
+  // Sharpe ratio dari trade-by-trade returns
+  let sharpeRatio = 0;
+  const returns = memory.tradeReturns ?? [];
+  if (returns.length >= 5) {
+    const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+    const variance = returns.reduce((s, r) => s + Math.pow(r - mean, 2), 0) / returns.length;
+    const std = Math.sqrt(variance);
+    if (std > 0) sharpeRatio = parseFloat(((mean / std) * Math.sqrt(252)).toFixed(2));
+  }
+
+  // Confidence accuracy bands — add actualWinRate field
+  const confidenceAccuracyBands = Object.entries(memory.confidenceAccuracyBands ?? {}).map(([band, data]) => ({
+    band,
+    total: data.total,
+    correct: data.correct,
+    actualWinRate: data.total > 0 ? parseFloat(((data.correct / data.total) * 100).toFixed(1)) : 0,
+    expectedWinRate: parseInt(band.split("-")[0]),
+  }));
+
   return {
     totalPredictions: memory.totalPredictions,
     totalWins: memory.totalWins,
     totalLosses: memory.totalLosses,
     winRate,
+    sharpeRatio,
     learningCycles: memory.learningCycles,
     mistakeCount: memory.mistakes.length,
     successPatternCount: memory.successPatterns.length,
@@ -895,9 +956,92 @@ export function getBrainStats() {
     topSymbols,
     strategyRanking,
     conditionPerformance: memory.conditionPerformance,
+    confidenceAccuracyBands,
     recentMistakes: memory.mistakes.slice(0, 20),
     recentSuccessPatterns: memory.successPatterns.slice(0, 10),
   };
+}
+
+// ─── Post-Trade Quality Analysis ──────────────────────────────────────────────
+
+export function analyzeTradeQuality(params: {
+  result: TradeResult;
+  confidence: number;
+  priceDeltaPct: number;
+  exitReason?: string;
+  holdTimeMs?: number;
+}): TradeQualityAnalysis {
+  const { result, confidence, priceDeltaPct, exitReason, holdTimeMs } = params;
+  const isWin = result === "WIN";
+
+  // Timing score: seberapa efisien waktu yang dihabiskan
+  let timingScore = 60;
+  if (holdTimeMs) {
+    const holdMin = holdTimeMs / 60_000;
+    if (isWin && holdMin < 10) timingScore = 95;
+    else if (isWin && holdMin < 30) timingScore = 82;
+    else if (isWin && holdMin < 60) timingScore = 70;
+    else if (isWin) timingScore = 58;
+    else if (!isWin && holdMin > 120) timingScore = 25; // nahan terlalu lama di posisi rugi
+    else if (!isWin && holdMin > 60) timingScore = 40;
+    else timingScore = 55;
+  }
+
+  // Entry precision: seberapa akurat entry berdasarkan confidence vs hasil
+  let entryPrecision = 70;
+  if (isWin && confidence >= 85) entryPrecision = 92;
+  else if (isWin && confidence >= 75) entryPrecision = 80;
+  else if (isWin && confidence >= 65) entryPrecision = 72;
+  else if (isWin && confidence < 65) entryPrecision = 60; // menang tapi confidence rendah
+  else if (!isWin && confidence >= 90) entryPrecision = 20; // overconfident, kalah
+  else if (!isWin && confidence >= 80) entryPrecision = 35;
+  else if (!isWin && confidence >= 70) entryPrecision = 50;
+  else entryPrecision = 68; // kalah tapi confidence sudah rendah → tidak terlalu buruk
+
+  // Exit efficiency: keluar di titik yang efisien?
+  let exitEfficiency = 65;
+  if (exitReason === "tp") exitEfficiency = 96;      // hit TP → sempurna
+  else if (exitReason === "sl") exitEfficiency = isWin ? 45 : 82; // SL pada win: salah; SL pada loss: benar
+  else if (exitReason === "timeout") exitEfficiency = isWin ? 62 : 38;
+
+  // Confidence calibration: apakah confidence sesuai dengan akurasi historis?
+  let confidenceCalibration = 70;
+  const band =
+    confidence >= 90 ? "90-99" :
+    confidence >= 80 ? "80-89" :
+    confidence >= 70 ? "70-79" :
+    confidence >= 60 ? "60-69" : "50-59";
+  const bandData = (memory.confidenceAccuracyBands ?? {})[band];
+  if (bandData && bandData.total >= 5) {
+    const actualWR = (bandData.correct / bandData.total) * 100;
+    const deviation = Math.abs(actualWR - confidence);
+    confidenceCalibration = Math.max(15, Math.min(100, 100 - deviation * 1.5));
+  }
+
+  const overallQuality = Math.round(
+    (timingScore * 0.25 + entryPrecision * 0.30 + exitEfficiency * 0.25 + confidenceCalibration * 0.20)
+  );
+  const grade: TradeQualityAnalysis["grade"] =
+    overallQuality >= 85 ? "A" :
+    overallQuality >= 72 ? "B" :
+    overallQuality >= 58 ? "C" :
+    overallQuality >= 42 ? "D" : "F";
+
+  const insights: string[] = [];
+  if (isWin) {
+    if (entryPrecision >= 88) insights.push("Entry sangat presisi — timing sempurna");
+    if (exitReason === "tp") insights.push("TP tercapai — eksekusi exit optimal");
+    if (Math.abs(priceDeltaPct) > 3) insights.push(`Return luar biasa: +${Math.abs(priceDeltaPct).toFixed(1)}%`);
+    if (timingScore >= 88) insights.push("Trade selesai cepat — efisiensi modal tinggi");
+  } else {
+    if (confidence >= 88) insights.push("Overconfidence terdeteksi — evaluasi ulang threshold");
+    if (exitReason === "sl") insights.push("SL bekerja benar — proteksi modal aktif");
+    else if (exitReason === "timeout") insights.push("Tidak ada momentum — pertimbangkan filter minimum movement");
+    if (!isWin && confidence < 70) insights.push("Confidence sudah rendah — pertimbangkan naikkan min confidence");
+  }
+  if (confidenceCalibration < 50) insights.push("Kalibrasi confidence perlu perbaikan — hasil tidak sesuai prediksi");
+
+  return { timingScore, entryPrecision, exitEfficiency, confidenceCalibration, overallQuality, grade, insights };
 }
 
 export function getBrainMemory(): BrainMemory {

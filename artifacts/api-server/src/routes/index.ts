@@ -7,6 +7,7 @@ import tradingRouter from "./trading.js";
 import aiRouter from "./ai.js";
 import predictionLocksRouter from "./prediction-locks.js";
 import demoTradingRouter from "./demo-trading.js";
+import trainingLabRouter from "./training-lab.js";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(tradingRouter);
 router.use(aiRouter);
 router.use(predictionLocksRouter);
 router.use(demoTradingRouter);
+router.use(trainingLabRouter);
 
 export default router;

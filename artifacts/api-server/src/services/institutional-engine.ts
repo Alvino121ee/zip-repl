@@ -62,6 +62,7 @@ export interface InstitutionalResult extends FullAnalysis {
   liquiditySweep: { detected: boolean; direction: "up" | "down" | null; note: string | null };
   orderflowBias: "bullish" | "bearish" | "neutral";
   momentumStrength: number; // 0-100
+  weightedConfidence: WeightedConfidenceBreakdown;
   dynamicRisk?: DynamicRiskResult;
 }
 
@@ -330,6 +331,119 @@ function getMomentumStrength(analysis: FullAnalysis): number {
   return Math.min(100, Math.max(0, strength));
 }
 
+// ─── Weighted Confidence Scoring Engine (sesuai spec) ─────────────────────────
+
+export interface WeightedConfidenceBreakdown {
+  base: number;
+  emaAlignment: number;
+  strongVolume: number;
+  orderflowConfirmation: number;
+  liquiditySweep: number;
+  multiTimeframeAgreement: number;
+  highVolatilityPenalty: number;
+  choppyPenalty: number;
+  weakMomentumPenalty: number;
+  riskRewardBonus: number;
+  signalGradeBonus: number;
+  total: number;
+  factors: { label: string; value: number; positive: boolean }[];
+}
+
+export function calculateWeightedConfidence(
+  analysis: FullAnalysis,
+  condition: MarketConditionResult,
+  liquiditySweepDetected: boolean,
+  orderflowBias: "bullish" | "bearish" | "neutral",
+  momentumStrength: number
+): WeightedConfidenceBreakdown {
+  const factors: { label: string; value: number; positive: boolean }[] = [];
+  let total = analysis.overallConfidence;
+
+  // EMA alignment = +15
+  const emaBonus = analysis.indicators.emaAlignment !== "mixed" ? 15 : 0;
+  if (emaBonus > 0) factors.push({ label: "EMA Alignment", value: emaBonus, positive: true });
+  total += emaBonus;
+
+  // Strong volume = +20
+  let volBonus = 0;
+  if (analysis.indicators.volumeRatio >= 2.0) volBonus = 20;
+  else if (analysis.indicators.volumeRatio >= 1.5) volBonus = 12;
+  else if (analysis.indicators.volumeRatio >= 1.2) volBonus = 6;
+  if (volBonus > 0) factors.push({ label: "Volume Kuat", value: volBonus, positive: true });
+  total += volBonus;
+
+  // Orderflow confirmation = +25
+  const ofMatch = (orderflowBias === "bullish" && analysis.side === "Buy") ||
+                  (orderflowBias === "bearish" && analysis.side === "Sell");
+  const ofBonus = ofMatch ? 25 : orderflowBias !== "neutral" ? 8 : 0;
+  if (ofBonus > 0) factors.push({ label: "Orderflow Konfirmasi", value: ofBonus, positive: true });
+  total += ofBonus;
+
+  // Liquidity sweep confirmation = +20
+  const lsBonus = liquiditySweepDetected ? 20 : 0;
+  if (lsBonus > 0) factors.push({ label: "Liquidity Sweep", value: lsBonus, positive: true });
+  total += lsBonus;
+
+  // Multi timeframe agreement = +20
+  const tfVals = Object.values(analysis.multiTimeframe);
+  const tfBullish = tfVals.filter(t => t.trend === "up").length;
+  const tfBearish = tfVals.filter(t => t.trend === "down").length;
+  const tfTotal = Math.max(tfVals.length, 1);
+  const tfAgreementRatio = analysis.side === "Buy"
+    ? tfBullish / tfTotal
+    : tfBearish / tfTotal;
+  let mtfBonus = 0;
+  if (tfAgreementRatio >= 0.8) mtfBonus = 20;
+  else if (tfAgreementRatio >= 0.6) mtfBonus = 12;
+  else if (tfAgreementRatio >= 0.4) mtfBonus = 5;
+  if (mtfBonus > 0) factors.push({ label: "Multi-TF Agreement", value: mtfBonus, positive: true });
+  total += mtfBonus;
+
+  // High volatility danger = -20
+  const volPenalty = (condition.condition === "volatile" || condition.condition === "manipulation") ? -20 : 0;
+  if (volPenalty < 0) factors.push({ label: "Volatilitas Tinggi", value: volPenalty, positive: false });
+  total += volPenalty;
+
+  // Choppy market = -30
+  const choppyPenalty = condition.condition === "choppy" ? -30 : 0;
+  if (choppyPenalty < 0) factors.push({ label: "Pasar Choppy", value: choppyPenalty, positive: false });
+  total += choppyPenalty;
+
+  // Weak momentum = -15
+  const momPenalty = momentumStrength < 40 ? -15 : momentumStrength < 55 ? -7 : 0;
+  if (momPenalty < 0) factors.push({ label: "Momentum Lemah", value: momPenalty, positive: false });
+  total += momPenalty;
+
+  // Risk/reward bonus
+  let rrBonus = 0;
+  if (analysis.riskRewardRatio >= 3.0) rrBonus = 8;
+  else if (analysis.riskRewardRatio >= 2.5) rrBonus = 5;
+  else if (analysis.riskRewardRatio >= 2.0) rrBonus = 2;
+  if (rrBonus > 0) factors.push({ label: `RR ${analysis.riskRewardRatio.toFixed(1)}x`, value: rrBonus, positive: true });
+  total += rrBonus;
+
+  // Signal grade bonus
+  const gradeBonus = analysis.signalGrade === "A" ? 5 : analysis.signalGrade === "B" ? 2 : 0;
+  if (gradeBonus > 0) factors.push({ label: `Grade ${analysis.signalGrade}`, value: gradeBonus, positive: true });
+  total += gradeBonus;
+
+  return {
+    base: analysis.overallConfidence,
+    emaAlignment: emaBonus,
+    strongVolume: volBonus,
+    orderflowConfirmation: ofBonus,
+    liquiditySweep: lsBonus,
+    multiTimeframeAgreement: mtfBonus,
+    highVolatilityPenalty: volPenalty,
+    choppyPenalty,
+    weakMomentumPenalty: momPenalty,
+    riskRewardBonus: rrBonus,
+    signalGradeBonus: gradeBonus,
+    total: Math.min(99, Math.max(5, Math.round(total))),
+    factors,
+  };
+}
+
 // ─── Opportunity Score ────────────────────────────────────────────────────────
 
 function calcOpportunityScore(analysis: FullAnalysis, condition: MarketConditionResult): number {
@@ -373,7 +487,22 @@ export async function analyzeInstitutional(
   const liquiditySweep = detectLiquiditySweep(base);
   const orderflowBias = getOrderflowBias(base);
   const momentumStrength = getMomentumStrength(base);
-  const institutionalConfidence = Math.min(99, Math.max(5, base.overallConfidence + condition.confidenceModifier));
+
+  // Weighted confidence scoring sesuai spec
+  const weightedConfidence = calculateWeightedConfidence(
+    base,
+    condition,
+    liquiditySweep.detected,
+    orderflowBias,
+    momentumStrength
+  );
+
+  // Blend weighted confidence (60%) + condition-adjusted base (40%)
+  const conditionAdjusted = Math.min(99, Math.max(5, base.overallConfidence + condition.confidenceModifier));
+  const institutionalConfidence = Math.min(99, Math.max(5, Math.round(
+    weightedConfidence.total * 0.6 + conditionAdjusted * 0.4
+  )));
+
   const opportunityScore = calcOpportunityScore(base, condition);
   const institutionalShouldTrade =
     base.shouldEnter &&
@@ -393,6 +522,7 @@ export async function analyzeInstitutional(
     liquiditySweep,
     orderflowBias,
     momentumStrength,
+    weightedConfidence,
   };
 
   if (riskParams) {
@@ -528,9 +658,12 @@ export function shouldSwitchOpportunity(params: {
 }): SwitchDecision {
   const { currentSymbol, currentConfidence, unrealisedPnlPct, durationMs, candidates, lastSwitchAt, switchesToday } = params;
 
-  const MIN_PROFIT_PCT  = 0.4; // must be 0.4% profit before switching
+  // Bybit estimated fee: 0.055% taker × 2 sides = ~0.11% round-trip
+  // With leverage accounted, min profit must exceed fee drag
+  const ESTIMATED_FEE_PCT = 0.11;
+  const MIN_PROFIT_PCT  = Math.max(0.4, ESTIMATED_FEE_PCT * 1.5); // at least 1.5× fees
   const MIN_HOLD_MS     = 3 * 60_000; // 3 min minimum hold
-  const MIN_CONF_GAIN   = 20;  // new setup must be 20+ pts better
+  const MIN_CONF_GAIN   = 22;  // new setup must be 22+ pts better (fees add friction)
   const COOLDOWN_MS     = 6 * 60_000; // 6 min cooldown between switches
   const MAX_DAILY       = 3;
 
