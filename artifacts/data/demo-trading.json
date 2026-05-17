@@ -1,8 +1,8 @@
 {
-  "balance": 41.26379064837195,
-  "realizedPnl": -8.643809351628052,
-  "totalFees": 0.18484316334355205,
-  "winCount": 47,
+  "balance": 41.28470262974367,
+  "realizedPnl": -8.620009870256332,
+  "totalFees": 0.19060349357217185,
+  "winCount": 48,
   "lossCount": 24,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 0.11907191943934135,
       "entryPrice": 44.091,
-      "markPrice": 44.398,
+      "markPrice": 44.47,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 44.126272799999995,
-      "takeProfit": 45.25698214285714,
-      "unrealisedPnl": 0.03655507926787805,
-      "unrealisedPnlPct": 0.6962872241500582,
+      "takeProfit": 47.637896142857144,
+      "unrealisedPnl": 0.04512825746751011,
+      "unrealisedPnlPct": 0.8595858565240021,
       "openedAt": 1779041742691,
       "source": "auto",
       "confidence": 99,
@@ -31,63 +31,19 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 44.403,
+      "trailPeakPrice": 44.474,
       "humanInstinct": {
-        "lastEvalAt": 1779042921587,
-        "momentumScore": 90,
-        "continuationProb": 42,
+        "lastEvalAt": 1779043113617,
+        "momentumScore": 100,
+        "continuationProb": 75,
         "greedIndex": 0,
-        "decaySignals": [
-          "Volume sedikit turun 20%"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (42%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 23,
-        "urgency": 15
+        "decaySignals": [],
+        "action": "extend_target",
+        "reason": "🚀 Momentum sangat kuat (skor: 100) — Momentum sangat kuat (100) — target diperluas ke $47.6379",
+        "evalCount": 27,
+        "urgency": 30
       },
       "trailActivated": true
-    },
-    {
-      "id": "814b788c-98ff-43dc-bd22-a2be5176d7d6",
-      "symbol": "MLNUSDT",
-      "displayName": "MLN/USDT",
-      "side": "Sell",
-      "size": 2.2226926333615578,
-      "entryPrice": 2.362,
-      "markPrice": 2.353,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 2.403571428571429,
-      "takeProfit": 2.2580714285714283,
-      "unrealisedPnl": 0.020004233700253792,
-      "unrealisedPnlPct": 0.381033022861977,
-      "openedAt": 1779041903605,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_short",
-      "openReason": "Breakout | OppScore:100 | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($2.3920) — momentum bearish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "breakout",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 2.352,
-      "humanInstinct": {
-        "lastEvalAt": 1779042937657,
-        "momentumScore": 39,
-        "continuationProb": 7,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Volume turun 86% — momentum sangat lemah",
-          "Candle rejection bawah — tekanan beli kuat"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (7%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 20,
-        "urgency": 15
-      }
     },
     {
       "id": "f27a5ac8-ca19-4d40-a2cf-70be6dd62227",
@@ -96,13 +52,13 @@
       "side": "Sell",
       "size": 0.06779442148760331,
       "entryPrice": 77.44,
-      "markPrice": 77.59,
+      "markPrice": 77.61,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 78.2144,
       "takeProfit": 75.50399999999999,
-      "unrealisedPnl": -0.010169163223140883,
-      "unrealisedPnlPct": -0.19369834710744538,
+      "unrealisedPnl": -0.011525051652892679,
+      "unrealisedPnlPct": -0.21952479338843198,
       "openedAt": 1779042751494,
       "source": "auto",
       "confidence": 99,
@@ -117,9 +73,9 @@
       "opportunityScore": 100,
       "trailPeakPrice": 77.44,
       "humanInstinct": {
-        "lastEvalAt": 1779042921791,
-        "momentumScore": 39,
-        "continuationProb": 2,
+        "lastEvalAt": 1779043113754,
+        "momentumScore": 0,
+        "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
           "Candle doji terdeteksi — ragu-ragu pasar",
@@ -127,13 +83,113 @@
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 2,
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 6,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "60580d74-9cf2-4d01-9b30-2a98d5a250f1",
+      "symbol": "BIOUSDT",
+      "displayName": "BIO/USDT",
+      "side": "Sell",
+      "size": 137.94009458749343,
+      "entryPrice": 0.03806,
+      "markPrice": 0.03808,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.0384406,
+      "takeProfit": 0.037108499999999996,
+      "unrealisedPnl": -0.0027588018917507136,
+      "unrealisedPnlPct": -0.05254860746191836,
+      "openedAt": 1779042994933,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_short",
+      "openReason": "Tren Turun ↓ | OppScore:100 | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($0.0385) — momentum bearish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_down_normal",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.03802,
+      "humanInstinct": {
+        "lastEvalAt": 1779043121776,
+        "momentumScore": 85,
+        "continuationProb": 54,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
+        "evalCount": 1,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "871ac912-d489-4233-ad95-f00b378ee4c7",
+      "timestamp": 1779042994933,
+      "openedAt": 1779042994933,
+      "symbol": "BIOUSDT",
+      "side": "Sell",
+      "qty": 137.94009458749343,
+      "entryPrice": 0.03806,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_short",
+      "status": "opened",
+      "reason": "Demo SHORT dibuka @ $0.0381 | Fee: -$0.0029",
+      "openReason": "Tren Turun ↓ | OppScore:100 | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($0.0385) — momentum bearish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_down_normal"
+    },
+    {
+      "id": "7d23f40e-cc84-45d3-9431-f91a7db1756e",
+      "timestamp": 1779042985676,
+      "openedAt": 1779041903605,
+      "closedAt": 1779042985676,
+      "duration": 1082071,
+      "symbol": "MLNUSDT",
+      "side": "Buy",
+      "qty": 2.2226926333615578,
+      "entryPrice": 2.362,
+      "closePrice": 2.35,
+      "realizedPnl": 0.023799481371718903,
+      "realizedPnlPct": 0.5080440304826422,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_short",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (7%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Breakout | OppScore:100 | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($2.3920) — momentum bearish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "breakout",
+      "fee": 0.005760330228619814,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002872830228619814
+    },
     {
       "id": "4cd5315e-fdf1-46a5-90fa-b512274f7caa",
       "timestamp": 1779042751494,
@@ -4483,6 +4539,10 @@
     {
       "timestamp": 1779042745289,
       "balance": 41.29696208974553
+    },
+    {
+      "timestamp": 1779042985676,
+      "balance": 41.31508418036512
     }
   ]
 }
