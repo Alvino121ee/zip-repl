@@ -39,7 +39,8 @@ export function Sidebar() {
           <div className="my-2" />
           <div className="px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1">AI</div>
           <NavItem href="/ai" icon={Sparkles}>KristalAI</NavItem>
-          <NavItem href="/training-lab" icon={Brain}>AI Training Lab</NavItem>
+          <NavItem href="/training-lab" icon={Brain}>AI Training Center</NavItem>
+          <div className="my-2" />
         </nav>
       </div>
     </aside>

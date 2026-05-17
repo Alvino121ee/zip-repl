@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 245.7424610529857,
       "entryPrice": 0.06181,
-      "markPrice": 0.06138,
+      "markPrice": 0.0613,
       "leverage": 2,
       "margin": 7.594670758842523,
       "stopLoss": 0.060720357142857145,
       "takeProfit": 0.06453410714285714,
-      "unrealisedPnl": -0.21133851650556762,
-      "unrealisedPnlPct": -1.3913606212586955,
+      "unrealisedPnl": -0.25065731027404375,
+      "unrealisedPnlPct": -1.6502184112603027,
       "openedAt": 1779014917126,
       "source": "auto",
       "confidence": 99,
@@ -31,17 +31,17 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.06181,
       "humanInstinct": {
-        "lastEvalAt": 1779015958103,
-        "momentumScore": 63,
-        "continuationProb": 29,
+        "lastEvalAt": 1779016102134,
+        "momentumScore": 75,
+        "continuationProb": 36,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume menurun 32% — tanda pelemahan",
+          "Volume sedikit turun 29%",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (29%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 20,
+        "reason": "⚡ Probabilitas kelanjutan rendah (36%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 23,
         "urgency": 15
       }
     },
@@ -52,13 +52,13 @@
       "side": "Buy",
       "size": 0.3684469085549863,
       "entryPrice": 14.249,
-      "markPrice": 14.2689,
+      "markPrice": 14.2548,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.006642857142857,
       "takeProfit": 14.854892857142858,
-      "unrealisedPnl": 0.007332093480244156,
-      "unrealisedPnlPct": 0.13965892343322203,
+      "unrealisedPnl": 0.0021369920696185213,
+      "unrealisedPnlPct": 0.0407046108498766,
       "openedAt": 1779015883455,
       "source": "auto",
       "confidence": 99,
@@ -70,7 +70,21 @@
       ],
       "marketCondition": "trending_up_strong",
       "opportunityScore": 100,
-      "trailPeakPrice": 14.2691
+      "trailPeakPrice": 14.2836,
+      "humanInstinct": {
+        "lastEvalAt": 1779016102271,
+        "momentumScore": 75,
+        "continuationProb": 36,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Volume sedikit turun 26%",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (36%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 3,
+        "urgency": 15
+      }
     },
     {
       "id": "253a9486-be6a-4a48-877d-3ce8680dba96",
@@ -79,13 +93,13 @@
       "side": "Buy",
       "size": 21.482936410508227,
       "entryPrice": 0.24438,
-      "markPrice": 0.244353,
+      "markPrice": 0.243853,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.2418910714285714,
       "takeProfit": 0.2506023214285714,
-      "unrealisedPnl": -0.000580039283083706,
-      "unrealisedPnlPct": -0.011048367296832494,
+      "unrealisedPnl": -0.011321507488337828,
+      "unrealisedPnlPct": -0.2156477616826253,
       "openedAt": 1779015944665,
       "source": "auto",
       "confidence": 99,
@@ -97,7 +111,22 @@
       ],
       "marketCondition": "trending_up_normal",
       "opportunityScore": 100,
-      "trailPeakPrice": 0.24439
+      "trailPeakPrice": 0.24439,
+      "humanInstinct": {
+        "lastEvalAt": 1779016118272,
+        "momentumScore": 0,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Volume turun 68% — momentum sangat lemah",
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 2,
+        "urgency": 15
+      }
     }
   ],
   "log": [
