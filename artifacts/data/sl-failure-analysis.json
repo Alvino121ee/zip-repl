@@ -1,6 +1,32 @@
 {
   "records": [
     {
+      "id": "362c0ee2-1fd2-468c-9f20-c277d96bdb5a",
+      "timestamp": 1779022592880,
+      "tradeId": "7adba1df-0dd8-439e-be1b-931bd4edaab7",
+      "symbol": "NAORISUSDT",
+      "side": "long",
+      "entryPrice": 0.04334,
+      "slPrice": 0.041705,
+      "exitPrice": 0.041701,
+      "pnlPct": -3.782,
+      "confidence": 96,
+      "strategy": "auto_institutional",
+      "marketCondition": "volatile",
+      "holdTimeMs": 1759413,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "AI overconfident — confidence tinggi tidak mencerminkan kompleksitas kondisi pasar saat itu. (Confidence: 96%, namun trade kena SL dalam 29m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 3.772,
+      "improvementApplied": false
+    },
+    {
       "id": "f96f5ed4-8218-417d-bcea-6b7c970ea93c",
       "timestamp": 1779018336199,
       "tradeId": "98542577-39ce-4f13-86eb-0bef942ea573",
@@ -514,6 +540,27 @@
   ],
   "patterns": [
     {
+      "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
+      "pattern": "Overconfidence AI",
+      "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 10,
+      "primaryCause": "overconfidence",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "volatile",
+        "trending_up_normal",
+        "trending_up_strong",
+        "ranging"
+      ],
+      "avgPnlPct": -1.8,
+      "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+      "severity": "critical",
+      "firstSeen": 1779013081545,
+      "lastSeen": 1779022592881
+    },
+    {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
       "pattern": "Pasar Choppy / Sideways",
       "description": "Pola berulang: Pasar Choppy / Sideways terdeteksi 3× dalam 7 hari terakhir",
@@ -531,30 +578,10 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779018336199
-    },
-    {
-      "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
-      "pattern": "Overconfidence AI",
-      "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 9,
-      "primaryCause": "overconfidence",
-      "associatedStrategies": [
-        "auto_institutional"
-      ],
-      "associatedConditions": [
-        "trending_up_normal",
-        "trending_up_strong",
-        "ranging"
-      ],
-      "avgPnlPct": -1.58,
-      "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
-      "severity": "high",
-      "firstSeen": 1779013081545,
-      "lastSeen": 1779018336199
+      "lastSeen": 1779022592881
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 18,
+  "totalAnalyzed": 19,
   "improvementScore": 45
 }

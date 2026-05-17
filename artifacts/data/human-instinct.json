@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 15,
-  "correctEarlyExits": 15,
+  "totalDecisions": 16,
+  "correctEarlyExits": 16,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.333333333333336,
-  "avgContinuationProbAtExit": 15.4,
+  "avgMomentumAtEarlyExit": 46.8125,
+  "avgContinuationProbAtExit": 15.875,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "185627f3-39ab-460e-9031-c4b5f6fc3bf3",
+      "tradeId": "0dc916d1-d5ce-4c60-869e-15c873aa488b",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5278551532033495,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779023580362,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5278551532033495,
+      "profitDelta": 0
+    },
     {
       "id": "9b492ac5-26e8-466f-9038-cd53c9f958f3",
       "tradeId": "d7fb4857-e9ae-4d10-b960-63ea687ebf46",
@@ -313,5 +333,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779022272816
+  "lastUpdated": 1779023580364
 }
