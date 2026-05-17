@@ -1,5 +1,243 @@
 [
   {
+    "id": "8e233a03-cfe5-48f8-ac82-6aa4342074da",
+    "timestamp": 1778991991072,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #2 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "27c57288-c098-438e-bd03-727ef5b00618",
+    "timestamp": 1778991991072,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (4/4) — menunggu TP/SL/exit"
+  },
+  {
+    "id": "6c68241f-3802-4193-9293-460fea3da906",
+    "timestamp": 1778991971535,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #1 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "30b62c65-af3f-4704-b2e1-9e4568c570fc",
+    "timestamp": 1778991971534,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (4/4) — menunggu TP/SL/exit"
+  },
+  {
+    "id": "28d13da8-6a67-4682-b435-f586ad9b1b95",
+    "timestamp": 1778991940896,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #23 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "1cd20a35-ddad-44d3-aaae-14c3fcbe2c11",
+    "timestamp": 1778991940896,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "0d720ac8-ddd8-4d6d-969e-8df19b9ec7dd",
+    "timestamp": 1778991920995,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #22 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "e5baae5d-89c5-4315-a680-621d8d29f237",
+    "timestamp": 1778991920995,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "e0cabf8e-030a-4f36-ba61-8b09b4291501",
+    "timestamp": 1778991900889,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #21 · pindai: 20 · kandidat: 19 · posisi: 4/4"
+  },
+  {
+    "id": "f7492a2d-820f-48cc-a614-2e1e6605aa5e",
+    "timestamp": 1778991900889,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "21ccd5a7-61e5-495b-9fee-9daf589b91b4",
+    "timestamp": 1778991880888,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #20 · pindai: 20 · kandidat: 19 · posisi: 4/4"
+  },
+  {
+    "id": "07a5013f-7b90-44ab-aaa1-f6b7111e5345",
+    "timestamp": 1778991880888,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "80e6ca38-23c7-4dc9-a85d-d9137457a5d8",
+    "timestamp": 1778991861053,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #19 · pindai: 20 · kandidat: 19 · posisi: 4/4"
+  },
+  {
+    "id": "fa4eb037-316d-4eef-b9fc-9df56bfabf49",
+    "timestamp": 1778991861053,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "c25ff255-d263-4601-a338-c9da7d7b5d53",
+    "timestamp": 1778991840882,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #18 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "51af3ab6-5b3c-4316-89d5-87c6dc21bab4",
+    "timestamp": 1778991840882,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "3294fa71-40d9-46e8-a1eb-c99edbf2b9e9",
+    "timestamp": 1778991820877,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #17 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "dd26bbeb-1a16-4953-93d1-2993196654f0",
+    "timestamp": 1778991820877,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "37116eeb-3cbe-4bd2-931d-dbcb3c678d40",
+    "timestamp": 1778991801268,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #16 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "6c20c5a8-9bc1-4456-9ad9-d3842da655da",
+    "timestamp": 1778991801268,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "c3084459-b14b-415a-b099-022bba5da580",
+    "timestamp": 1778991780872,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #15 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "6a834266-b1e5-4704-81c4-7c87b84a390e",
+    "timestamp": 1778991780872,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "2a04182b-655b-44cc-a39f-3f03f9822e56",
+    "timestamp": 1778991760872,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #14 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "7e498c1e-352d-4e3f-a29b-1ae18de2fe3b",
+    "timestamp": 1778991760872,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "64ecd1af-b1ca-4489-994c-86fecd32e0f6",
+    "timestamp": 1778991740978,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #13 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "d103edc1-3e01-4415-a978-c9513e27791f",
+    "timestamp": 1778991740978,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "b610df54-c9d7-439e-9d71-da298fa9a70d",
+    "timestamp": 1778991720873,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #12 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "778885d1-edf3-42ae-b587-9c3b015eb1c5",
+    "timestamp": 1778991720873,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "cf87a3a7-5b6c-4d46-8ee7-377711b371f8",
+    "timestamp": 1778991700873,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #11 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "981931ea-ed24-4c5c-897e-9d243022c07c",
+    "timestamp": 1778991700873,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "3bddf7bf-df19-4ce4-a98f-a73de4ec89a1",
+    "timestamp": 1778991680981,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #10 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "37d1e236-c289-4c20-a6dc-3c5d55542ffd",
+    "timestamp": 1778991680981,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "27783c51-18f2-41d2-97ac-58055475ff59",
+    "timestamp": 1778991660873,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #9 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "584dc538-72b6-4a5c-b460-9f9a05e87b67",
+    "timestamp": 1778991660873,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
     "id": "85c6d280-b8f3-43fa-9de6-8f3a71dd0c60",
     "timestamp": 1778991640872,
     "source": "demo",
@@ -4701,288 +4939,5 @@
     "level": "info",
     "message": "Skip LYNUSDT: tidak ada setup entry yang valid",
     "symbol": "LYNUSDT"
-  },
-  {
-    "id": "8824e558-32e4-4312-ac68-5ede513e65af",
-    "timestamp": 1778990122341,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis LYNUSDT (confidence: 82%)...",
-    "symbol": "LYNUSDT",
-    "confidence": 82
-  },
-  {
-    "id": "0dc96fc2-90de-4f16-9c32-ff1d70007358",
-    "timestamp": 1778990122341,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip STABLEUSDT: tidak ada setup entry yang valid",
-    "symbol": "STABLEUSDT"
-  },
-  {
-    "id": "a64847f0-d682-4932-8d86-6d7488c6ee1d",
-    "timestamp": 1778990122268,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis STABLEUSDT (confidence: 82%)...",
-    "symbol": "STABLEUSDT",
-    "confidence": 82
-  },
-  {
-    "id": "9c395b99-dc8d-4331-93fc-b7f303615c43",
-    "timestamp": 1778990122268,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip NMRUSDT: tidak ada setup entry yang valid",
-    "symbol": "NMRUSDT"
-  },
-  {
-    "id": "c1a509b3-99eb-4fd0-a911-49f9ce93dcd1",
-    "timestamp": 1778990122196,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis NMRUSDT (confidence: 83%)...",
-    "symbol": "NMRUSDT",
-    "confidence": 83
-  },
-  {
-    "id": "240821b8-c9f1-4e8f-8476-c7f6fbf4fde6",
-    "timestamp": 1778990122196,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip GIGAUSDT: tidak ada setup entry yang valid",
-    "symbol": "GIGAUSDT"
-  },
-  {
-    "id": "6e48abd6-a9d2-408e-83a5-259b5d35ebd5",
-    "timestamp": 1778990122124,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis GIGAUSDT (confidence: 84%)...",
-    "symbol": "GIGAUSDT",
-    "confidence": 84
-  },
-  {
-    "id": "157fc400-9b19-4cb0-be81-6a255e83a5d2",
-    "timestamp": 1778990122124,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip HUSDT: tidak ada setup entry yang valid",
-    "symbol": "HUSDT"
-  },
-  {
-    "id": "2f9d8188-060f-4762-881e-ab7914449267",
-    "timestamp": 1778990122051,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis HUSDT (confidence: 86%)...",
-    "symbol": "HUSDT",
-    "confidence": 86
-  },
-  {
-    "id": "a319ec22-a0d1-4675-b0ab-712fa1cd1ae1",
-    "timestamp": 1778990122051,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip BSBUSDT: tidak ada setup entry yang valid",
-    "symbol": "BSBUSDT"
-  },
-  {
-    "id": "1ea46616-0dd1-4803-957a-b9ebadacb33b",
-    "timestamp": 1778990121978,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis BSBUSDT (confidence: 99%)...",
-    "symbol": "BSBUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "26f5a436-e5fb-40db-815d-c66a42f6e49a",
-    "timestamp": 1778990121978,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip TAUSDT: tidak ada setup entry yang valid",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "be0580f2-fef3-438a-8fb2-290963421595",
-    "timestamp": 1778990121896,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis TAUSDT (confidence: 99%)...",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "b4af994b-5d45-4939-8206-9b80c0c008e9",
-    "timestamp": 1778990121896,
-    "source": "demo",
-    "level": "info",
-    "message": "Ditemukan 20 kandidat dari 20 pasang yang dipindai (min. confidence: 72%)"
-  },
-  {
-    "id": "7d4eef51-f76f-4606-894c-a4dd5a415482",
-    "timestamp": 1778990121778,
-    "source": "demo",
-    "level": "scan",
-    "message": "Memindai pasar Bybit untuk peluang trading..."
-  },
-  {
-    "id": "2ab7381b-4352-4a6f-a806-2971e44f722b",
-    "timestamp": 1778990121778,
-    "source": "demo",
-    "level": "scan",
-    "message": "Memulai siklus analisis pasar demo..."
-  },
-  {
-    "id": "2a9e6bbf-cdeb-4e1d-9f6c-70fce5ce1b37",
-    "timestamp": 1778990101955,
-    "source": "demo",
-    "level": "info",
-    "message": "Siklus ke-20 selesai — 0 posisi aktif"
-  },
-  {
-    "id": "9231b9bc-3273-4ef3-a9a3-3db7072cb659",
-    "timestamp": 1778990101955,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip BRETTUSDT: tidak ada setup entry yang valid",
-    "symbol": "BRETTUSDT"
-  },
-  {
-    "id": "16ebabc3-e4d0-400f-a4ba-d58dd1cfa868",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis BRETTUSDT (confidence: 78%)...",
-    "symbol": "BRETTUSDT",
-    "confidence": 78
-  },
-  {
-    "id": "cb732935-7d33-4d8e-98e3-65e2b0e4d761",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip SPKUSDT: tidak ada setup entry yang valid",
-    "symbol": "SPKUSDT"
-  },
-  {
-    "id": "d3c7231b-fbe6-42f2-98d2-e5bebdd82046",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis SPKUSDT (confidence: 84%)...",
-    "symbol": "SPKUSDT",
-    "confidence": 84
-  },
-  {
-    "id": "5cbeb2f4-e24d-41b7-9ad1-436d5ad22d64",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip TRUTHUSDT: tidak ada setup entry yang valid",
-    "symbol": "TRUTHUSDT"
-  },
-  {
-    "id": "6dad6c2b-3334-432b-8c20-71778572b840",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis TRUTHUSDT (confidence: 85%)...",
-    "symbol": "TRUTHUSDT",
-    "confidence": 85
-  },
-  {
-    "id": "2a5d6dd5-286e-4f19-9154-1d4c4b23a077",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip ZEREBROUSDT: tidak ada setup entry yang valid",
-    "symbol": "ZEREBROUSDT"
-  },
-  {
-    "id": "deb1312a-d596-4612-b5d4-49c1ba9264c4",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis ZEREBROUSDT (confidence: 90%)...",
-    "symbol": "ZEREBROUSDT",
-    "confidence": 90
-  },
-  {
-    "id": "177486f2-c727-444a-8a91-99e75c2e613f",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip TRIAUSDT: tidak ada setup entry yang valid",
-    "symbol": "TRIAUSDT"
-  },
-  {
-    "id": "1f77ea18-a687-4df8-b5ff-ed7f6176b4b5",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis TRIAUSDT (confidence: 91%)...",
-    "symbol": "TRIAUSDT",
-    "confidence": 91
-  },
-  {
-    "id": "23db3abe-d6b8-40b7-a980-b7942b512e84",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip STORJUSDT: tidak ada setup entry yang valid",
-    "symbol": "STORJUSDT"
-  },
-  {
-    "id": "0d1da488-459a-472c-a380-bf6092321be0",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis STORJUSDT (confidence: 97%)...",
-    "symbol": "STORJUSDT",
-    "confidence": 97
-  },
-  {
-    "id": "d286f9e2-45a2-42a0-8d12-1811ddcc8b07",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip IRYSUSDT: tidak ada setup entry yang valid",
-    "symbol": "IRYSUSDT"
-  },
-  {
-    "id": "a17f61c5-5770-42a8-8fee-bd54a881e8aa",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis IRYSUSDT (confidence: 99%)...",
-    "symbol": "IRYSUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "602caa55-1f4c-41e4-b7a8-11d3f7b28817",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip ARCUSDT: tidak ada setup entry yang valid",
-    "symbol": "ARCUSDT"
-  },
-  {
-    "id": "bd6b06bf-9555-433f-b632-7f4caefcd8ba",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis ARCUSDT (confidence: 99%)...",
-    "symbol": "ARCUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "92e07c0c-125a-4a42-9561-b24948661c0c",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip JCTUSDT: tidak ada setup entry yang valid",
-    "symbol": "JCTUSDT"
   }
 ]

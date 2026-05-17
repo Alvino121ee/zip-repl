@@ -315,7 +315,7 @@ export function openDemoPosition(data: {
 
 // ─── Close demo position ──────────────────────────────────────────────────────
 
-export function closeDemoPosition(posId: string, reason: "tp" | "sl" | "manual", markPrice?: number): DemoTradeLog | { error: string } {
+export function closeDemoPosition(posId: string, reason: "tp" | "sl" | "manual" | "reversal", markPrice?: number, reversalNote?: string): DemoTradeLog | { error: string } {
   const idx = state.positions.findIndex((p) => p.id === posId);
   if (idx === -1) return { error: "Posisi tidak ditemukan" };
   const pos = state.positions[idx];
@@ -324,13 +324,14 @@ export function closeDemoPosition(posId: string, reason: "tp" | "sl" | "manual",
   const { pnl, pnlPct } = calcPnl(pos, closePrice);
 
   state.realizedPnl += pnl;
-  state.balance += pnl; // update balance
+  state.balance += pnl;
   if (pnl >= 0) state.winCount++;
   else state.lossCount++;
 
-  const statusMap = { tp: "closed_tp", sl: "closed_sl", manual: "closed_manual" } as const;
-  const reasonText = reason === "tp" ? `Take Profit hit @ $${closePrice.toFixed(4)}`
-    : reason === "sl" ? `Stop Loss hit @ $${closePrice.toFixed(4)}`
+  const statusMap = { tp: "closed_tp", sl: "closed_sl", manual: "closed_manual", reversal: "closed_manual" } as const;
+  const reasonText = reason === "tp" ? `Take Profit @ $${closePrice.toFixed(4)}`
+    : reason === "sl" ? `Stop Loss @ $${closePrice.toFixed(4)}`
+    : reason === "reversal" ? (reversalNote ?? `Tren berbalik — auto close`)
     : `Manual close @ $${closePrice.toFixed(4)}`;
 
   const logEntry: DemoTradeLog = {
@@ -356,6 +357,19 @@ export function closeDemoPosition(posId: string, reason: "tp" | "sl" | "manual",
   state.log.unshift(logEntry);
   if (state.log.length > 200) state.log.splice(200);
   saveState();
+
+  // Notifikasi ke activity feed
+  const direction = pos.side === "Buy" ? "LONG" : "SHORT";
+  const pnlStr = (pnl >= 0 ? "+" : "") + pnl.toFixed(2);
+  const pnlPctStr = (pnlPct >= 0 ? "+" : "") + pnlPct.toFixed(2);
+  const level = reason === "tp" ? "success" : reason === "sl" ? "warning" : "info";
+  const icon = reason === "tp" ? "✓ TP" : reason === "sl" ? "✕ SL" : reason === "reversal" ? "↩ EXIT" : "◼ CLOSE";
+  logActivity({
+    source: "demo", level,
+    message: `${icon} ${direction} ${pos.symbol} @ $${closePrice.toFixed(4)} | PnL: $${pnlStr} (${pnlPctStr}%) | ${reasonText}`,
+    symbol: pos.symbol,
+  });
+
   return logEntry;
 }
 
@@ -454,12 +468,30 @@ async function runAutoEngineCycle() {
     const qualified = candidates.filter(c => c.confidence >= demoConfig.minConfidence);
     demoEngineStatus.lastSignalsFound = qualified.length;
 
+    // ── 1. Cek posisi aktif — exit jika tren berbalik ────────────────────────
+    let autoExited = 0;
+    for (const pos of [...state.positions]) {
+      let posAnalysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+      try { posAnalysis = await analyzeSymbol(pos.symbol); }
+      catch { continue; }
+
+      const isLong = pos.side === "Buy";
+      const shouldClose = isLong ? posAnalysis.shouldExitLong : posAnalysis.shouldExitShort;
+      if (!shouldClose) continue;
+
+      const exitNote = posAnalysis.exitReason ?? `Tren berbalik ${isLong ? "BEARISH" : "BULLISH"} — auto exit`;
+      const price = await getMarkPrice(pos.symbol);
+      closeDemoPosition(pos.id, "reversal", price ?? undefined, exitNote);
+      autoExited++;
+      logger.info({ symbol: pos.symbol, side: pos.side, exitNote }, "Demo auto exit on reversal");
+    }
+
     const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
     const available = state.balance - usedMargin;
     const maxPerTrade = Math.min(demoConfig.maxPositionUSDT, available * 0.25);
 
     if (state.positions.length >= demoConfig.maxPositions) {
-      logActivity({ source: "demo", level: "warning", message: `Slot penuh (${state.positions.length}/${demoConfig.maxPositions}) — tidak membuka posisi baru` });
+      logActivity({ source: "demo", level: "info", message: `Slot penuh (${state.positions.length}/${demoConfig.maxPositions}) — menunggu TP/SL/exit` });
     }
 
     let skipped = 0;
@@ -540,6 +572,7 @@ async function runAutoEngineCycle() {
     const parts: string[] = [];
     parts.push(`Siklus #${demoEngineStatus.cycleCount}`);
     parts.push(`pindai: ${candidates.length} · kandidat: ${qualified.length}`);
+    if (autoExited > 0) parts.push(`exit reversal: ${autoExited}`);
     if (skipped > 0) parts.push(`skip: ${skipped}`);
     if (opened > 0) parts.push(`BUKA: ${opened}`);
     if (signaled > 0) parts.push(`sinyal: ${signaled}`);
