@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
-import { manualTrain, getBrainStats } from "./ai-continuous-learning.js";
+import { manualTrain, getBrainStats, saveGroqAnswer } from "./ai-continuous-learning.js";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY ?? "";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -428,10 +428,18 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         timestamp: Date.now(),
         type: "answer",
         category,
-        message: `✅ Groq menjawab (${answer.length} karakter) — disimpan ke bank pengetahuan`,
+        message: `✅ Groq menjawab (${answer.length} karakter) — disimpan ke memori AI`,
       });
 
       const trainResult = manualTrain(answer);
+
+      saveGroqAnswer({
+        title: question.slice(0, 100),
+        category,
+        skill,
+        fullAnswer: answer,
+        xpGained: trainResult.xpGained,
+      });
 
       session.completedQuestions++;
       session.totalXP += trainResult.xpGained;
@@ -440,16 +448,17 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         timestamp: Date.now(),
         type: "save",
         category,
-        message: `💾 Tersimpan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP, Skill: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
+        message: `💾 Tersimpan ke memori AI — Grade ${trainResult.grade}, +${trainResult.xpGained} XP, Skill: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
         xpGained: trainResult.xpGained,
         grade: trainResult.grade,
       });
 
-      logger.info("Groq answer saved to knowledge bank", {
+      logger.info("Groq answer saved to knowledge bank + AI memory", {
         category,
         skill,
         grade: trainResult.grade,
         xp: trainResult.xpGained,
+        contentLength: answer.length,
       });
 
       await new Promise(r => setTimeout(r, 800));

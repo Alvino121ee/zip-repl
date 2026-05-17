@@ -25,11 +25,13 @@ export interface MemoryEntry {
   timestamp: number;
   symbol: string;
   interval: string;
-  type: "best_setup" | "worst_setup" | "dangerous" | "pattern" | "manipulation" | "replay" | "manual";
+  type: "best_setup" | "worst_setup" | "dangerous" | "pattern" | "manipulation" | "replay" | "manual" | "groq";
   title: string;
   description: string;
+  content?: string;
   tags: string[];
   xpValue: number;
+  source?: string;
 }
 
 export interface LiveActivity {
@@ -1147,6 +1149,35 @@ export function manualTrain(rawText: string): ManualTrainResult {
     analysis,
     feedback,
   };
+}
+
+// ─── Simpan Jawaban Groq ke Memori AI ────────────────────────────────────────
+
+export function saveGroqAnswer(opts: {
+  title: string;
+  category: string;
+  skill: string;
+  fullAnswer: string;
+  xpGained: number;
+}): void {
+  const { title, category, skill, fullAnswer, xpGained } = opts;
+
+  addMemory(
+    {
+      symbol: "GROQ",
+      interval: "–",
+      type: "groq",
+      title: `[Groq] ${title.length > 80 ? title.slice(0, 77) + "..." : title}`,
+      description: `Kategori: ${category} | Skill: ${skill} | ${fullAnswer.length} karakter`,
+      content: fullAnswer,
+      tags: ["groq-learning", category.toLowerCase(), skill, "pengetahuan-ai"],
+      xpValue: xpGained,
+      source: "Groq Cloud / llama-3.3-70b-versatile",
+    },
+    "learnedPatterns"
+  );
+
+  saveBrainStats();
 }
 
 // ─── Auto-start ───────────────────────────────────────────────────────────────
