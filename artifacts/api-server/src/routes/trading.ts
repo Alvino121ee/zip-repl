@@ -18,6 +18,7 @@ import {
   saveTradingConfig,
   saveTradeLog,
   type AutoTradingConfig,
+  type PrecisionBestSetup,
 } from "../services/bybit.js";
 import { analyzeSymbol } from "../services/analysis.js";
 import { scanScalp5m, analyzeScalp5m, getSessionStats, resetSessionStats, SCALP_PAIRS } from "../services/scalping5m.js";
@@ -182,6 +183,8 @@ router.put("/trading/config", (req, res) => {
     "stopLossPct", "takeProfitPct", "maxPositions", "leverage", "intervalMs",
     "orderType", "limitOffsetPct", "scanSource",
     "scalpEnabled", "scalpTargetUSDT",
+    "precisionMode", "precisionMarginPct", "precisionMinConfidence",
+    "precisionMinRR", "precisionCooldownMinutes", "precisionDailyLossLimitPct",
   ];
 
   for (const key of allowed) {
@@ -255,6 +258,12 @@ router.get("/trading/engine-status", (_req, res) => {
       intervalMs: autoConfig.intervalMs,
       scalpEnabled: autoConfig.scalpEnabled,
       scalpTargetUSDT: autoConfig.scalpTargetUSDT,
+      precisionMode: autoConfig.precisionMode,
+      precisionMarginPct: autoConfig.precisionMarginPct,
+      precisionMinConfidence: autoConfig.precisionMinConfidence,
+      precisionMinRR: autoConfig.precisionMinRR,
+      precisionCooldownMinutes: autoConfig.precisionCooldownMinutes,
+      precisionDailyLossLimitPct: autoConfig.precisionDailyLossLimitPct,
     },
   });
 });

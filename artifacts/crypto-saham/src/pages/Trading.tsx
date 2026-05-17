@@ -58,6 +58,26 @@ interface AutoConfig {
   scanSource: "universe" | "predictions";
   scalpEnabled: boolean;
   scalpTargetUSDT: number;
+  precisionMode: boolean;
+  precisionMarginPct: number;
+  precisionMinConfidence: number;
+  precisionMinRR: number;
+  precisionCooldownMinutes: number;
+  precisionDailyLossLimitPct: number;
+}
+
+interface PrecisionBestSetup {
+  symbol: string;
+  side: "Buy" | "Sell";
+  confidence: number;
+  rr: number;
+  score: number;
+  grade: string;
+  entryPrice: number;
+  stopLoss: number;
+  takeProfit: number;
+  reasons: string[];
+  detectedAt: number;
 }
 
 interface TradeLog {
@@ -86,7 +106,21 @@ interface EngineStatusData {
   scalpMonitoring: boolean;
   scalpCurrentNetPnl: number;
   scalpLastTriggerAt: number | null;
-  config: { enabled: boolean; mode: string; maxPositions: number; minConfidence: number; maxPositionUSDT: number; intervalMs: number; scalpEnabled: boolean; scalpTargetUSDT: number };
+  precisionSniperStatus: string;
+  precisionCooldown: boolean;
+  precisionCooldownUntil: number | null;
+  precisionDailyLoss: number;
+  precisionDailyTrades: number;
+  precisionBestSetup: PrecisionBestSetup | null;
+  precisionPositionSymbol: string | null;
+  precisionTotalWins: number;
+  precisionTotalLosses: number;
+  config: {
+    enabled: boolean; mode: string; maxPositions: number; minConfidence: number;
+    maxPositionUSDT: number; intervalMs: number; scalpEnabled: boolean; scalpTargetUSDT: number;
+    precisionMode: boolean; precisionMarginPct: number; precisionMinConfidence: number;
+    precisionMinRR: number; precisionCooldownMinutes: number; precisionDailyLossLimitPct: number;
+  };
 }
 
 interface TimeframeSignal {
@@ -820,6 +854,227 @@ function EngineStatusPanel({ stat, config }: { stat: EngineStatusData | null; co
   );
 }
 
+// ─── Full Margin Precision Mode Panel ─────────────────────────────────────────
+
+function PrecisionModePanel({ config, stat }: { config: AutoConfig; stat: EngineStatusData | null }) {
+  const [, tick] = useState(0);
+  useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 1000); return () => clearInterval(id); }, []);
+
+  if (!config.precisionMode || !config.enabled || config.mode !== "auto") return null;
+
+  const status = stat?.precisionSniperStatus ?? "Menginisialisasi...";
+  const cooldown = stat?.precisionCooldown ?? false;
+  const cooldownUntil = stat?.precisionCooldownUntil ?? null;
+  const dailyLoss = stat?.precisionDailyLoss ?? 0;
+  const dailyTrades = stat?.precisionDailyTrades ?? 0;
+  const wins = stat?.precisionTotalWins ?? 0;
+  const losses = stat?.precisionTotalLosses ?? 0;
+  const best = stat?.precisionBestSetup ?? null;
+  const activePos = stat?.precisionPositionSymbol ?? null;
+  const totalTrades = wins + losses;
+  const winRate = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0;
+
+  const isHolding = !!activePos;
+  const isScanning = !isHolding && !cooldown;
+
+  // Status icon + color
+  const statusColor = cooldown ? "text-orange-400"
+    : isHolding ? "text-blue-400"
+    : status.includes("terdeteksi") || status.includes("Memasuki") ? "text-green-400"
+    : "text-purple-400";
+
+  const statusIcon = cooldown ? "⏸" : isHolding ? "🎯" : isScanning ? "🔍" : "⚡";
+
+  const cooldownRemain = cooldownUntil ? Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 60_000)) : 0;
+
+  return (
+    <div className="rounded-xl border border-purple-500/30 bg-purple-950/10 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-purple-500/20 bg-purple-950/20">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm">🎯</div>
+          <div>
+            <div className="font-bold text-sm text-purple-300">Full Margin Precision Mode</div>
+            <div className="text-[10px] text-purple-400/70">Sniper AI · 1 Posisi · Max Margin · ≥{config.precisionMinConfidence}% Conf · RR ≥{config.precisionMinRR}x</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isHolding && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 animate-pulse">
+              POSISI AKTIF
+            </span>
+          )}
+          {cooldown && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300">
+              COOLDOWN {cooldownRemain}m
+            </span>
+          )}
+          {!isHolding && !cooldown && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300">
+              SCANNING
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4 space-y-3">
+        {/* Live Sniper Status */}
+        <div className={`rounded-lg border px-3 py-2.5 flex items-start gap-2 ${
+          cooldown ? "bg-orange-950/20 border-orange-500/30"
+          : isHolding ? "bg-blue-950/20 border-blue-500/30"
+          : status.includes("terdeteksi") || status.includes("Memasuki") || status.includes("✓")
+            ? "bg-green-950/20 border-green-500/30"
+          : "bg-purple-950/20 border-purple-500/20"
+        }`}>
+          <span className="text-base shrink-0 mt-0.5">{statusIcon}</span>
+          <div className="min-w-0">
+            <div className={`text-xs font-medium leading-relaxed ${statusColor}`}>{status}</div>
+            {stat?.lastCycleAt && (
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                Scan terakhir: {timeAgo(stat.lastCycleAt)} · Berikutnya: {timeUntil(stat.nextCycleAt ?? null)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-4 gap-2">
+          <div className="bg-muted/20 rounded-lg p-2.5 border border-border text-center">
+            <div className="text-[10px] text-muted-foreground mb-1">Trade Hari Ini</div>
+            <div className="font-bold text-sm">{dailyTrades}</div>
+          </div>
+          <div className={`rounded-lg p-2.5 border text-center ${dailyLoss > 0 ? "bg-red-950/20 border-red-500/20" : "bg-muted/20 border-border"}`}>
+            <div className="text-[10px] text-muted-foreground mb-1">Loss Hari Ini</div>
+            <div className={`font-bold text-sm ${dailyLoss > 0 ? "text-red-400" : "text-foreground"}`}>
+              {dailyLoss > 0 ? `-$${dailyLoss.toFixed(2)}` : "$0"}
+            </div>
+          </div>
+          <div className={`rounded-lg p-2.5 border text-center ${wins > 0 ? "bg-green-950/20 border-green-500/20" : "bg-muted/20 border-border"}`}>
+            <div className="text-[10px] text-muted-foreground mb-1">Win/Loss</div>
+            <div className="font-bold text-sm">
+              <span className="text-green-400">{wins}</span>
+              <span className="text-muted-foreground">/</span>
+              <span className="text-red-400">{losses}</span>
+            </div>
+          </div>
+          <div className={`rounded-lg p-2.5 border text-center ${winRate >= 60 ? "bg-green-950/20 border-green-500/20" : winRate >= 40 ? "bg-yellow-950/20 border-yellow-500/20" : "bg-muted/20 border-border"}`}>
+            <div className="text-[10px] text-muted-foreground mb-1">Win Rate</div>
+            <div className={`font-bold text-sm ${winRate >= 60 ? "text-green-400" : winRate >= 40 ? "text-yellow-400" : "text-foreground"}`}>
+              {totalTrades > 0 ? `${winRate}%` : "—"}
+            </div>
+          </div>
+        </div>
+
+        {/* Best Setup Detected */}
+        {best && !isHolding && (
+          <div className="rounded-lg border border-yellow-500/30 bg-yellow-950/10 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-semibold text-yellow-400 flex items-center gap-1.5">
+                <span>⚡</span>Setup Terkuat Terdeteksi
+              </div>
+              <div className="text-[10px] text-muted-foreground">{timeAgo(best.detectedAt)}</div>
+            </div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm">{best.symbol}</span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${best.side === "Buy" ? "text-green-400 border-green-500/40 bg-green-950/30" : "text-red-400 border-red-500/40 bg-red-950/30"}`}>
+                  {best.side === "Buy" ? "↑ LONG" : "↓ SHORT"}
+                </span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${best.grade === "A" ? "text-yellow-400 border-yellow-500/40 bg-yellow-950/20" : "text-blue-400 border-blue-500/30 bg-blue-950/20"}`}>
+                  Grade {best.grade}
+                </span>
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold text-yellow-400">{best.confidence}%</div>
+                <div className="text-[10px] text-muted-foreground">RR {best.rr.toFixed(1)}x</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 mb-2 text-[10px]">
+              <div className="bg-black/20 rounded p-1.5">
+                <div className="text-muted-foreground">Entry</div>
+                <div className="font-mono font-semibold">${fmt(best.entryPrice, 4)}</div>
+              </div>
+              <div className="bg-red-950/20 rounded p-1.5">
+                <div className="text-muted-foreground">Stop Loss</div>
+                <div className="font-mono font-semibold text-red-400">${fmt(best.stopLoss, 4)}</div>
+              </div>
+              <div className="bg-green-950/20 rounded p-1.5">
+                <div className="text-muted-foreground">Take Profit</div>
+                <div className="font-mono font-semibold text-green-400">${fmt(best.takeProfit, 4)}</div>
+              </div>
+            </div>
+            {best.reasons.length > 0 && (
+              <div className="space-y-1">
+                {best.reasons.slice(0, 3).map((r, i) => (
+                  <div key={i} className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
+                    <span className="text-yellow-500 shrink-0">✓</span>{r}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Active Position Indicator */}
+        {isHolding && (
+          <div className="rounded-lg border border-blue-500/30 bg-blue-950/10 p-3 flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm shrink-0">
+              🎯
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-blue-300">Margin Penuh Aktif — {activePos}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">AI memantau momentum setiap 15 detik — exit cerdas aktif</div>
+            </div>
+            <div className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500" />
+            </div>
+          </div>
+        )}
+
+        {/* Cooldown State */}
+        {cooldown && (
+          <div className="rounded-lg border border-orange-500/30 bg-orange-950/10 p-3">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-orange-400 font-semibold text-xs">⏸ Cooldown Aktif</span>
+              <span className="text-[10px] text-orange-400/70 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/30">
+                {cooldownRemain} menit tersisa
+              </span>
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              AI menilai kembali kondisi pasar sebelum entry berikutnya. Seleksi akan diperketat.
+            </div>
+            {cooldownUntil && (
+              <div className="mt-1.5 h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-orange-500 rounded-full transition-all"
+                  style={{ width: `${Math.max(0, Math.min(100, 100 - (cooldownRemain / config.precisionCooldownMinutes) * 100))}%` }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Discipline rules mini */}
+        <div className="grid grid-cols-2 gap-1.5 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 bg-muted/10 rounded px-2 py-1.5 border border-border">
+            <span className="text-purple-400">●</span>Max 1 posisi serentak
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted/10 rounded px-2 py-1.5 border border-border">
+            <span className="text-purple-400">●</span>{config.precisionMarginPct}% margin dialokasikan
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted/10 rounded px-2 py-1.5 border border-border">
+            <span className="text-purple-400">●</span>Conf ≥{config.precisionMinConfidence}% + RR ≥{config.precisionMinRR}x
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted/10 rounded px-2 py-1.5 border border-border">
+            <span className="text-purple-400">●</span>Max loss harian {config.precisionDailyLossLimitPct}% equity
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Settings Panel ───────────────────────────────────────────────────────────
 
 function SettingsPanel({ config, onChange, onClose }: {
@@ -898,6 +1153,54 @@ function SettingsPanel({ config, onChange, onClose }: {
               </div>
             )}
           </div>
+
+          {/* ── Full Margin Precision Mode ──────────────────────────── */}
+          <div className="pt-2 border-t border-border">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-sm font-medium flex items-center gap-1.5">
+                  <span>🎯</span> Full Margin Precision Mode
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">
+                  Sniper mode — 1 posisi, margin maksimal, seleksi ketat ≥90%, exit cerdas
+                </div>
+              </div>
+              <button
+                onClick={() => onChange({ precisionMode: !config.precisionMode })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.precisionMode ? "bg-purple-600" : "bg-muted"}`}
+              >
+                <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${config.precisionMode ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
+            </div>
+            {config.precisionMode && (
+              <div className="space-y-3">
+                <div className="text-[11px] bg-purple-500/8 border border-purple-500/20 rounded-lg p-3 text-purple-300/80 space-y-1">
+                  <div>• AI hanya membuka 1 posisi serentak — tidak ada overtrading</div>
+                  <div>• {config.precisionMarginPct}% dari saldo dialokasikan per trade</div>
+                  <div>• Confidence ≥{config.precisionMinConfidence}% + RR ≥{config.precisionMinRR}x wajib</div>
+                  <div>• Cooldown {config.precisionCooldownMinutes} menit setelah loss — re-analisis ketat</div>
+                  <div>• Max loss harian {config.precisionDailyLossLimitPct}% dari total equity</div>
+                </div>
+                {[
+                  { key: "precisionMarginPct", label: "Alokasi Margin (%)", min: 10, max: 99, step: 5, display: `${config.precisionMarginPct}%` },
+                  { key: "precisionMinConfidence", label: "Min Confidence Sniper (%)", min: 80, max: 99, step: 1, display: `${config.precisionMinConfidence}%` },
+                  { key: "precisionMinRR", label: "Min Risk/Reward Ratio", min: 1.0, max: 5.0, step: 0.5, display: `${config.precisionMinRR}x` },
+                  { key: "precisionCooldownMinutes", label: "Cooldown Setelah Loss (menit)", min: 5, max: 120, step: 5, display: `${config.precisionCooldownMinutes} mnt` },
+                  { key: "precisionDailyLossLimitPct", label: "Max Loss Harian (% equity)", min: 1, max: 20, step: 1, display: `${config.precisionDailyLossLimitPct}%` },
+                ].map(({ key, label, min, max, step, display }) => (
+                  <div key={key}>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-semibold text-purple-400">{display}</span>
+                    </div>
+                    <Slider min={min} max={max} step={step}
+                      value={[(config as unknown as Record<string, number>)[key]]}
+                      onValueChange={([v]) => onChange({ [key]: v } as Partial<AutoConfig>)} className="w-full" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -944,6 +1247,8 @@ export default function Trading() {
     stopLossPct: 2, takeProfitPct: 4, maxPositions: 5, leverage: 1,
     intervalMs: 60_000, orderType: "Market", limitOffsetPct: 0.3, scanSource: "universe",
     scalpEnabled: false, scalpTargetUSDT: 1.0,
+    precisionMode: false, precisionMarginPct: 90, precisionMinConfidence: 90,
+    precisionMinRR: 2.0, precisionCooldownMinutes: 30, precisionDailyLossLimitPct: 5,
   });
   const [engineStat, setEngineStat] = useState<EngineStatusData | null>(null);
   const [tradeLogs, setTradeLogs] = useState<TradeLog[]>([]);

@@ -37,8 +37,15 @@ export interface AutoTradingConfig {
   limitOffsetPct: number;
   scanSource: "universe" | "predictions";
   // ── Scalping ──────────────────────────────────────────────────────────────
-  scalpEnabled: boolean;    // auto-close all positions when net profit >= target
-  scalpTargetUSDT: number;  // net profit target after Bybit taker fees
+  scalpEnabled: boolean;
+  scalpTargetUSDT: number;
+  // ── Full Margin Precision Mode ─────────────────────────────────────────────
+  precisionMode: boolean;           // sniper mode — 1 position, max margin, 90%+ conf
+  precisionMarginPct: number;       // % of available USDT to allocate (default 90)
+  precisionMinConfidence: number;   // minimum confidence threshold (default 90)
+  precisionMinRR: number;           // minimum risk/reward ratio (default 2.0)
+  precisionCooldownMinutes: number; // cooldown after a loss (default 30)
+  precisionDailyLossLimitPct: number; // max daily loss % of equity (default 5)
 }
 
 export const autoConfig: AutoTradingConfig = {
@@ -56,6 +63,12 @@ export const autoConfig: AutoTradingConfig = {
   scanSource: "universe",
   scalpEnabled: false,
   scalpTargetUSDT: 1.0,
+  precisionMode: false,
+  precisionMarginPct: 90,
+  precisionMinConfidence: 90,
+  precisionMinRR: 2.0,
+  precisionCooldownMinutes: 30,
+  precisionDailyLossLimitPct: 5,
 };
 
 export const tradeLog: TradeLogEntry[] = [];
@@ -509,6 +522,20 @@ export async function scanBybitUniverse(): Promise<UniverseCandidate[]> {
 // Bybit taker fee rate (0.055% per side, so close-leg fee = value × 0.00055)
 const BYBIT_TAKER_FEE = 0.00055;
 
+export interface PrecisionBestSetup {
+  symbol: string;
+  side: "Buy" | "Sell";
+  confidence: number;
+  rr: number;
+  score: number;
+  grade: string;
+  entryPrice: number;
+  stopLoss: number;
+  takeProfit: number;
+  reasons: string[];
+  detectedAt: number;
+}
+
 export interface EngineStatus {
   running: boolean;
   analyzing: boolean;
@@ -526,6 +553,17 @@ export interface EngineStatus {
   scalpLastCheckAt: number | null;
   scalpCurrentNetPnl: number;
   scalpLastTriggerAt: number | null;
+  // Full Margin Precision Mode
+  precisionSniperStatus: string;
+  precisionCooldown: boolean;
+  precisionCooldownUntil: number | null;
+  precisionDailyLoss: number;
+  precisionDailyTrades: number;
+  precisionDailyDate: string;
+  precisionBestSetup: PrecisionBestSetup | null;
+  precisionPositionSymbol: string | null;
+  precisionTotalWins: number;
+  precisionTotalLosses: number;
 }
 
 export const engineStatus: EngineStatus = {
@@ -544,6 +582,16 @@ export const engineStatus: EngineStatus = {
   scalpLastCheckAt: null,
   scalpCurrentNetPnl: 0,
   scalpLastTriggerAt: null,
+  precisionSniperStatus: "Menunggu aktivasi...",
+  precisionCooldown: false,
+  precisionCooldownUntil: null,
+  precisionDailyLoss: 0,
+  precisionDailyTrades: 0,
+  precisionDailyDate: "",
+  precisionBestSetup: null,
+  precisionPositionSymbol: null,
+  precisionTotalWins: 0,
+  precisionTotalLosses: 0,
 };
 
 // ─── Scalp monitor ────────────────────────────────────────────────────────────
@@ -623,6 +671,347 @@ async function runScalpMonitor() {
     logger.warn({ err }, "Scalp monitor error");
   } finally {
     engineStatus.scalpMonitoring = false;
+  }
+}
+
+// ─── Full Margin Precision Mode engine ─────────────────────────────────────────
+
+let precisionInterval: ReturnType<typeof setInterval> | null = null;
+let precisionPositionMonitorInterval: ReturnType<typeof setInterval> | null = null;
+
+function setPrecisionStatus(msg: string) {
+  engineStatus.precisionSniperStatus = msg;
+  logActivity({ source: "auto", level: "info", message: `[SNIPER] ${msg}` });
+  logger.info({ msg }, "Precision sniper status");
+}
+
+function todayDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkAndResetDailyStats() {
+  const today = todayDate();
+  if (engineStatus.precisionDailyDate !== today) {
+    engineStatus.precisionDailyDate = today;
+    engineStatus.precisionDailyLoss = 0;
+    engineStatus.precisionDailyTrades = 0;
+    logger.info("Precision: daily stats reset");
+  }
+}
+
+async function runPrecisionPositionMonitor() {
+  if (!autoConfig.precisionMode || !autoConfig.enabled) return;
+  if (!engineStatus.precisionPositionSymbol) return;
+
+  try {
+    const sym = engineStatus.precisionPositionSymbol;
+    const posResult = await getPositions() as {
+      list: { symbol: string; side: string; size: string; avgPrice: string; unrealisedPnl: string; markPrice: string; leverage: string }[]
+    };
+    const pos = posResult.list.find((p) => p.symbol === sym && parseFloat(p.size) > 0);
+
+    if (!pos) {
+      // Position closed (hit TP/SL or was closed externally)
+      logger.info({ sym }, "Precision: position closed (TP/SL or external)");
+      const pnl = 0; // unknown — was closed externally
+      engineStatus.precisionPositionSymbol = null;
+      engineStatus.precisionBestSetup = null;
+      setPrecisionStatus("Posisi ditutup — memindai setup terbaik berikutnya...");
+      return;
+    }
+
+    const pnl = parseFloat(pos.unrealisedPnl ?? "0");
+    const markPrice = parseFloat(pos.markPrice ?? "0");
+    const size = parseFloat(pos.size ?? "0");
+    const closeFee = size * markPrice * BYBIT_TAKER_FEE;
+    const netPnl = pnl - closeFee;
+
+    // Run analysis to detect exit signals
+    let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+    try { analysis = await analyzeSymbol(sym); } catch { return; }
+
+    const isLong = pos.side === "Buy";
+    const shouldExit = isLong ? analysis.shouldExitLong : analysis.shouldExitShort;
+
+    if (netPnl > 0) {
+      setPrecisionStatus(`Melindungi margin penuh — net PnL: +$${netPnl.toFixed(3)} USDT (${sym})`);
+    } else {
+      setPrecisionStatus(`Memantau posisi ${isLong ? "LONG" : "SHORT"} ${sym} — net: $${netPnl.toFixed(3)} USDT`);
+    }
+
+    if (!shouldExit) return;
+
+    // Exit early — momentum weakening or exit signal
+    const exitReason = analysis.exitReason ?? "Momentum melemah — exit cerdas";
+    setPrecisionStatus(`Momentum melemah terdeteksi — exit cerdas dari ${sym}...`);
+    logger.info({ sym, exitReason, netPnl }, "Precision: early exit triggered");
+
+    const closeSide: "Buy" | "Sell" = isLong ? "Sell" : "Buy";
+    try {
+      const closeOrder = await closePosition(sym, closeSide, pos.size);
+      const closedNetPnl = netPnl;
+
+      // Record result for daily tracking + cooldown
+      engineStatus.precisionDailyTrades++;
+      if (closedNetPnl < 0) {
+        engineStatus.precisionDailyLoss += Math.abs(closedNetPnl);
+        engineStatus.precisionTotalLosses++;
+        // Activate cooldown
+        engineStatus.precisionCooldown = true;
+        engineStatus.precisionCooldownUntil = Date.now() + autoConfig.precisionCooldownMinutes * 60_000;
+        const cooldownMsg = `Cooldown aktif ${autoConfig.precisionCooldownMinutes} menit setelah loss — re-analisis pasar dengan cermat`;
+        setPrecisionStatus(cooldownMsg);
+        logActivity({ source: "auto", level: "warn", message: `[SNIPER] Loss $${Math.abs(closedNetPnl).toFixed(3)} — ${cooldownMsg}` });
+      } else {
+        engineStatus.precisionTotalWins++;
+        setPrecisionStatus(`Profit diamankan: +$${closedNetPnl.toFixed(3)} USDT — mencari setup berikutnya...`);
+        logActivity({ source: "auto", level: "success", message: `[SNIPER] ✓ Profit $${closedNetPnl.toFixed(3)} USDT — ${sym}` });
+      }
+
+      tradeLog.unshift({
+        id: crypto.randomUUID(), timestamp: Date.now(),
+        symbol: sym, side: closeSide, qty: pos.size,
+        price: markPrice, confidence: analysis.overallConfidence,
+        signal: "precision_exit", status: "executed",
+        reason: `[PRECISION] ${exitReason} — net $${closedNetPnl.toFixed(3)}`,
+        orderId: closeOrder.orderId,
+      });
+      if (tradeLog.length > 200) tradeLog.splice(200);
+      saveTradeLog();
+      engineStatus.precisionPositionSymbol = null;
+      engineStatus.precisionBestSetup = null;
+    } catch (err) {
+      logger.warn({ err, sym }, "Precision: failed to early-exit position");
+    }
+  } catch (err) {
+    logger.warn({ err }, "Precision position monitor error");
+  }
+}
+
+async function runPrecisionModeCycle() {
+  if (!autoConfig.enabled || !autoConfig.precisionMode) return;
+  if (engineStatus.analyzing) return;
+
+  engineStatus.analyzing = true;
+  checkAndResetDailyStats();
+
+  try {
+    // ── 1. Cooldown check ────────────────────────────────────────────────────
+    if (engineStatus.precisionCooldown) {
+      if (engineStatus.precisionCooldownUntil && Date.now() < engineStatus.precisionCooldownUntil) {
+        const remainMin = Math.ceil((engineStatus.precisionCooldownUntil - Date.now()) / 60_000);
+        setPrecisionStatus(`Cooldown aktif — ${remainMin} menit tersisa sebelum scan berikutnya`);
+        return;
+      }
+      engineStatus.precisionCooldown = false;
+      engineStatus.precisionCooldownUntil = null;
+      setPrecisionStatus("Cooldown selesai — memulai scan sniper...");
+    }
+
+    // ── 2. Check if already holding a position ────────────────────────────────
+    const posResult = await getPositions() as {
+      list: { symbol: string; side: string; size: string; avgPrice: string; unrealisedPnl: string; markPrice: string }[]
+    };
+    const openPositions = (posResult.list ?? []).filter((p) => parseFloat(p.size) > 0);
+
+    if (openPositions.length > 0) {
+      const sym = openPositions[0].symbol;
+      engineStatus.precisionPositionSymbol = sym;
+      const pnl = parseFloat(openPositions[0].unrealisedPnl ?? "0");
+      setPrecisionStatus(`Memantau posisi aktif ${sym} — PnL: ${pnl >= 0 ? "+" : ""}$${pnl.toFixed(3)} USDT`);
+      return;
+    }
+
+    engineStatus.precisionPositionSymbol = null;
+
+    // ── 3. Check daily loss limit ─────────────────────────────────────────────
+    const balResult = await getWalletBalance() as {
+      list: { totalEquity: string; coin: { coin: string; walletBalance: string }[] }[];
+    };
+    const totalEquity = parseFloat(balResult.list?.[0]?.totalEquity ?? "0");
+    const usdtCoin = balResult.list?.[0]?.coin?.find((c) => c.coin === "USDT");
+    const availableUSDT = parseFloat(usdtCoin?.walletBalance ?? "0");
+
+    const dailyLossLimitUSDT = totalEquity * (autoConfig.precisionDailyLossLimitPct / 100);
+    if (totalEquity > 0 && engineStatus.precisionDailyLoss >= dailyLossLimitUSDT) {
+      setPrecisionStatus(`Batas loss harian ${autoConfig.precisionDailyLossLimitPct}% tercapai ($${engineStatus.precisionDailyLoss.toFixed(2)}) — istirahat hingga besok`);
+      return;
+    }
+
+    // ── 4. Scan universe for ALL candidates ───────────────────────────────────
+    setPrecisionStatus("Memindai seluruh universe — mencari setup terbaik...");
+    const rawCandidates = await scanBybitUniverse();
+    engineStatus.totalScanned = rawCandidates.length;
+
+    // Score candidates: confidence × RR proxy × score
+    const sorted = rawCandidates
+      .sort((a, b) => (b.confidence * b.score) - (a.confidence * a.score))
+      .slice(0, 15); // analyze top 15 maximum
+
+    if (sorted.length === 0) {
+      setPrecisionStatus("Tidak ada kandidat ditemukan — pasar sideways, menunggu...");
+      engineStatus.precisionBestSetup = null;
+      return;
+    }
+
+    setPrecisionStatus(`Menganalisis ${sorted.length} kandidat teratas secara mendalam...`);
+
+    // ── 5. Deep analyze — find the single BEST setup ──────────────────────────
+    let bestSetup: PrecisionBestSetup | null = null;
+
+    for (const cand of sorted) {
+      let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+      try {
+        analysis = await analyzeSymbol(cand.symbol);
+      } catch {
+        continue;
+      }
+
+      // STRICT entry criteria gate
+      if (!analysis.shouldEnter) continue;
+      if (analysis.side !== cand.side) continue;
+      if (analysis.overallConfidence < autoConfig.precisionMinConfidence) continue;
+      if (analysis.riskRewardRatio < autoConfig.precisionMinRR) continue;
+      if (analysis.fakeBreakout.isFakeBreakoutUp || analysis.fakeBreakout.isFakeBreakoutDown) continue;
+      if (analysis.indicators.rsiZone === "overbought" && cand.side === "Buy") continue;
+      if (analysis.indicators.rsiZone === "oversold" && cand.side === "Sell") continue;
+      if (analysis.indicators.volumeRatio < 1.1) continue; // volume must confirm
+
+      // Multi-timeframe alignment check — majority must agree
+      const tfKeys = Object.keys(analysis.multiTimeframe);
+      if (tfKeys.length >= 2) {
+        const aligned = tfKeys.filter((tf) => {
+          const t = analysis!.multiTimeframe[tf];
+          return cand.side === "Buy" ? t.bullishConf : t.bearishConf;
+        });
+        const alignRatio = aligned.length / tfKeys.length;
+        if (alignRatio < 0.5) continue; // less than half agree
+      }
+
+      // This candidate passes ALL strict checks
+      const score = analysis.overallConfidence * analysis.riskRewardRatio * analysis.trendStrength;
+      if (!bestSetup || score > bestSetup.score) {
+        bestSetup = {
+          symbol: cand.symbol,
+          side: cand.side,
+          confidence: analysis.overallConfidence,
+          rr: analysis.riskRewardRatio,
+          score,
+          grade: analysis.signalGrade ?? "B",
+          entryPrice: analysis.entryPrice,
+          stopLoss: analysis.stopLoss,
+          takeProfit: analysis.takeProfit,
+          reasons: analysis.reasons.slice(0, 4),
+          detectedAt: Date.now(),
+        };
+      }
+      // We stop at the first A-grade, otherwise keep looking for best
+      if (bestSetup && analysis.signalGrade === "A") break;
+    }
+
+    engineStatus.precisionBestSetup = bestSetup;
+
+    if (!bestSetup) {
+      setPrecisionStatus(`Tidak ada setup berkualitas tinggi — ${sorted.length} kandidat gagal melewati seleksi ketat`);
+      return;
+    }
+
+    // ── 6. Check confirmation wait (avoid FOMO / chasing) ────────────────────
+    if (bestSetup.confidence < 93) {
+      setPrecisionStatus(`Setup terdeteksi: ${bestSetup.symbol} ${bestSetup.side === "Buy" ? "LONG" : "SHORT"} ${bestSetup.confidence}% — menunggu konfirmasi lebih kuat...`);
+    } else {
+      setPrecisionStatus(`Peluang high-confidence terdeteksi: ${bestSetup.symbol} ${bestSetup.side === "Buy" ? "LONG" : "SHORT"} ${bestSetup.confidence}% — memasuki trade sniper...`);
+    }
+
+    // ── 7. Calculate position size — full margin allocation ───────────────────
+    const allocatedUSDT = availableUSDT * (autoConfig.precisionMarginPct / 100);
+    if (allocatedUSDT < 5.5) {
+      setPrecisionStatus(`Saldo tidak cukup ($${availableUSDT.toFixed(2)} USDT) — perlu minimal $6 USDT`);
+      return;
+    }
+
+    // Analyze again to get fresh analysis for execution
+    let execAnalysis: Awaited<ReturnType<typeof analyzeSymbol>>;
+    try {
+      execAnalysis = await analyzeSymbol(bestSetup.symbol);
+    } catch (err) {
+      setPrecisionStatus(`Gagal re-analisis ${bestSetup.symbol} sebelum entry`);
+      return;
+    }
+
+    // Final check — still valid?
+    if (!execAnalysis.shouldEnter || execAnalysis.side !== bestSetup.side) {
+      setPrecisionStatus(`Setup ${bestSetup.symbol} sudah berubah — membatalkan entry, mencari setup baru`);
+      engineStatus.precisionBestSetup = null;
+      return;
+    }
+
+    const execPrice = execAnalysis.entryPrice;
+    const dynLeverage = Math.min(execAnalysis.recommendedLeverage, autoConfig.leverage > 1 ? autoConfig.leverage : 10);
+    const qty = formatQty(allocatedUSDT / execPrice, execPrice);
+
+    const slPrice = execAnalysis.stopLoss > 0 ? execAnalysis.stopLoss
+      : bestSetup.side === "Sell" ? execPrice * (1 + autoConfig.stopLossPct / 100)
+      : execPrice * (1 - autoConfig.stopLossPct / 100);
+    const tpPrice = execAnalysis.takeProfit > 0 ? execAnalysis.takeProfit
+      : bestSetup.side === "Sell" ? execPrice * (1 - autoConfig.takeProfitPct / 100)
+      : execPrice * (1 + autoConfig.takeProfitPct / 100);
+
+    // Set dynamic leverage
+    if (dynLeverage > 1) {
+      await bybitPost("/v5/position/set-leverage", {
+        category: "linear", symbol: bestSetup.symbol,
+        buyLeverage: String(dynLeverage), sellLeverage: String(dynLeverage),
+      }).catch(() => {});
+    }
+
+    const direction = bestSetup.side === "Buy" ? "LONG" : "SHORT";
+    const reasonSummary = execAnalysis.reasons.slice(0, 2).join(" | ");
+    setPrecisionStatus(`Memasuki trade sniper ${direction} ${bestSetup.symbol} @ $${execPrice.toFixed(4)} — leverage ${dynLeverage}x`);
+    logActivity({ source: "auto", level: "signal", message: `[SNIPER] ⚡ Entry ${direction} ${bestSetup.symbol} @ $${execPrice.toFixed(4)} | conf: ${execAnalysis.overallConfidence}% | RR: ${execAnalysis.riskRewardRatio.toFixed(1)} | lev: ${dynLeverage}x`, symbol: bestSetup.symbol, confidence: execAnalysis.overallConfidence });
+
+    const logEntry: TradeLogEntry = {
+      id: crypto.randomUUID(), timestamp: Date.now(),
+      symbol: bestSetup.symbol, side: bestSetup.side, qty, price: execPrice,
+      confidence: execAnalysis.overallConfidence, signal: `precision_${direction.toLowerCase()}`,
+      status: "pending", reason: `[PRECISION] ${reasonSummary}`,
+    };
+
+    try {
+      const order = await placeOrder({ symbol: bestSetup.symbol, side: bestSetup.side, qty, orderType: "Market" });
+
+      await setPositionTPSL({ symbol: bestSetup.symbol, takeProfit: tpPrice, stopLoss: slPrice }, 1500)
+        .catch((e) => logger.warn({ e, symbol: bestSetup!.symbol }, "Precision: failed to set TP/SL"));
+
+      logEntry.status = "executed";
+      logEntry.orderId = order.orderId;
+      engineStatus.precisionPositionSymbol = bestSetup.symbol;
+      engineStatus.precisionDailyTrades++;
+      engineStatus.lastOrdersPlaced++;
+
+      setPrecisionStatus(`✓ Posisi ${direction} ${bestSetup.symbol} aktif — margin penuh $${allocatedUSDT.toFixed(2)} | TP $${tpPrice.toFixed(4)} | SL $${slPrice.toFixed(4)}`);
+      logActivity({ source: "auto", level: "success", message: `[SNIPER] ✓ ${direction} ${bestSetup.symbol} dibuka | margin $${allocatedUSDT.toFixed(2)} | TP $${tpPrice.toFixed(4)} | SL $${slPrice.toFixed(4)}`, symbol: bestSetup.symbol, confidence: execAnalysis.overallConfidence });
+      logger.info({ symbol: bestSetup.symbol, side: bestSetup.side, qty, orderId: order.orderId, allocatedUSDT, dynLeverage, confidence: execAnalysis.overallConfidence }, "Precision sniper trade placed");
+    } catch (err) {
+      logEntry.status = "rejected";
+      logEntry.reason = `[PRECISION] ${String(err)}`;
+      setPrecisionStatus(`Gagal membuka posisi ${bestSetup.symbol}: ${String(err)}`);
+      logActivity({ source: "auto", level: "error", message: `[SNIPER] ✕ Gagal entry ${bestSetup.symbol}: ${String(err)}`, symbol: bestSetup.symbol });
+    }
+
+    tradeLog.unshift(logEntry);
+    if (tradeLog.length > 200) tradeLog.splice(200);
+    saveTradeLog();
+
+  } catch (err) {
+    logger.error({ err }, "Precision mode cycle error");
+    engineStatus.lastError = String(err);
+    setPrecisionStatus(`Error: ${String(err)}`);
+  } finally {
+    engineStatus.analyzing = false;
+    engineStatus.lastCycleAt = Date.now();
+    engineStatus.cycleCount++;
+    engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
   }
 }
 
@@ -894,34 +1283,50 @@ async function runAutoTradeCycle() {
 export function startAutoEngine() {
   if (autoInterval) clearInterval(autoInterval);
   if (scalpInterval) clearInterval(scalpInterval);
+  if (precisionInterval) clearInterval(precisionInterval);
+  if (precisionPositionMonitorInterval) clearInterval(precisionPositionMonitorInterval);
 
   engineStatus.running = true;
   engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
 
-  // Main trade cycle
-  autoInterval = setInterval(() => {
-    engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+  if (autoConfig.precisionMode) {
+    // ── PRECISION MODE — sniper cycle + position monitor ────────────────────
+    engineStatus.precisionSniperStatus = "Memindai setup terbaik...";
+    precisionInterval = setInterval(() => {
+      engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+      void runPrecisionModeCycle();
+    }, autoConfig.intervalMs);
+    // Position monitor every 15 seconds
+    precisionPositionMonitorInterval = setInterval(() => {
+      void runPrecisionPositionMonitor();
+    }, 15_000);
+    void runPrecisionModeCycle();
+    void runPrecisionPositionMonitor();
+    logger.info({ intervalMs: autoConfig.intervalMs }, "Precision sniper engine started");
+  } else {
+    // ── STANDARD MODE — bidirectional auto cycle + scalp monitor ───────────
+    autoInterval = setInterval(() => {
+      engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+      void runAutoTradeCycle();
+    }, autoConfig.intervalMs);
+    scalpInterval = setInterval(() => {
+      void runScalpMonitor();
+    }, 10_000);
     void runAutoTradeCycle();
-  }, autoConfig.intervalMs);
-
-  // Scalp monitor — runs every 10 seconds independently
-  scalpInterval = setInterval(() => {
     void runScalpMonitor();
-  }, 10_000);
-
-  // Run both immediately on start
-  void runAutoTradeCycle();
-  void runScalpMonitor();
-
-  logger.info({ intervalMs: autoConfig.intervalMs, scalpEnabled: autoConfig.scalpEnabled }, "Auto-trading engine started");
+    logger.info({ intervalMs: autoConfig.intervalMs, scalpEnabled: autoConfig.scalpEnabled }, "Standard auto-trading engine started");
+  }
 }
 
 export function stopAutoEngine() {
   if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
   if (scalpInterval) { clearInterval(scalpInterval); scalpInterval = null; }
+  if (precisionInterval) { clearInterval(precisionInterval); precisionInterval = null; }
+  if (precisionPositionMonitorInterval) { clearInterval(precisionPositionMonitorInterval); precisionPositionMonitorInterval = null; }
   engineStatus.running = false;
   engineStatus.analyzing = false;
   engineStatus.scalpMonitoring = false;
   engineStatus.nextCycleAt = null;
+  engineStatus.precisionSniperStatus = "Engine dimatikan";
   logger.info("Auto-trading engine stopped");
 }

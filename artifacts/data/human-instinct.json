@@ -1,15 +1,157 @@
 {
-  "totalDecisions": 22,
-  "correctEarlyExits": 22,
+  "totalDecisions": 29,
+  "correctEarlyExits": 29,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.31818181818182,
-  "avgContinuationProbAtExit": 15.045454545454545,
+  "avgMomentumAtEarlyExit": 45.172413793103445,
+  "avgContinuationProbAtExit": 13.793103448275861,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "3d60ef53-55e4-457e-a9ec-6f573bf2184e",
+      "tradeId": "1053852b-1a28-49d0-8555-df2804d0cd99",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle rejection atas — tekanan jual kuat. Profit $0.37% diamankan.",
+      "profitPctAtDecision": 0.3672361488104648,
+      "momentumScore": 33,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle rejection atas — tekanan jual kuat",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779028211980,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.3672361488104648,
+      "profitDelta": 0
+    },
+    {
+      "id": "d95510a4-8da3-4a0d-846b-c2812077702f",
+      "tradeId": "a8b44a4e-91d7-42a8-8845-327b1d7759a6",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6097560975609841,
+      "momentumScore": 65,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 22%",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779027691989,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6097560975609841,
+      "profitDelta": 0
+    },
+    {
+      "id": "16370e8c-fc14-4573-8f89-f35683451f7b",
+      "tradeId": "ba01b1cf-26a5-4dd3-90f7-b4647626fd9b",
+      "symbol": "KAITOUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 28) — probabilitas kelanjutan rendah. Volume menurun 48% — tanda pelemahan",
+      "profitPctAtDecision": 0.5458744488767565,
+      "momentumScore": 28,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 48% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779027548107,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5458744488767565,
+      "profitDelta": 0
+    },
+    {
+      "id": "93c3ff40-d161-4842-88d5-357b79317f93",
+      "tradeId": "05e8e694-4622-4ff4-8350-7d68321fc198",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5157131345688973,
+      "momentumScore": 65,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 27%",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779027419889,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5157131345688973,
+      "profitDelta": 0
+    },
+    {
+      "id": "50684980-42a8-40d6-a1ae-5b8b6edad520",
+      "tradeId": "d7b0a12d-784b-4542-9fc8-de6fca3c6f37",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 38% — tanda pelemahan",
+      "profitPctAtDecision": 0.6152517674995963,
+      "momentumScore": 32,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 38% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779027411798,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6152517674995963,
+      "profitDelta": 0
+    },
+    {
+      "id": "9157885b-9b1d-4668-bff2-988aa92444aa",
+      "tradeId": "b9510c24-46fe-4630-9be7-a924372efb3d",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 2.0099575880508955,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 55,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779027187891,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 2.0099575880508955,
+      "profitDelta": 0
+    },
+    {
+      "id": "69272c2f-5b6b-45fc-ae23-77eeba1fa539",
+      "tradeId": "e72741ee-6c37-4eec-955e-c522d41fbf3d",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 52% — momentum sangat lemah. Profit $0.63% diamankan.",
+      "profitPctAtDecision": 0.6305637982195845,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 52% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779027059820,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6305637982195845,
+      "profitDelta": 0
+    },
     {
       "id": "c7d505a7-4c4c-4b02-9a37-4b220141c7b9",
       "tradeId": "a4cbdb59-c585-4744-8757-4f9aa4562b72",
@@ -453,5 +595,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779026565780
+  "lastUpdated": 1779028211982
 }
