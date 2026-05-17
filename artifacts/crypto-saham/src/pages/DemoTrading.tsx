@@ -75,6 +75,9 @@ interface DemoTradeLog {
   status: "opened" | "closed_tp" | "closed_sl" | "closed_manual" | "rejected";
   reason: string; openReason?: string; source: "auto" | "scalp" | "manual";
   tags?: string[]; marketCondition?: string;
+  fee?: number;
+  entryFee?: number;
+  exitFee?: number;
 }
 
 interface DemoBalance {
@@ -127,6 +130,8 @@ interface DemoStats {
   tagPerformance: { tag: string; wins: number; losses: number; pnl: number; winRate: number }[];
   pairPerformance: { pair: string; wins: number; losses: number; pnl: number; winRate: number; trades: number }[];
   sourcePerformance: { source: string; wins: number; losses: number; pnl: number; winRate: number }[];
+  totalFees: number;
+  feeRate: number;
 }
 
 interface BrainStats {
@@ -264,7 +269,7 @@ function PanelSaldo({ balance, onReset, stats }: { balance: DemoBalance | null; 
             <RotateCcw className="h-3 w-3" /> Reset
           </Button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div>
             <p className="text-xs text-muted-foreground">Total Ekuitas</p>
             <p className="text-xl font-bold tabular-nums">${fmt(balance.total)}</p>
@@ -285,6 +290,13 @@ function PanelSaldo({ balance, onReset, stats }: { balance: DemoBalance | null; 
             <p className={`text-xs ${pnlColor(balance.realizedPnl)}`}>
               Realized: {balance.realizedPnl >= 0 ? "+" : ""}${fmt(Math.abs(balance.realizedPnl))}
             </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Admin Fee (0.055%)</p>
+            <p className="text-lg font-bold tabular-nums text-orange-400">
+              -{stats ? fmt(stats.totalFees, 4) : "0.0000"}
+            </p>
+            <p className="text-xs text-muted-foreground">Taker · per trade</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Win Rate</p>
@@ -609,6 +621,31 @@ function BarisRiwayat({ entry }: { entry: DemoTradeLog }) {
             {entry.duration && <div><p className="text-muted-foreground">Durasi</p><p className="font-bold">{durasiFormat(entry.duration)}</p></div>}
             <div><p className="text-muted-foreground">Kepercayaan</p><p className="font-bold text-primary">{entry.confidence}%</p></div>
           </div>
+          {(entry.fee != null || entry.entryFee != null) && (
+            <div className="bg-orange-500/5 border border-orange-500/20 rounded p-2">
+              <p className="text-[10px] text-orange-400 font-semibold mb-1.5">💸 Admin Fee (Bybit Taker 0.055%)</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                {entry.entryFee != null && (
+                  <div>
+                    <p className="text-muted-foreground">Fee Buka</p>
+                    <p className="font-bold text-orange-400">-${fmt(entry.entryFee, 4)}</p>
+                  </div>
+                )}
+                {entry.exitFee != null && (
+                  <div>
+                    <p className="text-muted-foreground">Fee Tutup</p>
+                    <p className="font-bold text-orange-400">-${fmt(entry.exitFee, 4)}</p>
+                  </div>
+                )}
+                {entry.fee != null && (
+                  <div>
+                    <p className="text-muted-foreground">Total Fee</p>
+                    <p className="font-bold text-orange-400">-${fmt(entry.fee, 4)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {entry.openReason && (
             <div className="bg-blue-500/5 border border-blue-500/20 rounded p-2">
               <p className="text-[10px] text-blue-400 font-semibold mb-1">🤖 Alasan AI Masuk:</p>
@@ -825,6 +862,7 @@ function TabStatistik({ stats }: { stats: DemoStats | null }) {
     { label: "Profit Factor", val: stats.profitFactor === 999 ? "∞" : fmt(stats.profitFactor), sub: "Target ≥ 1.5", icon: Award, warna: stats.profitFactor >= 1.5 ? "text-green-400" : stats.profitFactor >= 1 ? "text-yellow-400" : "text-red-400" },
     { label: "Saldo Saat Ini", val: `$${fmt(stats.currentBalance)}`, sub: `Modal awal: $${fmt(stats.initialBalance)}`, icon: Wallet, warna: stats.currentBalance >= stats.initialBalance ? "text-green-400" : "text-red-400" },
     { label: "Total PnL", val: `${stats.totalPnl >= 0 ? "+" : ""}$${fmt(Math.abs(stats.totalPnl))}`, sub: `${stats.totalPnlPct >= 0 ? "+" : ""}${fmt(stats.totalPnlPct)}% dari modal`, icon: TrendingUp, warna: pnlColor(stats.totalPnl) },
+    { label: "Total Admin Fee", val: `-$${fmt(stats.totalFees, 4)}`, sub: `Taker 0.055% × ${stats.closedTrades * 2} order`, icon: PieChart, warna: "text-orange-400" },
     { label: "Kemenangan Terbesar", val: `+$${fmt(stats.largestWin)}`, sub: "Trade terbaik", icon: ArrowUpRight, warna: "text-green-400" },
     { label: "Kekalahan Terbesar", val: `-$${fmt(Math.abs(stats.largestLoss))}`, sub: "Trade terburuk", icon: ArrowDownRight, warna: "text-red-400" },
     { label: "Max Drawdown", val: `-$${fmt(Math.abs(stats.maxDrawdown))}`, sub: `${fmt(stats.maxDrawdownPct)}%`, icon: DrawdownIcon, warna: "text-red-400" },

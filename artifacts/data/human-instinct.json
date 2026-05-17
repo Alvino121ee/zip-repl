@@ -1,15 +1,36 @@
 {
-  "totalDecisions": 18,
-  "correctEarlyExits": 18,
+  "totalDecisions": 19,
+  "correctEarlyExits": 19,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 47.611111111111114,
-  "avgContinuationProbAtExit": 15.944444444444445,
+  "avgMomentumAtEarlyExit": 46.10526315789474,
+  "avgContinuationProbAtExit": 15.105263157894736,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "c9718fe4-6cc4-4f82-b51d-261b9af000bd",
+      "tradeId": "a910cc57-5d22-4fc0-bfdb-69fdadc7b684",
+      "symbol": "BILLUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle rejection bawah — tekanan beli kuat. Profit $1.03% diamankan.",
+      "profitPctAtDecision": 1.0323958704165035,
+      "momentumScore": 19,
+      "continuationProb": 0,
+      "greedIndex": 50,
+      "decaySignals": [
+        "Candle rejection bawah — tekanan beli kuat",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Potensi fake breakdown ke bawah — harga kembali di atas support"
+      ],
+      "timestamp": 1779025001154,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.0323958704165035,
+      "profitDelta": 0
+    },
     {
       "id": "1d75b221-c95f-4856-beef-2d3c96473363",
       "tradeId": "b90175be-d007-418a-811d-defbdd979142",
@@ -372,5 +393,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779024713353
+  "lastUpdated": 1779025001155
 }

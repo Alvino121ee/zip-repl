@@ -28,6 +28,10 @@ const DATA_FILE = join(DATA_DIR, "demo-trading.json");
 const BYBIT_BASE = "https://api.bybit.com";
 export const INITIAL_BALANCE = 50; // $50 USDT
 
+// ─── Bybit Futures Fee Rates (identik dengan Bybit real) ─────────────────────
+export const TAKER_FEE_RATE = 0.00055; // 0.055% taker fee (market order)
+export const MAKER_FEE_RATE = 0.0002;  // 0.02% maker fee (limit order)
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface DemoPosition {
@@ -51,6 +55,7 @@ export interface DemoPosition {
   openReason?: string;
   tags?: string[];
   marketCondition?: string;
+  entryFee: number;         // admin fee saat buka posisi (taker 0.055% × notional)
   // Trailing stop state
   trailActivated?: boolean;
   trailPeakPrice?: number;  // highest price for long, lowest for short
@@ -92,6 +97,9 @@ export interface DemoTradeLog {
   source: "auto" | "scalp" | "manual";
   tags?: string[];
   marketCondition?: string;
+  fee?: number;         // total admin fee (entry + exit) dalam USDT
+  entryFee?: number;   // fee saat buka posisi
+  exitFee?: number;    // fee saat tutup posisi
 }
 
 export interface DemoConfig {
@@ -165,6 +173,8 @@ export interface DemoStats {
   tagPerformance: { tag: string; wins: number; losses: number; pnl: number; winRate: number }[];
   pairPerformance: { pair: string; wins: number; losses: number; pnl: number; winRate: number; trades: number }[];
   sourcePerformance: { source: string; wins: number; losses: number; pnl: number; winRate: number }[];
+  totalFees: number;
+  feeRate: number;
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -172,6 +182,7 @@ export interface DemoStats {
 interface DemoState {
   balance: number;
   realizedPnl: number;
+  totalFees: number;
   winCount: number;
   lossCount: number;
   positions: DemoPosition[];
@@ -182,6 +193,7 @@ interface DemoState {
 let state: DemoState = {
   balance: INITIAL_BALANCE,
   realizedPnl: 0,
+  totalFees: 0,
   winCount: 0,
   lossCount: 0,
   positions: [],
@@ -265,6 +277,7 @@ function loadState() {
     state = {
       ...state,
       ...saved,
+      totalFees: saved.totalFees ?? 0,
       equityHistory: saved.equityHistory ?? [{ timestamp: Date.now(), balance: saved.balance ?? INITIAL_BALANCE }],
     };
     logger.info({ balance: state.balance, positions: state.positions.length }, "Demo trading state loaded");
@@ -398,6 +411,13 @@ export function openDemoPosition(data: {
   }
 
   const size = (margin * data.leverage) / data.entryPrice;
+
+  // ── Admin Fee (Bybit taker 0.055%) ────────────────────────────────────────
+  const entryNotional = size * data.entryPrice; // = margin * leverage
+  const entryFee = entryNotional * TAKER_FEE_RATE;
+  state.balance -= entryFee;
+  state.totalFees = (state.totalFees ?? 0) + entryFee;
+
   const tags = generateTags({
     source: data.source,
     confidence: data.confidence,
@@ -426,6 +446,7 @@ export function openDemoPosition(data: {
     openReason: data.openReason,
     tags,
     marketCondition: data.marketCondition,
+    entryFee,
   };
 
   state.positions.push(pos);
@@ -445,8 +466,10 @@ export function openDemoPosition(data: {
     confidence: data.confidence,
     signal: data.signal,
     status: "opened",
-    reason: `Demo ${data.side === "Buy" ? "LONG" : "SHORT"} dibuka @ $${data.entryPrice.toFixed(4)}`,
+    reason: `Demo ${data.side === "Buy" ? "LONG" : "SHORT"} dibuka @ $${data.entryPrice.toFixed(4)} | Fee: -$${entryFee.toFixed(4)}`,
     openReason: data.openReason,
+    entryFee,
+    fee: entryFee,
     source: data.source,
     tags,
     marketCondition: data.marketCondition,
@@ -473,9 +496,17 @@ export function closeDemoPosition(
   const closedAt = Date.now();
   const duration = closedAt - pos.openedAt;
 
-  state.realizedPnl += pnl;
-  state.balance += pnl;
-  if (pnl >= 0) state.winCount++;
+  // ── Admin Fee (Bybit taker 0.055%) ────────────────────────────────────────
+  const exitNotional = pos.size * closePrice;
+  const exitFee = exitNotional * TAKER_FEE_RATE;
+  const entryFee = pos.entryFee ?? 0;
+  const totalFee = entryFee + exitFee;
+  const netPnl = pnl - exitFee; // entryFee sudah dikurangi saat buka
+  state.totalFees = (state.totalFees ?? 0) + exitFee;
+
+  state.realizedPnl += netPnl;
+  state.balance += netPnl;
+  if (netPnl >= 0) state.winCount++;
   else state.lossCount++;
 
   // Equity history snapshot
@@ -515,7 +546,7 @@ export function closeDemoPosition(
     qty: pos.size,
     entryPrice: pos.entryPrice,
     closePrice,
-    realizedPnl: pnl,
+    realizedPnl: netPnl,
     realizedPnlPct: pnlPct,
     leverage: pos.leverage,
     margin: pos.margin,
@@ -527,6 +558,9 @@ export function closeDemoPosition(
     source: pos.source,
     tags,
     marketCondition: pos.marketCondition,
+    fee: totalFee,
+    entryFee,
+    exitFee,
   };
 
   state.positions.splice(idx, 1);
@@ -772,6 +806,8 @@ export function getDemoStats(): DemoStats {
     tagPerformance,
     pairPerformance,
     sourcePerformance,
+    totalFees: state.totalFees ?? 0,
+    feeRate: TAKER_FEE_RATE,
   };
 }
 
@@ -779,6 +815,7 @@ export function resetDemo() {
   state = {
     balance: INITIAL_BALANCE,
     realizedPnl: 0,
+    totalFees: 0,
     winCount: 0,
     lossCount: 0,
     positions: [],
