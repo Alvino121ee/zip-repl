@@ -1,5 +1,149 @@
 [
   {
+    "id": "f33ae6ff-0a66-4318-8f4f-c834a91425fb",
+    "timestamp": 1779008392508,
+    "source": "demo",
+    "level": "info",
+    "message": "C6 · pindai:20 · kandidat:16 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "0837274e-b2bd-4fd6-98e6-0370c934576a",
+    "timestamp": 1779008392508,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "19724d57-fef4-484c-8c5f-fab948dde854",
+    "timestamp": 1779008391878,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "a8b70239-b119-4859-8215-c549de250f9b",
+    "timestamp": 1779008374119,
+    "source": "demo",
+    "level": "success",
+    "message": "C5 · pindai:20 · kandidat:16 · skip:4 · BUKA:1 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "6b5fefca-5668-4dd4-9ddc-6154c2b6ed99",
+    "timestamp": 1779008374119,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG NMRUSDT @ $10.4050 | 99% | Tren Naik Kuat ↑↑ | TP:$10.7856 SL:$10.2527 | RR:2.5x",
+    "symbol": "NMRUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "09724f5f-fa81-4543-a4a3-d43465a72445",
+    "timestamp": 1779008371877,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "8d514d45-4d5a-427e-8bdf-a232ea36289c",
+    "timestamp": 1779008355980,
+    "source": "demo",
+    "level": "warning",
+    "message": "❌ SL LONG NMRUSDT @ $10.3980 | PnL: $+0.03 (+0.66%) | Stop Loss @ $10.3980",
+    "symbol": "NMRUSDT"
+  },
+  {
+    "id": "8942fbce-80df-4b8c-8e8f-8003b2c11254",
+    "timestamp": 1779008352511,
+    "source": "demo",
+    "level": "info",
+    "message": "C4 · pindai:20 · kandidat:16 · ⚠stop · pos:3/3"
+  },
+  {
+    "id": "8e72634d-f872-436b-a488-20302f5e089f",
+    "timestamp": 1779008352511,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "355bddd8-cfbf-4b47-8a4a-921a24215359",
+    "timestamp": 1779008351995,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 4x loss berturut — posisi sangat dikecilkan 85%"
+  },
+  {
+    "id": "7938653a-8236-4078-b1e7-796ea3607bef",
+    "timestamp": 1779008332810,
+    "source": "demo",
+    "level": "info",
+    "message": "C3 · pindai:20 · kandidat:16 · ⚠stop · pos:3/3"
+  },
+  {
+    "id": "fffc3ff8-09f3-4645-8fe7-4a414400561e",
+    "timestamp": 1779008332810,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "0f715ab9-ab64-4753-9b5b-3f278ed9a899",
+    "timestamp": 1779008331877,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 4x loss berturut — posisi sangat dikecilkan 85%"
+  },
+  {
+    "id": "92ea0028-d3ee-44f5-8f83-80b7be0d1d8b",
+    "timestamp": 1779008312178,
+    "source": "demo",
+    "level": "info",
+    "message": "C2 · pindai:20 · kandidat:16 · ⚠stop · pos:3/3"
+  },
+  {
+    "id": "081dfca0-c6e3-4adf-8083-2a7105cd54c5",
+    "timestamp": 1779008312178,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "819a47a2-9c77-4fb8-9406-29db76f371e7",
+    "timestamp": 1779008311877,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 4x loss berturut — posisi sangat dikecilkan 85%"
+  },
+  {
+    "id": "1729ddb9-41d0-4cae-98e5-17100ca175e1",
+    "timestamp": 1779008299980,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL NMRUSDT (profit 1.8%): Trail bergerak → SL ke $10.4157 (profit 1.8%)",
+    "symbol": "NMRUSDT"
+  },
+  {
+    "id": "56a495b1-27a0-467b-a777-fbf9d9ea13a5",
+    "timestamp": 1779008293205,
+    "source": "demo",
+    "level": "info",
+    "message": "C1 · pindai:20 · kandidat:16 · ⚠stop · pos:3/3"
+  },
+  {
+    "id": "5ec1fbee-9185-4763-8ecb-f511836b3ee0",
+    "timestamp": 1779008293205,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "315d383e-5b81-420d-93ea-59f8a89130fd",
+    "timestamp": 1779008292051,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 4x loss berturut — posisi sangat dikecilkan 85%"
+  },
+  {
     "id": "646569c9-273b-4304-894b-8ff280b3737c",
     "timestamp": 1779007807829,
     "source": "demo",
@@ -4202,169 +4346,5 @@
     "message": "Menganalisis BLUAIUSDT (confidence: 77%)...",
     "symbol": "BLUAIUSDT",
     "confidence": 77
-  },
-  {
-    "id": "a2bfaa3a-13b2-4dce-b4ce-aa86033c1317",
-    "timestamp": 1778990341882,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip ATOMUSDT: tidak ada setup entry yang valid",
-    "symbol": "ATOMUSDT"
-  },
-  {
-    "id": "d9cf03dd-3268-476a-a0df-e1c7e35941ea",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis ATOMUSDT (confidence: 77%)...",
-    "symbol": "ATOMUSDT",
-    "confidence": 77
-  },
-  {
-    "id": "411b8a31-b3b5-40ad-9527-e4f9e9244a35",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip NMRUSDT: tidak ada setup entry yang valid",
-    "symbol": "NMRUSDT"
-  },
-  {
-    "id": "c6dd72b0-b512-41e6-8bac-5d01c82b8f98",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis NMRUSDT (confidence: 81%)...",
-    "symbol": "NMRUSDT",
-    "confidence": 81
-  },
-  {
-    "id": "d7c4b91e-389f-4968-9593-15b3efb3d558",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip WHITEWHALEUSDT: tidak ada setup entry yang valid",
-    "symbol": "WHITEWHALEUSDT"
-  },
-  {
-    "id": "24f23993-bb05-4170-8f0f-fcde2fa62a25",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis WHITEWHALEUSDT (confidence: 82%)...",
-    "symbol": "WHITEWHALEUSDT",
-    "confidence": 82
-  },
-  {
-    "id": "3a41aa5a-7027-4924-aaa1-41ec87b4b60f",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip STABLEUSDT: tidak ada setup entry yang valid",
-    "symbol": "STABLEUSDT"
-  },
-  {
-    "id": "367295ac-ec2d-4b04-891f-977e81a089aa",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis STABLEUSDT (confidence: 83%)...",
-    "symbol": "STABLEUSDT",
-    "confidence": 83
-  },
-  {
-    "id": "8ba7bf51-4ab5-41a7-af6e-b1f167ddb4b6",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip GIGAUSDT: tidak ada setup entry yang valid",
-    "symbol": "GIGAUSDT"
-  },
-  {
-    "id": "e272a51b-1ce8-458d-bb6a-87cf9d90968b",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis GIGAUSDT (confidence: 86%)...",
-    "symbol": "GIGAUSDT",
-    "confidence": 86
-  },
-  {
-    "id": "dc4badf8-a99c-405f-8780-f4913bdca0c0",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip LYNUSDT: tidak ada setup entry yang valid",
-    "symbol": "LYNUSDT"
-  },
-  {
-    "id": "90ff7e19-4738-4857-9a25-abafd46e3426",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis LYNUSDT (confidence: 87%)...",
-    "symbol": "LYNUSDT",
-    "confidence": 87
-  },
-  {
-    "id": "b47195a8-bf1d-4aa5-867f-3525a32538bc",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip HUSDT: tidak ada setup entry yang valid",
-    "symbol": "HUSDT"
-  },
-  {
-    "id": "3a132e3c-9e56-47bf-b4e4-8c216f4eaee8",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis HUSDT (confidence: 87%)...",
-    "symbol": "HUSDT",
-    "confidence": 87
-  },
-  {
-    "id": "43bc36cb-140a-46f5-ad48-0ebab6e1b2a8",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip TAUSDT: tidak ada setup entry yang valid",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "d1cd8590-b31d-4ff6-a04e-4668cba0af31",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis TAUSDT (confidence: 99%)...",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "e3464d33-5905-488c-8233-25ad6f2ff5ed",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "info",
-    "message": "Ditemukan 20 kandidat dari 20 pasang yang dipindai (min. confidence: 72%)"
-  },
-  {
-    "id": "fe9dd959-a63a-44f1-aba8-ef90aa0b9986",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Memindai pasar Bybit untuk peluang trading..."
-  },
-  {
-    "id": "2e61a345-25ec-4bd3-9202-55d86a2fa382",
-    "timestamp": 1778990341795,
-    "source": "demo",
-    "level": "scan",
-    "message": "Memulai siklus analisis pasar demo..."
-  },
-  {
-    "id": "36bdb819-b4f4-4c79-a1b8-2932aacad867",
-    "timestamp": 1778990323679,
-    "source": "demo",
-    "level": "info",
-    "message": "Siklus ke-31 selesai — 1 posisi aktif"
   }
 ]
