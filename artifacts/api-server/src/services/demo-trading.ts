@@ -2,7 +2,14 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
-import { analyzeSymbol } from "./analysis.js";
+import {
+  analyzeInstitutional,
+  calculateTrailingStop,
+  calculateDynamicRisk,
+  shouldSwitchOpportunity,
+  aiLog,
+  type OpportunityScore,
+} from "./institutional-engine.js";
 import { scanBybitUniverse } from "./bybit.js";
 import { scanScalp5m } from "./scalping5m.js";
 import { logActivity } from "./activity-log.js";
@@ -37,6 +44,10 @@ export interface DemoPosition {
   openReason?: string;
   tags?: string[];
   marketCondition?: string;
+  // Trailing stop state
+  trailActivated?: boolean;
+  trailPeakPrice?: number;  // highest price for long, lowest for short
+  opportunityScore?: number; // for smart switching
 }
 
 export interface DemoTradeLog {
@@ -213,6 +224,11 @@ export const demoEngineStatus: DemoEngineStatus = {
   totalScanned: 0,
   lastError: null,
 };
+
+// ─── Smart switching state (in-memory) ───────────────────────────────────────
+let lastSwitchAt = 0;
+let switchesToday = 0;
+let switchDayKey = "";
 
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
@@ -700,23 +716,71 @@ export function resetDemo() {
   saveState();
 }
 
-// ─── Mark price updater (runs every 10s) ─────────────────────────────────────
+// ─── Mark price updater with institutional trailing stop (runs every 8s) ──────
 
 async function updateMarkPrices() {
-  if (state.positions.length === 0) return;
-  for (const pos of state.positions) {
+  if (state.positions.length === 0) {
+    if (demoEngineStatus.autoRunning || demoEngineStatus.scalpRunning) {
+      aiLog.scanning(667);
+    }
+    return;
+  }
+
+  const positionsCopy = [...state.positions];
+  for (const pos of positionsCopy) {
+    // Re-check pos still exists
+    if (!state.positions.find(p => p.id === pos.id)) continue;
+
     const price = await getMarkPrice(pos.symbol);
     if (!price) continue;
+
+    // Update trailing peak price
+    if (pos.side === "Buy") {
+      if (!pos.trailPeakPrice || price > pos.trailPeakPrice) pos.trailPeakPrice = price;
+    } else {
+      if (!pos.trailPeakPrice || price < pos.trailPeakPrice) pos.trailPeakPrice = price;
+    }
+
     pos.markPrice = price;
     const { pnl, pnlPct } = calcPnl(pos, price);
     pos.unrealisedPnl = pnl;
     pos.unrealisedPnlPct = pnlPct;
 
+    // ── Institutional trailing stop ────────────────────────────────────────
+    // Use ~2% ATR estimate based on entry price (safe fallback)
+    const estimatedAtr = pos.entryPrice * 0.018;
+    const rawProfitPct = pos.side === "Buy"
+      ? (price - pos.entryPrice) / pos.entryPrice * 100
+      : (pos.entryPrice - price) / pos.entryPrice * 100;
+
+    const trailResult = calculateTrailingStop({
+      side: pos.side,
+      entryPrice: pos.entryPrice,
+      currentPrice: price,
+      atr: estimatedAtr,
+      currentSL: pos.stopLoss,
+      trailActivated: pos.trailActivated ?? false,
+      peakPrice: pos.trailPeakPrice ?? pos.entryPrice,
+    });
+
+    if (trailResult.activated && !(pos.trailActivated ?? false)) {
+      pos.trailActivated = true;
+      pos.stopLoss = trailResult.newSL;
+      aiLog.protecting(pos.symbol, trailResult.note ?? "Trailing stop aktif — SL dipindah ke breakeven");
+      logActivity({ source: "demo", level: "info", message: `🛡 TRAIL AKTIF ${pos.side === "Buy" ? "LONG" : "SHORT"} ${pos.symbol}: ${trailResult.note ?? "SL ke breakeven"}`, symbol: pos.symbol });
+    } else if (trailResult.activated && trailResult.tightened && trailResult.note) {
+      pos.stopLoss = trailResult.newSL;
+      aiLog.protecting(pos.symbol, trailResult.note);
+      logActivity({ source: "demo", level: "info", message: `🛡 TRAIL ${pos.symbol} (profit ${rawProfitPct.toFixed(1)}%): ${trailResult.note}`, symbol: pos.symbol });
+    }
+
+    // ── SL / TP hit check ──────────────────────────────────────────────────
     if (pos.stopLoss != null) {
       const slHit = pos.side === "Buy" ? price <= pos.stopLoss : price >= pos.stopLoss;
       if (slHit) {
-        closeDemoPosition(pos.id, "sl", price);
-        logger.info({ symbol: pos.symbol, price, sl: pos.stopLoss }, "Demo SL hit");
+        const reason = (pos.trailActivated && rawProfitPct > 0) ? "sl" : "sl";
+        closeDemoPosition(pos.id, reason, price);
+        logger.info({ symbol: pos.symbol, price, sl: pos.stopLoss, trail: pos.trailActivated }, "Demo SL hit");
         continue;
       }
     }
@@ -729,14 +793,22 @@ async function updateMarkPrices() {
       }
     }
   }
+
+  // Update AI status with monitoring info
+  const totalUnrealized = state.positions.reduce((s, p) => s + p.unrealisedPnl, 0);
+  const trailActive = state.positions.some(p => p.trailActivated);
+  if (state.positions.length > 0) {
+    aiLog.monitoring(state.positions.length, totalUnrealized, trailActive);
+  }
+
   saveState();
 }
 
 setInterval(() => {
   updateMarkPrices().catch((err) => logger.error({ err }, "Demo mark price update error"));
-}, 10_000);
+}, 8_000);
 
-// ─── Auto Trading Engine ──────────────────────────────────────────────────────
+// ─── Auto Trading Engine (Institutional Grade) ───────────────────────────────
 
 let autoTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -745,36 +817,155 @@ async function runAutoEngineCycle() {
   demoEngineStatus.autoAnalyzing = true;
   demoEngineStatus.lastCycleAt = Date.now();
   demoEngineStatus.cycleCount++;
+  const cycleId = `C${demoEngineStatus.cycleCount}`;
 
   try {
+    // ── Phase 1: Scan universe ───────────────────────────────────────────────
+    aiLog.scanning(667);
     const candidates = await scanBybitUniverse();
     demoEngineStatus.totalScanned = candidates.length;
 
-    const qualified = candidates.filter(c => c.confidence >= demoConfig.minConfidence);
-    demoEngineStatus.lastSignalsFound = qualified.length;
+    // ── Phase 2: Calculate dynamic risk based on current state ───────────────
+    const stats = getDemoStats();
+    const drawdownPct = stats.maxDrawdownPct; // already negative
+    const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
+    const available = state.balance - usedMargin;
+    const dynRisk = calculateDynamicRisk({
+      consecutiveLosses: stats.consecutiveLosses,
+      maxConsecutiveLosses: 5,
+      drawdownPct,
+      availableBalance: available,
+      maxPositionUSDT: demoConfig.maxPositionUSDT,
+      maxLeverage: demoConfig.leverage,
+    });
 
+    if (!dynRisk.shouldTrade) {
+      aiLog.waiting(dynRisk.reason);
+      logActivity({ source: "demo", level: "warning", message: `⚠ RISK MGMT: ${dynRisk.reason}` });
+      return;
+    }
+
+    if (dynRisk.alertLevel !== "normal") {
+      logActivity({ source: "demo", level: "warning", message: `⚠ Manajemen risiko dinamis: ${dynRisk.reason}` });
+    }
+
+    const maxPerTrade = Math.max(0.5, Math.min(dynRisk.positionUSDT, available * 0.28));
+    const effectiveLeverage = dynRisk.leverage;
+
+    // ── Phase 3: Filter candidates ───────────────────────────────────────────
+    const preFiltered = candidates.filter(c => c.confidence >= Math.max(demoConfig.minConfidence - 5, 60));
+    aiLog.filtering(preFiltered.length, candidates.length);
+    demoEngineStatus.lastSignalsFound = preFiltered.length;
+
+    // ── Phase 4: Check existing positions for exit / trailing / switch ───────
     let autoExited = 0;
+    const opportunityPool: OpportunityScore[] = [];
+
     for (const pos of [...state.positions]) {
-      let posAnalysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
-      try { posAnalysis = await analyzeSymbol(pos.symbol); }
+      aiLog.checkTrend(pos.symbol);
+      let posAnalysis: Awaited<ReturnType<typeof analyzeInstitutional>> | null = null;
+      try { posAnalysis = await analyzeInstitutional(pos.symbol); }
       catch { continue; }
 
       const isLong = pos.side === "Buy";
       const shouldClose = isLong ? posAnalysis.shouldExitLong : posAnalysis.shouldExitShort;
-      if (!shouldClose) continue;
+      if (shouldClose) {
+        const exitNote = posAnalysis.exitReason ?? `Tren berbalik ${isLong ? "BEARISH" : "BULLISH"} — institutional exit`;
+        const price = await getMarkPrice(pos.symbol);
+        const { pnl } = calcPnl(pos, price ?? pos.markPrice);
+        aiLog.exiting(pos.symbol, exitNote, pnl);
+        closeDemoPosition(pos.id, "reversal", price ?? undefined, exitNote);
+        autoExited++;
+        continue;
+      }
 
-      const exitNote = posAnalysis.exitReason ?? `Tren berbalik ${isLong ? "BEARISH" : "BULLISH"} — auto exit`;
-      const price = await getMarkPrice(pos.symbol);
-      closeDemoPosition(pos.id, "reversal", price ?? undefined, exitNote);
-      autoExited++;
+      // Collect for opportunity switching
+      opportunityPool.push({
+        symbol: pos.symbol,
+        side: pos.side,
+        confidence: pos.confidence,
+        opportunityScore: pos.opportunityScore ?? pos.confidence,
+        marketCondition: (pos.marketCondition ?? "ranging") as any,
+        entryPrice: posAnalysis.entryPrice,
+        stopLoss: posAnalysis.stopLoss,
+        takeProfit: posAnalysis.takeProfit,
+        reasons: posAnalysis.reasons,
+      });
     }
 
-    const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
-    const available = state.balance - usedMargin;
-    const maxPerTrade = Math.min(demoConfig.maxPositionUSDT, available * 0.3);
+    // ── Phase 5: Deep analysis of top candidates for opportunity pool ─────────
+    const TOP_N = Math.min(preFiltered.length, 8);
+    for (let i = 0; i < TOP_N; i++) {
+      const cand = preFiltered[i];
+      if (state.positions.find(p => p.symbol === cand.symbol)) continue;
+      try {
+        aiLog.checkTrend(cand.symbol);
+        await new Promise(r => setTimeout(r, 60)); // avoid rate limiting
+        aiLog.checkVolume(cand.symbol);
+        const instAnalysis = await analyzeInstitutional(cand.symbol, {
+          consecutiveLosses: stats.consecutiveLosses,
+          drawdownPct,
+          availableBalance: available,
+          maxPositionUSDT: demoConfig.maxPositionUSDT,
+          maxLeverage: demoConfig.leverage,
+        });
+        if (instAnalysis.opportunityScore > 0) {
+          opportunityPool.push({
+            symbol: cand.symbol,
+            side: instAnalysis.side,
+            confidence: instAnalysis.institutionalConfidence,
+            opportunityScore: instAnalysis.opportunityScore,
+            marketCondition: instAnalysis.marketCondition,
+            entryPrice: instAnalysis.entryPrice,
+            stopLoss: instAnalysis.stopLoss,
+            takeProfit: instAnalysis.takeProfit,
+            reasons: instAnalysis.reasons,
+          });
+        }
+      } catch { continue; }
+    }
 
+    // ── Phase 6: Smart opportunity switching for active positions ─────────────
+    const dayKey = new Date().toISOString().slice(0, 10);
+    if (switchDayKey !== dayKey) { switchDayKey = dayKey; switchesToday = 0; }
+
+    for (const pos of [...state.positions]) {
+      if (!pos.unrealisedPnl) continue;
+      const rawProfitPct = pos.side === "Buy"
+        ? (pos.markPrice - pos.entryPrice) / pos.entryPrice * 100
+        : (pos.entryPrice - pos.markPrice) / pos.entryPrice * 100;
+
+      const switchDecision = shouldSwitchOpportunity({
+        currentSymbol: pos.symbol,
+        currentConfidence: pos.confidence,
+        currentOpportunityScore: pos.opportunityScore ?? pos.confidence,
+        unrealisedPnlPct: rawProfitPct,
+        durationMs: Date.now() - pos.openedAt,
+        candidates: opportunityPool.filter(o => o.symbol !== pos.symbol),
+        lastSwitchAt,
+        switchesToday,
+      });
+
+      if (switchDecision.shouldSwitch && switchDecision.newSymbol) {
+        const gain = switchDecision.newOpportunityScore - switchDecision.currentOpportunityScore;
+        aiLog.switching(pos.symbol, switchDecision.newSymbol, gain);
+        logActivity({
+          source: "demo", level: "signal",
+          message: `🔄 SWITCH: ${pos.symbol} → ${switchDecision.newSymbol} | +${gain} pts | ${switchDecision.reason}`,
+          symbol: switchDecision.newSymbol,
+        });
+        const price = await getMarkPrice(pos.symbol);
+        closeDemoPosition(pos.id, "manual", price ?? undefined, `Switch modal ke ${switchDecision.newSymbol}`);
+        lastSwitchAt = Date.now();
+        switchesToday++;
+        break; // one switch per cycle
+      }
+    }
+
+    // ── Phase 7: Open new positions ──────────────────────────────────────────
     if (state.positions.length >= demoConfig.maxPositions) {
-      logActivity({ source: "demo", level: "info", message: `Slot penuh (${state.positions.length}/${demoConfig.maxPositions}) — menunggu TP/SL/exit` });
+      aiLog.monitoring(state.positions.length, state.positions.reduce((s, p) => s + p.unrealisedPnl, 0), false);
+      logActivity({ source: "demo", level: "info", message: `Slot penuh (${state.positions.length}/${demoConfig.maxPositions}) — memantau posisi aktif` });
     }
 
     let skipped = 0;
@@ -782,107 +973,149 @@ async function runAutoEngineCycle() {
     let signaled = 0;
     const skipReasons: string[] = [];
 
-    for (const cand of candidates) {
+    for (const cand of preFiltered) {
       if (state.positions.length >= demoConfig.maxPositions) break;
-      if (cand.confidence < demoConfig.minConfidence) continue;
       if (state.positions.find((p) => p.symbol === cand.symbol)) continue;
 
-      let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
-      try { analysis = await analyzeSymbol(cand.symbol); } catch { skipped++; continue; }
-      if (!analysis || !analysis.shouldEnter || !analysis.side) {
+      let analysis: Awaited<ReturnType<typeof analyzeInstitutional>> | null = null;
+
+      try {
+        aiLog.checkTrend(cand.symbol);
+        await new Promise(r => setTimeout(r, 80));
+        aiLog.checkVolume(cand.symbol);
+        await new Promise(r => setTimeout(r, 80));
+        aiLog.checkSMC(cand.symbol);
+        await new Promise(r => setTimeout(r, 80));
+        aiLog.checkMomentum(cand.symbol);
+        analysis = await analyzeInstitutional(cand.symbol, {
+          consecutiveLosses: stats.consecutiveLosses,
+          drawdownPct,
+          availableBalance: available,
+          maxPositionUSDT: demoConfig.maxPositionUSDT,
+          maxLeverage: demoConfig.leverage,
+        });
+      } catch { skipped++; continue; }
+
+      if (!analysis) { skipped++; continue; }
+
+      // Institutional gate: must pass all institutional checks
+      if (!analysis.institutionalShouldTrade || !analysis.side) {
         skipped++;
-        if (analysis?.waitReason) skipReasons.push(analysis.waitReason);
+        const reason = analysis.waitReason ?? analysis.conditionReason ?? "Setup tidak memenuhi standar institusional";
+        skipReasons.push(`${cand.symbol}: ${reason}`);
+        aiLog.waiting(`[${cand.symbol}] ${reason}`);
         continue;
       }
-      if (analysis.overallConfidence < demoConfig.minConfidence) { skipped++; continue; }
+      if (analysis.institutionalConfidence < demoConfig.minConfidence) {
+        skipped++;
+        skipReasons.push(`${cand.symbol}: Confidence ${analysis.institutionalConfidence}% < ${demoConfig.minConfidence}%`);
+        continue;
+      }
+
+      aiLog.confirming(cand.symbol, analysis.institutionalConfidence, analysis.reasons);
 
       const direction = analysis.side === "Buy" ? "LONG" : "SHORT";
+      const conditionLabel = analysis.conditionLabel;
 
       if (demoConfig.autoMode === "semi") {
         signaled++;
         logActivity({
           source: "demo", level: "signal",
-          message: `[Semi] Sinyal ${direction} ${cand.symbol} ${analysis.overallConfidence}% — ${analysis.reasons[0] ?? "entry valid"}`,
-          symbol: cand.symbol, confidence: analysis.overallConfidence
+          message: `[Semi] ${direction} ${cand.symbol} | ${analysis.institutionalConfidence}% | ${conditionLabel} | ${analysis.reasons[0] ?? ""}`,
+          symbol: cand.symbol, confidence: analysis.institutionalConfidence
         });
         state.log.unshift({
-          id: crypto.randomUUID(),
-          timestamp: Date.now(),
-          openedAt: Date.now(),
-          symbol: cand.symbol,
-          side: analysis.side,
-          qty: 0,
-          entryPrice: analysis.entryPrice,
-          closePrice: null,
-          realizedPnl: null,
-          realizedPnlPct: null,
-          leverage: demoConfig.leverage,
-          margin: maxPerTrade,
-          confidence: analysis.overallConfidence,
+          id: crypto.randomUUID(), timestamp: Date.now(), openedAt: Date.now(),
+          symbol: cand.symbol, side: analysis.side, qty: 0,
+          entryPrice: analysis.entryPrice, closePrice: null,
+          realizedPnl: null, realizedPnlPct: null,
+          leverage: effectiveLeverage, margin: maxPerTrade,
+          confidence: analysis.institutionalConfidence,
           signal: analysis.side === "Buy" ? "buy" : "sell",
           status: "rejected",
-          reason: `[Semi] Sinyal ${analysis.side === "Buy" ? "LONG" : "SHORT"} — ${analysis.reasons[0] ?? ""}`,
-          openReason: analysis.reasons.join("; "),
+          reason: `[Semi] ${direction} — ${analysis.reasons[0] ?? ""}`,
+          openReason: `${conditionLabel} | ${analysis.reasons.slice(0, 3).join("; ")}`,
           source: "auto",
-          tags: generateTags({ source: "auto", confidence: analysis.overallConfidence, signal: analysis.side === "Buy" ? "buy" : "sell", leverage: demoConfig.leverage }),
+          tags: generateTags({ source: "auto", confidence: analysis.institutionalConfidence, signal: analysis.side === "Buy" ? "buy" : "sell", leverage: effectiveLeverage }),
+          marketCondition: analysis.marketCondition,
         });
         if (state.log.length > 500) state.log.splice(500);
         saveState();
         continue;
       }
 
-      const sl = analysis.side === "Buy"
-        ? analysis.entryPrice * (1 - demoConfig.stopLossPct / 100)
-        : analysis.entryPrice * (1 + demoConfig.stopLossPct / 100);
-      const tp = analysis.side === "Buy"
-        ? analysis.entryPrice * (1 + demoConfig.takeProfitPct / 100)
-        : analysis.entryPrice * (1 - demoConfig.takeProfitPct / 100);
+      // ATR-based SL/TP — use analysis values (better than fixed %)
+      const sl = analysis.stopLoss;
+      const tp = analysis.takeProfit;
+      // Verify SL/TP make sense with leverage (not too tight)
+      const slDistPct = Math.abs(analysis.entryPrice - sl) / analysis.entryPrice * 100;
+      const minSLPct = 0.3; // at least 0.3% from entry
+      const finalSL = slDistPct < minSLPct
+        ? (analysis.side === "Buy" ? analysis.entryPrice * (1 - demoConfig.stopLossPct / 100) : analysis.entryPrice * (1 + demoConfig.stopLossPct / 100))
+        : sl;
+      const finalTP = analysis.side === "Buy"
+        ? Math.max(tp, analysis.entryPrice * (1 + demoConfig.takeProfitPct / 100 * 0.8))
+        : Math.min(tp, analysis.entryPrice * (1 - demoConfig.takeProfitPct / 100 * 0.8));
 
-      openDemoPosition({
+      aiLog.executing(cand.symbol, direction, analysis.entryPrice, analysis.institutionalConfidence);
+
+      const pos = openDemoPosition({
         symbol: cand.symbol,
         displayName: cand.symbol.replace("USDT", "/USDT"),
         side: analysis.side,
         entryPrice: analysis.entryPrice,
         positionUSDT: maxPerTrade,
-        leverage: demoConfig.leverage,
-        stopLoss: sl,
-        takeProfit: tp,
-        confidence: analysis.overallConfidence,
-        signal: analysis.side === "Buy" ? "buy" : "sell",
+        leverage: effectiveLeverage,
+        stopLoss: finalSL,
+        takeProfit: finalTP,
+        confidence: analysis.institutionalConfidence,
+        signal: analysis.side === "Buy" ? "institutional_long" : "institutional_short",
         source: "auto",
-        openReason: analysis.reasons.join("; "),
+        openReason: `${conditionLabel} | OppScore:${analysis.opportunityScore} | ${analysis.reasons.slice(0, 2).join("; ")}`,
+        marketCondition: analysis.marketCondition,
       });
 
-      opened++;
-      logActivity({
-        source: "demo", level: "success",
-        message: `✓ BUKA ${direction} ${cand.symbol} @ $${analysis.entryPrice.toFixed(4)} | conf: ${analysis.overallConfidence}% | TP: $${tp.toFixed(4)} | SL: $${sl.toFixed(4)}`,
-        symbol: cand.symbol, confidence: analysis.overallConfidence
-      });
+      if ("id" in pos) {
+        pos.opportunityScore = analysis.opportunityScore;
+        opened++;
+        logActivity({
+          source: "demo", level: "success",
+          message: `✅ BUKA ${direction} ${cand.symbol} @ $${analysis.entryPrice.toFixed(4)} | ${analysis.institutionalConfidence}% | ${conditionLabel} | TP:$${finalTP.toFixed(4)} SL:$${finalSL.toFixed(4)} | RR:${analysis.riskRewardRatio.toFixed(1)}x`,
+          symbol: cand.symbol, confidence: analysis.institutionalConfidence
+        });
+        if (available - maxPerTrade < maxPerTrade) break; // keep reserve
+      }
     }
 
-    const parts: string[] = [];
-    parts.push(`Siklus #${demoEngineStatus.cycleCount}`);
-    parts.push(`pindai: ${candidates.length} · kandidat: ${qualified.length}`);
-    if (autoExited > 0) parts.push(`exit reversal: ${autoExited}`);
-    if (skipped > 0) parts.push(`skip: ${skipped}`);
-    if (opened > 0) parts.push(`BUKA: ${opened}`);
-    if (signaled > 0) parts.push(`sinyal: ${signaled}`);
-    parts.push(`posisi: ${state.positions.length}/${demoConfig.maxPositions}`);
+    // ── Phase 8: Cycle summary ────────────────────────────────────────────────
+    const parts: string[] = [
+      `${cycleId}`,
+      `pindai:${candidates.length}`,
+      `kandidat:${preFiltered.length}`,
+    ];
+    if (autoExited > 0) parts.push(`exit:${autoExited}`);
+    if (skipped > 0) parts.push(`skip:${skipped}`);
+    if (opened > 0) parts.push(`BUKA:${opened}`);
+    if (signaled > 0) parts.push(`sinyal:${signaled}`);
+    if (dynRisk.alertLevel !== "normal") parts.push(`⚠${dynRisk.alertLevel}`);
+    parts.push(`pos:${state.positions.length}/${demoConfig.maxPositions}`);
 
-    const summaryLevel = opened > 0 ? "success" : signaled > 0 ? "signal" : qualified.length === 0 ? "scan" : "info";
+    const summaryLevel = opened > 0 ? "success" : signaled > 0 ? "signal" : preFiltered.length === 0 ? "scan" : "info";
     logActivity({ source: "demo", level: summaryLevel, message: parts.join(" · ") });
 
     if (opened === 0 && signaled === 0 && skipReasons.length > 0) {
-      const freq = new Map<string, number>();
-      for (const r of skipReasons) freq.set(r, (freq.get(r) ?? 0) + 1);
-      const topReason = [...freq.entries()].sort((a, b) => b[1] - a[1])[0];
-      logActivity({ source: "demo", level: "info", message: `Alasan skip terbanyak (${topReason[1]}x): ${topReason[0]}` });
+      const topReason = skipReasons[0];
+      aiLog.noSetup(`Tidak ada setup: ${topReason}`);
+      logActivity({ source: "demo", level: "info", message: `Alasan skip: ${topReason}` });
+    } else if (opened === 0 && signaled === 0) {
+      aiLog.noSetup("Tidak ada pair yang memenuhi standar institusional siklus ini");
     }
+
   } catch (err) {
     demoEngineStatus.lastError = String(err);
+    aiLog.waiting(`Error: ${String(err).slice(0, 80)}`);
     logActivity({ source: "demo", level: "error", message: `Error siklus demo: ${String(err)}` });
-    logger.error({ err }, "Demo auto engine cycle error");
+    logger.error({ err }, "Demo institutional engine cycle error");
   } finally {
     demoEngineStatus.autoAnalyzing = false;
     demoEngineStatus.nextCycleAt = Date.now() + demoConfig.intervalMs;

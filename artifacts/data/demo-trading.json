@@ -1,57 +1,9 @@
 {
-  "balance": 48.63607661544937,
-  "realizedPnl": -1.3639233845506284,
+  "balance": 45.344963013072,
+  "realizedPnl": -4.655036986927999,
   "winCount": 0,
-  "lossCount": 1,
+  "lossCount": 3,
   "positions": [
-    {
-      "id": "89ee5cde-221c-4247-9397-66952c738ac2",
-      "symbol": "CHZUSDT",
-      "displayName": "CHZ/USDT",
-      "side": "Buy",
-      "size": 909.826122118884,
-      "entryPrice": 0.04946,
-      "markPrice": 0.04941,
-      "leverage": 3,
-      "margin": 15,
-      "stopLoss": 0.0489654,
-      "takeProfit": 0.0504492,
-      "unrealisedPnl": -0.13647391831781758,
-      "unrealisedPnlPct": -0.3032753740395946,
-      "openedAt": 1779005363571,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "buy",
-      "openReason": "EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0482) — momentum bullish; Harga di atas VWAP ($0.0469) — buyers in control; Volume spike 166% di atas rata-rata — konfirmasi kuat; MTF weighted 100% bullish (1h×3 + 15m×2 + 5m + 1m×0.5); MACD bullish — momentum naik; Market structure HH+HL — uptrend terstruktur; ; 4/6 candle terakhir bullish — momentum kuat; Harga di zona demand (0.0476–0.0495)",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ]
-    },
-    {
-      "id": "e51fe5ee-692a-4559-ba0a-29dbfd5440c7",
-      "symbol": "KAIAUSDT",
-      "displayName": "KAIA/USDT",
-      "side": "Buy",
-      "size": 884.4339622641509,
-      "entryPrice": 0.05088,
-      "markPrice": 0.05091,
-      "leverage": 3,
-      "margin": 15,
-      "stopLoss": 0.0503712,
-      "takeProfit": 0.0518976,
-      "unrealisedPnl": 0.07959905660376113,
-      "unrealisedPnlPct": 0.17688679245280253,
-      "openedAt": 1779005363725,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "buy",
-      "openReason": "EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0493) — momentum bullish; Harga di atas VWAP ($0.0485) — buyers in control; MTF weighted 100% bullish (1h×3 + 15m×2 + 5m + 1m×0.5); MACD golden cross — momentum naik; Market structure HH+HL — uptrend terstruktur; ; 4/6 candle terakhir bullish — momentum kuat; Harga di zona demand (0.0487–0.0509)",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ]
-    },
     {
       "id": "87631105-9a75-4b9d-b411-e1617cff1999",
       "symbol": "BSBUSDT",
@@ -59,13 +11,13 @@
       "side": "Buy",
       "size": 35.670925040205084,
       "entryPrice": 0.4702,
-      "markPrice": 0.4734,
+      "markPrice": 0.4682,
       "leverage": 3,
       "margin": 5.59082298463481,
       "stopLoss": 0.465498,
       "takeProfit": 0.47960400000000003,
-      "unrealisedPnl": 0.34244088038596676,
-      "unrealisedPnlPct": 2.041684389621425,
+      "unrealisedPnl": -0.2140255502412307,
+      "unrealisedPnlPct": -1.2760527435133997,
       "openedAt": 1779005583023,
       "source": "auto",
       "confidence": 99,
@@ -74,10 +26,67 @@
       "tags": [
         "Auto AI",
         "Kepercayaan Tinggi"
-      ]
+      ],
+      "trailPeakPrice": 0.4716
     }
   ],
   "log": [
+    {
+      "id": "0fe689f3-e07e-4d06-a700-e10e5605eb8c",
+      "timestamp": 1779006807615,
+      "openedAt": 1779005363725,
+      "closedAt": 1779006807615,
+      "duration": 1443890,
+      "symbol": "KAIAUSDT",
+      "side": "Sell",
+      "qty": 884.4339622641509,
+      "entryPrice": 0.05088,
+      "closePrice": 0.05037,
+      "realizedPnl": -1.3531839622641602,
+      "realizedPnlPct": -3.0070754716981334,
+      "leverage": 3,
+      "margin": 15,
+      "confidence": 99,
+      "signal": "buy",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $0.0504",
+      "openReason": "EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0493) — momentum bullish; Harga di atas VWAP ($0.0485) — buyers in control; MTF weighted 100% bullish (1h×3 + 15m×2 + 5m + 1m×0.5); MACD golden cross — momentum naik; Market structure HH+HL — uptrend terstruktur; ; 4/6 candle terakhir bullish — momentum kuat; Harga di zona demand (0.0487–0.0509)",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ]
+    },
+    {
+      "id": "9f841334-3da8-4efc-955e-9d9616ec1164",
+      "timestamp": 1779006807533,
+      "openedAt": 1779005363571,
+      "closedAt": 1779006807533,
+      "duration": 1443962,
+      "symbol": "CHZUSDT",
+      "side": "Sell",
+      "qty": 909.826122118884,
+      "entryPrice": 0.04946,
+      "closePrice": 0.04875,
+      "realizedPnl": -1.9379296401132102,
+      "realizedPnlPct": -4.30651031136269,
+      "leverage": 3,
+      "margin": 15,
+      "confidence": 99,
+      "signal": "buy",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $0.0488",
+      "openReason": "EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0482) — momentum bullish; Harga di atas VWAP ($0.0469) — buyers in control; Volume spike 166% di atas rata-rata — konfirmasi kuat; MTF weighted 100% bullish (1h×3 + 15m×2 + 5m + 1m×0.5); MACD bullish — momentum naik; Market structure HH+HL — uptrend terstruktur; ; 4/6 candle terakhir bullish — momentum kuat; Harga di zona demand (0.0476–0.0495)",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ]
+    },
     {
       "id": "3d2334e3-98f5-46c0-92fb-283169ab6f62",
       "timestamp": 1779005583023,
@@ -211,6 +220,14 @@
     {
       "timestamp": 1779005567904,
       "balance": 48.486781444585176
+    },
+    {
+      "timestamp": 1779006807533,
+      "balance": 45.54183577248399
+    },
+    {
+      "timestamp": 1779006807615,
+      "balance": 45.40917067814436
     }
   ]
 }

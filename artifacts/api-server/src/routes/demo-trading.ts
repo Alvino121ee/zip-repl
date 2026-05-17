@@ -18,6 +18,7 @@ import {
   type DemoConfig,
 } from "../services/demo-trading.js";
 import { analyzeSymbol } from "../services/analysis.js";
+import { analyzeInstitutional, getAIStatus } from "../services/institutional-engine.js";
 import { scanScalp5m, SCALP_PAIRS } from "../services/scalping5m.js";
 
 const router = Router();
@@ -160,6 +161,21 @@ router.get("/demo/scalp5m/signals", async (_req, res) => {
   try {
     const signals = await scanScalp5m();
     res.json(signals);
+  } catch (err) {
+    res.status(502).json({ error: String(err) });
+  }
+});
+
+// GET /api/demo/ai-status — live AI activity status
+router.get("/demo/ai-status", (_req, res) => {
+  res.json(getAIStatus());
+});
+
+// GET /api/demo/analyze-institutional/:symbol — institutional deep analysis
+router.get("/demo/analyze-institutional/:symbol", async (req, res) => {
+  try {
+    const analysis = await analyzeInstitutional(req.params.symbol.toUpperCase());
+    res.json(analysis);
   } catch (err) {
     res.status(502).json({ error: String(err) });
   }
