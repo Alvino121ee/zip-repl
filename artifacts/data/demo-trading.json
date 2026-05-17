@@ -1,8 +1,8 @@
 {
-  "balance": 41.5234455314818,
-  "realizedPnl": -8.476554468518193,
-  "totalFees": 0,
-  "winCount": 23,
+  "balance": 41.54920530741595,
+  "realizedPnl": -8.447907192584042,
+  "totalFees": 0.005792353671282989,
+  "winCount": 24,
   "lossCount": 16,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 99.03791737408037,
       "entryPrice": 0.05301,
-      "markPrice": 0.05275,
+      "markPrice": 0.0527,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.05170821428571429,
       "takeProfit": 0.056264464285714286,
-      "unrealisedPnl": -0.02574985851726122,
-      "unrealisedPnlPct": -0.49047349556688036,
+      "unrealisedPnl": -0.03070175438596538,
+      "unrealisedPnlPct": -0.5847953216374357,
       "openedAt": 1779024678187,
       "source": "auto",
       "confidence": 99,
@@ -32,17 +32,19 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.05314,
       "humanInstinct": {
-        "lastEvalAt": 1779025238917,
-        "momentumScore": 60,
-        "continuationProb": 27,
+        "lastEvalAt": 1779025526978,
+        "momentumScore": 29,
+        "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
+          "Volume sedikit turun 15%",
           "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 10,
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 16,
         "urgency": 15
       }
     },
@@ -53,13 +55,13 @@
       "side": "Buy",
       "size": 0.3586555540374368,
       "entryPrice": 14.638,
-      "markPrice": 14.6157,
+      "markPrice": 14.6399,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.386642857142858,
       "takeProfit": 15.266392857142856,
-      "unrealisedPnl": -0.007998018855034678,
-      "unrealisedPnlPct": -0.1523432162863748,
+      "unrealisedPnl": 0.0006814455526714531,
+      "unrealisedPnlPct": 0.012979915288980058,
       "openedAt": 1779024717998,
       "source": "auto",
       "confidence": 99,
@@ -73,34 +75,36 @@
       "opportunityScore": 100,
       "trailPeakPrice": 14.7387,
       "humanInstinct": {
-        "lastEvalAt": 1779025223019,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779025511053,
+        "momentumScore": 39,
+        "continuationProb": 2,
         "greedIndex": 0,
         "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 9,
+        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 15,
         "urgency": 15
       }
     },
     {
-      "id": "ee27c59b-89bd-4302-9856-cab14c0bc032",
+      "id": "d3e04fab-f394-40df-8fa9-ed9544a93391",
       "symbol": "AIGENSYNUSDT",
       "displayName": "AIGENSYN/USDT",
       "side": "Buy",
-      "size": 137.18317219754377,
-      "entryPrice": 0.03827,
-      "markPrice": 0.03853,
+      "size": 136.6120218579235,
+      "entryPrice": 0.03843,
+      "markPrice": 0.03862,
       "leverage": 1,
       "margin": 5.25,
-      "stopLoss": 0.038300615999999996,
-      "takeProfit": 0.04376183428571428,
-      "unrealisedPnl": 0.03566762477136183,
-      "unrealisedPnlPct": 0.6793833289783207,
-      "openedAt": 1779025019436,
+      "stopLoss": 0.03747321428571428,
+      "takeProfit": 0.04082196428571428,
+      "unrealisedPnl": 0.02595628415300583,
+      "unrealisedPnlPct": 0.49440541243820624,
+      "openedAt": 1779025305260,
       "source": "auto",
       "confidence": 94,
       "signal": "institutional_long",
@@ -110,23 +114,82 @@
         "Kepercayaan Tinggi"
       ],
       "marketCondition": "ranging",
+      "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.03855,
-      "trailActivated": true,
+      "trailPeakPrice": 0.03869,
       "humanInstinct": {
-        "lastEvalAt": 1779025239129,
+        "lastEvalAt": 1779025527184,
         "momentumScore": 100,
-        "continuationProb": 75,
+        "continuationProb": 68,
         "greedIndex": 0,
         "decaySignals": [],
-        "action": "extend_target",
-        "reason": "🚀 Momentum sangat kuat (skor: 100) — Momentum sangat kuat (100) — target diperluas ke $0.0438",
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan tinggi (68%) — momentum masih mendukung, pertahankan posisi",
         "evalCount": 3,
-        "urgency": 30
+        "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "f8fa4974-5c50-4179-9434-a29189c0cff2",
+      "timestamp": 1779025305260,
+      "openedAt": 1779025305260,
+      "symbol": "AIGENSYNUSDT",
+      "side": "Buy",
+      "qty": 136.6120218579235,
+      "entryPrice": 0.03843,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 94,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0384 | Fee: -$0.0029",
+      "openReason": "Ranging / Sideways | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas VWAP ($0.0376) — buyers in control",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging"
+    },
+    {
+      "id": "38306043-667c-4f1d-8a8f-631c48278cd2",
+      "timestamp": 1779025287162,
+      "openedAt": 1779025019436,
+      "closedAt": 1779025287162,
+      "duration": 267726,
+      "symbol": "AIGENSYNUSDT",
+      "side": "Sell",
+      "qty": 137.18317219754377,
+      "entryPrice": 0.03827,
+      "closePrice": 0.0385,
+      "realizedPnl": 0.028647275934152217,
+      "realizedPnlPct": 0.6009929448654326,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 94,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Ranging / Sideways | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas VWAP ($0.0376) — buyers in control",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Scalping",
+        "Profit"
+      ],
+      "marketCondition": "ranging",
+      "fee": 0.0029048536712829895,
+      "entryFee": 0,
+      "exitFee": 0.0029048536712829895
+    },
     {
       "id": "2fda6c7d-51a9-447f-b2f0-419cf7b9ff32",
       "timestamp": 1779025019436,
@@ -2460,6 +2523,10 @@
     {
       "timestamp": 1779025001154,
       "balance": 41.56697735781035
+    },
+    {
+      "timestamp": 1779025287162,
+      "balance": 41.52426355181659
     }
   ]
 }
