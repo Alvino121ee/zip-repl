@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 9,
-  "correctEarlyExits": 9,
+  "totalDecisions": 10,
+  "correctEarlyExits": 10,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 39.55555555555556,
-  "avgContinuationProbAtExit": 11.777777777777779,
+  "avgMomentumAtEarlyExit": 41.9,
+  "avgContinuationProbAtExit": 12.8,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "9b996deb-2d51-4dc7-a91c-bb7daf90c78b",
+      "tradeId": "d8c00858-bb8d-4443-8e1f-7b5597541f2e",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (22%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7082695252679849,
+      "momentumScore": 63,
+      "continuationProb": 22,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 45% — tanda pelemahan",
+        "RSI proxy overbought (78) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779020323199,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7082695252679849,
+      "profitDelta": 0
+    },
     {
       "id": "e73974c0-3811-4a65-bf46-0ea325471cbe",
       "tradeId": "45d651f5-fa33-4e35-abff-864b6579b11c",
@@ -193,5 +213,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779018272399
+  "lastUpdated": 1779020323200
 }
