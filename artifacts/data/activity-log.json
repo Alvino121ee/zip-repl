@@ -1,5 +1,47 @@
 [
   {
+    "id": "722af220-f412-4d83-a311-d5dac8309ee6",
+    "timestamp": 1779035541264,
+    "source": "demo",
+    "level": "info",
+    "message": "C20 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "814d2f6d-524b-47a5-a0dc-87998f2560be",
+    "timestamp": 1779035541264,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "f1a3ec8b-24f2-4f81-8b81-0dd1c8cb368d",
+    "timestamp": 1779035540903,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "95d0e07e-42cc-400a-be3d-87358560c200",
+    "timestamp": 1779035522408,
+    "source": "demo",
+    "level": "info",
+    "message": "C19 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "92809f4b-8968-4b3c-bd69-acda95c08475",
+    "timestamp": 1779035522408,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "b120e834-bcf7-4c98-8011-bb8c897ee241",
+    "timestamp": 1779035520999,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
     "id": "d2defb7e-c177-490e-9afa-9f5efe5ea299",
     "timestamp": 1779035501264,
     "source": "demo",
@@ -4590,50 +4632,5 @@
     "source": "demo",
     "level": "info",
     "message": "C35 · pindai:20 · kandidat:15 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "c5a4df0e-320b-4a86-bd33-438999f0b2c8",
-    "timestamp": 1779027581115,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "3e228429-d32c-4009-8a2c-d04f0bda6379",
-    "timestamp": 1779027579659,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "8e6f403c-28a2-45a3-8a98-e72cf5c47374",
-    "timestamp": 1779027561643,
-    "source": "demo",
-    "level": "success",
-    "message": "C34 · pindai:20 · kandidat:15 · skip:5 · BUKA:1 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "5e012a14-9ea3-4f3e-9a91-40a09567edc1",
-    "timestamp": 1779027561643,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG AIGENSYNUSDT @ $0.0379 | 94% | Ranging / Sideways | TP:$0.0403 SL:$0.0369 | RR:2.5x",
-    "symbol": "AIGENSYNUSDT",
-    "confidence": 94
-  },
-  {
-    "id": "ec8b9f38-37dc-42b1-bc6f-80e73ff9b192",
-    "timestamp": 1779027559757,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "d6e5e5d0-d4a2-481c-b98d-167e98eb8888",
-    "timestamp": 1779027548118,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG KAITOUSDT @ $0.4789 | PnL: $+0.03 (+0.55%) | [Instinct Exit] ⚠️ Momentum sangat lemah (skor: 28) — probabilitas kelanjutan rendah. Volume menurun 48% — tanda pelemahan",
-    "symbol": "KAITOUSDT"
   }
 ]
