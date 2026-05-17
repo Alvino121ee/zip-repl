@@ -76,7 +76,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 2.36,
       "humanInstinct": {
-        "lastEvalAt": 1779041804085,
+        "lastEvalAt": 1779041852077,
         "momentumScore": 75,
         "continuationProb": 41,
         "greedIndex": 0,
@@ -85,7 +85,7 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas menurun (41%) namun R:R masih 1.8x — pertimbangkan amankan sebagian profit",
-        "evalCount": 11,
+        "evalCount": 12,
         "urgency": 15
       }
     },
@@ -96,13 +96,13 @@
       "side": "Buy",
       "size": 0.11907191943934135,
       "entryPrice": 44.091,
-      "markPrice": 44.082,
+      "markPrice": 44.083,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 43.624607142857144,
       "takeProfit": 45.25698214285714,
-      "unrealisedPnl": -0.0010716472749541129,
-      "unrealisedPnlPct": -0.020412329046745007,
+      "unrealisedPnl": -0.0009525753555150489,
+      "unrealisedPnlPct": -0.018144292486000933,
       "openedAt": 1779041742691,
       "source": "auto",
       "confidence": 99,
@@ -115,7 +115,7 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 44.082
+      "trailPeakPrice": 44.083
     }
   ],
   "log": [
