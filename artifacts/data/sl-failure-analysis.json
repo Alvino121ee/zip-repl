@@ -1,6 +1,35 @@
 {
   "records": [
     {
+      "id": "9b6a6504-6679-47fa-92d4-5a1cc4fd7877",
+      "timestamp": 1779025983058,
+      "tradeId": "d3e04fab-f394-40df-8fa9-ed9544a93391",
+      "symbol": "AIGENSYNUSDT",
+      "side": "long",
+      "entryPrice": 0.03843,
+      "slPrice": 0.038460744,
+      "exitPrice": 0.03846,
+      "pnlPct": 0.078,
+      "confidence": 94,
+      "strategy": "auto_institutional",
+      "marketCondition": "ranging",
+      "holdTimeMs": 677796,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Stop Loss terlalu ketat untuk kondisi volatilitas saat itu — kena SL oleh noise pasar biasa.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
       "id": "362c0ee2-1fd2-468c-9f20-c277d96bdb5a",
       "timestamp": 1779022592880,
       "tradeId": "7adba1df-0dd8-439e-be1b-931bd4edaab7",
@@ -558,7 +587,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779022592881
+      "lastSeen": 1779025983058
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -578,10 +607,10 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779022592881
+      "lastSeen": 1779025983058
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 19,
-  "improvementScore": 45
+  "totalAnalyzed": 20,
+  "improvementScore": 46
 }
