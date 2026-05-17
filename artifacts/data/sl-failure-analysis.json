@@ -1,6 +1,32 @@
 {
   "records": [
     {
+      "id": "7759bf65-9237-41f0-85ac-0b80dc87785f",
+      "timestamp": 1779011500439,
+      "tradeId": "b2debaee-ea02-4340-9437-4b42c4c7e1f3",
+      "symbol": "NMRUSDT",
+      "side": "long",
+      "entryPrice": 10.405,
+      "slPrice": 10.252749999999999,
+      "exitPrice": 10.25,
+      "pnlPct": -1.49,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 3126320,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Setup tampak kuat secara statistik namun faktor-faktor tersembunyi menyebabkan kegagalan. (Confidence: 99%, namun trade kena SL dalam 52m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.463,
+      "improvementApplied": false
+    },
+    {
       "id": "d9c8f924-6510-498d-b86a-982f90b1c07d",
       "timestamp": 1779011249449,
       "tradeId": "test-005",
@@ -268,10 +294,10 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779011249449
+      "lastSeen": 1779011500439
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 8,
-  "improvementScore": 43
+  "totalAnalyzed": 9,
+  "improvementScore": 44
 }

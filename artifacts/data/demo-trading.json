@@ -1,8 +1,8 @@
 {
-  "balance": 44.74539982415092,
-  "realizedPnl": -5.254600175849072,
+  "balance": 44.2091191898405,
+  "realizedPnl": -5.790880810159497,
   "winCount": 1,
-  "lossCount": 5,
+  "lossCount": 6,
   "positions": [
     {
       "id": "9a03f65c-9f39-450a-82b0-b13f9d16b852",
@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 72.74490785645006,
       "entryPrice": 0.06186,
-      "markPrice": 0.06214,
+      "markPrice": 0.06209,
       "leverage": 1,
       "margin": 4.5,
       "stopLoss": 0.06068571428571428,
       "takeProfit": 0.06479571428571429,
-      "unrealisedPnl": 0.020368574199806196,
-      "unrealisedPnlPct": 0.4526349822179154,
+      "unrealisedPnl": 0.016731328806983588,
+      "unrealisedPnlPct": 0.3718073068218575,
       "openedAt": 1779006888454,
       "source": "auto",
       "confidence": 99,
@@ -29,34 +29,7 @@
       ],
       "marketCondition": "trending_up_strong",
       "opportunityScore": 100,
-      "trailPeakPrice": 0.06216
-    },
-    {
-      "id": "b2debaee-ea02-4340-9437-4b42c4c7e1f3",
-      "symbol": "NMRUSDT",
-      "displayName": "NMR/USDT",
-      "side": "Buy",
-      "size": 1.7299375300336377,
-      "entryPrice": 10.405,
-      "markPrice": 10.312,
-      "leverage": 2,
-      "margin": 9,
-      "stopLoss": 10.252749999999999,
-      "takeProfit": 10.785625,
-      "unrealisedPnl": -0.3217683805862565,
-      "unrealisedPnlPct": -1.7876021143680916,
-      "openedAt": 1779008374118,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($10.2190) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "opportunityScore": 100,
-      "trailPeakPrice": 10.441
+      "trailPeakPrice": 0.06225
     },
     {
       "id": "292eb475-eba5-4708-8bfc-0afbffdd72ac",
@@ -65,13 +38,13 @@
       "side": "Buy",
       "size": 8.38400761932176,
       "entryPrice": 2.087,
-      "markPrice": 2.0852,
+      "markPrice": 2.0894,
       "leverage": 2,
       "margin": 8.748711950762258,
       "stopLoss": 2.0651857142857146,
       "takeProfit": 2.1415357142857143,
-      "unrealisedPnl": -0.03018242742956246,
-      "unrealisedPnlPct": -0.17249640632489177,
+      "unrealisedPnl": 0.04024323657274002,
+      "unrealisedPnlPct": 0.2299952084331323,
       "openedAt": 1779010689809,
       "source": "auto",
       "confidence": 99,
@@ -83,10 +56,91 @@
       ],
       "marketCondition": "trending_up_normal",
       "opportunityScore": 100,
-      "trailPeakPrice": 2.0867
+      "trailPeakPrice": 2.0944
+    },
+    {
+      "id": "0bd80fcd-c55d-4d33-a9d0-1267e97e6547",
+      "symbol": "JELLYJELLYUSDT",
+      "displayName": "JELLYJELLY/USDT",
+      "side": "Buy",
+      "size": 192.92718543794263,
+      "entryPrice": 0.0653,
+      "markPrice": 0.064791,
+      "leverage": 2,
+      "margin": 6.299072604548827,
+      "stopLoss": 0.06388357142857143,
+      "takeProfit": 0.06884107142857142,
+      "unrealisedPnl": -0.19639987477582388,
+      "unrealisedPnlPct": -1.5589586523736465,
+      "openedAt": 1779011502846,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0639) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.065342
     }
   ],
   "log": [
+    {
+      "id": "4af90f7b-01cf-40e0-8b93-4e00459b07aa",
+      "timestamp": 1779011502846,
+      "openedAt": 1779011502846,
+      "symbol": "JELLYJELLYUSDT",
+      "side": "Buy",
+      "qty": 192.92718543794263,
+      "entryPrice": 0.0653,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 2,
+      "margin": 6.299072604548827,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0653",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0639) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "c7c211e3-35bb-40c2-9156-f968a609e4c7",
+      "timestamp": 1779011500438,
+      "openedAt": 1779008374118,
+      "closedAt": 1779011500438,
+      "duration": 3126320,
+      "symbol": "NMRUSDT",
+      "side": "Sell",
+      "qty": 1.7299375300336377,
+      "entryPrice": 10.405,
+      "closePrice": 10.25,
+      "realizedPnl": -0.5362806343104255,
+      "realizedPnlPct": -2.979336857280142,
+      "leverage": 2,
+      "margin": 9,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $10.2500",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($10.2190) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
     {
       "id": "944ec717-d6fa-421c-be19-32f4e9cf39ae",
       "timestamp": 1779010689809,
@@ -507,6 +561,10 @@
     {
       "timestamp": 1779010676431,
       "balance": 44.62739136369558
+    },
+    {
+      "timestamp": 1779011500438,
+      "balance": 44.28845945972065
     }
   ]
 }
