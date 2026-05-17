@@ -110,7 +110,90 @@ router.post("/training-lab/manual-train", (req, res) => {
     return;
   }
   const result = manualTrain(text);
-  res.json(result);
+  // Tambahkan koneksi pengetahuan dinamis berdasarkan kategori yang terdeteksi
+  const knowledgeConnections = buildKnowledgeConnections(result.categoriesHit, result.conceptsFound);
+  res.json({ ...result, knowledgeConnections });
 });
+
+// ─── Endpoint Bank Pengetahuan (terorganisir per kategori) ───────────────────
+
+router.get("/training-lab/knowledge-bank", (_req, res) => {
+  const memory = getMemoryBank();
+  const allEntries = [
+    ...memory.learnedPatterns,
+    ...memory.bestSetups,
+    ...memory.worstSetups,
+    ...memory.dangerousConditions,
+  ].filter(e => e.type === "manual");
+
+  const CATEGORY_KEYWORDS: Record<string, string[]> = {
+    "Indikator Teknikal":   ["indikator teknikal", "technical"],
+    "Pola Chart":           ["pola chart"],
+    "Konsep Pasar":         ["konsep pasar"],
+    "Manajemen Risiko":     ["manajemen risiko"],
+    "Psikologi Trading":    ["psikologi trading"],
+    "Strategi":             ["strategi"],
+    "Smart Money":          ["smart money"],
+    "Volatilitas":          ["volatilitas"],
+    "Momentum":             ["momentum"],
+    "Manajemen Trade":      ["manajemen trade"],
+  };
+
+  const categories: Record<string, typeof allEntries> = {};
+  let total = 0;
+
+  for (const entry of allEntries) {
+    const tagsLower = entry.tags.join(" ").toLowerCase();
+    const descLower = entry.description.toLowerCase();
+    let matched = false;
+    for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+      if (keywords.some(k => tagsLower.includes(k) || descLower.includes(k))) {
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push({ ...entry, category: cat });
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      const defaultCat = "Pengetahuan Umum";
+      if (!categories[defaultCat]) categories[defaultCat] = [];
+      categories[defaultCat].push({ ...entry, category: defaultCat });
+    }
+    total++;
+  }
+
+  res.json({ categories, total });
+});
+
+// ─── Helper: Koneksi Pengetahuan ─────────────────────────────────────────────
+
+function buildKnowledgeConnections(categories: string[], concepts: string[]): string[] {
+  const connections: string[] = [];
+  const lower = [...categories.map(c => c.toLowerCase()), ...concepts];
+
+  if (lower.some(w => w.includes("breakout") || w.includes("fake"))) {
+    connections.push("Terhubung dengan: Deteksi Fake Breakout & Trap Likuiditas");
+  }
+  if (lower.some(w => w.includes("volume"))) {
+    connections.push("Terhubung dengan: Analisis Momentum & Konfirmasi Volume");
+  }
+  if (lower.some(w => w.includes("psikologi") || w.includes("emosi") || w.includes("fomo"))) {
+    connections.push("Terhubung dengan: Disiplin Trading & Kontrol Emosional");
+  }
+  if (lower.some(w => w.includes("smart money") || w.includes("liquidity") || w.includes("order block"))) {
+    connections.push("Terhubung dengan: Pola Institusional & Perilaku Smart Money");
+  }
+  if (lower.some(w => w.includes("stop loss") || w.includes("risk") || w.includes("risiko"))) {
+    connections.push("Terhubung dengan: Kalkulasi Position Sizing & Capital Preservation");
+  }
+  if (lower.some(w => w.includes("ema") || w.includes("sma") || w.includes("moving average"))) {
+    connections.push("Terhubung dengan: Analisis Tren Multi-Timeframe");
+  }
+  if (lower.some(w => w.includes("rsi") || w.includes("macd") || w.includes("divergen"))) {
+    connections.push("Terhubung dengan: Deteksi Divergensi & Konfirmasi Reversal");
+  }
+
+  return connections.slice(0, 4);
+}
 
 export default router;

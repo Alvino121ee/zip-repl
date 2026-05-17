@@ -22,6 +22,7 @@ import AI from "@/pages/AI";
 import PredictionLocks from "@/pages/PredictionLocks";
 import DemoTrading from "@/pages/DemoTrading";
 import TrainingLab from "@/pages/TrainingLab";
+import KnowledgeLearning from "@/pages/KnowledgeLearning";
 import StopLossAnalysis from "@/pages/StopLossAnalysis";
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/prediction-locks" component={PredictionLocks} />
         <Route path="/demo-trading" component={DemoTrading} />
         <Route path="/training-lab" component={TrainingLab} />
+        <Route path="/knowledge-learning" component={KnowledgeLearning} />
         <Route path="/sl-analysis" component={StopLossAnalysis} />
         <Route component={NotFound} />
       </Switch>
