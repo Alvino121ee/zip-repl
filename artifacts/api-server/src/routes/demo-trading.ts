@@ -3,6 +3,7 @@ import {
   getDemoBalance,
   getDemoPositions,
   getDemoLog,
+  getDemoStats,
   openDemoPosition,
   closeDemoPosition,
   resetDemo,
@@ -36,6 +37,11 @@ router.get("/demo/log", (_req, res) => {
   res.json(getDemoLog());
 });
 
+// GET /api/demo/stats
+router.get("/demo/stats", (_req, res) => {
+  res.json(getDemoStats());
+});
+
 // GET /api/demo/config
 router.get("/demo/config", (_req, res) => {
   res.json(demoConfig);
@@ -59,12 +65,10 @@ router.put("/demo/config", (req, res) => {
 
   saveDemoConfig();
 
-  // Auto engine lifecycle
   if (demoConfig.autoEnabled && !wasAutoEnabled) startDemoAutoEngine();
   else if (!demoConfig.autoEnabled && wasAutoEnabled) stopDemoAutoEngine();
   else if (demoConfig.autoEnabled && "intervalMs" in update) startDemoAutoEngine();
 
-  // Scalp engine lifecycle
   if (demoConfig.scalpEnabled && !wasScalpEnabled) startDemoScalpEngine();
   else if (!demoConfig.scalpEnabled && wasScalpEnabled) stopDemoScalpEngine();
 
@@ -76,11 +80,11 @@ router.get("/demo/engine-status", (_req, res) => {
   res.json(demoEngineStatus);
 });
 
-// POST /api/demo/order — manual demo order
+// POST /api/demo/order
 router.post("/demo/order", async (req, res) => {
-  const { symbol, displayName, side, entryPrice, positionUSDT, leverage, stopLoss, takeProfit, confidence, signal } = req.body;
+  const { symbol, displayName, side, entryPrice, positionUSDT, leverage, stopLoss, takeProfit, confidence, signal, openReason, marketCondition } = req.body;
   if (!symbol || !side || !entryPrice) {
-    return res.status(400).json({ error: "symbol, side, entryPrice required" });
+    return res.status(400).json({ error: "symbol, side, entryPrice wajib diisi" });
   }
   const result = openDemoPosition({
     symbol,
@@ -94,6 +98,8 @@ router.post("/demo/order", async (req, res) => {
     confidence: Number(confidence) || 0,
     signal: signal ?? "manual",
     source: "manual",
+    openReason: openReason ?? undefined,
+    marketCondition: marketCondition ?? undefined,
   });
   if ("error" in result) return res.status(400).json(result);
   res.status(201).json(result);
@@ -112,10 +118,10 @@ router.post("/demo/reset", (_req, res) => {
   stopDemoAutoEngine();
   stopDemoScalpEngine();
   resetDemo();
-  res.json({ ok: true, message: "Demo trading direset ke $10,000" });
+  res.json({ ok: true, message: "Demo trading direset ke $50 USDT" });
 });
 
-// POST /api/demo/engine/trigger — paksa siklus scan langsung tanpa menunggu timer
+// POST /api/demo/engine/trigger
 router.post("/demo/engine/trigger", (_req, res) => {
   if (!demoEngineStatus.autoRunning && !demoEngineStatus.scalpRunning) {
     return res.status(400).json({ error: "Engine belum aktif. Aktifkan terlebih dahulu." });
@@ -124,7 +130,7 @@ router.post("/demo/engine/trigger", (_req, res) => {
   res.json({ ok: true, message: "Siklus pindai dipaksa — hasil akan muncul dalam beberapa detik" });
 });
 
-// GET /api/demo/signals — same as real auto trading signals
+// GET /api/demo/signals
 router.get("/demo/signals", async (req, res) => {
   try {
     const { symbol } = req.query;
@@ -132,7 +138,6 @@ router.get("/demo/signals", async (req, res) => {
       const analysis = await analyzeSymbol(String(symbol).toUpperCase());
       return res.json(analysis);
     }
-    // Return scalp signals for quick view
     const signals = await scanScalp5m();
     res.json(signals);
   } catch (err) {
