@@ -287,11 +287,11 @@ export default function KnowledgeLearning() {
       if (!res.ok) throw new Error(data.error ?? "Sesi gagal");
       await Promise.all([fetchGeminiStatus(), fetchBrain(), fetchKnowledgeBank()]);
       toast({
-        title: `🤖 Sesi Gemini Selesai — +${data.session?.totalXP ?? 0} XP`,
+        title: `🤖 Sesi Groq Selesai — +${data.session?.totalXP ?? 0} XP`,
         description: `${data.session?.completedQuestions ?? 0} pertanyaan dijawab & disimpan ke bank pengetahuan`,
       });
     } catch (err: unknown) {
-      toast({ title: "Sesi Gemini gagal", description: (err as Error).message, variant: "destructive" });
+      toast({ title: "Sesi Groq gagal", description: (err as Error).message, variant: "destructive" });
     } finally {
       setGeminiRunning(false);
     }
@@ -446,7 +446,7 @@ export default function KnowledgeLearning() {
           { key: "input",   label: "✏️ Input Pengetahuan" },
           { key: "bank",    label: "💾 Bank Pengetahuan", badge: totalKnowledge > 0 ? totalKnowledge : undefined },
           { key: "skill",   label: "📊 Evolusi Skill AI" },
-          { key: "gemini",  label: "🤖 Gemini AI", badge: geminiStatus?.autoEnabled ? "AUTO" : undefined },
+          { key: "gemini",  label: "🤖 Groq AI", badge: geminiStatus?.autoEnabled ? "AUTO" : undefined },
           { key: "panduan", label: "📋 Panduan" },
         ] as const).map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -1058,8 +1058,8 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
               <CardContent className="p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-red-300">GEMINI_API_KEY belum dikonfigurasi</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Tambahkan GEMINI_API_KEY ke Secrets (Environment Variables) agar fitur ini aktif.</p>
+                  <p className="text-sm font-semibold text-red-300">GROQ_API_KEY belum dikonfigurasi</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Tambahkan GROQ_API_KEY ke Secrets (Environment Variables) agar fitur ini aktif. Bisa didapat gratis di console.groq.com</p>
                 </div>
               </CardContent>
             </Card>
@@ -1074,9 +1074,9 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
                     <BrainCircuit className="w-7 h-7 text-violet-400" />
                   </div>
                   <div>
-                    <div className="text-lg font-black text-white mb-0.5">Belajar Otomatis dengan Gemini AI</div>
+                    <div className="text-lg font-black text-white mb-0.5">Belajar Otomatis dengan Groq AI</div>
                     <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
-                      AI menganalisis skill yang paling lemah, membuat pertanyaan sendiri, bertanya ke Google Gemini,
+                      AI menganalisis skill yang paling lemah, membuat pertanyaan sendiri, bertanya ke Groq Cloud (Llama 3.3 70B),
                       lalu jawaban langsung disimpan ke Bank Pengetahuan untuk meningkatkan skill AI secara otomatis.
                     </p>
                     <div className="flex items-center gap-3 mt-2">
@@ -1198,7 +1198,7 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
                   </div>
                 ))}
                 <p className="text-[10px] text-muted-foreground pt-1">
-                  Gemini akan difokuskan ke skill dengan nilai terendah terlebih dahulu.
+                  Groq akan difokuskan ke skill dengan nilai terendah terlebih dahulu.
                 </p>
               </CardContent>
             </Card>
@@ -1258,7 +1258,7 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
                 {[
                   { step: "1", title: "AI Analisis Diri", desc: "AI melihat semua skill dan menemukan yang paling lemah", icon: BrainCircuit, color: "text-violet-400 bg-violet-500/15" },
                   { step: "2", title: "Buat Pertanyaan", desc: "Pertanyaan mendalam dibuat spesifik per skill yang dibutuhkan", icon: MessageSquare, color: "text-yellow-400 bg-yellow-500/15" },
-                  { step: "3", title: "Tanya Gemini", desc: "Google Gemini menjawab sebagai expert trader profesional", icon: Sparkles, color: "text-blue-400 bg-blue-500/15" },
+                  { step: "3", title: "Tanya Groq AI", desc: "Groq Cloud (Llama 3.3 70B) menjawab sebagai expert trader profesional", icon: Sparkles, color: "text-blue-400 bg-blue-500/15" },
                   { step: "4", title: "Simpan & Berkembang", desc: "Jawaban masuk ke bank pengetahuan, skill AI meningkat", icon: Database, color: "text-emerald-400 bg-emerald-500/15" },
                 ].map(item => {
                   const Icon2 = item.icon;
