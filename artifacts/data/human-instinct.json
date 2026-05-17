@@ -1,15 +1,55 @@
 {
-  "totalDecisions": 1,
-  "correctEarlyExits": 1,
+  "totalDecisions": 3,
+  "correctEarlyExits": 3,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 8,
-  "avgContinuationProbAtExit": 0,
+  "avgMomentumAtEarlyExit": 27,
+  "avgContinuationProbAtExit": 7.666666666666667,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "5f148726-8e44-47a2-9a4c-3ec9b434d603",
+      "tradeId": "052386d7-5af0-4aac-b272-aaac86847e2b",
+      "symbol": "AIGENSYNUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7051449464612156,
+      "momentumScore": 65,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 24%",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779013257807,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7051449464612156,
+      "profitDelta": 0
+    },
+    {
+      "id": "c72276bd-4e2c-4880-a033-38d23c1e8910",
+      "tradeId": "c7101585-b095-4e60-9de0-8a7aea69eaf2",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.37% diamankan.",
+      "profitPctAtDecision": 0.36906290115531787,
+      "momentumScore": 8,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779013169700,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.36906290115531787,
+      "profitDelta": 0
+    },
     {
       "id": "6c3e3d8c-caf7-403f-8805-af9b83b9446f",
       "tradeId": "9a03f65c-9f39-450a-82b0-b13f9d16b852",
@@ -31,5 +71,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779012689521
+  "lastUpdated": 1779013257808
 }

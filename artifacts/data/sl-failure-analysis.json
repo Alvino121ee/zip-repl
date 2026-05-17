@@ -1,6 +1,87 @@
 {
   "records": [
     {
+      "id": "fa20de5c-27e6-4816-a95c-417d5c409e65",
+      "timestamp": 1779013353791,
+      "tradeId": "f38ccd2a-6496-4ed6-9431-983e36fb76c7",
+      "symbol": "TAUSDT",
+      "side": "long",
+      "entryPrice": 0.06259,
+      "slPrice": 0.062640072,
+      "exitPrice": 0.06263,
+      "pnlPct": 0.064,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 171665,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "SL berada di dalam jangkauan volatilitas normal, menyebabkan tersentuh tanpa alasan teknikal.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "5ffe3cad-b3db-4980-a43f-10ea1c1783be",
+      "timestamp": 1779013081545,
+      "tradeId": "0bd80fcd-c55d-4d33-a9d0-1267e97e6547",
+      "symbol": "JELLYJELLYUSDT",
+      "side": "long",
+      "entryPrice": 0.0653,
+      "slPrice": 0.06388357142857143,
+      "exitPrice": 0.063857,
+      "pnlPct": -2.21,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 1578699,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "AI overconfident — confidence tinggi tidak mencerminkan kompleksitas kondisi pasar saat itu. (Confidence: 99%, namun trade kena SL dalam 26m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 2.169,
+      "improvementApplied": false
+    },
+    {
+      "id": "31422694-5d97-4dea-9beb-bb0d67a6888d",
+      "timestamp": 1779013033527,
+      "tradeId": "292eb475-eba5-4708-8bfc-0afbffdd72ac",
+      "symbol": "ATOMUSDT",
+      "side": "long",
+      "entryPrice": 2.087,
+      "slPrice": 2.1166736,
+      "exitPrice": 2.1157,
+      "pnlPct": 1.375,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 2343717,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "AI overconfident — confidence tinggi tidak mencerminkan kompleksitas kondisi pasar saat itu. (Confidence: 99%, namun trade kena SL dalam 39m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.422,
+      "improvementApplied": false
+    },
+    {
       "id": "7759bf65-9237-41f0-85ac-0b80dc87785f",
       "timestamp": 1779011500439,
       "tradeId": "b2debaee-ea02-4340-9437-4b42c4c7e1f3",
@@ -294,10 +375,29 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779011500439
+      "lastSeen": 1779013353791
+    },
+    {
+      "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
+      "pattern": "Overconfidence AI",
+      "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 3,
+      "primaryCause": "overconfidence",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "trending_up_strong",
+        "trending_up_normal"
+      ],
+      "avgPnlPct": -0.78,
+      "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+      "severity": "low",
+      "firstSeen": 1779013081545,
+      "lastSeen": 1779013353791
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 9,
-  "improvementScore": 44
+  "totalAnalyzed": 12,
+  "improvementScore": 45
 }
