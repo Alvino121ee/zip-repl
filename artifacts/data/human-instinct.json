@@ -1,0 +1,35 @@
+{
+  "totalDecisions": 1,
+  "correctEarlyExits": 1,
+  "prematureExits": 0,
+  "heldCorrectly": 0,
+  "shouldHaveExited": 0,
+  "avgMomentumAtEarlyExit": 8,
+  "avgContinuationProbAtExit": 0,
+  "momentumExitThreshold": 35,
+  "continuationExitThreshold": 40,
+  "greedExitThreshold": 65,
+  "records": [
+    {
+      "id": "6c3e3d8c-caf7-403f-8805-af9b83b9446f",
+      "tradeId": "9a03f65c-9f39-450a-82b0-b13f9d16b852",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.82% diamankan.",
+      "profitPctAtDecision": 0.8244422890397729,
+      "momentumScore": 8,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779012689519,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8244422890397729,
+      "profitDelta": 0
+    }
+  ],
+  "lastUpdated": 1779012689521
+}

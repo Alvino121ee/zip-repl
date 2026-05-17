@@ -20,6 +20,7 @@ import {
 import { analyzeSymbol } from "../services/analysis.js";
 import { analyzeInstitutional, getAIStatus } from "../services/institutional-engine.js";
 import { scanScalp5m, SCALP_PAIRS } from "../services/scalping5m.js";
+import { getInstinctStats, getInstinctMemory } from "../services/human-instinct-engine.js";
 
 const router = Router();
 
@@ -169,6 +170,20 @@ router.get("/demo/scalp5m/signals", async (_req, res) => {
 // GET /api/demo/ai-status — live AI activity status
 router.get("/demo/ai-status", (_req, res) => {
   res.json(getAIStatus());
+});
+
+// GET /api/demo/instinct/stats — Human Instinct Engine statistics
+router.get("/demo/instinct/stats", (_req, res) => {
+  res.json(getInstinctStats());
+});
+
+// GET /api/demo/instinct/memory — Full instinct memory (recent decisions)
+router.get("/demo/instinct/memory", (_req, res) => {
+  const mem = getInstinctMemory();
+  res.json({
+    ...mem,
+    records: mem.records.slice(0, 50), // limit to 50 most recent
+  });
 });
 
 // GET /api/demo/analyze-institutional/:symbol — institutional deep analysis

@@ -14,6 +14,12 @@ import { scanBybitUniverse } from "./bybit.js";
 import { scanScalp5m } from "./scalping5m.js";
 import { logActivity } from "./activity-log.js";
 import { analyzeSLFailure } from "./sl-failure-analysis.js";
+import {
+  makeHumanInstinctDecision,
+  learnFromTradeOutcome,
+  generateLiveReasoning,
+  type HumanInstinctDecision,
+} from "./human-instinct-engine.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -49,6 +55,18 @@ export interface DemoPosition {
   trailActivated?: boolean;
   trailPeakPrice?: number;  // highest price for long, lowest for short
   opportunityScore?: number; // for smart switching
+  // Human Instinct Engine state
+  humanInstinct?: {
+    lastEvalAt: number;
+    momentumScore: number;
+    continuationProb: number;
+    greedIndex: number;
+    decaySignals: string[];
+    action: string;
+    reason: string;
+    evalCount: number;
+    urgency: number;
+  };
 }
 
 export interface DemoTradeLog {
@@ -516,6 +534,21 @@ export function closeDemoPosition(
   if (state.log.length > 500) state.log.splice(500);
   saveState();
 
+  // ── Human Instinct Self-Learning ──────────────────────────────────────────
+  try {
+    const rawPnlPct = pos.leverage > 0 ? pnlPct / pos.leverage : pnlPct;
+    const closedAs = reason === "tp" ? "tp"
+      : reason === "sl" ? "sl"
+      : reversalNote?.startsWith("[Instinct Exit]") ? "early_exit"
+      : "manual";
+    learnFromTradeOutcome({
+      tradeId: pos.id,
+      symbol: pos.symbol,
+      finalProfitPct: rawPnlPct,
+      closedAs,
+    });
+  } catch { /* non-critical */ }
+
   const direction = pos.side === "Buy" ? "LONG" : "SHORT";
   const pnlStr = (pnl >= 0 ? "+" : "") + pnl.toFixed(2);
   const pnlPctStr = (pnlPct >= 0 ? "+" : "") + pnlPct.toFixed(2);
@@ -755,7 +788,10 @@ export function resetDemo() {
   saveState();
 }
 
-// ─── Mark price updater with institutional trailing stop (runs every 8s) ──────
+// ─── Mark price updater with Human Instinct + Institutional trailing (runs every 8s) ─
+
+// Throttle instinct evaluation: jangan evaluasi terlalu sering (min 45 detik per posisi)
+const INSTINCT_EVAL_INTERVAL_MS = 45_000;
 
 async function updateMarkPrices() {
   if (state.positions.length === 0) {
@@ -785,13 +821,123 @@ async function updateMarkPrices() {
     pos.unrealisedPnl = pnl;
     pos.unrealisedPnlPct = pnlPct;
 
-    // ── Institutional trailing stop ────────────────────────────────────────
-    // Use ~2% ATR estimate based on entry price (safe fallback)
     const estimatedAtr = pos.entryPrice * 0.018;
     const rawProfitPct = pos.side === "Buy"
       ? (price - pos.entryPrice) / pos.entryPrice * 100
       : (pos.entryPrice - price) / pos.entryPrice * 100;
 
+    // ── Human Instinct Engine Evaluation ──────────────────────────────────
+    // Evaluasi hanya untuk posisi auto/scalp (bukan manual) dan jika sudah ada profit
+    // atau sudah lebih dari 10 menit dipegang
+    const holdMinutes = (Date.now() - pos.openedAt) / 60_000;
+    const lastEvalAt = pos.humanInstinct?.lastEvalAt ?? 0;
+    const shouldEvalInstinct =
+      pos.source !== "manual" &&
+      Date.now() - lastEvalAt >= INSTINCT_EVAL_INTERVAL_MS &&
+      holdMinutes >= 2; // minimal 2 menit sebelum evaluasi pertama
+
+    if (shouldEvalInstinct) {
+      try {
+        const instinctDecision = await makeHumanInstinctDecision({
+          tradeId: pos.id,
+          symbol: pos.symbol,
+          side: pos.side,
+          entryPrice: pos.entryPrice,
+          currentPrice: price,
+          takeProfit: pos.takeProfit,
+          stopLoss: pos.stopLoss,
+          margin: pos.margin,
+          leverage: pos.leverage,
+          openedAt: pos.openedAt,
+          confidence: pos.confidence,
+        });
+
+        // Simpan state instinct di posisi untuk UI
+        pos.humanInstinct = {
+          lastEvalAt: Date.now(),
+          momentumScore: instinctDecision.momentumScore,
+          continuationProb: instinctDecision.continuationProb,
+          greedIndex: instinctDecision.greedIndex,
+          decaySignals: instinctDecision.decaySignals,
+          action: instinctDecision.action,
+          reason: instinctDecision.reason,
+          evalCount: (pos.humanInstinct?.evalCount ?? 0) + 1,
+          urgency: instinctDecision.urgency,
+        };
+
+        const reasoning = generateLiveReasoning(instinctDecision, rawProfitPct);
+
+        // ── Tindakan berdasarkan keputusan instinct ─────────────────────
+        if (instinctDecision.shouldExitEarly && rawProfitPct > -0.5) {
+          // Exit awal — amankan profit atau cegah loss lebih besar
+          const direction = pos.side === "Buy" ? "LONG" : "SHORT";
+          aiLog.exiting(pos.symbol, instinctDecision.reason, pnl);
+          logActivity({
+            source: "demo",
+            level: rawProfitPct > 0 ? "success" : "warning",
+            message: `🧠 INSTINCT EXIT ${direction} ${pos.symbol} @ $${price.toFixed(4)} | Profit: ${rawProfitPct >= 0 ? "+" : ""}${rawProfitPct.toFixed(2)}% | ${instinctDecision.reason}`,
+            symbol: pos.symbol,
+          });
+          closeDemoPosition(
+            pos.id,
+            "reversal",
+            price,
+            `[Instinct Exit] ${instinctDecision.reason}`
+          );
+          continue;
+        }
+
+        if (instinctDecision.action === "tighten_trail" && instinctDecision.suggestedSL) {
+          // Kencangkan trailing stop
+          const isImprovement = pos.side === "Buy"
+            ? instinctDecision.suggestedSL > (pos.stopLoss ?? 0)
+            : instinctDecision.suggestedSL < (pos.stopLoss ?? Infinity);
+          if (isImprovement) {
+            pos.stopLoss = instinctDecision.suggestedSL;
+            pos.trailActivated = true;
+            aiLog.protecting(pos.symbol, `Instinct trail → SL $${instinctDecision.suggestedSL.toFixed(4)} | Momentum: ${instinctDecision.momentumScore}`);
+            logActivity({
+              source: "demo",
+              level: "info",
+              message: `🛡 SMART TRAIL ${pos.symbol}: SL → $${instinctDecision.suggestedSL.toFixed(4)} | Momentum ${instinctDecision.momentumScore} | ${instinctDecision.decaySignals[0] ?? "Trail disesuaikan"}`,
+              symbol: pos.symbol,
+            });
+          }
+        }
+
+        if (instinctDecision.action === "extend_target" && instinctDecision.suggestedTP) {
+          // Perluas target profit
+          const isExtension = pos.side === "Buy"
+            ? instinctDecision.suggestedTP > (pos.takeProfit ?? 0)
+            : instinctDecision.suggestedTP < (pos.takeProfit ?? Infinity);
+          if (isExtension && pos.takeProfit) {
+            const oldTP = pos.takeProfit;
+            pos.takeProfit = instinctDecision.suggestedTP;
+            logActivity({
+              source: "demo",
+              level: "signal",
+              message: `🚀 EXTEND TARGET ${pos.symbol}: TP $${oldTP.toFixed(4)} → $${instinctDecision.suggestedTP.toFixed(4)} | Momentum kuat: ${instinctDecision.momentumScore}`,
+              symbol: pos.symbol,
+            });
+          }
+        }
+
+        // Log reasoning ke activity (hanya jika ada sinyal decay penting)
+        if (instinctDecision.decaySignals.length > 0 && instinctDecision.urgency >= 50) {
+          logActivity({
+            source: "demo",
+            level: "info",
+            message: `🧠 INSTINCT [${pos.symbol}]: ${reasoning.split("\n")[1] ?? instinctDecision.reason}`,
+            symbol: pos.symbol,
+          });
+        }
+
+      } catch (err) {
+        logger.warn({ err, symbol: pos.symbol }, "Human Instinct Engine evaluation error — non-critical");
+      }
+    }
+
+    // ── Institutional trailing stop (sebagai lapis kedua) ──────────────
     const trailResult = calculateTrailingStop({
       side: pos.side,
       entryPrice: pos.entryPrice,
@@ -817,8 +963,7 @@ async function updateMarkPrices() {
     if (pos.stopLoss != null) {
       const slHit = pos.side === "Buy" ? price <= pos.stopLoss : price >= pos.stopLoss;
       if (slHit) {
-        const reason = (pos.trailActivated && rawProfitPct > 0) ? "sl" : "sl";
-        closeDemoPosition(pos.id, reason, price);
+        closeDemoPosition(pos.id, "sl", price);
         logger.info({ symbol: pos.symbol, price, sl: pos.stopLoss, trail: pos.trailActivated }, "Demo SL hit");
         continue;
       }
@@ -836,8 +981,9 @@ async function updateMarkPrices() {
   // Update AI status with monitoring info
   const totalUnrealized = state.positions.reduce((s, p) => s + p.unrealisedPnl, 0);
   const trailActive = state.positions.some(p => p.trailActivated);
+  const instinctActive = state.positions.some(p => p.humanInstinct && p.humanInstinct.evalCount > 0);
   if (state.positions.length > 0) {
-    aiLog.monitoring(state.positions.length, totalUnrealized, trailActive);
+    aiLog.monitoring(state.positions.length, totalUnrealized, trailActive || instinctActive);
   }
 
   saveState();

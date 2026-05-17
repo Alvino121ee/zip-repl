@@ -36,6 +36,34 @@ interface DemoPosition {
   unrealisedPnl: number; unrealisedPnlPct: number;
   openedAt: number; source: "auto" | "scalp" | "manual";
   confidence: number; signal: string; openReason?: string; tags?: string[];
+  humanInstinct?: {
+    lastEvalAt: number;
+    momentumScore: number;
+    continuationProb: number;
+    greedIndex: number;
+    decaySignals: string[];
+    action: string;
+    reason: string;
+    evalCount: number;
+    urgency: number;
+  };
+}
+
+interface InstinctStats {
+  totalEvals: number;
+  earlyExits: number;
+  tpHits: number;
+  slHits: number;
+  manualCloses: number;
+  correctEarlyExits: number;
+  wrongEarlyExits: number;
+  accuracy: number;
+  avgHoldMinutes: number;
+  momentumThreshold: number;
+  greedThreshold: number;
+  learningCycles: number;
+  topDecaySignals: { signal: string; count: number }[];
+  updatedAt: number;
 }
 
 interface DemoTradeLog {
@@ -388,6 +416,64 @@ function KartuPosisi({ pos, onTutup }: { pos: DemoPosition; onTutup: (id: string
             ))}
           </div>
         )}
+
+        {/* Human Instinct Engine Panel (hanya jika sudah dievaluasi) */}
+        {pos.humanInstinct && pos.humanInstinct.evalCount > 0 && (
+          <div className="bg-violet-500/5 border border-violet-500/20 rounded p-2 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Brain className="h-3 w-3 text-violet-400" />
+                <span className="text-[10px] font-bold text-violet-400">HUMAN INSTINCT</span>
+                <span className="text-[9px] text-muted-foreground">#{pos.humanInstinct.evalCount}</span>
+              </div>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                pos.humanInstinct.action === "hold" ? "bg-green-500/20 text-green-400" :
+                pos.humanInstinct.action === "tighten_trail" ? "bg-yellow-500/20 text-yellow-400" :
+                pos.humanInstinct.action === "extend_target" ? "bg-blue-500/20 text-blue-400" :
+                pos.humanInstinct.action === "exit_now" ? "bg-red-500/20 text-red-400" :
+                "bg-muted/20 text-muted-foreground"
+              }`}>
+                {pos.humanInstinct.action === "hold" ? "✓ TAHAN" :
+                 pos.humanInstinct.action === "tighten_trail" ? "🛡 KENCANGKAN" :
+                 pos.humanInstinct.action === "extend_target" ? "🚀 PERPANJANG" :
+                 pos.humanInstinct.action === "exit_now" ? "⚠ EXIT" : pos.humanInstinct.action.toUpperCase()}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+              <div>
+                <p className="text-muted-foreground">Momentum</p>
+                <div className="flex items-center gap-1">
+                  <div className="flex-1 bg-muted h-1 rounded-full">
+                    <div className={`h-1 rounded-full ${pos.humanInstinct.momentumScore >= 60 ? "bg-green-400" : pos.humanInstinct.momentumScore >= 35 ? "bg-yellow-400" : "bg-red-400"}`}
+                      style={{ width: `${Math.max(0, Math.min(100, pos.humanInstinct.momentumScore))}%` }} />
+                  </div>
+                  <span className="font-bold">{pos.humanInstinct.momentumScore}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Kelanjutan</p>
+                <p className={`font-bold ${pos.humanInstinct.continuationProb >= 60 ? "text-green-400" : pos.humanInstinct.continuationProb >= 40 ? "text-yellow-400" : "text-red-400"}`}>
+                  {pos.humanInstinct.continuationProb}%
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Keserakahan</p>
+                <p className={`font-bold ${pos.humanInstinct.greedIndex >= 70 ? "text-red-400" : pos.humanInstinct.greedIndex >= 40 ? "text-yellow-400" : "text-green-400"}`}>
+                  {pos.humanInstinct.greedIndex}%
+                </p>
+              </div>
+            </div>
+            {pos.humanInstinct.decaySignals.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {pos.humanInstinct.decaySignals.slice(0, 3).map((s, i) => (
+                  <span key={i} className="text-[9px] px-1 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">{s}</span>
+                ))}
+              </div>
+            )}
+            <p className="text-[9px] text-muted-foreground leading-relaxed">{pos.humanInstinct.reason}</p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border">
           <span>Kepercayaan: {pos.confidence}%</span>
           <span>Dibuka {waktuLalu(pos.openedAt)}</span>
@@ -1112,6 +1198,242 @@ function TabAnalitik({ log, balance, stats }: { log: DemoTradeLog[]; balance: De
   );
 }
 
+// ─── Tab Insting AI (Human Instinct Engine) ───────────────────────────────────
+
+function TabInstinctAI({ instinctStats, positions }: {
+  instinctStats: InstinctStats | null;
+  positions: DemoPosition[];
+}) {
+  const activeInstincts = positions.filter(p => p.humanInstinct && p.humanInstinct.evalCount > 0);
+
+  if (!instinctStats) return (
+    <div className="py-20 text-center text-muted-foreground">
+      <Radar className="h-12 w-12 mx-auto mb-3 opacity-30 animate-pulse" />
+      <p>Memuat data Human Instinct Engine...</p>
+      <p className="text-xs mt-1">Engine mulai bekerja setelah posisi auto dibuka ≥2 menit</p>
+    </div>
+  );
+
+  const accuracy = instinctStats.accuracy ?? 0;
+  const accuracyColor = accuracy >= 65 ? "text-green-400" : accuracy >= 45 ? "text-yellow-400" : "text-red-400";
+
+  return (
+    <div className="space-y-4">
+      {/* Header info */}
+      <Card className="border-violet-500/30 bg-violet-500/5">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-violet-500/20 rounded-lg">
+              <Brain className="h-5 w-5 text-violet-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-violet-400">Human Instinct & Adaptive Exit Intelligence</h3>
+              <p className="text-xs text-muted-foreground">AI berperilaku seperti trader profesional — membaca momentum, mencegah keserakahan, belajar mandiri</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="bg-background/50 rounded-lg p-2 border border-border">
+              <p className="text-muted-foreground">Total Evaluasi</p>
+              <p className="text-xl font-bold text-violet-400">{instinctStats.totalEvals}</p>
+              <p className="text-[10px] text-muted-foreground">Sejak aktif</p>
+            </div>
+            <div className="bg-background/50 rounded-lg p-2 border border-border">
+              <p className="text-muted-foreground">Exit Awal Diambil</p>
+              <p className="text-xl font-bold text-orange-400">{instinctStats.earlyExits}</p>
+              <p className="text-[10px] text-muted-foreground">Keputusan exit dini</p>
+            </div>
+            <div className="bg-background/50 rounded-lg p-2 border border-border">
+              <p className="text-muted-foreground">Akurasi Instinct</p>
+              <p className={`text-xl font-bold ${accuracyColor}`}>{fmt(accuracy, 1)}%</p>
+              <p className="text-[10px] text-muted-foreground">{instinctStats.correctEarlyExits}B / {instinctStats.wrongEarlyExits}S</p>
+            </div>
+            <div className="bg-background/50 rounded-lg p-2 border border-border">
+              <p className="text-muted-foreground">Siklus Belajar</p>
+              <p className="text-xl font-bold text-blue-400">{instinctStats.learningCycles}</p>
+              <p className="text-[10px] text-muted-foreground">Self-learning aktif</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Hasil close breakdown */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Take Profit", val: instinctStats.tpHits, color: "text-green-400", icon: "✅", bg: "bg-green-500/5 border-green-500/20" },
+          { label: "Stop Loss", val: instinctStats.slHits, color: "text-red-400", icon: "❌", bg: "bg-red-500/5 border-red-500/20" },
+          { label: "Exit Awal Benar", val: instinctStats.correctEarlyExits, color: "text-emerald-400", icon: "🧠", bg: "bg-emerald-500/5 border-emerald-500/20" },
+          { label: "Exit Awal Salah", val: instinctStats.wrongEarlyExits, color: "text-orange-400", icon: "⚠", bg: "bg-orange-500/5 border-orange-500/20" },
+        ].map(({ label, val, color, icon, bg }) => (
+          <Card key={label} className={`border ${bg}`}>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg">{icon}</p>
+              <p className={`text-2xl font-bold ${color}`}>{val}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Parameter adaptif yang dipelajari */}
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Gauge className="h-4 w-4 text-primary" /> Parameter Adaptif (Dipelajari Otomatis)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="bg-muted/20 rounded-lg p-3 border border-border">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-muted-foreground">Ambang Momentum</span>
+                <span className="font-bold text-primary">{instinctStats.momentumThreshold}</span>
+              </div>
+              <div className="w-full bg-muted h-1.5 rounded-full">
+                <div className="bg-violet-400 h-1.5 rounded-full" style={{ width: `${instinctStats.momentumThreshold}%` }} />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Skor di bawah ini = sinyal melemah</p>
+            </div>
+            <div className="bg-muted/20 rounded-lg p-3 border border-border">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-muted-foreground">Ambang Keserakahan</span>
+                <span className="font-bold text-orange-400">{instinctStats.greedThreshold}%</span>
+              </div>
+              <div className="w-full bg-muted h-1.5 rounded-full">
+                <div className="bg-orange-400 h-1.5 rounded-full" style={{ width: `${instinctStats.greedThreshold}%` }} />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Profit % di atas ini = waspada keserakahan</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs bg-blue-500/5 border border-blue-500/20 rounded-lg p-2.5">
+            <Lightbulb className="h-4 w-4 text-blue-400 shrink-0" />
+            <span className="text-muted-foreground">
+              Parameter ini disesuaikan otomatis berdasarkan {instinctStats.learningCycles} siklus pembelajaran.
+              Rata-rata durasi hold: <span className="font-bold text-foreground">{fmt(instinctStats.avgHoldMinutes, 0)} menit</span>.
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Top sinyal decay yang terdeteksi */}
+      {instinctStats.topDecaySignals && instinctStats.topDecaySignals.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Waves className="h-4 w-4 text-orange-400" /> Sinyal Peluruhan Momentum Teratas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <div className="space-y-2">
+              {instinctStats.topDecaySignals.slice(0, 6).map(({ signal, count }) => (
+                <div key={signal} className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs truncate">{signal}</span>
+                      <span className="text-xs font-bold text-orange-400 shrink-0 ml-2">{count}x</span>
+                    </div>
+                    <div className="w-full bg-muted h-1 rounded-full">
+                      <div className="bg-orange-400/60 h-1 rounded-full"
+                        style={{ width: `${Math.min(100, (count / (instinctStats.topDecaySignals[0]?.count || 1)) * 100)}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Posisi yang sedang dimonitor instinct */}
+      {activeInstincts.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Eye className="h-4 w-4 text-violet-400 animate-pulse" /> Posisi Aktif Dimonitor Instinct ({activeInstincts.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 space-y-2">
+            {activeInstincts.map(pos => {
+              const inst = pos.humanInstinct!;
+              const isLong = pos.side === "Buy";
+              return (
+                <div key={pos.id} className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm">{pos.displayName}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isLong ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                        {isLong ? "↑ LONG" : "↓ SHORT"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">Eval #{inst.evalCount}</span>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        inst.action === "hold" ? "bg-green-500/20 text-green-400" :
+                        inst.action === "tighten_trail" ? "bg-yellow-500/20 text-yellow-400" :
+                        inst.action === "extend_target" ? "bg-blue-500/20 text-blue-400" :
+                        "bg-red-500/20 text-red-400"
+                      }`}>
+                        {inst.action === "hold" ? "TAHAN" : inst.action === "tighten_trail" ? "KENCANGKAN" :
+                         inst.action === "extend_target" ? "PERPANJANG" : "EXIT"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div>
+                      <p className="text-muted-foreground">Momentum</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <div className="flex-1 bg-muted h-1 rounded-full">
+                          <div className={`h-1 rounded-full ${inst.momentumScore >= 60 ? "bg-green-400" : inst.momentumScore >= 35 ? "bg-yellow-400" : "bg-red-400"}`}
+                            style={{ width: `${Math.max(0, Math.min(100, inst.momentumScore))}%` }} />
+                        </div>
+                        <span className="font-bold shrink-0">{inst.momentumScore}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Kelanjutan</p>
+                      <p className={`font-bold ${inst.continuationProb >= 60 ? "text-green-400" : inst.continuationProb >= 40 ? "text-yellow-400" : "text-red-400"}`}>
+                        {inst.continuationProb}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Keserakahan</p>
+                      <p className={`font-bold ${inst.greedIndex >= 70 ? "text-red-400" : inst.greedIndex >= 40 ? "text-yellow-400" : "text-green-400"}`}>
+                        {inst.greedIndex}%
+                      </p>
+                    </div>
+                  </div>
+                  {inst.decaySignals.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {inst.decaySignals.slice(0, 3).map((s, i) => (
+                        <span key={i} className="text-[9px] px-1 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">{s}</span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground">{inst.reason}</p>
+                  <p className="text-[9px] text-muted-foreground/60">Terakhir dievaluasi {waktuLalu(inst.lastEvalAt)}</p>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Belum ada data instinct */}
+      {instinctStats.totalEvals === 0 && activeInstincts.length === 0 && (
+        <Card>
+          <CardContent className="py-16 text-center space-y-2">
+            <Radar className="h-12 w-12 mx-auto text-muted-foreground/30" />
+            <p className="text-muted-foreground">Belum ada evaluasi instinct</p>
+            <p className="text-xs text-muted-foreground/60">
+              Engine akan aktif setelah posisi auto/scalp dibuka minimal 2 menit.
+              <br/>Evaluasi berjalan setiap 45 detik per posisi.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
 // ─── Tab Otak AI ──────────────────────────────────────────────────────────────
 
 function TabOtakAI({ brainStats, onReset }: { brainStats: BrainStats | null; onReset: () => void }) {
@@ -1520,7 +1842,7 @@ function TabLabAI({ aiStatus, engineStatus, stats }: {
 
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
 
-type TabKey = "auto" | "scalp" | "riwayat" | "statistik" | "analitik" | "otak" | "live" | "lab";
+type TabKey = "auto" | "scalp" | "riwayat" | "statistik" | "analitik" | "otak" | "live" | "lab" | "instinct";
 
 export default function DemoTrading() {
   const { toast } = useToast();
@@ -1541,6 +1863,7 @@ export default function DemoTrading() {
   const [mereset, setMereset] = useState(false);
   const [triggeringNow, setTriggeringNow] = useState(false);
   const [aiStatus, setAiStatus] = useState<AIActivityStatus | null>(null);
+  const [instinctStats, setInstinctStats] = useState<InstinctStats | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1565,6 +1888,13 @@ export default function DemoTrading() {
     } catch { }
   }, []);
 
+  const fetchInstinct = useCallback(async () => {
+    try {
+      const st = await apiFetch<InstinctStats>("/api/demo/instinct/stats");
+      setInstinctStats(st);
+    } catch { }
+  }, []);
+
   const fetchScalp = useCallback(async () => {
     setLoadingSignals(true);
     try {
@@ -1574,10 +1904,10 @@ export default function DemoTrading() {
   }, []);
 
   useEffect(() => {
-    fetchAll(); fetchBrain();
-    const id = setInterval(() => { fetchAll(); fetchBrain(); }, 10_000);
+    fetchAll(); fetchBrain(); fetchInstinct();
+    const id = setInterval(() => { fetchAll(); fetchBrain(); fetchInstinct(); }, 10_000);
     return () => clearInterval(id);
-  }, [fetchAll, fetchBrain]);
+  }, [fetchAll, fetchBrain, fetchInstinct]);
 
   useEffect(() => { localStorage.setItem("demo_ai_mode", String(aiMode)); }, [aiMode]);
 
@@ -1727,6 +2057,7 @@ export default function DemoTrading() {
     { key: "statistik", label: "Statistik", icon: Trophy },
     { key: "analitik", label: "Analitik", icon: BarChart2 },
     { key: "otak", label: "Otak AI", icon: Brain, badge: brainStats?.mistakeCount },
+    { key: "instinct", label: "Insting AI", icon: Radar, pulse: (instinctStats?.totalEvals ?? 0) > 0 },
     { key: "live", label: "Live Feed", icon: Terminal },
     { key: "lab", label: "Lab AI", icon: Cpu, pulse: aiStatus?.phase !== "idle" && aiStatus?.phase != null },
   ];
@@ -2081,6 +2412,9 @@ export default function DemoTrading() {
 
       {/* ── Tab: Otak AI ── */}
       {tab === "otak" && <TabOtakAI brainStats={brainStats} onReset={resetBrain} />}
+
+      {/* ── Tab: Insting AI (Human Instinct Engine) ── */}
+      {tab === "instinct" && <TabInstinctAI instinctStats={instinctStats} positions={positions} />}
 
       {/* ── Tab: Live Feed ── */}
       {tab === "live" && (
