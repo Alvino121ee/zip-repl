@@ -1,16 +1,15 @@
 /**
- * Gemini Learning Service
+ * Groq Learning Service (sebelumnya Gemini Learning)
  * AI menganalisis skill sendiri, membuat pertanyaan dari kebutuhan,
- * mengirim ke Google Gemini, lalu menyimpan jawaban ke bank pengetahuan.
+ * mengirim ke Groq Cloud API, lalu menyimpan jawaban ke bank pengetahuan.
  */
 
 import { logger } from "../lib/logger.js";
-import { manualTrain } from "./ai-continuous-learning.js";
-import { getBrainStats } from "./ai-continuous-learning.js";
+import { manualTrain, getBrainStats } from "./ai-continuous-learning.js";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? "";
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GROQ_API_KEY = process.env.GROQ_API_KEY ?? "";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +42,8 @@ export interface GeminiStatus {
   autoEnabled: boolean;
   autoIntervalMinutes: number;
   nextAutoAt: number | null;
+  provider: string;
+  model: string;
 }
 
 // ─── Peta Skill ke Kategori & Topik ─────────────────────────────────────────
@@ -190,7 +191,6 @@ const SKILL_TO_TOPICS: Record<string, { category: string; topics: string[] }> = 
   },
 };
 
-// Pertanyaan fallback jika semua skill sudah cukup baik
 const FALLBACK_TOPICS = [
   { category: "Strategi", topic: "strategi scalping crypto di timeframe 1-5 menit: jam terbaik, indikator, entry, exit, dan menghindari overtrading" },
   { category: "Manajemen Risiko", topic: "cara membangun sistem manajemen modal yang kokoh untuk trader full-time crypto" },
@@ -204,7 +204,6 @@ const FALLBACK_TOPICS = [
 function generateQuestionsFromNeeds(count: number): Array<{ category: string; question: string; skill: string }> {
   const brain = getBrainStats();
 
-  // Ambil semua skill dan nilainya
   const skillScores: Array<{ skill: string; score: number }> = [
     { skill: "patternRecognition",     score: brain.patternRecognition },
     { skill: "marketReading",          score: brain.marketReading },
@@ -222,24 +221,20 @@ function generateQuestionsFromNeeds(count: number): Array<{ category: string; qu
     { skill: "predictionAccuracy",     score: brain.predictionAccuracy },
   ];
 
-  // Urutkan dari skill yang paling lemah
   skillScores.sort((a, b) => a.score - b.score);
 
   const questions: Array<{ category: string; question: string; skill: string }> = [];
   const usedTopics = new Set<string>();
 
-  // Isi pertanyaan berdasarkan skill paling lemah
   for (let i = 0; i < skillScores.length && questions.length < count; i++) {
     const { skill, score } = skillScores[i];
     const mapping = SKILL_TO_TOPICS[skill];
     if (!mapping) continue;
 
-    // Pilih topik acak yang belum dipakai
     const availableTopics = mapping.topics.filter(t => !usedTopics.has(t));
     if (availableTopics.length === 0) continue;
 
-    const topicIndex = Math.floor(Math.random() * availableTopics.length);
-    const topic = availableTopics[topicIndex];
+    const topic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
     usedTopics.add(topic);
 
     questions.push({
@@ -249,7 +244,6 @@ function generateQuestionsFromNeeds(count: number): Array<{ category: string; qu
     });
   }
 
-  // Isi sisa dengan fallback jika kurang
   const fallbackIdx = Math.floor(Math.random() * FALLBACK_TOPICS.length);
   for (let fi = 0; questions.length < count; fi++) {
     const fb = FALLBACK_TOPICS[(fallbackIdx + fi) % FALLBACK_TOPICS.length];
@@ -274,55 +268,55 @@ let autoIntervalMinutes = 60;
 let nextAutoAt: number | null = null;
 let autoTimer: ReturnType<typeof setTimeout> | null = null;
 
-// ─── Gemini API Call ──────────────────────────────────────────────────────────
+// ─── Groq API Call ────────────────────────────────────────────────────────────
 
-async function callGemini(prompt: string): Promise<string> {
-  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY belum diset");
+async function callGroq(prompt: string): Promise<string> {
+  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY belum diset");
 
   const body = {
-    contents: [
+    model: GROQ_MODEL,
+    messages: [
       {
-        parts: [
-          {
-            text: `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham Indonesia (IDX).
+        role: "system",
+        content: `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham Indonesia (IDX).
 Berikan jawaban yang mendalam, praktis, dan actionable dalam Bahasa Indonesia.
 Fokus pada pengetahuan trading yang bisa langsung diterapkan oleh trader Indonesia.
 Jawaban harus mencakup: penjelasan konsep, kapan/bagaimana menerapkannya, contoh konkret dengan angka spesifik, dan hal-hal yang harus dihindari.
-Panjang jawaban: 4-6 paragraf yang padat, informatif, dan kaya detail teknikal.
-
-${prompt}`,
-          },
-        ],
+Panjang jawaban: 4-6 paragraf yang padat, informatif, dan kaya detail teknikal.`,
+      },
+      {
+        role: "user",
+        content: prompt,
       },
     ],
-    generationConfig: {
-      temperature: 0.75,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 1200,
-    },
+    temperature: 0.75,
+    max_tokens: 1200,
+    top_p: 0.95,
   };
 
-  const resp = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+  const resp = await fetch(GROQ_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_API_KEY}`,
+    },
     body: JSON.stringify(body),
   });
 
   if (!resp.ok) {
     const errText = await resp.text();
-    throw new Error(`Gemini API error ${resp.status}: ${errText.slice(0, 200)}`);
+    throw new Error(`Groq API error ${resp.status}: ${errText.slice(0, 200)}`);
   }
 
   const data = (await resp.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    choices?: Array<{ message?: { content?: string } }>;
     error?: { message?: string };
   };
 
-  if (data.error) throw new Error(data.error.message ?? "Unknown Gemini error");
+  if (data.error) throw new Error(data.error.message ?? "Unknown Groq error");
 
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  if (!text) throw new Error("Gemini mengembalikan jawaban kosong");
+  const text = data.choices?.[0]?.message?.content ?? "";
+  if (!text) throw new Error("Groq mengembalikan jawaban kosong");
   return text.trim();
 }
 
@@ -330,16 +324,15 @@ ${prompt}`,
 
 export async function runGeminiSession(questionCount = 5): Promise<GeminiSession> {
   if (currentSession?.status === "running") {
-    throw new Error("Sesi Gemini sedang berjalan");
+    throw new Error("Sesi sedang berjalan");
   }
-  if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY belum dikonfigurasi");
+  if (!GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY belum dikonfigurasi");
   }
 
-  // Generate pertanyaan dari kebutuhan AI berdasarkan skill yang lemah
   const questions = generateQuestionsFromNeeds(questionCount);
 
-  const sessionId = `gemini-${Date.now()}`;
+  const sessionId = `groq-${Date.now()}`;
   const session: GeminiSession = {
     id: sessionId,
     startedAt: Date.now(),
@@ -352,13 +345,12 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   };
   currentSession = session;
 
-  // Log info skill yang akan dipelajari
-  const skillNames = questions.map(q => q.category).join(", ");
+  const skillNames = [...new Set(questions.map(q => q.category))].join(", ");
   session.log.push({
     timestamp: Date.now(),
     type: "info",
     category: "Sistem",
-    message: `🧠 AI menganalisis skill & membuat ${questionCount} pertanyaan — Fokus: ${skillNames}`,
+    message: `🧠 AI menganalisis skill & membuat ${questionCount} pertanyaan via Groq (${GROQ_MODEL}) — Fokus: ${skillNames}`,
   });
 
   for (let i = 0; i < questions.length; i++) {
@@ -372,13 +364,13 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
     });
 
     try {
-      const answer = await callGemini(question);
+      const answer = await callGroq(question);
 
       session.log.push({
         timestamp: Date.now(),
         type: "answer",
         category,
-        message: `✅ Gemini menjawab (${answer.length} karakter) — disimpan ke bank pengetahuan`,
+        message: `✅ Groq menjawab (${answer.length} karakter) — disimpan ke bank pengetahuan`,
       });
 
       const trainResult = manualTrain(answer);
@@ -390,19 +382,19 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         timestamp: Date.now(),
         type: "save",
         category,
-        message: `💾 Tersimpan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP, Skill meningkat: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
+        message: `💾 Tersimpan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP, Skill: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
         xpGained: trainResult.xpGained,
         grade: trainResult.grade,
       });
 
-      logger.info("Gemini answer saved to knowledge bank", {
+      logger.info("Groq answer saved to knowledge bank", {
         category,
         skill,
         grade: trainResult.grade,
         xp: trainResult.xpGained,
       });
 
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 800));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       session.log.push({
@@ -411,7 +403,7 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         category,
         message: `❌ Error: ${msg}`,
       });
-      logger.warn("Gemini session error on question", { category, skill, error: msg });
+      logger.warn("Groq session error on question", { category, skill, error: msg });
       await new Promise(r => setTimeout(r, 2000));
     }
   }
@@ -427,10 +419,10 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
     timestamp: Date.now(),
     type: "info",
     category: "Sistem",
-    message: `🎓 Sesi selesai — ${session.completedQuestions}/${session.totalQuestions} pertanyaan dijawab, total +${session.totalXP} XP disimpan ke bank pengetahuan`,
+    message: `🎓 Sesi selesai — ${session.completedQuestions}/${session.totalQuestions} pertanyaan dijawab, total +${session.totalXP} XP disimpan`,
   });
 
-  logger.info("Gemini learning session completed", {
+  logger.info("Groq learning session completed", {
     sessionId,
     completed: session.completedQuestions,
     totalXP: session.totalXP,
@@ -447,11 +439,11 @@ function scheduleNextAuto() {
   nextAutoAt = Date.now() + delayMs;
   autoTimer = setTimeout(async () => {
     if (!autoEnabled) return;
-    logger.info("Gemini auto-learning session triggered");
+    logger.info("Groq auto-learning session triggered");
     try {
       await runGeminiSession(5);
     } catch (err) {
-      logger.warn("Gemini auto session error", { error: String(err) });
+      logger.warn("Groq auto session error", { error: String(err) });
     }
     if (autoEnabled) scheduleNextAuto();
   }, delayMs);
@@ -461,21 +453,21 @@ export function startAutoLearning(intervalMinutes = 60): void {
   autoEnabled = true;
   autoIntervalMinutes = intervalMinutes;
   scheduleNextAuto();
-  logger.info("Gemini auto-learning enabled", { intervalMinutes });
+  logger.info("Groq auto-learning enabled", { intervalMinutes });
 }
 
 export function stopAutoLearning(): void {
   autoEnabled = false;
   if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
   nextAutoAt = null;
-  logger.info("Gemini auto-learning disabled");
+  logger.info("Groq auto-learning disabled");
 }
 
 // ─── Status ───────────────────────────────────────────────────────────────────
 
 export function getGeminiStatus(): GeminiStatus {
   return {
-    hasApiKey: Boolean(GEMINI_API_KEY),
+    hasApiKey: Boolean(GROQ_API_KEY),
     currentSession,
     lastSession,
     totalSessionsRun,
@@ -483,6 +475,8 @@ export function getGeminiStatus(): GeminiStatus {
     autoEnabled,
     autoIntervalMinutes,
     nextAutoAt,
+    provider: "Groq Cloud",
+    model: GROQ_MODEL,
   };
 }
 
