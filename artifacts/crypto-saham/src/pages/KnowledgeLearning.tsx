@@ -72,6 +72,37 @@ interface KnowledgeBank {
   [category: string]: KnowledgeEntry[];
 }
 
+interface GeminiLogEntry {
+  timestamp: number;
+  type: "question" | "answer" | "save" | "error" | "info";
+  category: string;
+  message: string;
+  xpGained?: number;
+  grade?: string;
+}
+
+interface GeminiSessionData {
+  id: string;
+  startedAt: number;
+  completedAt: number | null;
+  totalQuestions: number;
+  completedQuestions: number;
+  totalXP: number;
+  log: GeminiLogEntry[];
+  status: "idle" | "running" | "completed" | "error";
+}
+
+interface GeminiStatusData {
+  hasApiKey: boolean;
+  currentSession: GeminiSessionData | null;
+  lastSession: GeminiSessionData | null;
+  totalSessionsRun: number;
+  totalXPEarned: number;
+  autoEnabled: boolean;
+  autoIntervalMinutes: number;
+  nextAutoAt: number | null;
+}
+
 // ─── Konstanta ────────────────────────────────────────────────────────────────
 
 const LEVEL_CONFIG: Record<AiLevel, { color: string; bg: string; border: string; icon: string; xpNext: number }> = {
@@ -179,11 +210,17 @@ export default function KnowledgeLearning() {
   const [result, setResult] = useState<TrainResult | null>(null);
   const [history, setHistory] = useState<Array<{ text: string; result: TrainResult; timestamp: number }>>([]);
   const [knowledgeBank, setKnowledgeBank] = useState<KnowledgeBank>({});
-  const [activeTab, setActiveTab] = useState<"input" | "bank" | "skill" | "panduan">("input");
+  const [activeTab, setActiveTab] = useState<"input" | "bank" | "skill" | "panduan" | "gemini">("input");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showContoh, setShowContoh] = useState(false);
   const [totalKnowledge, setTotalKnowledge] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const geminiLogRef = useRef<HTMLDivElement>(null);
+
+  const [geminiStatus, setGeminiStatus] = useState<GeminiStatusData | null>(null);
+  const [geminiRunning, setGeminiRunning] = useState(false);
+  const [geminiQuestionCount, setGeminiQuestionCount] = useState(5);
+  const [geminiAutoInterval, setGeminiAutoInterval] = useState(60);
 
   const fetchBrain = useCallback(async () => {
     try {
@@ -214,6 +251,67 @@ export default function KnowledgeLearning() {
     }, 8000);
     return () => clearInterval(interval);
   }, [fetchBrain]);
+
+  const fetchGeminiStatus = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/api/gemini-learning/status`);
+      if (r.ok) setGeminiStatus(await r.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetchGeminiStatus();
+  }, [fetchGeminiStatus]);
+
+  useEffect(() => {
+    if (activeTab !== "gemini" && !geminiRunning) return;
+    const interval = setInterval(fetchGeminiStatus, 2500);
+    return () => clearInterval(interval);
+  }, [activeTab, geminiRunning, fetchGeminiStatus]);
+
+  useEffect(() => {
+    if (geminiLogRef.current) {
+      geminiLogRef.current.scrollTop = geminiLogRef.current.scrollHeight;
+    }
+  }, [geminiStatus?.currentSession?.log]);
+
+  const handleGeminiSession = async () => {
+    setGeminiRunning(true);
+    try {
+      const res = await fetch(`${API}/api/gemini-learning/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionCount: geminiQuestionCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Sesi gagal");
+      await Promise.all([fetchGeminiStatus(), fetchBrain(), fetchKnowledgeBank()]);
+      toast({
+        title: `🤖 Sesi Gemini Selesai — +${data.session?.totalXP ?? 0} XP`,
+        description: `${data.session?.completedQuestions ?? 0} pertanyaan dijawab & disimpan ke bank pengetahuan`,
+      });
+    } catch (err: unknown) {
+      toast({ title: "Sesi Gemini gagal", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setGeminiRunning(false);
+    }
+  };
+
+  const handleGeminiAutoToggle = async () => {
+    const isEnabled = geminiStatus?.autoEnabled ?? false;
+    try {
+      const endpoint = isEnabled ? "/api/gemini-learning/auto/stop" : "/api/gemini-learning/auto/start";
+      const body = isEnabled ? {} : { intervalMinutes: geminiAutoInterval };
+      const res = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      await fetchGeminiStatus();
+      toast({ title: isEnabled ? "Mode Otomatis Dinonaktifkan" : "Mode Otomatis Aktif", description: data.message });
+    } catch {}
+  };
 
   const handleSubmit = async () => {
     const text = inputText.trim();
@@ -348,6 +446,7 @@ export default function KnowledgeLearning() {
           { key: "input",   label: "✏️ Input Pengetahuan" },
           { key: "bank",    label: "💾 Bank Pengetahuan", badge: totalKnowledge > 0 ? totalKnowledge : undefined },
           { key: "skill",   label: "📊 Evolusi Skill AI" },
+          { key: "gemini",  label: "🤖 Gemini AI", badge: geminiStatus?.autoEnabled ? "AUTO" : undefined },
           { key: "panduan", label: "📋 Panduan" },
         ] as const).map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}

@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 36,
-  "correctEarlyExits": 36,
+  "totalDecisions": 37,
+  "correctEarlyExits": 37,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.52777777777778,
-  "avgContinuationProbAtExit": 14.555555555555555,
+  "avgMomentumAtEarlyExit": 46.054054054054056,
+  "avgContinuationProbAtExit": 14.972972972972974,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "ba2b1e28-3aaa-46f1-a672-d1030a8e8761",
+      "tradeId": "091d86c0-b51f-42f5-b3bb-4055f7124853",
+      "symbol": "SPACEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (30%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7003798670465341,
+      "momentumScore": 65,
+      "continuationProb": 30,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 18%",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779037465218,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7003798670465341,
+      "profitDelta": 0
+    },
     {
       "id": "f63a3420-109a-4d42-a3cd-94f40692136d",
       "tradeId": "89e8b4f8-5a4d-47a9-9242-c1fca8a82d4e",
@@ -733,5 +753,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779035593282
+  "lastUpdated": 1779037465221
 }

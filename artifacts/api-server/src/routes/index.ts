@@ -10,6 +10,7 @@ import demoTradingRouter from "./demo-trading.js";
 import trainingLabRouter from "./training-lab.js";
 import slAnalysisRouter from "./sl-analysis.js";
 import fmpRouter from "./full-margin-precision.js";
+import geminiLearningRouter from "./gemini-learning.js";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(demoTradingRouter);
 router.use(trainingLabRouter);
 router.use(slAnalysisRouter);
 router.use(fmpRouter);
+router.use(geminiLearningRouter);
 
 export default router;
