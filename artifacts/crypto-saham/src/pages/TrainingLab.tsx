@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Brain, Play, Square, RefreshCw, BarChart2, TrendingUp,
-  Target, Shield, Zap, Activity, ChevronRight, Clock,
-  Award, AlertTriangle, CheckCircle2, Cpu, Layers,
-  BarChart, BookOpen, Filter, ArrowUpRight, ArrowDownRight,
-  Radar, Sparkles, Bot, FlaskConical, Eye, Gauge,
-  GraduationCap, Flame, Star, BookMarked, TrendingDown,
-  RotateCcw, Lightbulb, HeartPulse, Swords, Trophy,
+  Target, Shield, Zap, Activity, Clock, Award, CheckCircle2,
+  Cpu, BookOpen, ArrowUpRight, Radar, Sparkles, FlaskConical,
+  Eye, GraduationCap, Flame, Star, TrendingDown, RotateCcw,
+  Lightbulb, Swords, Trophy, Database, AlertTriangle, Layers,
+  BarChart, Repeat, BookMarked, BrainCircuit, Gauge,
+  ChevronRight, Wifi, WifiOff,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,17 +14,38 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import {
-  BarChart as RechartsBar, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, Cell, RadarChart, PolarGrid,
-  PolarAngleAxis, Radar as RechartsRadar, Legend,
-  LineChart, Line, Area, AreaChart,
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis,
+  Radar as RechartsRadar, LineChart, Line, Legend,
+  BarChart as RechartsBar, Bar, Cell,
 } from "recharts";
 
 const API = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// ─── Tipe Data ─────────────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
 type AiLevel = "Pemula" | "Intermediate" | "Mahir" | "Expert" | "Institusional";
+
+interface LiveActivity {
+  id: string;
+  timestamp: number;
+  message: string;
+  symbol: string | null;
+  type: "analysis" | "pattern" | "breakout" | "reversal" | "liquidity" | "warning" | "success" | "replay" | "info";
+  xpGained: number;
+}
+
+interface MemoryEntry {
+  id: string;
+  timestamp: number;
+  symbol: string;
+  interval: string;
+  type: "best_setup" | "worst_setup" | "dangerous" | "pattern" | "manipulation" | "replay";
+  title: string;
+  description: string;
+  tags: string[];
+  xpValue: number;
+}
 
 interface AiBrainStats {
   iq: number;
@@ -40,7 +61,10 @@ interface AiBrainStats {
   totalTradesLearned: number;
   liquiditySweepsDetected: number;
   breakoutsStudied: number;
+  fakeBreakoutsDetected: number;
   reversalsStudied: number;
+  replaySessionsCompleted: number;
+  smartMoneyPatternsFound: number;
   marketReading: number;
   patternRecognition: number;
   adaptiveIntelligence: number;
@@ -51,6 +75,8 @@ interface AiBrainStats {
   momentumReading: number;
   candlePsychology: number;
   orderflowReading: number;
+  smartMoneyConceptSkill: number;
+  replayTrainingScore: number;
   patience: number;
   selectivity: number;
   confidenceAccuracy: number;
@@ -60,99 +86,85 @@ interface AiBrainStats {
   currentSymbol: string | null;
   lastLearningAt: number | null;
   activityLog: string[];
-  evolutionHistory: EvolutionSnapshot[];
+  liveActivities: LiveActivity[];
+  evolutionHistory: Array<{
+    timestamp: number; iq: number; level: AiLevel;
+    marketReading: number; patternRecognition: number;
+    predictionAccuracy: number; chartsAnalyzed: number; winRateEstimate: number;
+  }>;
   lastSnapshotAt: number | null;
 }
 
-interface EvolutionSnapshot {
-  timestamp: number;
-  iq: number;
-  level: AiLevel;
-  marketReading: number;
-  patternRecognition: number;
-  predictionAccuracy: number;
-  chartsAnalyzed: number;
-  winRateEstimate: number;
+interface MemoryBank {
+  bestSetups: MemoryEntry[];
+  worstSetups: MemoryEntry[];
+  dangerousConditions: MemoryEntry[];
+  learnedPatterns: MemoryEntry[];
 }
 
 interface LabState {
-  isRunning: boolean;
-  progress: number;
-  phase: string;
-  currentSymbol: string | null;
-  currentStrategy: string | null;
-  results: StrategyResult[];
-  allTrades: BacktestTrade[];
-  lastRun: number | null;
-  totalBarsAnalyzed: number;
-  log: string[];
+  isRunning: boolean; progress: number; phase: string;
+  currentSymbol: string | null; currentStrategy: string | null;
+  results: StrategyResult[]; allTrades: BacktestTrade[];
+  lastRun: number | null; totalBarsAnalyzed: number; log: string[];
   bestStrategy: { name: string; label: string; winRate: number; sharpe: number; pf: number } | null;
   summary: { totalBacktested: number; bestWinRate: number; bestSharpe: number; bestProfitFactor: number; totalTrades: number };
 }
 
 interface StrategyResult {
-  strategy: string;
-  strategyLabel: string;
-  symbol: string;
-  interval: string;
-  totalTrades: number;
-  wins: number;
-  losses: number;
-  winRate: number;
-  profitFactor: number;
-  sharpeRatio: number;
-  maxDrawdown: number;
-  totalReturnPct: number;
-  avgHoldBars: number;
-  bestTrade: number;
-  worstTrade: number;
-  avgConfidence: number;
-  backtestAt: number;
+  strategy: string; strategyLabel: string; symbol: string; interval: string;
+  totalTrades: number; wins: number; losses: number; winRate: number;
+  profitFactor: number; sharpeRatio: number; maxDrawdown: number;
+  totalReturnPct: number; avgHoldBars: number; bestTrade: number;
+  worstTrade: number; avgConfidence: number; backtestAt: number;
 }
 
 interface BacktestTrade {
-  strategy: string;
-  symbol: string;
-  side: "long" | "short";
-  pnlPct: number;
-  result: "win" | "loss";
-  exitReason: "tp" | "sl" | "timeout";
-  confidence: number;
-}
-
-interface ComparisonEntry {
-  winRate: number;
-  sharpe: number;
-  pf: number;
-  trades: number;
+  strategy: string; symbol: string; side: "long" | "short";
+  pnlPct: number; result: "win" | "loss"; exitReason: "tp" | "sl" | "timeout"; confidence: number;
 }
 
 // ─── Konstanta ─────────────────────────────────────────────────────────────────
 
-const ALL_PAIRS = [
-  "BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT",
-  "ADAUSDT","DOGEUSDT","AVAXUSDT","LINKUSDT","DOTUSDT",
-];
-
+const ALL_PAIRS = ["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT","ADAUSDT","DOGEUSDT","AVAXUSDT","LINKUSDT","DOTUSDT"];
 const ALL_STRATEGIES = [
-  { key: "scalp_5m",      label: "Scalping 5M (EMA Cross)" },
-  { key: "bos_choch",     label: "Break of Structure / CHOCH" },
-  { key: "order_block",   label: "Order Block Bounce" },
-  { key: "momentum",      label: "Momentum (RSI + MACD)" },
-  { key: "reversal",      label: "Reversal di Level Ekstrem" },
+  { key: "scalp_5m", label: "Scalping 5M (EMA Cross)" },
+  { key: "bos_choch", label: "Break of Structure / CHOCH" },
+  { key: "order_block", label: "Order Block Bounce" },
+  { key: "momentum", label: "Momentum (RSI + MACD)" },
+  { key: "reversal", label: "Reversal di Level Ekstrem" },
   { key: "ema_crossover", label: "EMA 9/21 Crossover" },
-  { key: "vwap_bounce",   label: "VWAP Bounce" },
+  { key: "vwap_bounce", label: "VWAP Bounce" },
 ];
 
-const LEVEL_CONFIG: Record<AiLevel, { color: string; bg: string; icon: string; xpNext: number }> = {
-  Pemula:       { color: "text-slate-400",   bg: "bg-slate-500/20",   icon: "🌱", xpNext: 500 },
-  Intermediate: { color: "text-blue-400",    bg: "bg-blue-500/20",    icon: "📈", xpNext: 2000 },
-  Mahir:        { color: "text-violet-400",  bg: "bg-violet-500/20",  icon: "🎯", xpNext: 6000 },
-  Expert:       { color: "text-yellow-400",  bg: "bg-yellow-500/20",  icon: "🏆", xpNext: 15000 },
-  Institusional:{ color: "text-emerald-400", bg: "bg-emerald-500/20", icon: "⚡", xpNext: 99999 },
+const LEVEL_CONFIG: Record<AiLevel, { color: string; bg: string; border: string; icon: string; xpNext: number; gradient: string }> = {
+  Pemula:        { color: "text-slate-300",   bg: "bg-slate-500/15",   border: "border-slate-500/30",   icon: "🌱", xpNext: 500,   gradient: "from-slate-500/20" },
+  Intermediate:  { color: "text-blue-400",    bg: "bg-blue-500/15",    border: "border-blue-500/30",    icon: "📈", xpNext: 2000,  gradient: "from-blue-500/20" },
+  Mahir:         { color: "text-violet-400",  bg: "bg-violet-500/15",  border: "border-violet-500/30",  icon: "🎯", xpNext: 6000,  gradient: "from-violet-500/20" },
+  Expert:        { color: "text-yellow-400",  bg: "bg-yellow-500/15",  border: "border-yellow-500/30",  icon: "🏆", xpNext: 15000, gradient: "from-yellow-500/20" },
+  Institusional: { color: "text-emerald-400", bg: "bg-emerald-500/15", border: "border-emerald-500/30", icon: "⚡", xpNext: 99999, gradient: "from-emerald-500/20" },
 };
 
-// ─── Helper: Warna nilai skill ─────────────────────────────────────────────────
+const ACTIVITY_STYLE: Record<LiveActivity["type"], { icon: string; color: string; bg: string }> = {
+  analysis:  { icon: "📊", color: "text-blue-400",    bg: "bg-blue-500/10" },
+  pattern:   { icon: "🔍", color: "text-violet-400",  bg: "bg-violet-500/10" },
+  breakout:  { icon: "🚀", color: "text-orange-400",  bg: "bg-orange-500/10" },
+  reversal:  { icon: "🔄", color: "text-cyan-400",    bg: "bg-cyan-500/10" },
+  liquidity: { icon: "🎯", color: "text-pink-400",    bg: "bg-pink-500/10" },
+  warning:   { icon: "⚠️", color: "text-yellow-400",  bg: "bg-yellow-500/10" },
+  success:   { icon: "✅", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+  replay:    { icon: "🔁", color: "text-indigo-400",  bg: "bg-indigo-500/10" },
+  info:      { icon: "💡", color: "text-slate-400",   bg: "bg-slate-500/10" },
+};
+
+const MEMORY_STYLE: Record<MemoryEntry["type"], { icon: string; color: string; label: string }> = {
+  best_setup:   { icon: "⭐", color: "text-yellow-400",  label: "Setup Terbaik" },
+  worst_setup:  { icon: "📚", color: "text-orange-400",  label: "Pelajaran" },
+  dangerous:    { icon: "⚠️", color: "text-red-400",     label: "Berbahaya" },
+  pattern:      { icon: "🔍", color: "text-violet-400",  label: "Pola" },
+  manipulation: { icon: "🎭", color: "text-pink-400",    label: "Manipulasi" },
+  replay:       { icon: "🔁", color: "text-blue-400",    label: "Replay" },
+};
 
 function skillColor(v: number) {
   if (v >= 80) return "text-emerald-400";
@@ -161,16 +173,15 @@ function skillColor(v: number) {
   if (v >= 35) return "text-orange-400";
   return "text-red-400";
 }
-
-function skillBarColor(v: number) {
+function skillBar(v: number) {
   if (v >= 80) return "bg-emerald-400";
   if (v >= 65) return "bg-green-400";
   if (v >= 50) return "bg-yellow-400";
   if (v >= 35) return "bg-orange-400";
-  return "bg-red-400";
+  return "bg-red-500";
 }
 
-// ─── Komponen: Skill Bar ───────────────────────────────────────────────────────
+// ─── Sub-Components ────────────────────────────────────────────────────────────
 
 function SkillBar({ label, value, icon: Icon }: { label: string; value: number; icon: React.ElementType }) {
   return (
@@ -183,818 +194,858 @@ function SkillBar({ label, value, icon: Icon }: { label: string; value: number; 
         <span className={`text-xs font-bold font-mono ${skillColor(value)}`}>{value.toFixed(1)}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ${skillBarColor(value)}`}
-          style={{ width: `${value}%` }}
-        />
+        <div className={`h-full rounded-full transition-all duration-700 ${skillBar(value)}`} style={{ width: `${value}%` }} />
       </div>
     </div>
   );
 }
 
-// ─── Komponen Utama ────────────────────────────────────────────────────────────
+function StatCard({ label, value, sub, color = "text-white", border = "" }: {
+  label: string; value: string | number; sub?: string; color?: string; border?: string;
+}) {
+  return (
+    <div className={`rounded-xl p-3 bg-slate-800/60 border ${border || "border-slate-700/50"}`}>
+      <div className="text-xs text-muted-foreground mb-0.5">{label}</div>
+      <div className={`text-xl font-black ${color}`}>{value}</div>
+      {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function TrainingLab() {
   const { toast } = useToast();
 
-  // AI Brain
-  const [brain, setBrain] = useState<AiBrainStats | null>(null);
-
-  // Backtest Lab
-  const [labState, setLabState]       = useState<LabState | null>(null);
-  const [comparison, setComparison]   = useState<Record<string, ComparisonEntry>>({});
+  const [brain, setBrain]         = useState<AiBrainStats | null>(null);
+  const [memory, setMemory]       = useState<MemoryBank | null>(null);
+  const [labState, setLabState]   = useState<LabState | null>(null);
+  const [comparison, setComparison] = useState<Record<string, { winRate: number; sharpe: number; pf: number; trades: number }>>({});
+  const [activeTab, setActiveTab] = useState<"kecerdasan" | "live" | "memori" | "backtest" | "evolusi">("live");
+  const [memoryTab, setMemoryTab] = useState<"learnedPatterns" | "bestSetups" | "worstSetups" | "dangerousConditions">("learnedPatterns");
   const [selectedPairs, setSelectedPairs]         = useState<string[]>(["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT"]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>(ALL_STRATEGIES.map(s => s.key));
-  const [sortBy, setSortBy]           = useState<"winRate" | "sharpe" | "pf">("winRate");
+  const [sortBy, setSortBy] = useState<"winRate" | "sharpe" | "pf">("winRate");
+  const [pulse, setPulse] = useState(false);
 
-  // Tab aktif
-  const [activeTab, setActiveTab] = useState<"kecerdasan" | "live" | "backtest" | "evolusi">("kecerdasan");
-
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const feedRef  = useRef<HTMLDivElement>(null);
 
   // ─── Fetch ──────────────────────────────────────────────────────────────────
 
-  const fetchBrain = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/api/training-lab/ai-brain`);
-      if (res.ok) setBrain(await res.json());
-    } catch {}
+  const fetchBrain  = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/ai-brain`); if (r.ok) setBrain(await r.json()); } catch {}
   }, []);
-
-  const fetchLabState = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/api/training-lab/state`);
-      if (res.ok) setLabState(await res.json());
-    } catch {}
+  const fetchMemory = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/memory`); if (r.ok) setMemory(await r.json()); } catch {}
   }, []);
-
-  const fetchComparison = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/api/training-lab/comparison`);
-      if (res.ok) setComparison(await res.json());
-    } catch {}
+  const fetchLab    = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/state`); if (r.ok) setLabState(await r.json()); } catch {}
+  }, []);
+  const fetchComp   = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/comparison`); if (r.ok) setComparison(await r.json()); } catch {}
   }, []);
 
   useEffect(() => {
-    fetchBrain();
-    fetchLabState();
-    fetchComparison();
-  }, [fetchBrain, fetchLabState, fetchComparison]);
+    fetchBrain(); fetchMemory(); fetchLab(); fetchComp();
+  }, [fetchBrain, fetchMemory, fetchLab, fetchComp]);
 
   useEffect(() => {
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(() => {
       fetchBrain();
-      fetchLabState();
-      if (!labState?.isRunning) fetchComparison();
-    }, 3000);
+      if (activeTab === "memori") fetchMemory();
+      if (activeTab === "backtest") { fetchLab(); if (!labState?.isRunning) fetchComp(); }
+    }, 2500);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [fetchBrain, fetchLabState, fetchComparison, labState?.isRunning]);
+  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, activeTab, labState?.isRunning]);
+
+  // Pulse animation saat belajar
+  useEffect(() => {
+    if (!brain?.isLearning) return;
+    const t = setInterval(() => setPulse(p => !p), 1000);
+    return () => clearInterval(t);
+  }, [brain?.isLearning]);
 
   // ─── Aksi ────────────────────────────────────────────────────────────────────
 
   const handleToggleLearning = async () => {
     if (brain?.isLearning) {
       await fetch(`${API}/api/training-lab/continuous/stop`, { method: "POST" });
-      toast({ title: "Pembelajaran dihentikan" });
+      toast({ title: "Pembelajaran dihentikan", description: "Progres tersimpan otomatis" });
     } else {
       await fetch(`${API}/api/training-lab/continuous/start`, { method: "POST" });
-      toast({ title: "Pembelajaran berkelanjutan dimulai!", description: "AI mulai mempelajari pasar secara otomatis" });
+      toast({ title: "🧠 Pembelajaran dimulai!", description: "AI mulai belajar dari data pasar live" });
     }
     setTimeout(fetchBrain, 600);
   };
 
   const handleReset = async () => {
-    if (!confirm("Reset AI Brain? Semua progres pembelajaran akan dihapus.")) return;
+    if (!confirm("Reset semua progres AI? Tindakan ini tidak bisa dibatalkan.")) return;
     await fetch(`${API}/api/training-lab/ai-brain/reset`, { method: "POST" });
-    toast({ title: "AI Brain direset", description: "AI dimulai dari awal" });
-    setTimeout(fetchBrain, 600);
+    toast({ title: "AI Brain direset", description: "AI memulai perjalanan belajar dari awal" });
+    setTimeout(() => { fetchBrain(); fetchMemory(); }, 600);
   };
 
   const handleStartBacktest = async () => {
     if (selectedPairs.length === 0 || selectedStrategies.length === 0) {
-      toast({ title: "Pilih minimal 1 pair dan 1 strategi", variant: "destructive" });
-      return;
+      toast({ title: "Pilih minimal 1 pair dan 1 strategi", variant: "destructive" }); return;
     }
     const res = await fetch(`${API}/api/training-lab/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pairs: selectedPairs, strategies: selectedStrategies }),
     });
     if (res.ok) {
       toast({ title: "Backtest dimulai!", description: `${selectedPairs.length} pair × ${selectedStrategies.length} strategi` });
-      setTimeout(fetchLabState, 500);
+      setTimeout(fetchLab, 500);
     } else {
       const err = await res.json();
       toast({ title: err.error ?? "Gagal memulai", variant: "destructive" });
     }
   };
 
-  const handleStopBacktest = async () => {
-    await fetch(`${API}/api/training-lab/stop`, { method: "POST" });
-    toast({ title: "Backtest dihentikan" });
-    setTimeout(fetchLabState, 500);
-  };
+  // ─── Data Turunan ──────────────────────────────────────────────────────────
 
-  const togglePair     = (p: string) => setSelectedPairs(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
-  const toggleStrategy = (s: string) => setSelectedStrategies(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+  const lvl    = brain?.level ?? "Pemula";
+  const lcfg   = LEVEL_CONFIG[lvl];
+  const xpNext = lcfg.xpNext;
+  const xpPct  = brain ? Math.min(100, (brain.experiencePoints / xpNext) * 100) : 0;
+  const winRate = Math.min(85, 40 + (brain?.predictionAccuracy ?? 41) * 0.45);
 
-  // ─── Data Turunan ─────────────────────────────────────────────────────────────
+  const radarSkillData = [
+    { subject: "Baca Pasar",   A: brain?.marketReading ?? 0 },
+    { subject: "Pola",         A: brain?.patternRecognition ?? 0 },
+    { subject: "Adaptif",      A: brain?.adaptiveIntelligence ?? 0 },
+    { subject: "Momentum",     A: brain?.momentumReading ?? 0 },
+    { subject: "Candle",       A: brain?.candlePsychology ?? 0 },
+    { subject: "Orderflow",    A: brain?.orderflowReading ?? 0 },
+    { subject: "Smart Money",  A: brain?.smartMoneyConceptSkill ?? 0 },
+    { subject: "Volume",       A: brain?.volumeAnalysis ?? 0 },
+  ];
 
-  const levelCfg = LEVEL_CONFIG[brain?.level ?? "Pemula"];
-  const xpToNext = levelCfg.xpNext;
-  const xpProgress = brain ? Math.min(100, (brain.experiencePoints / xpToNext) * 100) : 0;
+  const evoData = (brain?.evolutionHistory ?? []).map((s, i) => ({
+    n: i + 1,
+    IQ: s.iq,
+    Akurasi: parseFloat(s.predictionAccuracy.toFixed(1)),
+    "Baca Pasar": parseFloat(s.marketReading.toFixed(1)),
+    "Win Rate": parseFloat(s.winRateEstimate.toFixed(1)),
+  }));
 
   const aggregated = Object.entries(comparison)
-    .map(([key, v]) => ({
-      key,
-      label: ALL_STRATEGIES.find(s => s.key === key)?.label ?? key,
-      ...v,
-    }))
-    .sort((a, b) => {
-      if (sortBy === "winRate") return b.winRate - a.winRate;
-      if (sortBy === "sharpe") return b.sharpe - a.sharpe;
-      return b.pf - a.pf;
-    });
+    .map(([key, v]) => ({ key, label: ALL_STRATEGIES.find(s => s.key === key)?.label ?? key, ...v }))
+    .sort((a, b) => sortBy === "winRate" ? b.winRate - a.winRate : sortBy === "sharpe" ? b.sharpe - a.sharpe : b.pf - a.pf);
 
   const detailedResults = (labState?.results ?? [])
     .filter(r => r.totalTrades >= 2)
-    .sort((a, b) => {
-      if (sortBy === "winRate") return b.winRate - a.winRate;
-      if (sortBy === "sharpe") return b.sharpeRatio - a.sharpeRatio;
-      return b.profitFactor - a.profitFactor;
-    });
+    .sort((a, b) => sortBy === "winRate" ? b.winRate - a.winRate : sortBy === "sharpe" ? b.sharpeRatio - a.sharpeRatio : b.profitFactor - a.profitFactor);
 
-  const barData = aggregated.map(a => ({
-    name: a.label.split(" ")[0],
-    fullLabel: a.label,
-    winRate: a.winRate,
-  }));
-
-  const radarData = aggregated.slice(0, 5).map(a => ({
-    strategy: a.label.split(" ")[0],
-    "Win Rate": a.winRate,
-    "Sharpe×10": Math.max(0, a.sharpe * 10),
-    "PF×20": Math.min(a.pf * 20, 100),
-  }));
-
-  const evoChartData = (brain?.evolutionHistory ?? []).map((s, i) => ({
-    siklus: i + 1,
-    IQ: s.iq,
-    "Akurasi (%)": parseFloat(s.predictionAccuracy.toFixed(1)),
-    "Baca Pasar (%)": parseFloat(s.marketReading.toFixed(1)),
-    "Win Rate (%)": parseFloat(s.winRateEstimate.toFixed(1)),
-  }));
+  const currentMemoryList = memory?.[memoryTab] ?? [];
 
   // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
 
-      {/* ── Header ── */}
+      {/* ════════════════ HEADER ════════════════ */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-violet-500/20 border border-violet-500/30">
-            <Brain className="w-6 h-6 text-violet-400" />
+          <div className={`p-2.5 rounded-xl ${lcfg.bg} border ${lcfg.border} relative`}>
+            <Brain className={`w-6 h-6 ${lcfg.color}`} />
+            {brain?.isLearning && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping" />
+            )}
           </div>
           <div>
             <h1 className="text-2xl font-bold">AI Training Center</h1>
-            <p className="text-sm text-muted-foreground">Sistem pembelajaran otonom berkelanjutan — AI belajar 24 jam tanpa henti</p>
+            <p className="text-xs text-muted-foreground">
+              Sistem pembelajaran otonom berkelanjutan — AI belajar 24 jam tanpa henti menggunakan data pasar live
+            </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          {/* Status pembelajaran */}
+        <div className="flex items-center gap-2 flex-wrap">
           {brain?.isLearning ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 transition-opacity ${pulse ? "opacity-100" : "opacity-80"}`}>
+              <Wifi className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
               <span className="text-xs text-emerald-400 font-medium">Sedang Belajar</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-700/50 border border-slate-600">
-              <div className="w-2 h-2 rounded-full bg-slate-500" />
-              <span className="text-xs text-muted-foreground">Pembelajaran Berhenti</span>
+              <WifiOff className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-xs text-muted-foreground">Berhenti</span>
             </div>
           )}
-
-          <Button
-            onClick={handleToggleLearning}
-            size="sm"
-            className={brain?.isLearning
-              ? "bg-red-600/80 hover:bg-red-700 text-white"
-              : "bg-emerald-600 hover:bg-emerald-700 text-white"}
-          >
-            {brain?.isLearning
-              ? <><Square className="w-3.5 h-3.5 mr-1.5" />Hentikan</>
-              : <><Play className="w-3.5 h-3.5 mr-1.5" />Mulai Belajar</>}
+          <Button onClick={handleToggleLearning} size="sm"
+            className={brain?.isLearning ? "bg-red-600/80 hover:bg-red-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}>
+            {brain?.isLearning ? <><Square className="w-3.5 h-3.5 mr-1.5" />Hentikan</> : <><Play className="w-3.5 h-3.5 mr-1.5" />Mulai Belajar</>}
           </Button>
-
-          <Button onClick={() => { fetchBrain(); fetchLabState(); fetchComparison(); }}
-            variant="outline" size="sm">
+          <Button onClick={() => { fetchBrain(); fetchMemory(); fetchLab(); fetchComp(); }} variant="outline" size="sm">
             <RefreshCw className="w-3.5 h-3.5" />
+          </Button>
+          <Button onClick={handleReset} variant="outline" size="sm" className="text-red-400 hover:text-red-300 border-red-500/20">
+            <RotateCcw className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
 
-      {/* ── Kartu Ringkasan Atas ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {/* IQ */}
-        <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-transparent">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-1">
+      {/* ════════════════ STATS ROW ════════════════ */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <Card className={`col-span-2 md:col-span-1 border ${lcfg.border} bg-gradient-to-br ${lcfg.gradient} to-transparent`}>
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
               <span className="text-xs text-muted-foreground">AI IQ</span>
-              <Cpu className="w-3.5 h-3.5 text-violet-400" />
+              <BrainCircuit className={`w-3.5 h-3.5 ${lcfg.color}`} />
             </div>
-            <div className="text-3xl font-black text-violet-300">{brain?.iq ?? 87}</div>
-            <div className={`text-xs font-medium mt-0.5 ${levelCfg.color}`}>
-              {levelCfg.icon} {brain?.level ?? "Pemula"}
-            </div>
+            <div className={`text-3xl font-black ${lcfg.color}`}>{brain?.iq ?? 87}</div>
+            <div className={`text-xs font-medium ${lcfg.color}`}>{lcfg.icon} {lvl}</div>
           </CardContent>
         </Card>
 
-        {/* XP */}
         <Card className="border-yellow-500/20 bg-gradient-to-br from-yellow-500/8 to-transparent">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-muted-foreground">Pengalaman (XP)</span>
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs text-muted-foreground">XP</span>
               <Star className="w-3.5 h-3.5 text-yellow-400" />
             </div>
-            <div className="text-3xl font-black text-yellow-300">{(brain?.experiencePoints ?? 0).toLocaleString()}</div>
-            <div className="mt-1.5 h-1 rounded-full bg-slate-800 overflow-hidden">
-              <div className="h-full bg-yellow-400 rounded-full transition-all duration-1000" style={{ width: `${xpProgress}%` }} />
+            <div className="text-2xl font-black text-yellow-300">{(brain?.experiencePoints ?? 0).toLocaleString()}</div>
+            <div className="mt-1 h-1 rounded-full bg-slate-800 overflow-hidden">
+              <div className="h-full bg-yellow-400 rounded-full transition-all duration-1000" style={{ width: `${xpPct}%` }} />
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">XP ke level berikutnya: {xpToNext.toLocaleString()}</p>
           </CardContent>
         </Card>
 
-        {/* Chart Dipelajari */}
         <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/8 to-transparent">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-1">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
               <span className="text-xs text-muted-foreground">Chart Dipelajari</span>
               <BarChart2 className="w-3.5 h-3.5 text-blue-400" />
             </div>
-            <div className="text-3xl font-black text-blue-300">{(brain?.chartsAnalyzed ?? 0).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {(brain?.marketHoursStudied ?? 0).toFixed(0)} jam pasar dipelajari
-            </p>
+            <div className="text-2xl font-black text-blue-300">{(brain?.chartsAnalyzed ?? 0).toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground">{(brain?.marketHoursStudied ?? 0).toFixed(0)} jam pasar</div>
           </CardContent>
         </Card>
 
-        {/* Siklus Belajar */}
+        <Card className="border-violet-500/20 bg-gradient-to-br from-violet-500/8 to-transparent">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs text-muted-foreground">Pola Dikenali</span>
+              <Layers className="w-3.5 h-3.5 text-violet-400" />
+            </div>
+            <div className="text-2xl font-black text-violet-300">{(brain?.patternsRecognized ?? 0).toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground">{(brain?.smartMoneyPatternsFound ?? 0)} SMC</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-pink-500/20 bg-gradient-to-br from-pink-500/8 to-transparent">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs text-muted-foreground">Replay Selesai</span>
+              <Repeat className="w-3.5 h-3.5 text-pink-400" />
+            </div>
+            <div className="text-2xl font-black text-pink-300">{(brain?.replaySessionsCompleted ?? 0).toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground">{(brain?.fakeBreakoutsDetected ?? 0)} fake BT</div>
+          </CardContent>
+        </Card>
+
         <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/8 to-transparent">
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-1">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center justify-between mb-0.5">
               <span className="text-xs text-muted-foreground">Siklus Belajar</span>
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <div className="text-3xl font-black text-emerald-300">{(brain?.learningCycles ?? 0).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {(brain?.patternsRecognized ?? 0).toLocaleString()} pola dikenali
-            </p>
+            <div className="text-2xl font-black text-emerald-300">{(brain?.learningCycles ?? 0).toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground">Win Rate ~{winRate.toFixed(1)}%</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* ── Tabs ── */}
-      <div className="flex gap-1 border-b border-border overflow-x-auto">
+      {/* ════════════════ CURRENT ACTIVITY TICKER ════════════════ */}
+      {brain?.isLearning && (
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-800/80 border border-violet-500/20 overflow-hidden">
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse" />
+            <span className="text-xs font-semibold text-violet-400 uppercase tracking-wider">Live</span>
+          </div>
+          {brain.currentSymbol && (
+            <Badge variant="outline" className="text-xs border-violet-500/30 text-violet-400 shrink-0">
+              {brain.currentSymbol}
+            </Badge>
+          )}
+          <p className="text-xs text-slate-300 truncate">{brain.currentActivity}</p>
+        </div>
+      )}
+
+      {/* ════════════════ TABS ════════════════ */}
+      <div className="flex gap-0.5 border-b border-border overflow-x-auto">
         {([
-          { key: "kecerdasan", label: "🧠 Kecerdasan AI",    icon: Brain },
-          { key: "live",       label: "⚡ Live Training",    icon: Activity },
-          { key: "backtest",   label: "🔬 Backtest Lab",     icon: FlaskConical },
-          { key: "evolusi",    label: "📈 Evolusi",          icon: TrendingUp },
+          { key: "live",       label: "⚡ Live Training",   },
+          { key: "kecerdasan", label: "🧠 Kecerdasan AI",   },
+          { key: "memori",     label: "💾 Memori AI",       },
+          { key: "backtest",   label: "🔬 Backtest Lab",    },
+          { key: "evolusi",    label: "📈 Evolusi",         },
         ] as const).map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
               activeTab === tab.key
                 ? "border-violet-500 text-violet-400"
                 : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
+            }`}>
             {tab.label}
+            {tab.key === "memori" && ((memory?.learnedPatterns.length ?? 0) + (memory?.bestSetups.length ?? 0)) > 0 && (
+              <span className="ml-1.5 text-[10px] bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded-full">
+                {(memory?.learnedPatterns.length ?? 0) + (memory?.bestSetups.length ?? 0) + (memory?.worstSetups.length ?? 0) + (memory?.dangerousConditions.length ?? 0)}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          TAB: KECERDASAN AI
-      ═══════════════════════════════════════════════════════════ */}
-      {activeTab === "kecerdasan" && (
-        <div className="space-y-5">
-
-          {/* Level & Progress */}
-          <Card className={`border ${levelCfg.bg.replace("bg-", "border-").replace("/20", "/30")}`}>
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-4">
-                  <div className={`text-5xl font-black ${levelCfg.color} tabular-nums`}>{brain?.iq ?? 87}</div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{levelCfg.icon}</span>
-                      <span className={`text-lg font-bold ${levelCfg.color}`}>{brain?.level ?? "Pemula"}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">AI Intelligence Quotient</p>
-                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                      <Flame className="w-3 h-3 text-orange-400" />
-                      <span>{brain?.learningCycles ?? 0} siklus belajar selesai</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Akurasi Prediksi</div>
-                  <div className={`text-2xl font-bold ${skillColor(brain?.predictionAccuracy ?? 41)}`}>
-                    {(brain?.predictionAccuracy ?? 41).toFixed(1)}%
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Win Rate Est. {Math.min(85, 40 + (brain?.predictionAccuracy ?? 41) * 0.45).toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-              {/* Progress ke level berikutnya */}
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>Progres ke Level Berikutnya</span>
-                  <span>{xpProgress.toFixed(1)}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-1000 ${levelCfg.bg.replace("/20", "").replace("bg-", "bg-")}`}
-                    style={{ width: `${xpProgress}%` }} />
-                </div>
-                <div className="flex justify-between text-xs mt-1">
-                  <span className={levelCfg.color}>{brain?.experiencePoints?.toLocaleString() ?? 0} XP</span>
-                  <span className="text-muted-foreground">Target: {xpToNext.toLocaleString()} XP</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Grid Skill */}
-          <div className="grid md:grid-cols-2 gap-4">
-
-            {/* Skill Analisis */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="w-4 h-4 text-blue-400" />
-                  Skill Analisis Pasar
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <SkillBar label="Baca Pasar"          value={brain?.marketReading       ?? 42} icon={Eye} />
-                <SkillBar label="Kenali Pola"          value={brain?.patternRecognition  ?? 38} icon={Radar} />
-                <SkillBar label="Analisis Tren"        value={brain?.trendAnalysis       ?? 40} icon={TrendingUp} />
-                <SkillBar label="Analisis Volume"      value={brain?.volumeAnalysis      ?? 35} icon={BarChart2} />
-                <SkillBar label="Baca Momentum"        value={brain?.momentumReading     ?? 38} icon={Zap} />
-                <SkillBar label="Psikologi Candle"     value={brain?.candlePsychology    ?? 32} icon={BookMarked} />
-                <SkillBar label="Baca Order Flow"      value={brain?.orderflowReading    ?? 28} icon={Layers} />
-              </CardContent>
-            </Card>
-
-            {/* Skill Trading + Kepribadian */}
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-violet-400" />
-                    Skill Trading
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <SkillBar label="Kecerdasan Adaptif"    value={brain?.adaptiveIntelligence ?? 45} icon={Brain} />
-                  <SkillBar label="Manajemen Risiko"       value={brain?.riskManagement       ?? 50} icon={Shield} />
-                  <SkillBar label="Disiplin Emosional"     value={brain?.emotionalDiscipline  ?? 55} icon={HeartPulse} />
-                  <SkillBar label="Akurasi Kepercayaan"    value={brain?.confidenceAccuracy   ?? 44} icon={Target} />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-400" />
-                    Kepribadian AI
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <SkillBar label="Kesabaran"   value={brain?.patience    ?? 52} icon={Clock} />
-                  <SkillBar label="Selektivitas" value={brain?.selectivity ?? 48} icon={Filter} />
-                  <SkillBar label="Akurasi Prediksi" value={brain?.predictionAccuracy ?? 41} icon={Trophy} />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Statistik Pengalaman */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-emerald-400" />
-                Bank Pengalaman AI
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: "Chart Dipelajari",      value: brain?.chartsAnalyzed ?? 0,           color: "text-blue-400",    icon: BarChart2 },
-                  { label: "Pola Dikenali",          value: brain?.patternsRecognized ?? 0,       color: "text-violet-400",  icon: Radar },
-                  { label: "Breakout Dipelajari",    value: brain?.breakoutsStudied ?? 0,         color: "text-yellow-400",  icon: ArrowUpRight },
-                  { label: "Reversal Dipelajari",    value: brain?.reversalsStudied ?? 0,         color: "text-orange-400",  icon: RotateCcw },
-                  { label: "Sweep Likuiditas",       value: brain?.liquiditySweepsDetected ?? 0,  color: "text-red-400",     icon: Swords },
-                  { label: "Analisis Berhasil",      value: brain?.successfulAnalyses ?? 0,       color: "text-emerald-400", icon: CheckCircle2 },
-                  { label: "Kesalahan Diperbaiki",   value: brain?.mistakesCorrected ?? 0,        color: "text-amber-400",   icon: Lightbulb },
-                  { label: "Jam Pasar Dipelajari",   value: parseFloat((brain?.marketHoursStudied ?? 0).toFixed(0)), color: "text-sky-400", icon: Clock },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/40">
-                    <item.icon className={`w-4 h-4 ${item.color} shrink-0`} />
-                    <div>
-                      <div className={`text-lg font-bold ${item.color}`}>{item.value.toLocaleString()}</div>
-                      <div className="text-xs text-muted-foreground leading-tight">{item.label}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Tombol Reset */}
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={handleReset}
-              className="text-red-400 border-red-500/30 hover:bg-red-500/10 text-xs">
-              <RotateCcw className="w-3 h-3 mr-1.5" />
-              Reset AI Brain
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════════════════
           TAB: LIVE TRAINING
-      ═══════════════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════════════════ */}
       {activeTab === "live" && (
         <div className="space-y-4">
+          <div className="grid md:grid-cols-3 gap-4">
 
-          {/* Status belajar + aktivitas saat ini */}
-          <Card className={`border-2 ${brain?.isLearning ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-700"}`}>
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${brain?.isLearning ? "bg-emerald-500/20" : "bg-slate-700/50"} shrink-0`}>
-                  <Bot className={`w-5 h-5 ${brain?.isLearning ? "text-emerald-400" : "text-slate-400"}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-semibold">
-                      {brain?.isLearning ? "AI sedang belajar..." : "AI tidak aktif belajar"}
-                    </span>
-                    {brain?.isLearning && (
-                      <div className="flex gap-0.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
-                      </div>
-                    )}
-                  </div>
-                  <p className={`text-sm ${brain?.isLearning ? "text-emerald-300" : "text-muted-foreground"}`}>
-                    {brain?.currentActivity ?? "Menunggu perintah..."}
-                  </p>
-                  {brain?.currentSymbol && (
-                    <Badge variant="outline" className="mt-1.5 text-xs border-emerald-500/30 text-emerald-400">
-                      {brain.currentSymbol}
-                    </Badge>
+            {/* Feed Aktivitas Live */}
+            <div className="md:col-span-2">
+              <Card className="h-[520px] flex flex-col">
+                <CardHeader className="pb-2 shrink-0">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-emerald-400" />
+                    Feed Aktivitas Live
+                    {brain?.isLearning && <span className="ml-auto text-xs text-emerald-400 animate-pulse">● Aktif</span>}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-y-auto p-2 space-y-1" ref={feedRef}>
+                  {(brain?.liveActivities ?? []).length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
+                      <Activity className="w-10 h-10 opacity-20" />
+                      <p className="text-sm">Belum ada aktivitas — mulai belajar untuk melihat feed live</p>
+                    </div>
+                  ) : (
+                    (brain?.liveActivities ?? []).map((act) => {
+                      const style = ACTIVITY_STYLE[act.type];
+                      return (
+                        <div key={act.id}
+                          className={`flex items-start gap-2.5 px-2.5 py-2 rounded-lg ${style.bg} border border-transparent hover:border-slate-700/50 transition-colors`}>
+                          <span className="text-sm shrink-0 mt-0.5">{style.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs ${style.color} leading-relaxed`}>{act.message}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] text-muted-foreground">
+                                {new Date(act.timestamp).toLocaleTimeString("id-ID", { hour12: false })}
+                              </span>
+                              {act.symbol && (
+                                <span className="text-[10px] text-slate-500 font-mono">{act.symbol}</span>
+                              )}
+                              {act.xpGained > 0 && (
+                                <span className="text-[10px] text-yellow-500 font-bold">+{act.xpGained} XP</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
-                </div>
-                {brain?.lastLearningAt && (
-                  <div className="text-right shrink-0">
-                    <div className="text-xs text-muted-foreground">Terakhir belajar</div>
-                    <div className="text-xs text-slate-300">
-                      {new Date(brain.lastLearningAt).toLocaleTimeString("id-ID")}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Panel Status & Statistik */}
+            <div className="space-y-3">
+              {/* Status Belajar */}
+              <Card className={brain?.isLearning ? "border-emerald-500/30 bg-emerald-500/5" : "border-slate-700"}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${brain?.isLearning ? "bg-emerald-500/20" : "bg-slate-700"}`}>
+                      {brain?.isLearning
+                        ? <Brain className="w-5 h-5 text-emerald-400 animate-pulse" />
+                        : <Brain className="w-5 h-5 text-slate-500" />}
+                    </div>
+                    <div>
+                      <div className={`text-sm font-bold ${brain?.isLearning ? "text-emerald-400" : "text-slate-400"}`}>
+                        {brain?.isLearning ? "Sedang Belajar" : "Berhenti"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {brain?.isLearning ? "Siklus setiap ~22 detik" : "Klik Mulai Belajar"}
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  {brain?.isLearning && brain.currentSymbol && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800">
+                      <Eye className="w-3.5 h-3.5 text-violet-400" />
+                      <span className="text-xs text-muted-foreground">Sedang menganalisis:</span>
+                      <span className="text-xs font-bold text-violet-400">{brain.currentSymbol}</span>
+                    </div>
+                  )}
+                  {brain?.lastLearningAt && (
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      Belajar terakhir: {new Date(brain.lastLearningAt).toLocaleTimeString("id-ID")}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-          {/* Statistik mini sesi belajar */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3 text-center">
-                <div className="text-xl font-bold text-violet-400">{brain?.learningCycles ?? 0}</div>
-                <div className="text-xs text-muted-foreground">Siklus Belajar</div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3 text-center">
-                <div className="text-xl font-bold text-blue-400">{brain?.patternsRecognized ?? 0}</div>
-                <div className="text-xs text-muted-foreground">Pola Dikenali</div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3 text-center">
-                <div className="text-xl font-bold text-emerald-400">+{brain?.experiencePoints ?? 0}</div>
-                <div className="text-xs text-muted-foreground">Total XP</div>
-              </CardContent>
-            </Card>
+              {/* Statistik Sesi */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs text-muted-foreground uppercase tracking-wider">Statistik Sesi</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 pt-0">
+                  {[
+                    { label: "Breakout Dipelajari",   value: brain?.breakoutsStudied ?? 0,       color: "text-orange-400" },
+                    { label: "Fake Breakout",          value: brain?.fakeBreakoutsDetected ?? 0,  color: "text-red-400" },
+                    { label: "Reversal Terdeteksi",    value: brain?.reversalsStudied ?? 0,        color: "text-cyan-400" },
+                    { label: "Liquidity Sweep",        value: brain?.liquiditySweepsDetected ?? 0, color: "text-pink-400" },
+                    { label: "Smart Money Patterns",   value: brain?.smartMoneyPatternsFound ?? 0, color: "text-violet-400" },
+                    { label: "Prediksi Berhasil",      value: brain?.successfulAnalyses ?? 0,      color: "text-emerald-400" },
+                    { label: "Kesalahan Diperbaiki",   value: brain?.mistakesCorrected ?? 0,       color: "text-yellow-400" },
+                  ].map(stat => (
+                    <div key={stat.label} className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{stat.label}</span>
+                      <span className={`text-xs font-bold ${stat.color}`}>{stat.value.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Sumber Data */}
+              <Card className="border-slate-700/50">
+                <CardContent className="pt-3 pb-3">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Sumber Data Live</div>
+                  <div className="space-y-1.5">
+                    {[
+                      { name: "Bybit (Primary)", status: true },
+                      { name: "Binance (Backup)", status: true },
+                      { name: "15 Crypto Pairs", status: true },
+                      { name: "Interval: 5M/15M/1H/4H", status: true },
+                    ].map(s => (
+                      <div key={s.name} className="flex items-center gap-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${s.status ? "bg-emerald-400" : "bg-slate-600"}`} />
+                        <span className="text-xs text-muted-foreground">{s.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
-          {/* Log aktivitas real-time */}
+          {/* Log Teks */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Activity className="w-4 h-4 text-violet-400" />
-                Log Aktivitas Live
-                <div className={`ml-auto w-2 h-2 rounded-full ${brain?.isLearning ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`} />
+                <BookOpen className="w-4 h-4 text-blue-400" />
+                Log Aktivitas (500 terakhir)
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-96 overflow-y-auto space-y-1 pr-1" style={{ scrollbarWidth: "thin" }}>
-                {(brain?.activityLog ?? []).length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
-                    <Bot className="w-10 h-10 opacity-30" />
-                    <p className="text-sm">Belum ada aktivitas. Klik "Mulai Belajar" untuk memulai.</p>
-                  </div>
-                ) : (
-                  (brain?.activityLog ?? []).map((msg, i) => (
-                    <div key={i} className={`text-xs px-3 py-1.5 rounded-lg flex items-start gap-2 transition-colors ${
-                      i === 0
-                        ? "bg-violet-500/15 border border-violet-500/20 text-slate-200"
-                        : i < 5
-                        ? "bg-slate-800/60 text-slate-300"
-                        : "text-muted-foreground hover:text-slate-300"
-                    }`}>
-                      <span className={`shrink-0 mt-0.5 ${i === 0 ? "text-violet-400" : "text-slate-600"}`}>›</span>
-                      <span className="break-all">{msg}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Apa yang AI sedang pelajari */}
-          <Card className="border-slate-700/50 bg-slate-800/30">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-yellow-400" />
-                Modul Pembelajaran Aktif
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {[
-                  { label: "Perilaku EMA",         active: true },
-                  { label: "Perilaku VWAP",         active: true },
-                  { label: "Analisis RSI",          active: true },
-                  { label: "Analisis MACD",         active: true },
-                  { label: "Analisis Volume",       active: true },
-                  { label: "Smart Money Concepts",  active: brain ? brain.level !== "Pemula" : false },
-                  { label: "Liquidity Sweep",       active: brain ? brain.level !== "Pemula" : false },
-                  { label: "Struktur Pasar",        active: true },
-                  { label: "Psikologi Candle",      active: true },
-                  { label: "Perilaku Institusional", active: brain ? ["Expert","Institusional","Mahir"].includes(brain.level) : false },
-                  { label: "Manajemen Risiko",      active: true },
-                  { label: "Timing Trade",          active: true },
-                ].map(mod => (
-                  <div key={mod.label} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs ${
-                    mod.active
-                      ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
-                      : "bg-slate-800/50 border border-slate-700 text-slate-500"
-                  }`}>
-                    {mod.active
-                      ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                      : <Clock className="w-3 h-3 text-slate-600 shrink-0" />}
-                    {mod.label}
-                  </div>
+            <CardContent className="p-0">
+              <div className="h-40 overflow-y-auto px-3 py-2 font-mono text-xs text-slate-400 space-y-0.5">
+                {(brain?.activityLog ?? []).slice(0, 100).map((line, i) => (
+                  <div key={i} className="leading-relaxed hover:text-slate-300 transition-colors">{line}</div>
                 ))}
+                {(brain?.activityLog ?? []).length === 0 && (
+                  <div className="text-muted-foreground italic">Log kosong — mulai pembelajaran untuk melihat aktivitas</div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════
-          TAB: BACKTEST LAB
-      ═══════════════════════════════════════════════════════════ */}
-      {activeTab === "backtest" && (
+      {/* ══════════════════════════════════════════════════════════
+          TAB: KECERDASAN AI
+      ══════════════════════════════════════════════════════════ */}
+      {activeTab === "kecerdasan" && (
         <div className="space-y-4">
 
-          {/* Header kontrol backtest */}
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <FlaskConical className="w-4 h-4 text-violet-400" />
-              <span className="font-semibold text-sm">Mesin Backtest Institusional</span>
-              {labState?.isRunning && (
-                <Badge variant="outline" className="border-violet-500/40 text-violet-300 text-xs animate-pulse">
-                  Berjalan...
-                </Badge>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {labState?.isRunning ? (
-                <Button onClick={handleStopBacktest} variant="destructive" size="sm">
-                  <Square className="w-3.5 h-3.5 mr-1" />Hentikan
-                </Button>
-              ) : (
-                <Button onClick={handleStartBacktest} size="sm" className="bg-violet-600 hover:bg-violet-700">
-                  <Play className="w-3.5 h-3.5 mr-1" />Mulai Backtest
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          {labState?.isRunning && (
-            <Card className="border-violet-500/30 bg-violet-500/5">
-              <CardContent className="py-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-violet-300 font-medium">{labState.phase}</span>
-                  <span className="text-xs font-mono text-violet-400">{labState.progress ?? 0}%</span>
-                </div>
-                <Progress value={labState.progress ?? 0} className="h-1.5" />
-                {labState.currentSymbol && (
-                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
-                    <ChevronRight className="w-3 h-3" />
-                    <span>{labState.currentSymbol}</span>
-                    {labState.currentStrategy && <><span>—</span><span>{labState.currentStrategy}</span></>}
+          {/* IQ Hero Card */}
+          <Card className={`border ${lcfg.border} bg-gradient-to-br ${lcfg.gradient} to-transparent`}>
+            <CardContent className="pt-5 pb-5">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-5">
+                  <div className="relative">
+                    <div className={`text-7xl font-black ${lcfg.color} tabular-nums leading-none`}>{brain?.iq ?? 87}</div>
+                    <div className="absolute -bottom-1 left-0 text-xs text-muted-foreground">IQ</div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">{lcfg.icon}</span>
+                      <span className={`text-xl font-bold ${lcfg.color}`}>{lvl}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">AI Intelligence Quotient</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <Flame className="w-3 h-3 text-orange-400" />
+                      <span className="text-xs text-muted-foreground">{brain?.learningCycles ?? 0} siklus selesai</span>
+                      <span className="text-slate-600">•</span>
+                      <Repeat className="w-3 h-3 text-blue-400" />
+                      <span className="text-xs text-muted-foreground">{brain?.replaySessionsCompleted ?? 0} replay</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Ringkasan backtest */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3">
-                <div className="text-xs text-muted-foreground mb-0.5">Win Rate Terbaik</div>
-                <div className="text-xl font-bold text-yellow-400">
-                  {labState?.summary.bestWinRate ? `${labState.summary.bestWinRate}%` : "—"}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center px-4 py-2 rounded-xl bg-slate-800/60">
+                    <div className={`text-2xl font-black ${skillColor(brain?.predictionAccuracy ?? 41)}`}>
+                      {(brain?.predictionAccuracy ?? 41).toFixed(1)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">Akurasi Prediksi</div>
+                  </div>
+                  <div className="text-center px-4 py-2 rounded-xl bg-slate-800/60">
+                    <div className="text-2xl font-black text-emerald-400">{winRate.toFixed(1)}%</div>
+                    <div className="text-xs text-muted-foreground">Win Rate Est.</div>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground truncate">{labState?.bestStrategy?.label ?? "—"}</div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3">
-                <div className="text-xs text-muted-foreground mb-0.5">Sharpe Terbaik</div>
-                <div className="text-xl font-bold text-blue-400">
-                  {labState?.summary.bestSharpe ? labState.summary.bestSharpe.toFixed(2) : "—"}
-                </div>
-                <div className="text-xs text-muted-foreground">Risk-adjusted return</div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-700/50">
-              <CardContent className="pt-3 pb-3">
-                <div className="text-xs text-muted-foreground mb-0.5">Total Trade Simulasi</div>
-                <div className="text-xl font-bold text-emerald-400">
-                  {labState?.summary.totalTrades?.toLocaleString() ?? "—"}
-                </div>
-                <div className="text-xs text-muted-foreground">{labState?.summary.totalBacktested ?? 0} backtest selesai</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sub-tab backtest */}
-          {aggregated.length > 0 && (
-            <div className="space-y-4">
-              {/* Sort control */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-muted-foreground">Urutkan:</span>
-                {(["winRate","sharpe","pf"] as const).map(s => (
-                  <button key={s} onClick={() => setSortBy(s)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                      sortBy === s ? "bg-violet-600 text-white" : "bg-slate-700 text-muted-foreground hover:bg-slate-600"
-                    }`}>
-                    {s === "winRate" ? "Win Rate" : s === "sharpe" ? "Sharpe Ratio" : "Profit Factor"}
-                  </button>
-                ))}
               </div>
 
-              {/* Win Rate Chart */}
+              {/* Progress Bar */}
+              <div className="mt-4 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Progres ke Level Berikutnya</span>
+                  <span className={lcfg.color}>{xpPct.toFixed(1)}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-1000 ${lcfg.bg.replace("/15","")}`}
+                    style={{ width: `${xpPct}%` }} />
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className={lcfg.color}>{(brain?.experiencePoints ?? 0).toLocaleString()} XP</span>
+                  <span className="text-muted-foreground">Target: {xpNext.toLocaleString()} XP</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Skills Grid + Radar */}
+          <div className="grid md:grid-cols-2 gap-4">
+
+            {/* Radar Chart */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Radar className="w-4 h-4 text-violet-400" />
+                  Radar Kecerdasan AI
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={270}>
+                  <RadarChart data={radarSkillData}>
+                    <PolarGrid stroke="#334155" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                    <RechartsRadar name="Skill" dataKey="A" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.25} strokeWidth={2} dot={{ r: 3, fill: "#8b5cf6" }} />
+                    <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 11 }} formatter={(v: number) => [`${v.toFixed(1)}%`, "Level"]} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Skill Bars */}
+            <div className="space-y-3">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <BarChart className="w-4 h-4 text-violet-400" />
-                    Win Rate per Strategi
+                    <Target className="w-4 h-4 text-blue-400" />
+                    Skill Analisis Pasar
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <RechartsBar data={barData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                      <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} domain={[0, 100]} unit="%" />
-                      <Tooltip
-                        contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
-                        formatter={(val: number) => [`${val}%`, "Win Rate"]}
-                        labelFormatter={(_, p) => p?.[0]?.payload?.fullLabel ?? ""}
-                      />
-                      <Bar dataKey="winRate" radius={[4,4,0,0]}>
-                        {barData.map((entry, i) => (
-                          <Cell key={i} fill={entry.winRate >= 65 ? "#22c55e" : entry.winRate >= 55 ? "#f59e0b" : "#ef4444"} />
-                        ))}
-                      </Bar>
-                    </RechartsBar>
-                  </ResponsiveContainer>
+                <CardContent className="space-y-2.5">
+                  <SkillBar label="Baca Pasar"         value={brain?.marketReading ?? 42}          icon={Eye} />
+                  <SkillBar label="Kenali Pola"         value={brain?.patternRecognition ?? 38}     icon={Radar} />
+                  <SkillBar label="Analisis Tren"       value={brain?.trendAnalysis ?? 40}          icon={TrendingUp} />
+                  <SkillBar label="Analisis Volume"     value={brain?.volumeAnalysis ?? 35}         icon={BarChart2} />
+                  <SkillBar label="Baca Momentum"       value={brain?.momentumReading ?? 38}        icon={Activity} />
+                  <SkillBar label="Psikologi Candle"    value={brain?.candlePsychology ?? 32}       icon={Layers} />
+                  <SkillBar label="Smart Money Concepts" value={brain?.smartMoneyConceptSkill ?? 22} icon={Swords} />
                 </CardContent>
               </Card>
+            </div>
+          </div>
 
-              {/* Radar Chart */}
-              {radarData.length >= 3 && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Radar className="w-4 h-4 text-blue-400" />
-                      Perbandingan Multi-Dimensi
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={240}>
-                      <RadarChart data={radarData}>
-                        <PolarGrid stroke="#334155" />
-                        <PolarAngleAxis dataKey="strategy" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                        <RechartsRadar name="Win Rate" dataKey="Win Rate" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} />
-                        <RechartsRadar name="Sharpe×10" dataKey="Sharpe×10" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
-                        <RechartsRadar name="PF×20" dataKey="PF×20" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} />
-                        <Legend iconSize={10} wrapperStyle={{ fontSize: 10 }} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              )}
+          {/* Skill Trading & Kepribadian */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                  Skill Trading
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2.5">
+                <SkillBar label="Kecerdasan Adaptif"   value={brain?.adaptiveIntelligence ?? 45} icon={BrainCircuit} />
+                <SkillBar label="Manajemen Risiko"      value={brain?.riskManagement ?? 50}       icon={Shield} />
+                <SkillBar label="Disiplin Emosional"    value={brain?.emotionalDiscipline ?? 55}  icon={Gauge} />
+                <SkillBar label="Akurasi Kepercayaan"   value={brain?.confidenceAccuracy ?? 44}   icon={Target} />
+                <SkillBar label="Orderflow Reading"     value={brain?.orderflowReading ?? 28}     icon={Zap} />
+                <SkillBar label="Skor Replay Training"  value={brain?.replayTrainingScore ?? 18}  icon={Repeat} />
+              </CardContent>
+            </Card>
 
-              {/* Tabel hasil detail */}
-              {detailedResults.length > 0 && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Hasil Detail Backtest</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-slate-700 bg-slate-800/50">
-                            <th className="text-left px-3 py-2 text-xs text-muted-foreground font-medium">Pair</th>
-                            <th className="text-left px-3 py-2 text-xs text-muted-foreground font-medium">Strategi</th>
-                            <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Trade</th>
-                            <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Win Rate</th>
-                            <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Sharpe</th>
-                            <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">PF</th>
-                            <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Return</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {detailedResults.slice(0, 30).map((r, i) => (
-                            <tr key={i} className="border-b border-slate-700/40 hover:bg-slate-800/30 transition-colors">
-                              <td className="px-3 py-2 font-mono text-xs font-semibold">{r.symbol.replace("USDT", "/USDT")}</td>
-                              <td className="px-3 py-2 text-xs text-muted-foreground max-w-[150px] truncate">{r.strategyLabel}</td>
-                              <td className="px-3 py-2 text-right text-xs">{r.totalTrades}</td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${r.winRate >= 65 ? "text-green-400" : r.winRate >= 55 ? "text-yellow-400" : "text-red-400"}`}>
-                                  {r.winRate}%
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${r.sharpeRatio >= 1 ? "text-blue-400" : "text-slate-400"}`}>
-                                  {r.sharpeRatio.toFixed(2)}
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${r.profitFactor >= 1.5 ? "text-green-400" : r.profitFactor >= 1 ? "text-yellow-400" : "text-red-400"}`}>
-                                  {r.profitFactor.toFixed(2)}
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${r.totalReturnPct >= 0 ? "text-green-400" : "text-red-400"}`}>
-                                  {r.totalReturnPct >= 0 ? "+" : ""}{r.totalReturnPct.toFixed(1)}%
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-yellow-400" />
+                  Kepribadian & Karakter AI
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2.5">
+                <SkillBar label="Kesabaran"     value={brain?.patience ?? 52}    icon={Clock} />
+                <SkillBar label="Selektivitas"  value={brain?.selectivity ?? 48} icon={Filter} />
+                <SkillBar label="Akurasi Prediksi" value={brain?.predictionAccuracy ?? 41} icon={CheckCircle2} />
+
+                <div className="pt-2 grid grid-cols-2 gap-2">
+                  <StatCard label="Breakout Pelajari" value={(brain?.breakoutsStudied ?? 0).toLocaleString()} color="text-orange-400" />
+                  <StatCard label="Fake BT Deteksi"   value={(brain?.fakeBreakoutsDetected ?? 0).toLocaleString()} color="text-red-400" />
+                  <StatCard label="Reversal Studi"    value={(brain?.reversalsStudied ?? 0).toLocaleString()} color="text-cyan-400" />
+                  <StatCard label="Liquidity Sweep"   value={(brain?.liquiditySweepsDetected ?? 0).toLocaleString()} color="text-pink-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Level Roadmap */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                Jalur Evolusi AI
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-0 overflow-x-auto pb-2">
+                {(Object.entries(LEVEL_CONFIG) as [AiLevel, typeof LEVEL_CONFIG[AiLevel]][]).map(([lvlName, cfg], i, arr) => {
+                  const isActive = lvlName === lvl;
+                  const isDone   = (brain?.experiencePoints ?? 0) >= cfg.xpNext;
+                  return (
+                    <React.Fragment key={lvlName}>
+                      <div className={`flex flex-col items-center gap-1 shrink-0 px-2 ${isActive ? "opacity-100" : isDone ? "opacity-70" : "opacity-40"}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 ${isActive ? cfg.border + " " + cfg.bg : "border-slate-700 bg-slate-800"}`}>
+                          {cfg.icon}
+                        </div>
+                        <span className={`text-xs font-medium ${isActive ? cfg.color : "text-muted-foreground"}`}>{lvlName}</span>
+                        <span className="text-[10px] text-slate-500">{cfg.xpNext < 99999 ? cfg.xpNext.toLocaleString() + " XP" : "MAX"}</span>
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className="h-0.5 flex-1 min-w-4 bg-slate-700 mx-1" />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════
+          TAB: MEMORI AI
+      ══════════════════════════════════════════════════════════ */}
+      {activeTab === "memori" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-semibold">Bank Memori AI</span>
+              <span className="text-xs text-muted-foreground">— AI menyimpan semua pembelajaran secara permanen</span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Total: {Object.values(memory ?? {}).reduce((a, b) => a + b.length, 0)} memori tersimpan
+            </div>
+          </div>
+
+          {/* Memory Sub-tabs */}
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "learnedPatterns",     label: "🔍 Pola Dipelajari",  count: memory?.learnedPatterns.length ?? 0 },
+              { key: "bestSetups",          label: "⭐ Setup Terbaik",    count: memory?.bestSetups.length ?? 0 },
+              { key: "dangerousConditions", label: "⚠️ Kondisi Berbahaya", count: memory?.dangerousConditions.length ?? 0 },
+              { key: "worstSetups",         label: "📚 Kesalahan",        count: memory?.worstSetups.length ?? 0 },
+            ] as const).map(t => (
+              <button key={t.key} onClick={() => setMemoryTab(t.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                  memoryTab === t.key
+                    ? "bg-violet-600/20 text-violet-300 border border-violet-500/40"
+                    : "bg-slate-800 text-muted-foreground border border-slate-700 hover:text-slate-300"
+                }`}>
+                {t.label}
+                {t.count > 0 && (
+                  <span className="bg-slate-700 text-slate-400 text-[10px] px-1.5 py-0.5 rounded-full">{t.count}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {currentMemoryList.length === 0 ? (
+            <Card className="border-dashed border-slate-700">
+              <CardContent className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+                <Database className="w-10 h-10 opacity-20" />
+                <p className="text-sm font-medium">Memori kosong</p>
+                <p className="text-xs text-center max-w-xs">
+                  AI akan menyimpan memori saat belajar dari pasar. Aktifkan pembelajaran dan biarkan berjalan.
+                </p>
+                {!brain?.isLearning && (
+                  <Button size="sm" onClick={handleToggleLearning} className="bg-emerald-600 hover:bg-emerald-700 mt-1">
+                    <Play className="w-3.5 h-3.5 mr-1.5" />Mulai Belajar
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-3">
+              {currentMemoryList.map(entry => {
+                const style = MEMORY_STYLE[entry.type];
+                return (
+                  <Card key={entry.id} className="border-slate-700/60 hover:border-slate-600 transition-colors">
+                    <CardContent className="pt-3 pb-3">
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-xl shrink-0">{style.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <span className={`text-sm font-semibold ${style.color} truncate`}>{entry.title}</span>
+                            <Badge variant="outline" className={`text-[10px] shrink-0 ${style.color} border-current/30`}>
+                              {style.label}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{entry.description}</p>
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            {entry.tags.map(tag => (
+                              <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                                {tag}
+                              </span>
+                            ))}
+                            <span className="ml-auto text-[10px] text-muted-foreground">
+                              {new Date(entry.timestamp).toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-mono text-slate-500">{entry.symbol} · {entry.interval}M</span>
+                            <span className="text-[10px] text-yellow-500 font-bold ml-auto">+{entry.xpValue} XP</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════
+          TAB: BACKTEST LAB
+      ══════════════════════════════════════════════════════════ */}
+      {activeTab === "backtest" && (
+        <div className="space-y-4">
+          {/* Progress */}
+          {labState?.isRunning && (
+            <Card className="border-blue-500/30 bg-blue-500/5">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                    <span className="text-sm font-medium text-blue-400">Backtest Berjalan</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{labState.progress.toFixed(0)}%</span>
+                </div>
+                <Progress value={labState.progress} className="h-2 mb-2" />
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>{labState.phase}</span>
+                  {labState.currentSymbol && <><span>·</span><Badge variant="outline" className="text-xs">{labState.currentSymbol}</Badge></>}
+                  {labState.currentStrategy && <><span>·</span><span className="text-blue-400">{labState.currentStrategy}</span></>}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Best Strategy */}
+          {labState?.bestStrategy && (
+            <Card className="border-yellow-500/30 bg-yellow-500/5">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Trophy className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm font-bold text-yellow-400">Strategi Terbaik</span>
+                </div>
+                <div className="text-lg font-bold">{labState.bestStrategy.label}</div>
+                <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                  <span>Win Rate <span className="text-emerald-400 font-bold">{labState.bestStrategy.winRate.toFixed(1)}%</span></span>
+                  <span>Sharpe <span className="text-blue-400 font-bold">{labState.bestStrategy.sharpe.toFixed(2)}</span></span>
+                  <span>PF <span className="text-violet-400 font-bold">{labState.bestStrategy.pf.toFixed(2)}</span></span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Control */}
+          <div className="flex gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Urutkan:</span>
+              {(["winRate","sharpe","pf"] as const).map(k => (
+                <button key={k} onClick={() => setSortBy(k)}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                    sortBy === k ? "bg-violet-600/20 text-violet-300 border border-violet-500/30" : "bg-slate-800 text-muted-foreground border border-slate-700"
+                  }`}>
+                  {k === "winRate" ? "Win Rate" : k === "sharpe" ? "Sharpe" : "Profit Factor"}
+                </button>
+              ))}
+            </div>
+            <div className="ml-auto flex gap-2">
+              {labState?.isRunning
+                ? <Button size="sm" onClick={async () => { await fetch(`${API}/api/training-lab/stop`, { method: "POST" }); setTimeout(fetchLab, 500); }}
+                    className="bg-red-600/80 hover:bg-red-700 text-white">
+                    <Square className="w-3.5 h-3.5 mr-1.5" />Hentikan
+                  </Button>
+                : <Button size="sm" onClick={handleStartBacktest} className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Play className="w-3.5 h-3.5 mr-1.5" />Jalankan Backtest
+                  </Button>
+              }
+            </div>
+          </div>
+
+          {/* Hasil */}
+          {detailedResults.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-3">
+              {detailedResults.slice(0, 10).map((r, i) => (
+                <Card key={i} className="border-slate-700/60">
+                  <CardContent className="pt-3 pb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold">{r.strategyLabel}</span>
+                      <Badge variant="outline" className="text-[10px]">{r.symbol}</Badge>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div><div className={`text-base font-black ${skillColor(r.winRate)}`}>{r.winRate.toFixed(1)}%</div><div className="text-[10px] text-muted-foreground">Win Rate</div></div>
+                      <div><div className={`text-base font-black ${r.sharpeRatio > 1 ? "text-emerald-400" : r.sharpeRatio > 0 ? "text-yellow-400" : "text-red-400"}`}>{r.sharpeRatio.toFixed(2)}</div><div className="text-[10px] text-muted-foreground">Sharpe</div></div>
+                      <div><div className={`text-base font-black ${r.profitFactor > 1.5 ? "text-emerald-400" : r.profitFactor > 1 ? "text-yellow-400" : "text-red-400"}`}>{r.profitFactor.toFixed(2)}</div><div className="text-[10px] text-muted-foreground">PF</div></div>
+                    </div>
+                    <div className="mt-2 flex gap-3 text-[10px] text-muted-foreground">
+                      <span>{r.totalTrades} trades</span>
+                      <span className="text-emerald-400">{r.wins}W</span>
+                      <span className="text-red-400">{r.losses}L</span>
+                      <span className="ml-auto">DD: {r.maxDrawdown.toFixed(1)}%</span>
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              ))}
             </div>
           )}
 
-          {/* Konfigurasi backtest */}
+          {/* Pilih Pair & Strategi */}
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-violet-400" />
+                  <BarChart className="w-4 h-4 text-blue-400" />
                   Pilih Pair ({selectedPairs.length} dipilih)
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-1.5">
                   {ALL_PAIRS.map(p => (
-                    <button key={p} onClick={() => togglePair(p)} disabled={labState?.isRunning}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
+                    <button key={p} onClick={() => setSelectedPairs(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])}
+                      disabled={labState?.isRunning}
+                      className={`px-2 py-1.5 rounded text-xs font-medium transition-colors ${
                         selectedPairs.includes(p)
-                          ? "bg-violet-600/30 text-violet-300 border border-violet-500/40"
+                          ? "bg-blue-600/20 text-blue-300 border border-blue-500/30"
                           : "bg-slate-800 text-muted-foreground border border-slate-700 hover:bg-slate-700"
                       }`}>
                       <div className="flex items-center justify-between">
@@ -1004,17 +1055,15 @@ export default function TrainingLab() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7"
-                    onClick={() => setSelectedPairs(ALL_PAIRS)} disabled={labState?.isRunning}>Semua</Button>
-                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7"
-                    onClick={() => setSelectedPairs([])} disabled={labState?.isRunning}>Hapus</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => setSelectedPairs(ALL_PAIRS)} disabled={labState?.isRunning}>Semua</Button>
+                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => setSelectedPairs([])} disabled={labState?.isRunning}>Hapus</Button>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Brain className="w-4 h-4 text-violet-400" />
                   Pilih Strategi ({selectedStrategies.length} dipilih)
@@ -1023,8 +1072,9 @@ export default function TrainingLab() {
               <CardContent>
                 <div className="space-y-1.5">
                   {ALL_STRATEGIES.map(s => (
-                    <button key={s.key} onClick={() => toggleStrategy(s.key)} disabled={labState?.isRunning}
-                      className={`w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
+                    <button key={s.key} onClick={() => setSelectedStrategies(prev => prev.includes(s.key) ? prev.filter(x => x !== s.key) : [...prev, s.key])}
+                      disabled={labState?.isRunning}
+                      className={`w-full px-3 py-2 rounded text-xs font-medium transition-colors text-left ${
                         selectedStrategies.includes(s.key)
                           ? "bg-violet-600/20 text-violet-300 border border-violet-500/30"
                           : "bg-slate-800 text-muted-foreground border border-slate-700 hover:bg-slate-700"
@@ -1036,11 +1086,9 @@ export default function TrainingLab() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7"
-                    onClick={() => setSelectedStrategies(ALL_STRATEGIES.map(s => s.key))} disabled={labState?.isRunning}>Semua</Button>
-                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7"
-                    onClick={() => setSelectedStrategies([])} disabled={labState?.isRunning}>Hapus</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => setSelectedStrategies(ALL_STRATEGIES.map(s => s.key))} disabled={labState?.isRunning}>Semua</Button>
+                  <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => setSelectedStrategies([])} disabled={labState?.isRunning}>Hapus</Button>
                 </div>
               </CardContent>
             </Card>
@@ -1048,73 +1096,44 @@ export default function TrainingLab() {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════
+      {/* ══════════════════════════════════════════════════════════
           TAB: EVOLUSI
-      ═══════════════════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════════════════ */}
       {activeTab === "evolusi" && (
-        <div className="space-y-5">
-
-          {/* Kartu status evolusi */}
+        <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              {
-                label: "IQ Saat Ini",
-                value: brain?.iq ?? 87,
-                suffix: "",
-                color: "text-violet-400",
-                sub: `Level: ${brain?.level ?? "Pemula"}`,
-              },
-              {
-                label: "Akurasi Prediksi",
-                value: parseFloat((brain?.predictionAccuracy ?? 41).toFixed(1)),
-                suffix: "%",
-                color: skillColor(brain?.predictionAccuracy ?? 41),
-                sub: "Estimasi akurasi sinyal",
-              },
-              {
-                label: "Baca Pasar",
-                value: parseFloat((brain?.marketReading ?? 42).toFixed(1)),
-                suffix: "%",
-                color: skillColor(brain?.marketReading ?? 42),
-                sub: "Pemahaman pergerakan harga",
-              },
-              {
-                label: "Win Rate Est.",
-                value: parseFloat(Math.min(85, 40 + (brain?.predictionAccuracy ?? 41) * 0.45).toFixed(1)),
-                suffix: "%",
-                color: "text-emerald-400",
-                sub: "Estimasi berdasarkan akurasi",
-              },
-            ].map(stat => (
-              <Card key={stat.label} className="border-slate-700/50">
+              { label: "IQ Saat Ini",       value: brain?.iq ?? 87,                                                     suffix: "",  color: "text-violet-400" },
+              { label: "Akurasi Prediksi",   value: parseFloat((brain?.predictionAccuracy ?? 41).toFixed(1)),            suffix: "%", color: skillColor(brain?.predictionAccuracy ?? 41) },
+              { label: "Baca Pasar",         value: parseFloat((brain?.marketReading ?? 42).toFixed(1)),                 suffix: "%", color: skillColor(brain?.marketReading ?? 42) },
+              { label: "Win Rate Est.",      value: parseFloat(winRate.toFixed(1)),                                       suffix: "%", color: "text-emerald-400" },
+            ].map(s => (
+              <Card key={s.label} className="border-slate-700/50">
                 <CardContent className="pt-3 pb-3">
-                  <div className="text-xs text-muted-foreground mb-0.5">{stat.label}</div>
-                  <div className={`text-2xl font-black ${stat.color}`}>{stat.value}{stat.suffix}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{stat.sub}</div>
+                  <div className="text-xs text-muted-foreground mb-0.5">{s.label}</div>
+                  <div className={`text-2xl font-black ${s.color}`}>{s.value}{s.suffix}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {evoChartData.length === 0 ? (
+          {evoData.length === 0 ? (
             <Card className="border-dashed border-slate-700">
               <CardContent className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
-                <TrendingUp className="w-10 h-10 opacity-30" />
+                <TrendingUp className="w-10 h-10 opacity-20" />
                 <p className="text-sm font-medium">Belum ada data evolusi</p>
                 <p className="text-xs text-center max-w-xs">
-                  Snapshot evolusi diambil setiap 30 siklus belajar.
-                  Aktifkan pembelajaran dan biarkan AI berjalan untuk melihat grafik progres.
+                  Snapshot diambil setiap 20 siklus. Aktifkan pembelajaran dan biarkan AI berjalan.
                 </p>
-                <Button size="sm" onClick={handleToggleLearning}
-                  className="bg-emerald-600 hover:bg-emerald-700 mt-2">
-                  <Play className="w-3.5 h-3.5 mr-1.5" />
-                  Mulai Belajar Sekarang
-                </Button>
+                {!brain?.isLearning && (
+                  <Button size="sm" onClick={handleToggleLearning} className="bg-emerald-600 hover:bg-emerald-700 mt-1">
+                    <Play className="w-3.5 h-3.5 mr-1.5" />Mulai Belajar
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
             <>
-              {/* Grafik IQ */}
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1124,24 +1143,23 @@ export default function TrainingLab() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={evoChartData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
+                    <AreaChart data={evoData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
                       <defs>
-                        <linearGradient id="iqGrad" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id="iqG" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
                           <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="siklus" tick={{ fontSize: 10, fill: "#94a3b8" }} label={{ value: "Snapshot ke-", position: "insideBottom", offset: -2, fontSize: 10, fill: "#64748b" }} />
+                      <XAxis dataKey="n" tick={{ fontSize: 10, fill: "#94a3b8" }} label={{ value: "Snapshot ke-", position: "insideBottom", offset: -2, fontSize: 10, fill: "#64748b" }} />
                       <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} domain={["auto", "auto"]} />
-                      <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }} />
-                      <Area type="monotone" dataKey="IQ" stroke="#8b5cf6" strokeWidth={2} fill="url(#iqGrad)" dot={{ r: 3, fill: "#8b5cf6" }} />
+                      <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 11 }} />
+                      <Area type="monotone" dataKey="IQ" stroke="#8b5cf6" strokeWidth={2} fill="url(#iqG)" dot={{ r: 3, fill: "#8b5cf6" }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              {/* Grafik Skill */}
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1151,21 +1169,20 @@ export default function TrainingLab() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={240}>
-                    <LineChart data={evoChartData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
+                    <LineChart data={evoData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="siklus" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                      <XAxis dataKey="n" tick={{ fontSize: 10, fill: "#94a3b8" }} />
                       <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} domain={[0, 100]} unit="%" />
-                      <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }} />
+                      <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, fontSize: 11 }} />
                       <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                      <Line type="monotone" dataKey="Akurasi (%)"   stroke="#22c55e" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="Baca Pasar (%)" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="Win Rate (%)"   stroke="#f59e0b" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="Akurasi" stroke="#22c55e" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="Baca Pasar" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="Win Rate" stroke="#f59e0b" strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              {/* Tabel snapshot */}
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -1178,41 +1195,25 @@ export default function TrainingLab() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-slate-700 bg-slate-800/50">
-                          <th className="text-left px-3 py-2 text-xs text-muted-foreground font-medium">Waktu</th>
-                          <th className="text-center px-3 py-2 text-xs text-muted-foreground font-medium">Level</th>
-                          <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">IQ</th>
-                          <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Akurasi</th>
-                          <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Baca Pasar</th>
-                          <th className="text-right px-3 py-2 text-xs text-muted-foreground font-medium">Chart</th>
+                          {["Waktu","Level","IQ","Akurasi","Baca Pasar","Win Rate","Chart"].map(h => (
+                            <th key={h} className={`px-3 py-2 text-xs text-muted-foreground font-medium ${h === "Waktu" ? "text-left" : "text-right"}`}>{h}</th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
                         {[...(brain?.evolutionHistory ?? [])].reverse().slice(0, 20).map((s, i) => {
                           const cfg = LEVEL_CONFIG[s.level];
                           return (
-                            <tr key={i} className="border-b border-slate-700/40 hover:bg-slate-800/30 transition-colors">
+                            <tr key={i} className="border-b border-slate-700/40 hover:bg-slate-800/30">
                               <td className="px-3 py-2 text-xs text-muted-foreground">
                                 {new Date(s.timestamp).toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                               </td>
-                              <td className="px-3 py-2 text-center">
-                                <span className={`text-xs font-medium ${cfg.color}`}>{cfg.icon} {s.level}</span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className="text-xs font-bold text-violet-400">{s.iq}</span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${skillColor(s.predictionAccuracy)}`}>
-                                  {s.predictionAccuracy.toFixed(1)}%
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className={`text-xs font-bold ${skillColor(s.marketReading)}`}>
-                                  {s.marketReading.toFixed(1)}%
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <span className="text-xs text-slate-300">{s.chartsAnalyzed.toLocaleString()}</span>
-                              </td>
+                              <td className="px-3 py-2 text-right"><span className={`text-xs font-medium ${cfg.color}`}>{cfg.icon} {s.level}</span></td>
+                              <td className="px-3 py-2 text-right"><span className="text-xs font-bold text-violet-400">{s.iq}</span></td>
+                              <td className="px-3 py-2 text-right"><span className={`text-xs font-bold ${skillColor(s.predictionAccuracy)}`}>{s.predictionAccuracy.toFixed(1)}%</span></td>
+                              <td className="px-3 py-2 text-right"><span className={`text-xs font-bold ${skillColor(s.marketReading)}`}>{s.marketReading.toFixed(1)}%</span></td>
+                              <td className="px-3 py-2 text-right"><span className="text-xs font-bold text-emerald-400">{Math.min(85, 40 + s.predictionAccuracy * 0.45).toFixed(1)}%</span></td>
+                              <td className="px-3 py-2 text-right"><span className="text-xs text-slate-300">{s.chartsAnalyzed.toLocaleString()}</span></td>
                             </tr>
                           );
                         })}

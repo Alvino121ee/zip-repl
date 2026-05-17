@@ -1,15 +1,55 @@
 {
-  "totalDecisions": 6,
-  "correctEarlyExits": 6,
+  "totalDecisions": 8,
+  "correctEarlyExits": 8,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 36.333333333333336,
-  "avgContinuationProbAtExit": 9.333333333333334,
+  "avgMomentumAtEarlyExit": 41.375,
+  "avgContinuationProbAtExit": 13.25,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "975fdf21-b4ac-4782-8b47-c46ef0e89d15",
+      "tradeId": "a06a566a-3fcf-482d-bf40-84de8835711e",
+      "symbol": "AIGENSYNUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8792345487457979,
+      "momentumScore": 53,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 44% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779017413503,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8792345487457979,
+      "profitDelta": 0
+    },
+    {
+      "id": "263b5e2e-da85-4f25-8276-04eae1da0c9b",
+      "tradeId": "87b56e30-d1aa-477a-92b3-fef4b33e3fb3",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (27%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8966861598440586,
+      "momentumScore": 60,
+      "continuationProb": 27,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (85) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779017045420,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8966861598440586,
+      "profitDelta": 0
+    },
     {
       "id": "ac15c634-c8f7-4df7-a6fe-6994d575954b",
       "tradeId": "50c575d9-338d-4712-bb32-f97d7986cdb4",
@@ -131,5 +171,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779015878219
+  "lastUpdated": 1779017413504
 }
