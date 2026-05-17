@@ -304,6 +304,34 @@ export default function TrainingLab() {
     setTimeout(() => { fetchBrain(); fetchMemory(); }, 600);
   };
 
+  const handleManualTrain = async () => {
+    const text = manualInput.trim();
+    if (text.length < 10) {
+      toast({ title: "Teks terlalu pendek", description: "Tuliskan minimal 1 kalimat.", variant: "destructive" });
+      return;
+    }
+    setIsSubmittingManual(true);
+    setManualResult(null);
+    try {
+      const res = await fetch(`${API}/api/training-lab/manual-train`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error ?? "Gagal"); }
+      const data = await res.json();
+      setManualResult(data);
+      setManualHistory(prev => [text, ...prev].slice(0, 10));
+      setManualInput("");
+      fetchBrain();
+      toast({ title: `+${data.xpGained} XP diperoleh!`, description: `Grade ${data.grade} — ${data.categoriesHit.join(", ") || "Input diterima"}` });
+    } catch (err: unknown) {
+      toast({ title: "Gagal mengirim", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setIsSubmittingManual(false);
+    }
+  };
+
   const handleStartBacktest = async () => {
     if (selectedPairs.length === 0 || selectedStrategies.length === 0) {
       toast({ title: "Pilih minimal 1 pair dan 1 strategi", variant: "destructive" }); return;
@@ -497,6 +525,7 @@ export default function TrainingLab() {
           { key: "live",       label: "⚡ Live Training",   },
           { key: "kecerdasan", label: "🧠 Kecerdasan AI",   },
           { key: "memori",     label: "💾 Memori AI",       },
+          { key: "ajar",       label: "✏️ Ajar AI",         },
           { key: "backtest",   label: "🔬 Backtest Lab",    },
           { key: "evolusi",    label: "📈 Evolusi",         },
         ] as const).map(tab => (
@@ -946,6 +975,229 @@ export default function TrainingLab() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════
+          TAB: AJAR AI (MANUAL TRAINING)
+      ══════════════════════════════════════════════════════════ */}
+      {activeTab === "ajar" && (
+        <div className="space-y-4">
+          {/* Header info */}
+          <Card className="border-violet-500/30 bg-violet-500/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-5 h-5 text-violet-400" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-violet-300 mb-0.5">Kamu adalah Gurunya</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Ketik apapun yang kamu ketahui tentang trading — strategi, pelajaran, observasi pasar, pola yang kamu temui.
+                  AI akan menganalisis teks, mengekstrak konsep berharga, menyimpan ke memori, dan mendapat XP sesuai kualitas input.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-5 gap-4">
+            {/* Input Panel */}
+            <div className="md:col-span-3 space-y-3">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-violet-400" />
+                    Input Pengetahuan
+                    <span className="ml-auto text-xs text-muted-foreground">{manualInput.length}/5000</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <textarea
+                    value={manualInput}
+                    onChange={e => setManualInput(e.target.value.slice(0, 5000))}
+                    placeholder="Contoh: Saat RSI di atas 70 dan harga menyentuh resistance kuat, ada probabilitas tinggi terjadi reversal. Saya selalu pasang stop loss 1.5% di atas resistance dan target profit di support berikutnya dengan RR minimal 1:2..."
+                    className="w-full h-48 bg-background border border-border rounded-lg p-3 text-sm text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-violet-500 placeholder:text-muted-foreground/50"
+                  />
+                  {/* Contoh topik */}
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">Ide topik:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        "Strategi entry favoritmu",
+                        "Pola chart yang sering kamu lihat",
+                        "Pelajaran dari loss terbesar",
+                        "Aturan manajemen risiko",
+                        "Kapan kamu TIDAK masuk trade",
+                        "Pengalaman dengan FOMO/revenge trading",
+                        "Setup SMC / order block",
+                        "Tips psikologi trading",
+                      ].map(tip => (
+                        <button
+                          key={tip}
+                          onClick={() => setManualInput(prev => prev ? prev + " " + tip : tip)}
+                          className="text-[11px] px-2 py-1 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-violet-500/50 transition-colors"
+                        >
+                          {tip}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <Button
+                    className="w-full bg-violet-600 hover:bg-violet-500 text-white"
+                    onClick={handleManualTrain}
+                    disabled={isSubmittingManual || manualInput.trim().length < 10}
+                  >
+                    {isSubmittingManual ? (
+                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />AI sedang menganalisis...</>
+                    ) : (
+                      <><Brain className="w-4 h-4 mr-2" />Ajarkan ke AI</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Riwayat input */}
+              {manualHistory.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      Riwayat Input Sesi Ini
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {manualHistory.map((h, i) => (
+                      <div key={i} className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-2 line-clamp-2">
+                        {h}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Result Panel */}
+            <div className="md:col-span-2 space-y-3">
+              {/* IQ saat ini */}
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">IQ Saat Ini</p>
+                  <p className="text-4xl font-black text-violet-400">{brain?.iq ?? "–"}</p>
+                  <p className="text-xs text-muted-foreground">{brain?.level ?? ""}</p>
+                  <div className="mt-2 flex justify-center gap-3 text-xs text-muted-foreground">
+                    <span><span className="text-amber-400 font-semibold">{brain?.experiencePoints?.toLocaleString() ?? 0}</span> XP</span>
+                    <span>·</span>
+                    <span><span className="text-emerald-400 font-semibold">{brain?.learningCycles ?? 0}</span> siklus</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Hasil analisis */}
+              {manualResult ? (
+                <Card className={`border-2 ${
+                  manualResult.grade === "S" ? "border-yellow-400/50 bg-yellow-500/5" :
+                  manualResult.grade === "A" ? "border-emerald-400/50 bg-emerald-500/5" :
+                  manualResult.grade === "B" ? "border-blue-400/50 bg-blue-500/5" :
+                  manualResult.grade === "C" ? "border-orange-400/50 bg-orange-500/5" :
+                  "border-slate-500/30"
+                }`}>
+                  <CardContent className="p-4 space-y-3">
+                    {/* Grade + XP */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black ${
+                          manualResult.grade === "S" ? "bg-yellow-400/20 text-yellow-400" :
+                          manualResult.grade === "A" ? "bg-emerald-400/20 text-emerald-400" :
+                          manualResult.grade === "B" ? "bg-blue-400/20 text-blue-400" :
+                          manualResult.grade === "C" ? "bg-orange-400/20 text-orange-400" :
+                          "bg-slate-500/20 text-slate-400"
+                        }`}>{manualResult.grade}</div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">XP Didapat</p>
+                          <p className="text-xl font-bold text-amber-400">+{manualResult.xpGained}</p>
+                        </div>
+                      </div>
+                      {manualResult.iqAfter > manualResult.iqBefore && (
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground">IQ</p>
+                          <p className="text-sm font-bold">
+                            <span className="text-slate-400">{manualResult.iqBefore}</span>
+                            <span className="text-muted-foreground mx-1">→</span>
+                            <span className="text-violet-400">{manualResult.iqAfter}</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Feedback */}
+                    <p className="text-xs text-muted-foreground leading-relaxed border-t border-border pt-3">
+                      {manualResult.feedback}
+                    </p>
+
+                    {/* Kategori */}
+                    {manualResult.categoriesHit.length > 0 && (
+                      <div>
+                        <p className="text-[11px] text-muted-foreground mb-1.5 font-medium">Kategori terdeteksi:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {manualResult.categoriesHit.map(c => (
+                            <span key={c} className="text-[11px] px-2 py-0.5 bg-violet-500/20 text-violet-300 rounded-full">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Konsep */}
+                    {manualResult.conceptsFound.length > 0 && (
+                      <div>
+                        <p className="text-[11px] text-muted-foreground mb-1.5 font-medium">Konsep yang dipelajari:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {manualResult.conceptsFound.slice(0, 12).map(c => (
+                            <span key={c} className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-slate-300 font-mono">{c}</span>
+                          ))}
+                          {manualResult.conceptsFound.length > 12 && (
+                            <span className="text-[10px] px-1.5 py-0.5 text-muted-foreground">+{manualResult.conceptsFound.length - 12} lainnya</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {manualResult.memorySaved && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 bg-emerald-500/10 rounded-lg px-2.5 py-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        Tersimpan di Memori AI
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="border-dashed">
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    <Lightbulb className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Hasil analisis akan muncul di sini</p>
+                    <p className="text-xs mt-1">Setiap konsep yang ditemukan menambah XP & meningkatkan skill AI</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Tips panduan */}
+              <Card className="bg-muted/20">
+                <CardContent className="p-3 space-y-2">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Tips mendapat grade tinggi</p>
+                  {[
+                    { icon: "📊", text: "Sebutkan indikator spesifik (RSI, MACD, EMA)" },
+                    { icon: "🎯", text: "Jelaskan setup entry dan exit dengan jelas" },
+                    { icon: "🛡️", text: "Sertakan aturan stop loss & risk reward" },
+                    { icon: "🧠", text: "Ceritakan aspek psikologi trading" },
+                    { icon: "📏", text: "Semakin panjang & detail = XP lebih banyak" },
+                  ].map(tip => (
+                    <div key={tip.text} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                      <span>{tip.icon}</span>
+                      <span>{tip.text}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       )}
 
