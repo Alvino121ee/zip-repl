@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 40,
-  "correctEarlyExits": 40,
+  "totalDecisions": 41,
+  "correctEarlyExits": 41,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.4,
-  "avgContinuationProbAtExit": 14.175,
+  "avgMomentumAtEarlyExit": 45,
+  "avgContinuationProbAtExit": 13.853658536585366,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "f4be5662-9f50-4742-b639-ab95901990c2",
+      "tradeId": "b74fc39a-f5fd-4af8-8dca-bb3ee0ddc105",
+      "symbol": "MLNUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 29) — probabilitas kelanjutan rendah. Candle doji terdeteksi — ragu-ragu pasar",
+      "profitPctAtDecision": 0.5059021922428335,
+      "momentumScore": 29,
+      "continuationProb": 1,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779041900112,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5059021922428335,
+      "profitDelta": 0
+    },
     {
       "id": "cfba7f4c-decd-4174-a768-4d00caf89d79",
       "tradeId": "bc330444-4909-4069-aa71-0941ca3bf0cf",
@@ -815,5 +835,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779041110681
+  "lastUpdated": 1779041900115
 }
