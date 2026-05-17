@@ -9,6 +9,7 @@ import predictionLocksRouter from "./prediction-locks.js";
 import demoTradingRouter from "./demo-trading.js";
 import trainingLabRouter from "./training-lab.js";
 import slAnalysisRouter from "./sl-analysis.js";
+import fmpRouter from "./full-margin-precision.js";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(predictionLocksRouter);
 router.use(demoTradingRouter);
 router.use(trainingLabRouter);
 router.use(slAnalysisRouter);
+router.use(fmpRouter);
 
 export default router;

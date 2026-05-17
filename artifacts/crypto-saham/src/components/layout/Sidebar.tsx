@@ -14,6 +14,7 @@ import {
   Brain,
   TrendingDown,
   GraduationCap,
+  Crosshair,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -45,6 +46,7 @@ export function Sidebar() {
           <NavItem href="/trading" icon={Bot}>Auto Trading</NavItem>
           <NavItem href="/scalping5m" icon={Timer}>Scalping 5M</NavItem>
           <NavItem href="/demo-trading" icon={FlaskConical}>Demo Trading</NavItem>
+          <NavItem href="/full-margin-precision" icon={Crosshair} highlight>Full Margin Precision</NavItem>
           <NavItem href="/sl-analysis" icon={TrendingDown}>SL Analysis</NavItem>
         </nav>
       </div>
