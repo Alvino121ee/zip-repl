@@ -1,6 +1,32 @@
 {
   "records": [
     {
+      "id": "e7effb63-e58c-415b-8524-dd126b38c952",
+      "timestamp": 1779015689460,
+      "tradeId": "461dcc1e-7c21-4778-a44b-a50e8406c422",
+      "symbol": "VVVUSDT",
+      "side": "long",
+      "entryPrice": 14.418,
+      "slPrice": 14.166214285714286,
+      "exitPrice": 14.1638,
+      "pnlPct": -1.763,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 1486135,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Skor confidence yang tinggi membuat AI meremehkan risiko entry dalam kondisi yang sebenarnya kompleks. (Confidence: 99%, namun trade kena SL dalam 25m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.746,
+      "improvementApplied": false
+    },
+    {
       "id": "16f0dc0f-0c20-427e-90bd-46ed7ba9e3e7",
       "timestamp": 1779014914358,
       "tradeId": "daa42e4f-4065-4677-a9b2-1aaa7db7e182",
@@ -427,30 +453,30 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779014914358
+      "lastSeen": 1779015689460
     },
     {
       "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
       "pattern": "Overconfidence AI",
       "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 5,
+      "occurrences": 6,
       "primaryCause": "overconfidence",
       "associatedStrategies": [
         "auto_institutional"
       ],
       "associatedConditions": [
-        "ranging",
         "trending_up_strong",
+        "ranging",
         "trending_up_normal"
       ],
-      "avgPnlPct": -1.59,
+      "avgPnlPct": -1.62,
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
-      "severity": "medium",
+      "severity": "high",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779014914358
+      "lastSeen": 1779015689460
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 14,
+  "totalAnalyzed": 15,
   "improvementScore": 45
 }

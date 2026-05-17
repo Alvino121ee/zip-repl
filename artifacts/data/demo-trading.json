@@ -1,50 +1,9 @@
 {
-  "balance": 42.97583581292088,
-  "realizedPnl": -7.024164187079115,
+  "balance": 42.411241865041674,
+  "realizedPnl": -7.588758134958319,
   "winCount": 9,
-  "lossCount": 9,
+  "lossCount": 10,
   "positions": [
-    {
-      "id": "461dcc1e-7c21-4778-a44b-a50e8406c422",
-      "symbol": "VVVUSDT",
-      "displayName": "VVV/USDT",
-      "side": "Buy",
-      "size": 1.11053097537216,
-      "entryPrice": 14.418,
-      "markPrice": 14.3544,
-      "leverage": 2,
-      "margin": 8.005817801457901,
-      "stopLoss": 14.166214285714286,
-      "takeProfit": 15.047464285714284,
-      "unrealisedPnl": -0.14125954006733699,
-      "unrealisedPnlPct": -0.8822305451518827,
-      "openedAt": 1779014203324,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0223) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "opportunityScore": 100,
-      "trailPeakPrice": 14.447,
-      "humanInstinct": {
-        "lastEvalAt": 1779015089418,
-        "momentumScore": 63,
-        "continuationProb": 29,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Volume menurun 33% — tanda pelemahan",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (29%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 12,
-        "urgency": 15
-      }
-    },
     {
       "id": "064a20ff-5687-451d-b511-f4b929ead2de",
       "symbol": "NMRUSDT",
@@ -52,13 +11,13 @@
       "side": "Buy",
       "size": 1.5257547637802005,
       "entryPrice": 10.285,
-      "markPrice": 10.234,
+      "markPrice": 10.119,
       "leverage": 2,
       "margin": 7.846193872739681,
       "stopLoss": 10.114428571428572,
       "takeProfit": 10.71142857142857,
-      "unrealisedPnl": -0.15562698590558094,
-      "unrealisedPnlPct": -0.9917355371900857,
+      "unrealisedPnl": -0.5065505815750276,
+      "unrealisedPnlPct": -3.2280019445794914,
       "openedAt": 1779014796831,
       "source": "auto",
       "confidence": 99,
@@ -72,18 +31,17 @@
       "opportunityScore": 100,
       "trailPeakPrice": 10.293,
       "humanInstinct": {
-        "lastEvalAt": 1779015065503,
-        "momentumScore": 20,
-        "continuationProb": 0,
+        "lastEvalAt": 1779015838080,
+        "momentumScore": 45,
+        "continuationProb": 18,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume turun 71% — momentum sangat lemah",
-          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Volume turun 59% — momentum sangat lemah",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 4,
+        "reason": "⚡ Probabilitas kelanjutan rendah (18%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 20,
         "urgency": 15
       }
     },
@@ -94,13 +52,13 @@
       "side": "Buy",
       "size": 245.7424610529857,
       "entryPrice": 0.06181,
-      "markPrice": 0.06144,
+      "markPrice": 0.06141,
       "leverage": 2,
       "margin": 7.594670758842523,
       "stopLoss": 0.060720357142857145,
       "takeProfit": 0.06453410714285714,
-      "unrealisedPnl": -0.18184942117920713,
-      "unrealisedPnlPct": -1.1972172787574675,
+      "unrealisedPnl": -0.19659396884238736,
+      "unrealisedPnlPct": -1.2942889500080816,
       "openedAt": 1779014917126,
       "source": "auto",
       "confidence": 99,
@@ -114,21 +72,118 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.06181,
       "humanInstinct": {
-        "lastEvalAt": 1779015089625,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779015862149,
+        "momentumScore": 75,
+        "continuationProb": 36,
         "greedIndex": 0,
         "decaySignals": [
+          "Volume sedikit turun 17%",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 2,
+        "reason": "⚡ Probabilitas kelanjutan rendah (36%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 18,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "50c575d9-338d-4712-bb32-f97d7986cdb4",
+      "symbol": "VVVUSDT",
+      "displayName": "VVV/USDT",
+      "side": "Buy",
+      "size": 0.317998728005088,
+      "entryPrice": 14.151,
+      "markPrice": 14.2318,
+      "leverage": 1,
+      "margin": 4.5,
+      "stopLoss": 13.912285714285714,
+      "takeProfit": 14.747785714285715,
+      "unrealisedPnl": 0.025694297222811104,
+      "unrealisedPnlPct": 0.5709843827291357,
+      "openedAt": 1779015707747,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0512) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal",
+      "opportunityScore": 100,
+      "trailPeakPrice": 14.2318,
+      "humanInstinct": {
+        "lastEvalAt": 1779015830201,
+        "momentumScore": 14,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 1,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "30f1b840-33f8-49f7-b8e5-185f65133936",
+      "timestamp": 1779015707747,
+      "openedAt": 1779015707747,
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "qty": 0.317998728005088,
+      "entryPrice": 14.151,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 4.5,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $14.1510",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0512) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
+    {
+      "id": "9ff6512c-9f3b-4ef4-a980-fca96130ce34",
+      "timestamp": 1779015689459,
+      "openedAt": 1779014203324,
+      "closedAt": 1779015689459,
+      "duration": 1486135,
+      "symbol": "VVVUSDT",
+      "side": "Sell",
+      "qty": 1.11053097537216,
+      "entryPrice": 14.418,
+      "closePrice": 14.1638,
+      "realizedPnl": -0.5645939478792041,
+      "realizedPnlPct": -3.5261478707171467,
+      "leverage": 2,
+      "margin": 8.005817801457901,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $14.1638",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0223) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
     {
       "id": "288fa0c2-bdc0-4b6b-a27b-bab1d19caf1e",
       "timestamp": 1779014917126,
@@ -1244,6 +1299,10 @@
     {
       "timestamp": 1779014914357,
       "balance": 42.77711938666123
+    },
+    {
+      "timestamp": 1779015689459,
+      "balance": 41.76845233531603
     }
   ]
 }
