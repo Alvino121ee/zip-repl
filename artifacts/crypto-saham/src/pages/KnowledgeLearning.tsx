@@ -101,6 +101,9 @@ interface GeminiStatusData {
   autoEnabled: boolean;
   autoIntervalMinutes: number;
   nextAutoAt: number | null;
+  continuousEnabled: boolean;
+  totalUniqueQuestionsPool: number;
+  usedHashesCount: number;
 }
 
 // ─── Konstanta ────────────────────────────────────────────────────────────────
@@ -320,6 +323,30 @@ export default function KnowledgeLearning() {
       await fetchGeminiStatus();
       toast({ title: isEnabled ? "Mode Otomatis Dinonaktifkan" : "Mode Otomatis Aktif", description: data.message });
     } catch {}
+  };
+
+  const handleContinuousToggle = async () => {
+    const isActive = geminiStatus?.continuousEnabled ?? false;
+    try {
+      const endpoint = isActive
+        ? "/api/gemini-learning/continuous/stop"
+        : "/api/gemini-learning/continuous/start";
+      const body = isActive ? {} : { questionCount: geminiQuestionCount };
+      const res = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      await fetchGeminiStatus();
+      if (isActive) {
+        toast({ title: "⏹ Belajar Dihentikan", description: "Sesi aktif akan diselesaikan terlebih dahulu" });
+      } else {
+        toast({ title: "🟢 Belajar Terus Dimulai!", description: data.message ?? "AI belajar tanpa henti sampai kamu matikan" });
+      }
+    } catch (err) {
+      toast({ title: "Gagal", description: (err as Error).message, variant: "destructive" });
+    }
   };
 
   const handleSubmit = async () => {
@@ -1088,42 +1115,65 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
                       AI menganalisis skill yang paling lemah, membuat pertanyaan sendiri, bertanya ke Groq Cloud (Llama 3.3 70B),
                       lalu jawaban langsung disimpan ke Bank Pengetahuan untuk meningkatkan skill AI secara otomatis.
                     </p>
-                    <div className="flex items-center gap-3 mt-2">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <span className={`text-[11px] px-2 py-0.5 rounded-full border ${geminiStatus?.hasApiKey ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-red-500/15 text-red-400 border-red-500/30"}`}>
                         {geminiStatus?.hasApiKey ? "✓ API Terhubung" : "✗ API Tidak Aktif"}
                       </span>
-                      {geminiStatus?.autoEnabled && (
+                      {geminiStatus?.continuousEnabled && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                          Belajar Terus Aktif
+                        </span>
+                      )}
+                      {geminiStatus?.autoEnabled && !geminiStatus?.continuousEnabled && (
                         <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
                           ⚡ Auto Mode Aktif
                         </span>
                       )}
                       <span className="text-[11px] text-muted-foreground">
-                        {geminiStatus?.totalSessionsRun ?? 0} sesi selesai · +{geminiStatus?.totalXPEarned ?? 0} XP total
+                        {geminiStatus?.totalSessionsRun ?? 0} sesi · +{geminiStatus?.totalXPEarned ?? 0} XP
                       </span>
+                      {(geminiStatus?.totalUniqueQuestionsPool ?? 0) > 0 && (
+                        <span className="text-[11px] text-violet-400/70">
+                          {geminiStatus!.usedHashesCount}/{geminiStatus!.totalUniqueQuestionsPool} soal terpakai
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={handleGeminiSession}
-                    disabled={geminiRunning || !geminiStatus?.hasApiKey || geminiStatus?.currentSession?.status === "running"}
-                    className="bg-violet-600 hover:bg-violet-500 text-white"
-                  >
-                    {geminiRunning || geminiStatus?.currentSession?.status === "running" ? (
-                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Sedang Belajar...</>
-                    ) : (
-                      <><Brain className="w-4 h-4 mr-2" />Mulai Sesi Belajar</>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleGeminiAutoToggle}
-                    variant={geminiStatus?.autoEnabled ? "destructive" : "outline"}
+                <div className="flex flex-col items-end gap-2">
+                  {/* Toggle ON/OFF utama — belajar terus tanpa batas */}
+                  <button
+                    onClick={handleContinuousToggle}
                     disabled={!geminiStatus?.hasApiKey}
-                    size="sm"
+                    className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 font-bold text-sm select-none ${
+                      geminiStatus?.continuousEnabled
+                        ? "bg-emerald-500/20 border-emerald-400/60 text-emerald-300 hover:bg-emerald-500/30"
+                        : "bg-slate-800/60 border-slate-600/50 text-slate-300 hover:bg-slate-700/60"
+                    } disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
-                    {geminiStatus?.autoEnabled ? "Stop Auto" : "Auto Mode"}
-                  </Button>
+                    {/* toggle pill */}
+                    <div className={`w-11 h-6 rounded-full transition-all duration-300 relative flex-shrink-0 ${geminiStatus?.continuousEnabled ? "bg-emerald-500" : "bg-slate-600"}`}>
+                      <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-300 ${geminiStatus?.continuousEnabled ? "left-[22px]" : "left-0.5"}`} />
+                    </div>
+                    {geminiStatus?.continuousEnabled ? (
+                      <span className="flex items-center gap-1.5">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Sedang Belajar Terus...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <Brain className="w-3.5 h-3.5" />
+                        Mulai Belajar
+                      </span>
+                    )}
+                  </button>
+                  <p className="text-[10px] text-muted-foreground text-right max-w-[180px] leading-tight">
+                    {geminiStatus?.continuousEnabled
+                      ? "AI sedang belajar non-stop — matikan kapan saja"
+                      : "ON = belajar terus tanpa batas sesi sampai dimatikan"}
+                  </p>
                 </div>
               </div>
             </CardContent>

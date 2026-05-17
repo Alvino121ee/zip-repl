@@ -1,6 +1,32 @@
 {
   "records": [
     {
+      "id": "d1d2eec8-d772-427d-ba9f-91d52788f601",
+      "timestamp": 1779042745291,
+      "tradeId": "27a124c7-4859-4576-9fb9-030ede531a41",
+      "symbol": "SPACEUSDT",
+      "side": "long",
+      "entryPrice": 0.008566,
+      "slPrice": 0.008197642857142858,
+      "exitPrice": 0.008112,
+      "pnlPct": -5.3,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 1670249,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Setup tampak kuat secara statistik namun faktor-faktor tersembunyi menyebabkan kegagalan. (Confidence: 99%, namun trade kena SL dalam 28m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 4.3,
+      "improvementApplied": false
+    },
+    {
       "id": "c79a1263-1cd5-4aca-a059-3b304f5111b9",
       "timestamp": 1779041731908,
       "tradeId": "97404ed9-29b7-4380-890d-88a08881b013",
@@ -769,7 +795,7 @@
       "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
       "pattern": "Overconfidence AI",
       "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 13,
+      "occurrences": 14,
       "primaryCause": "overconfidence",
       "associatedStrategies": [
         "auto_institutional"
@@ -780,11 +806,11 @@
         "trending_up_normal",
         "ranging"
       ],
-      "avgPnlPct": -2.13,
+      "avgPnlPct": -2.35,
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779041731908
+      "lastSeen": 1779042745292
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -804,7 +830,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779041731908
+      "lastSeen": 1779042745292
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -823,10 +849,10 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "low",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779041731908
+      "lastSeen": 1779042745292
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 27,
+  "totalAnalyzed": 28,
   "improvementScore": 50
 }

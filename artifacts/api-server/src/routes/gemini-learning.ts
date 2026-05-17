@@ -3,6 +3,9 @@ import {
   runGeminiSession,
   startAutoLearning,
   stopAutoLearning,
+  startContinuousMode,
+  stopContinuousMode,
+  isContinuousActive,
   getGeminiStatus,
   getAvailableTopics,
   getTotalQuestions,
@@ -45,6 +48,22 @@ router.post("/gemini-learning/auto/start", (req, res) => {
 router.post("/gemini-learning/auto/stop", (_req, res) => {
   stopAutoLearning();
   res.json({ stopped: true, message: "Mode otomatis dinonaktifkan" });
+});
+
+router.post("/gemini-learning/continuous/start", (req, res) => {
+  const { questionCount } = (req.body ?? {}) as { questionCount?: number };
+  const count = Math.min(Math.max(Number(questionCount) || 5, 1), 15);
+  if (isContinuousActive()) {
+    res.status(409).json({ error: "Mode berkelanjutan sudah aktif" });
+    return;
+  }
+  startContinuousMode(count).catch(() => {});
+  res.json({ started: true, message: `Mode belajar berkelanjutan dimulai — terus jalan sampai dimatikan (${count} pertanyaan/sesi)` });
+});
+
+router.post("/gemini-learning/continuous/stop", (_req, res) => {
+  stopContinuousMode();
+  res.json({ stopped: true, message: "Mode belajar berkelanjutan dihentikan setelah sesi ini selesai" });
 });
 
 export default router;
