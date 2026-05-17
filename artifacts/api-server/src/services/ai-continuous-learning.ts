@@ -174,7 +174,7 @@ const DEFAULT_STATS: AiBrainStats = {
 };
 
 let brainStats: AiBrainStats = { ...DEFAULT_STATS };
-let activityIdCounter = 1;
+let activityIdCounter = Date.now();
 
 // ─── Persistence ───────────────────────────────────────────────────────────────
 

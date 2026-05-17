@@ -1,6 +1,35 @@
 {
   "records": [
     {
+      "id": "1aff2ed9-036b-46ad-9417-17b52c00e3c3",
+      "timestamp": 1779038156840,
+      "tradeId": "bacd5794-5793-4f3c-aa81-5c859ef1f228",
+      "symbol": "VVVUSDT",
+      "side": "long",
+      "entryPrice": 14.403,
+      "slPrice": 14.143607142857144,
+      "exitPrice": 14.14,
+      "pnlPct": -1.826,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 11306276,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Setup valid namun eksekusi terlambat, posisi masuk dekat titik balik.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.801,
+      "improvementApplied": false
+    },
+    {
       "id": "cc052a01-c9c1-4a6a-8623-5a373f453c20",
       "timestamp": 1779037225555,
       "tradeId": "5847dd3e-a6b8-4fea-8e21-2dfd68c0c67f",
@@ -698,7 +727,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779037225555
+      "lastSeen": 1779038156840
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -718,7 +747,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779037225555
+      "lastSeen": 1779038156840
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -737,10 +766,10 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "low",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779037225555
+      "lastSeen": 1779038156840
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 24,
-  "improvementScore": 48
+  "totalAnalyzed": 25,
+  "improvementScore": 49
 }

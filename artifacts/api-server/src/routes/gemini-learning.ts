@@ -6,6 +6,7 @@ import {
   getGeminiStatus,
   getAvailableTopics,
   getTotalQuestions,
+  getSkillNeeds,
 } from "../services/gemini-learning.js";
 
 const router: IRouter = Router();
@@ -16,6 +17,10 @@ router.get("/gemini-learning/status", (_req, res) => {
 
 router.get("/gemini-learning/topics", (_req, res) => {
   res.json({ topics: getAvailableTopics(), totalQuestions: getTotalQuestions() });
+});
+
+router.get("/gemini-learning/skill-needs", (_req, res) => {
+  res.json({ skills: getSkillNeeds() });
 });
 
 router.post("/gemini-learning/session", async (req, res) => {

@@ -1047,6 +1047,238 @@ Contoh: Volume melemah di dekat resistance sering menghasilkan fake breakout. Sa
       )}
 
       {/* ══════════════════════════════════════════════
+          TAB: GEMINI AI
+      ══════════════════════════════════════════════ */}
+      {activeTab === "gemini" && (
+        <div className="space-y-4">
+
+          {/* Status API Key */}
+          {!geminiStatus?.hasApiKey && (
+            <Card className="border-red-500/40 bg-red-500/5">
+              <CardContent className="p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-red-300">GEMINI_API_KEY belum dikonfigurasi</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Tambahkan GEMINI_API_KEY ke Secrets (Environment Variables) agar fitur ini aktif.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Hero Card */}
+          <Card className="border-violet-500/30 bg-gradient-to-br from-violet-900/20 via-slate-900 to-slate-900 overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center shrink-0">
+                    <BrainCircuit className="w-7 h-7 text-violet-400" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-black text-white mb-0.5">Belajar Otomatis dengan Gemini AI</div>
+                    <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
+                      AI menganalisis skill yang paling lemah, membuat pertanyaan sendiri, bertanya ke Google Gemini,
+                      lalu jawaban langsung disimpan ke Bank Pengetahuan untuk meningkatkan skill AI secara otomatis.
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full border ${geminiStatus?.hasApiKey ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-red-500/15 text-red-400 border-red-500/30"}`}>
+                        {geminiStatus?.hasApiKey ? "✓ API Terhubung" : "✗ API Tidak Aktif"}
+                      </span>
+                      {geminiStatus?.autoEnabled && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                          ⚡ Auto Mode Aktif
+                        </span>
+                      )}
+                      <span className="text-[11px] text-muted-foreground">
+                        {geminiStatus?.totalSessionsRun ?? 0} sesi selesai · +{geminiStatus?.totalXPEarned ?? 0} XP total
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleGeminiSession}
+                    disabled={geminiRunning || !geminiStatus?.hasApiKey || geminiStatus?.currentSession?.status === "running"}
+                    className="bg-violet-600 hover:bg-violet-500 text-white"
+                  >
+                    {geminiRunning || geminiStatus?.currentSession?.status === "running" ? (
+                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Sedang Belajar...</>
+                    ) : (
+                      <><Brain className="w-4 h-4 mr-2" />Mulai Sesi Belajar</>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleGeminiAutoToggle}
+                    variant={geminiStatus?.autoEnabled ? "destructive" : "outline"}
+                    disabled={!geminiStatus?.hasApiKey}
+                    size="sm"
+                  >
+                    {geminiStatus?.autoEnabled ? "Stop Auto" : "Auto Mode"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Konfigurasi Sesi */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Target className="w-4 h-4 text-orange-400" />
+                  Konfigurasi Sesi
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-2 block">
+                    Jumlah Pertanyaan per Sesi: <span className="text-orange-400 font-bold">{geminiQuestionCount}</span>
+                  </label>
+                  <input
+                    type="range" min={1} max={15} value={geminiQuestionCount}
+                    onChange={e => setGeminiQuestionCount(Number(e.target.value))}
+                    className="w-full accent-violet-500"
+                  />
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                    <span>1 (cepat)</span><span>15 (menyeluruh)</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-2 block">
+                    Interval Auto Mode: <span className="text-blue-400 font-bold">{geminiAutoInterval} menit</span>
+                  </label>
+                  <input
+                    type="range" min={10} max={480} step={10} value={geminiAutoInterval}
+                    onChange={e => setGeminiAutoInterval(Number(e.target.value))}
+                    className="w-full accent-blue-500"
+                  />
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                    <span>10 menit</span><span>8 jam</span>
+                  </div>
+                </div>
+                {geminiStatus?.nextAutoAt && (
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Clock className="w-3 h-3 text-blue-400" />
+                    Sesi auto berikutnya: {new Date(geminiStatus.nextAutoAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                )}
+                <div className="pt-1 border-t border-border">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    🧠 AI akan otomatis menganalisis skill yang paling lemah dan membuat pertanyaan yang tepat sasaran. Tidak perlu memilih topik — sistem cerdas memilihkan yang terbaik.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Skill Needs Preview */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-red-400" />
+                  Prioritas Belajar AI (Skill Terlemah)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {[
+                  { label: "Smart Money", key: "smartMoneyConceptSkill",  value: brain?.smartMoneyConceptSkill ?? 22,  color: "text-yellow-400" },
+                  { label: "Orderflow",   key: "orderflowReading",        value: brain?.orderflowReading ?? 28,        color: "text-red-400" },
+                  { label: "Replay Skor", key: "candlePsychology",        value: brain?.candlePsychology ?? 32,        color: "text-pink-400" },
+                  { label: "Kenali Pola", key: "patternRecognition",      value: brain?.patternRecognition ?? 38,      color: "text-violet-400" },
+                  { label: "Analisis Vol",key: "volumeAnalysis",          value: brain?.volumeAnalysis ?? 35,          color: "text-blue-400" },
+                ].sort((a, b) => a.value - b.value).map(s => (
+                  <div key={s.key} className="space-y-1">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-muted-foreground">{s.label}</span>
+                      <span className={`font-bold font-mono ${skillColor(s.value)}`}>{s.value.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${s.value < 35 ? "bg-red-500" : s.value < 50 ? "bg-orange-400" : "bg-yellow-400"}`}
+                        style={{ width: `${s.value}%` }} />
+                    </div>
+                  </div>
+                ))}
+                <p className="text-[10px] text-muted-foreground pt-1">
+                  Gemini akan difokuskan ke skill dengan nilai terendah terlebih dahulu.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Live Session Log */}
+          {(geminiStatus?.currentSession || geminiStatus?.lastSession) && (() => {
+            const session = geminiStatus.currentSession ?? geminiStatus.lastSession!;
+            const isRunning = session.status === "running";
+            return (
+              <Card className={`border ${isRunning ? "border-violet-500/40" : "border-slate-700/50"}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-violet-400" />
+                    {isRunning ? "Sesi Sedang Berjalan..." : "Sesi Terakhir"}
+                    {isRunning && <RefreshCw className="w-3 h-3 text-violet-400 animate-spin ml-1" />}
+                    <span className="ml-auto text-xs text-muted-foreground font-normal">
+                      {session.completedQuestions}/{session.totalQuestions} pertanyaan · +{session.totalXP} XP
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div ref={geminiLogRef} className="h-56 overflow-y-auto space-y-1.5 font-mono text-[11px] bg-slate-950/50 rounded-lg p-3">
+                    {session.log.map((entry, i) => (
+                      <div key={i} className={`flex gap-2 leading-relaxed ${
+                        entry.type === "error"    ? "text-red-400"     :
+                        entry.type === "save"     ? "text-emerald-400" :
+                        entry.type === "answer"   ? "text-blue-400"    :
+                        entry.type === "question" ? "text-yellow-300"  :
+                        "text-slate-400"
+                      }`}>
+                        <span className="text-slate-600 shrink-0">
+                          {new Date(entry.timestamp).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                        </span>
+                        <span className="break-all">{entry.message}</span>
+                      </div>
+                    ))}
+                    {session.log.length === 0 && (
+                      <div className="text-slate-600 italic">Log kosong — mulai sesi untuk melihat aktivitas...</div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
+          {/* Cara Kerja */}
+          <Card className="bg-muted/10 border-slate-700/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-yellow-400" />
+                Bagaimana Sistem Bekerja
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-4 gap-3">
+                {[
+                  { step: "1", title: "AI Analisis Diri", desc: "AI melihat semua skill dan menemukan yang paling lemah", icon: BrainCircuit, color: "text-violet-400 bg-violet-500/15" },
+                  { step: "2", title: "Buat Pertanyaan", desc: "Pertanyaan mendalam dibuat spesifik per skill yang dibutuhkan", icon: MessageSquare, color: "text-yellow-400 bg-yellow-500/15" },
+                  { step: "3", title: "Tanya Gemini", desc: "Google Gemini menjawab sebagai expert trader profesional", icon: Sparkles, color: "text-blue-400 bg-blue-500/15" },
+                  { step: "4", title: "Simpan & Berkembang", desc: "Jawaban masuk ke bank pengetahuan, skill AI meningkat", icon: Database, color: "text-emerald-400 bg-emerald-500/15" },
+                ].map(item => {
+                  const Icon2 = item.icon;
+                  return (
+                    <div key={item.step} className="text-center space-y-2">
+                      <div className={`w-10 h-10 rounded-xl mx-auto flex items-center justify-center ${item.color.split(" ")[1]}`}>
+                        <Icon2 className={`w-5 h-5 ${item.color.split(" ")[0]}`} />
+                      </div>
+                      <div className="text-xs font-semibold">{item.step}. {item.title}</div>
+                      <div className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════
           TAB: PANDUAN
       ══════════════════════════════════════════════ */}
       {activeTab === "panduan" && (

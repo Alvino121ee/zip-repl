@@ -1,53 +1,10 @@
 {
-  "balance": 41.91426233318913,
-  "realizedPnl": -8.016437666810873,
-  "totalFees": 0.13889133947765173,
+  "balance": 41.81267461448469,
+  "realizedPnl": -8.11513788551531,
+  "totalFees": 0.14461361348306725,
   "winCount": 43,
-  "lossCount": 20,
+  "lossCount": 21,
   "positions": [
-    {
-      "id": "bacd5794-5793-4f3c-aa81-5c859ef1f228",
-      "symbol": "VVVUSDT",
-      "displayName": "VVV/USDT",
-      "side": "Buy",
-      "size": 0.36450739429285567,
-      "entryPrice": 14.403,
-      "markPrice": 14.2275,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 14.143607142857144,
-      "takeProfit": 15.051482142857141,
-      "unrealisedPnl": -0.06397104769839665,
-      "unrealisedPnlPct": -1.2184961466361266,
-      "openedAt": 1779026850561,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.2895) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 14.4352,
-      "humanInstinct": {
-        "lastEvalAt": 1779038009945,
-        "momentumScore": 39,
-        "continuationProb": 0,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Candle rejection atas — tekanan jual kuat",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 102,
-        "urgency": 15
-      }
-    },
     {
       "id": "332e0243-0e0f-4beb-b883-2224f5720bc5",
       "symbol": "ARCUSDT",
@@ -55,13 +12,13 @@
       "side": "Buy",
       "size": 76.86676427525622,
       "entryPrice": 0.0683,
-      "markPrice": 0.06772,
+      "markPrice": 0.06794,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.066785,
       "takeProfit": 0.0720875,
-      "unrealisedPnl": -0.044582723279648385,
-      "unrealisedPnlPct": -0.8491947291361599,
+      "unrealisedPnl": -0.027672035139092176,
+      "unrealisedPnlPct": -0.5270863836017557,
       "openedAt": 1779037231615,
       "source": "auto",
       "confidence": 91,
@@ -76,17 +33,16 @@
       "opportunityScore": 96,
       "trailPeakPrice": 0.06855,
       "humanInstinct": {
-        "lastEvalAt": 1779038010082,
-        "momentumScore": 60,
-        "continuationProb": 27,
+        "lastEvalAt": 1779038546948,
+        "momentumScore": 85,
+        "continuationProb": 54,
         "greedIndex": 0,
         "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 11,
+        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
+        "evalCount": 22,
         "urgency": 15
       }
     },
@@ -97,13 +53,13 @@
       "side": "Buy",
       "size": 615.9080244016893,
       "entryPrice": 0.008524,
-      "markPrice": 0.008393,
+      "markPrice": 0.00839,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.008147821428571428,
       "takeProfit": 0.00946444642857143,
-      "unrealisedPnl": -0.08068395119662186,
-      "unrealisedPnlPct": -1.5368371656499402,
+      "unrealisedPnl": -0.08253167526982663,
+      "unrealisedPnlPct": -1.57203190990146,
       "openedAt": 1779037470335,
       "source": "auto",
       "confidence": 99,
@@ -118,9 +74,50 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.008487,
       "humanInstinct": {
-        "lastEvalAt": 1779038010223,
-        "momentumScore": 39,
-        "continuationProb": 2,
+        "lastEvalAt": 1779038547082,
+        "momentumScore": 85,
+        "continuationProb": 54,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
+        "evalCount": 17,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "97404ed9-29b7-4380-890d-88a08881b013",
+      "symbol": "KAIAUSDT",
+      "displayName": "KAIA/USDT",
+      "side": "Buy",
+      "size": 92.49471458773785,
+      "entryPrice": 0.05676,
+      "markPrice": 0.0554,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.0544125,
+      "takeProfit": 0.06262875,
+      "unrealisedPnl": -0.12579281183932348,
+      "unrealisedPnlPct": -2.396053558844257,
+      "openedAt": 1779038174619,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0550) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.05686,
+      "humanInstinct": {
+        "lastEvalAt": 1779038547219,
+        "momentumScore": 0,
+        "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
           "Candle doji terdeteksi — ragu-ragu pasar",
@@ -128,13 +125,72 @@
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
         "evalCount": 6,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "8f491be2-32ca-4805-a058-4c6769978a7c",
+      "timestamp": 1779038174619,
+      "openedAt": 1779038174619,
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "qty": 92.49471458773785,
+      "entryPrice": 0.05676,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0568 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0550) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "e603f1d9-0381-4a89-b8d7-9e2477510ef5",
+      "timestamp": 1779038156837,
+      "openedAt": 1779026850561,
+      "closedAt": 1779038156837,
+      "duration": 11306276,
+      "symbol": "VVVUSDT",
+      "side": "Sell",
+      "qty": 0.36450739429285567,
+      "entryPrice": 14.403,
+      "closePrice": 14.14,
+      "realizedPnl": -0.09870021870443654,
+      "realizedPnlPct": -1.8260084704575428,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $14.1400",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.2895) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Intraday",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.005722274005415539,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.0028347740054155387
+    },
     {
       "id": "c466be30-951a-4ec5-84fc-0271d58e204a",
       "timestamp": 1779037470335,
@@ -3980,6 +4036,10 @@
     {
       "timestamp": 1779037465219,
       "balance": 41.877811853638136
+    },
+    {
+      "timestamp": 1779038156837,
+      "balance": 41.6683144671563
     }
   ]
 }

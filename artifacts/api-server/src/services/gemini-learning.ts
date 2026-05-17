@@ -1,11 +1,12 @@
 /**
  * Gemini Learning Service
- * AI auto-generates trading questions, sends them to Google Gemini,
- * then saves answers into the knowledge bank via manualTrain().
+ * AI menganalisis skill sendiri, membuat pertanyaan dari kebutuhan,
+ * mengirim ke Google Gemini, lalu menyimpan jawaban ke bank pengetahuan.
  */
 
 import { logger } from "../lib/logger.js";
 import { manualTrain } from "./ai-continuous-learning.js";
+import { getBrainStats } from "./ai-continuous-learning.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? "";
 const GEMINI_URL =
@@ -44,158 +45,223 @@ export interface GeminiStatus {
   nextAutoAt: number | null;
 }
 
-// ─── Pertanyaan Trading per Kategori ─────────────────────────────────────────
+// ─── Peta Skill ke Kategori & Topik ─────────────────────────────────────────
 
-const QUESTION_BANK: Array<{ category: string; question: string }> = [
-  // Indikator Teknikal
-  {
-    category: "Indikator Teknikal",
-    question:
-      "Jelaskan secara mendalam bagaimana cara membaca divergensi RSI dalam konteks trading crypto. Berikan contoh konkret setup bullish divergence dan bearish divergence beserta cara eksekusinya.",
-  },
-  {
-    category: "Indikator Teknikal",
-    question:
-      "Bagaimana cara menggunakan MACD secara optimal untuk scalping di timeframe 5 menit? Jelaskan kapan sinyal MACD valid dan kapan harus diabaikan berdasarkan kondisi pasar.",
-  },
-  {
-    category: "Indikator Teknikal",
-    question:
-      "Jelaskan strategi trading menggunakan kombinasi EMA 9, 21, dan 50 untuk menentukan tren dan entry point. Bagaimana mengkonfirmasi sinyal crossover EMA agar tidak terjebak false signal?",
-  },
-  {
-    category: "Indikator Teknikal",
-    question:
-      "Bagaimana cara menggunakan Bollinger Bands untuk mengidentifikasi volatilitas dan peluang entry? Jelaskan konsep Bollinger Band squeeze dan expansion dalam trading crypto.",
-  },
-  {
-    category: "Indikator Teknikal",
-    question:
-      "Jelaskan cara membaca Volume Profile dan bagaimana Point of Control (POC) dan Value Area digunakan untuk menentukan level support/resistance yang kuat dalam trading.",
-  },
-
-  // Smart Money Concept
-  {
-    category: "Smart Money Concept",
-    question:
-      "Jelaskan secara detail konsep Order Block dalam Smart Money Concept (SMC). Bagaimana cara mengidentifikasi order block yang valid, membedakan bullish order block dari bearish order block, dan cara trading di sekitar level tersebut?",
-  },
-  {
-    category: "Smart Money Concept",
-    question:
-      "Apa itu Liquidity Sweep dalam konteks Smart Money? Jelaskan bagaimana institusi mengambil likuiditas retail di bawah swing low dan di atas swing high sebelum membalikkan arah pasar. Berikan contoh konkret.",
-  },
-  {
-    category: "Smart Money Concept",
-    question:
-      "Jelaskan perbedaan antara Break of Structure (BOS) dan Change of Character (CHOCH) dalam analisis Smart Money. Bagaimana cara menggunakannya untuk mengidentifikasi perubahan tren?",
-  },
-  {
-    category: "Smart Money Concept",
-    question:
-      "Apa itu Fair Value Gap (FVG) atau imbalance dalam trading? Bagaimana cara mengidentifikasi FVG di chart, dan mengapa harga sering kembali mengisi gap tersebut? Jelaskan cara trading berdasarkan FVG.",
-  },
-  {
-    category: "Smart Money Concept",
-    question:
-      "Jelaskan konsep Premium dan Discount Zone dalam Smart Money Concept. Bagaimana cara menggunakan Fibonacci retracement untuk menentukan area premium dan discount, serta mengapa smart money selalu buy di discount dan sell di premium?",
-  },
-
-  // Manajemen Risiko
-  {
-    category: "Manajemen Risiko",
-    question:
-      "Jelaskan framework manajemen risiko lengkap untuk trader crypto profesional. Meliputi: perhitungan position sizing, penempatan stop loss yang optimal, risk per trade ideal, dan cara melindungi modal saat drawdown.",
-  },
-  {
-    category: "Manajemen Risiko",
-    question:
-      "Bagaimana cara menghitung Risk/Reward Ratio yang optimal untuk berbagai jenis setup trading? Kapan sebaiknya mengambil trade dengan RR 1:2 vs 1:3 vs 1:5? Jelaskan hubungan RR dengan win rate minimum yang dibutuhkan.",
-  },
-  {
-    category: "Manajemen Risiko",
-    question:
-      "Jelaskan konsep Partial Take Profit (TP parsial) dan bagaimana strategi ini membantu memaksimalkan profit sekaligus melindungi posisi. Kapan sebaiknya mengambil 50% profit di TP1 dan sisanya di TP2?",
-  },
-  {
-    category: "Manajemen Risiko",
-    question:
-      "Bagaimana cara mengatur trailing stop loss secara efektif agar tidak tercut prematur tapi tetap melindungi profit? Jelaskan berbagai teknik trailing SL: ATR-based, structure-based, dan percentage-based.",
-  },
-
-  // Psikologi Trading
-  {
-    category: "Psikologi Trading",
-    question:
-      "Jelaskan secara mendalam fenomena FOMO (Fear of Missing Out) dalam trading. Mengapa FOMO menjadi musuh utama trader, dan apa strategi konkret untuk mengatasi FOMO serta tetap trading dengan disiplin?",
-  },
-  {
-    category: "Psikologi Trading",
-    question:
-      "Apa itu revenge trading dan mengapa sangat berbahaya? Bagaimana cara mendeteksi diri sendiri sedang revenge trading, dan langkah-langkah konkret yang harus diambil setelah mengalami loss besar untuk menghindari siklus kerugian?",
-  },
-  {
-    category: "Psikologi Trading",
-    question:
-      "Jelaskan bagaimana mindset seorang trader profesional berbeda dari trader retail. Apa perbedaan dalam cara melihat loss, mengelola ekspektasi, dan membangun konsistensi jangka panjang?",
-  },
-  {
-    category: "Psikologi Trading",
-    question:
-      "Bagaimana cara membangun trading journal yang efektif? Apa saja yang perlu dicatat, bagaimana menganalisis pola kesalahan berulang, dan bagaimana menggunakan journal untuk terus meningkatkan performa trading?",
-  },
-
-  // Pola Chart
-  {
+const SKILL_TO_TOPICS: Record<string, { category: string; topics: string[] }> = {
+  patternRecognition: {
     category: "Pola Chart",
-    question:
-      "Jelaskan pola candlestick reversal yang paling reliable: Hammer, Shooting Star, Engulfing, Doji, dan Pin Bar. Bagaimana cara mengkonfirmasi setiap pola ini dengan volume dan konteks pasar sebelum entry?",
+    topics: [
+      "pola candlestick reversal (Hammer, Doji, Engulfing, Pin Bar) beserta cara konfirmasinya",
+      "pola chart continuation (Bull Flag, Pennant, Ascending Triangle) dan cara entry yang tepat",
+      "cara mengenali fake breakout vs breakout asli menggunakan volume dan struktur harga",
+      "pola Double Top, Double Bottom, Head and Shoulders dan cara mengukur target harganya",
+      "cara membaca Inside Bar dan Outside Bar sebagai sinyal kelanjutan atau pembalikan tren",
+    ],
   },
-  {
+  marketReading: {
+    category: "Konsep Pasar",
+    topics: [
+      "cara membaca market structure: Higher High, Higher Low, Lower High, Lower Low dengan benar",
+      "pengaruh Bitcoin dominance terhadap altcoin dan cara memanfaatkan fase altcoin season",
+      "cara membaca Fear & Greed Index untuk timing entry dan exit yang optimal",
+      "konsep support dan resistance dinamis vs statis dan mana yang lebih reliable",
+      "cara mengidentifikasi fase akumulasi, markup, distribusi, dan markdown di pasar crypto",
+    ],
+  },
+  trendAnalysis: {
+    category: "Indikator Teknikal",
+    topics: [
+      "strategi trading menggunakan EMA 9, 21, 50 untuk konfirmasi tren dan sinyal entry",
+      "cara menggunakan MACD untuk mengidentifikasi momentum dan divergensi di crypto",
+      "cara membaca Ichimoku Cloud sebagai sistem analisis tren lengkap",
+      "penggunaan ADX (Average Directional Index) untuk mengukur kekuatan tren",
+      "strategi crossover EMA dan cara menghindari false signal di pasar sideways",
+    ],
+  },
+  volumeAnalysis: {
+    category: "Indikator Teknikal",
+    topics: [
+      "cara membaca Volume Profile dan Point of Control (POC) untuk support/resistance kuat",
+      "analisis On-Balance Volume (OBV) untuk konfirmasi tren dan divergensi",
+      "cara menggunakan volume spike untuk mengkonfirmasi breakout yang valid",
+      "konsep Volume Weighted Average Price (VWAP) dan cara tradingnya",
+      "cara membaca Chaikin Money Flow (CMF) untuk mendeteksi tekanan beli/jual institusional",
+    ],
+  },
+  momentumReading: {
+    category: "Indikator Teknikal",
+    topics: [
+      "cara membaca divergensi RSI bullish dan bearish dengan contoh setup konkret",
+      "strategi scalping menggunakan RSI di timeframe 5 menit dengan filter yang tepat",
+      "penggunaan Stochastic Oscillator untuk entry di area oversold dan overbought",
+      "cara menggunakan Momentum Indicator dan Rate of Change (ROC) dalam trading",
+      "kombinasi RSI dan MACD untuk konfirmasi sinyal yang lebih akurat",
+    ],
+  },
+  candlePsychology: {
     category: "Pola Chart",
-    question:
-      "Apa itu Head and Shoulders pattern dan Inverse Head and Shoulders? Bagaimana cara mengukur target harga setelah breakout neckline, dan apa saja faktor yang membuat pola ini lebih valid?",
+    topics: [
+      "psikologi di balik setiap jenis candlestick: apa yang terjadi antara buyer dan seller",
+      "cara membaca Marubozu, Spinning Top, dan Long Shadow dalam konteks market sentiment",
+      "pola Three White Soldiers dan Three Black Crows: cara identifikasi dan trading",
+      "cara membaca candlestick di dekat level kunci untuk sinyal reversal yang kuat",
+      "kombinasi pola candlestick dengan volume untuk meningkatkan akurasi sinyal",
+    ],
   },
-  {
-    category: "Pola Chart",
-    question:
-      "Jelaskan pola chart continuation seperti Bull Flag, Bear Flag, Ascending Triangle, dan Pennant. Bagaimana mengidentifikasi pola yang sedang forming dan kapan waktu terbaik untuk entry?",
+  smartMoneyConceptSkill: {
+    category: "Smart Money",
+    topics: [
+      "cara mengidentifikasi Order Block institusional yang valid dan cara trading di sekitarnya",
+      "konsep Liquidity Sweep: cara smart money mengambil likuiditas retail sebelum membalik",
+      "perbedaan Break of Structure (BOS) dan Change of Character (CHOCH) dan cara tradingnya",
+      "Fair Value Gap (FVG) dan imbalance: cara identifikasi dan memanfaatkan untuk entry",
+      "Premium dan Discount Zone menggunakan Fibonacci: cara smart money selalu buy di discount",
+    ],
   },
+  orderflowReading: {
+    category: "Smart Money",
+    topics: [
+      "cara membaca orderflow dan bid-ask imbalance untuk mendeteksi tekanan institusional",
+      "konsep Breaker Block dan cara membedakannya dari Order Block biasa",
+      "cara menggunakan Footprint Chart dan Delta untuk menganalisis orderflow real-time",
+      "konsep Mitigation Block dan cara memanfaatkannya untuk entry presisi tinggi",
+      "cara membaca tape reading dan Level 2 quotes untuk intraday crypto trading",
+    ],
+  },
+  riskManagement: {
+    category: "Manajemen Risiko",
+    topics: [
+      "framework manajemen risiko lengkap: position sizing, stop loss, risk per trade, dan drawdown",
+      "cara menghitung Risk/Reward Ratio optimal dan hubungannya dengan win rate minimum",
+      "strategi Partial Take Profit: kapan ambil 50% di TP1 dan sisanya di TP2",
+      "cara mengatur trailing stop loss berbasis ATR, struktur, atau persentase",
+      "konsep Kelly Criterion dan cara menerapkannya untuk sizing posisi yang optimal",
+    ],
+  },
+  emotionalDiscipline: {
+    category: "Psikologi Trading",
+    topics: [
+      "cara mengatasi FOMO (Fear of Missing Out) dengan sistem aturan trading yang ketat",
+      "bahaya revenge trading dan langkah konkret menghentikan siklus kerugian setelah loss besar",
+      "cara membangun mindset trader profesional: cara melihat loss, ekspektasi, dan konsistensi",
+      "teknik journaling trading yang efektif untuk mengidentifikasi pola kesalahan berulang",
+      "cara mengelola emosi saat profit besar: menghindari overconfidence dan greedy",
+    ],
+  },
+  patience: {
+    category: "Psikologi Trading",
+    topics: [
+      "teknik menunggu setup yang sempurna dan menghindari overtrading",
+      "cara membangun rutinitas trading harian yang disiplin dan konsisten",
+      "strategi selective trading: cara memilih hanya setup dengan probabilitas tertinggi",
+      "cara mengatur waktu trading yang efektif dan menghindari screen time berlebihan",
+      "teknik mindfulness dan meditasi untuk meningkatkan fokus dan kesabaran dalam trading",
+    ],
+  },
+  selectivity: {
+    category: "Strategi",
+    topics: [
+      "cara membangun checklist entry yang ketat untuk meningkatkan kualitas setiap trade",
+      "strategi multi-timeframe analysis: gunakan timeframe tinggi untuk bias, rendah untuk entry",
+      "cara memilih pair crypto yang paling berpotensi di setiap kondisi pasar",
+      "teknik confluence trading: menggabungkan 3-4 faktor konfirmasi sebelum entry",
+      "cara mengevaluasi dan meningkatkan sistem trading berdasarkan data historis",
+    ],
+  },
+  adaptiveIntelligence: {
+    category: "Strategi",
+    topics: [
+      "cara beradaptasi strategi trading saat kondisi pasar berubah dari trending ke sideways",
+      "perbedaan strategi trading saat market bullish, bearish, dan sideways",
+      "cara membangun sistem trading yang adaptif berdasarkan volatilitas pasar (ATR)",
+      "teknik backtesting manual dan otomatis untuk memvalidasi strategi trading",
+      "cara mengoptimalkan parameter strategi tanpa overfitting ke data historis",
+    ],
+  },
+  predictionAccuracy: {
+    category: "Strategi",
+    topics: [
+      "cara meningkatkan akurasi prediksi dengan menggunakan confluens multiple timeframe",
+      "teknik probability assessment: cara menghitung probabilitas setup sebelum entry",
+      "cara menggunakan statistik win rate dan expectancy untuk evaluasi sistem trading",
+      "metode Bayesian thinking dalam trading: cara update bias berdasarkan informasi baru",
+      "cara membuat sistem scoring setup trading untuk memprioritaskan trade terbaik",
+    ],
+  },
+};
 
-  // Strategi Scalping & Swing
-  {
-    category: "Strategi",
-    question:
-      "Jelaskan strategi scalping yang efektif untuk trading crypto di timeframe 1-5 menit. Meliputi: jam trading terbaik, indikator yang digunakan, cara entry dan exit, dan bagaimana menghindari overtrading saat scalping.",
-  },
-  {
-    category: "Strategi",
-    question:
-      "Bagaimana membangun sistem swing trading crypto yang konsisten? Jelaskan cara memilih setup, menentukan entry di retracement, menempatkan SL di struktur pasar, dan mengelola trade selama beberapa hari.",
-  },
-  {
-    category: "Strategi",
-    question:
-      "Jelaskan strategi multi-timeframe analysis (MTF) untuk trading. Bagaimana menggunakan timeframe tinggi (daily/4H) untuk menentukan bias, dan timeframe rendah (1H/15M) untuk entry yang presisi?",
-  },
-
-  // Analisis Pasar
-  {
-    category: "Konsep Pasar",
-    question:
-      "Bagaimana cara membaca market structure secara benar? Jelaskan konsep Higher High (HH), Higher Low (HL), Lower High (LH), Lower Low (LL) dan bagaimana perubahan market structure memberi sinyal perubahan tren.",
-  },
-  {
-    category: "Konsep Pasar",
-    question:
-      "Jelaskan pengaruh Bitcoin dominance terhadap altcoin market. Kapan sebaiknya trading Bitcoin vs altcoin berdasarkan fase siklus pasar crypto (Bitcoin season vs Altcoin season)?",
-  },
-  {
-    category: "Konsep Pasar",
-    question:
-      "Bagaimana cara membaca fear and greed index untuk membantu timing entry dan exit? Jelaskan kapan extreme fear menjadi peluang beli dan extreme greed menjadi sinyal kehati-hatian.",
-  },
+// Pertanyaan fallback jika semua skill sudah cukup baik
+const FALLBACK_TOPICS = [
+  { category: "Strategi", topic: "strategi scalping crypto di timeframe 1-5 menit: jam terbaik, indikator, entry, exit, dan menghindari overtrading" },
+  { category: "Manajemen Risiko", topic: "cara membangun sistem manajemen modal yang kokoh untuk trader full-time crypto" },
+  { category: "Psikologi Trading", topic: "cara membangun mentalitas trader profesional yang konsisten dalam jangka panjang" },
+  { category: "Smart Money", topic: "cara membaca institutional order flow dan memanfaatkan pergerakan smart money" },
+  { category: "Konsep Pasar", topic: "analisis makro crypto: cara membaca siklus bull-bear dan rotasi sektor" },
 ];
+
+// ─── Generate Pertanyaan dari Kebutuhan AI ───────────────────────────────────
+
+function generateQuestionsFromNeeds(count: number): Array<{ category: string; question: string; skill: string }> {
+  const brain = getBrainStats();
+
+  // Ambil semua skill dan nilainya
+  const skillScores: Array<{ skill: string; score: number }> = [
+    { skill: "patternRecognition",     score: brain.patternRecognition },
+    { skill: "marketReading",          score: brain.marketReading },
+    { skill: "trendAnalysis",          score: brain.trendAnalysis },
+    { skill: "volumeAnalysis",         score: brain.volumeAnalysis },
+    { skill: "momentumReading",        score: brain.momentumReading },
+    { skill: "candlePsychology",       score: brain.candlePsychology },
+    { skill: "smartMoneyConceptSkill", score: brain.smartMoneyConceptSkill },
+    { skill: "orderflowReading",       score: brain.orderflowReading },
+    { skill: "riskManagement",         score: brain.riskManagement },
+    { skill: "emotionalDiscipline",    score: brain.emotionalDiscipline },
+    { skill: "patience",               score: brain.patience },
+    { skill: "selectivity",            score: brain.selectivity },
+    { skill: "adaptiveIntelligence",   score: brain.adaptiveIntelligence },
+    { skill: "predictionAccuracy",     score: brain.predictionAccuracy },
+  ];
+
+  // Urutkan dari skill yang paling lemah
+  skillScores.sort((a, b) => a.score - b.score);
+
+  const questions: Array<{ category: string; question: string; skill: string }> = [];
+  const usedTopics = new Set<string>();
+
+  // Isi pertanyaan berdasarkan skill paling lemah
+  for (let i = 0; i < skillScores.length && questions.length < count; i++) {
+    const { skill, score } = skillScores[i];
+    const mapping = SKILL_TO_TOPICS[skill];
+    if (!mapping) continue;
+
+    // Pilih topik acak yang belum dipakai
+    const availableTopics = mapping.topics.filter(t => !usedTopics.has(t));
+    if (availableTopics.length === 0) continue;
+
+    const topicIndex = Math.floor(Math.random() * availableTopics.length);
+    const topic = availableTopics[topicIndex];
+    usedTopics.add(topic);
+
+    questions.push({
+      category: mapping.category,
+      skill,
+      question: `Jelaskan secara mendalam dan praktis tentang ${topic}. Berikan contoh konkret, kapan menerapkannya, dan kesalahan umum yang harus dihindari. Skor skill saat ini: ${score.toFixed(1)}%`,
+    });
+  }
+
+  // Isi sisa dengan fallback jika kurang
+  const fallbackIdx = Math.floor(Math.random() * FALLBACK_TOPICS.length);
+  for (let fi = 0; questions.length < count; fi++) {
+    const fb = FALLBACK_TOPICS[(fallbackIdx + fi) % FALLBACK_TOPICS.length];
+    questions.push({
+      category: fb.category,
+      skill: "general",
+      question: `Jelaskan secara mendalam dan praktis tentang ${fb.topic}. Sertakan contoh konkret, langkah-langkah eksekusi, dan hal-hal penting yang sering diabaikan trader pemula.`,
+    });
+  }
+
+  return questions.slice(0, count);
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -207,7 +273,6 @@ let autoEnabled = false;
 let autoIntervalMinutes = 60;
 let nextAutoAt: number | null = null;
 let autoTimer: ReturnType<typeof setTimeout> | null = null;
-let questionIndex = 0;
 
 // ─── Gemini API Call ──────────────────────────────────────────────────────────
 
@@ -219,22 +284,22 @@ async function callGemini(prompt: string): Promise<string> {
       {
         parts: [
           {
-            text: `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham. 
+            text: `Kamu adalah expert trader profesional dengan pengalaman lebih dari 10 tahun di pasar crypto dan saham Indonesia (IDX).
 Berikan jawaban yang mendalam, praktis, dan actionable dalam Bahasa Indonesia.
-Fokus pada pengetahuan trading yang bisa langsung diterapkan.
-Jawaban harus mencakup: penjelasan konsep, kapan/bagaimana menerapkannya, contoh konkret, dan hal-hal yang harus dihindari.
-Panjang jawaban: 3-5 paragraf yang padat dan informatif.
+Fokus pada pengetahuan trading yang bisa langsung diterapkan oleh trader Indonesia.
+Jawaban harus mencakup: penjelasan konsep, kapan/bagaimana menerapkannya, contoh konkret dengan angka spesifik, dan hal-hal yang harus dihindari.
+Panjang jawaban: 4-6 paragraf yang padat, informatif, dan kaya detail teknikal.
 
-PERTANYAAN: ${prompt}`,
+${prompt}`,
           },
         ],
       },
     ],
     generationConfig: {
-      temperature: 0.7,
+      temperature: 0.75,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 1200,
     },
   };
 
@@ -263,16 +328,6 @@ PERTANYAAN: ${prompt}`,
 
 // ─── Session Runner ───────────────────────────────────────────────────────────
 
-function pickQuestions(count: number): Array<{ category: string; question: string }> {
-  const selected: Array<{ category: string; question: string }> = [];
-  const total = QUESTION_BANK.length;
-  for (let i = 0; i < count; i++) {
-    selected.push(QUESTION_BANK[questionIndex % total]);
-    questionIndex = (questionIndex + 1) % total;
-  }
-  return selected;
-}
-
 export async function runGeminiSession(questionCount = 5): Promise<GeminiSession> {
   if (currentSession?.status === "running") {
     throw new Error("Sesi Gemini sedang berjalan");
@@ -280,6 +335,9 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY belum dikonfigurasi");
   }
+
+  // Generate pertanyaan dari kebutuhan AI berdasarkan skill yang lemah
+  const questions = generateQuestionsFromNeeds(questionCount);
 
   const sessionId = `gemini-${Date.now()}`;
   const session: GeminiSession = {
@@ -294,23 +352,23 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   };
   currentSession = session;
 
-  const questions = pickQuestions(questionCount);
-
+  // Log info skill yang akan dipelajari
+  const skillNames = questions.map(q => q.category).join(", ");
   session.log.push({
     timestamp: Date.now(),
     type: "info",
     category: "Sistem",
-    message: `🚀 Sesi Gemini dimulai — ${questionCount} pertanyaan akan diproses`,
+    message: `🧠 AI menganalisis skill & membuat ${questionCount} pertanyaan — Fokus: ${skillNames}`,
   });
 
   for (let i = 0; i < questions.length; i++) {
-    const { category, question } = questions[i];
+    const { category, question, skill } = questions[i];
 
     session.log.push({
       timestamp: Date.now(),
       type: "question",
       category,
-      message: `❓ [${i + 1}/${questionCount}] ${question.slice(0, 120)}...`,
+      message: `❓ [${i + 1}/${questionCount}] [Skill: ${skill}] ${question.slice(0, 130)}...`,
     });
 
     try {
@@ -320,7 +378,7 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         timestamp: Date.now(),
         type: "answer",
         category,
-        message: `✅ Jawaban diterima (${answer.length} karakter)`,
+        message: `✅ Gemini menjawab (${answer.length} karakter) — disimpan ke bank pengetahuan`,
       });
 
       const trainResult = manualTrain(answer);
@@ -332,13 +390,14 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         timestamp: Date.now(),
         type: "save",
         category,
-        message: `💾 Disimpan ke bank pengetahuan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP`,
+        message: `💾 Tersimpan — Grade ${trainResult.grade}, +${trainResult.xpGained} XP, Skill meningkat: ${trainResult.skillsImproved.map(s => s.label).join(", ") || "-"}`,
         xpGained: trainResult.xpGained,
         grade: trainResult.grade,
       });
 
       logger.info("Gemini answer saved to knowledge bank", {
         category,
+        skill,
         grade: trainResult.grade,
         xp: trainResult.xpGained,
       });
@@ -352,7 +411,7 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
         category,
         message: `❌ Error: ${msg}`,
       });
-      logger.warn("Gemini session error on question", { category, error: msg });
+      logger.warn("Gemini session error on question", { category, skill, error: msg });
       await new Promise(r => setTimeout(r, 2000));
     }
   }
@@ -368,7 +427,7 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
     timestamp: Date.now(),
     type: "info",
     category: "Sistem",
-    message: `🎓 Sesi selesai — ${session.completedQuestions}/${session.totalQuestions} pertanyaan, total +${session.totalXP} XP`,
+    message: `🎓 Sesi selesai — ${session.completedQuestions}/${session.totalQuestions} pertanyaan dijawab, total +${session.totalXP} XP disimpan ke bank pengetahuan`,
   });
 
   logger.info("Gemini learning session completed", {
@@ -427,15 +486,30 @@ export function getGeminiStatus(): GeminiStatus {
   };
 }
 
+export function getSkillNeeds(): Array<{ skill: string; category: string; score: number }> {
+  const brain = getBrainStats();
+  return [
+    { skill: "patternRecognition",     category: "Pola Chart",         score: brain.patternRecognition },
+    { skill: "marketReading",          category: "Konsep Pasar",       score: brain.marketReading },
+    { skill: "trendAnalysis",          category: "Indikator Teknikal", score: brain.trendAnalysis },
+    { skill: "volumeAnalysis",         category: "Indikator Teknikal", score: brain.volumeAnalysis },
+    { skill: "momentumReading",        category: "Indikator Teknikal", score: brain.momentumReading },
+    { skill: "candlePsychology",       category: "Pola Chart",         score: brain.candlePsychology },
+    { skill: "smartMoneyConceptSkill", category: "Smart Money",        score: brain.smartMoneyConceptSkill },
+    { skill: "orderflowReading",       category: "Smart Money",        score: brain.orderflowReading },
+    { skill: "riskManagement",         category: "Manajemen Risiko",   score: brain.riskManagement },
+    { skill: "emotionalDiscipline",    category: "Psikologi Trading",  score: brain.emotionalDiscipline },
+    { skill: "patience",               category: "Psikologi Trading",  score: brain.patience },
+    { skill: "selectivity",            category: "Strategi",           score: brain.selectivity },
+    { skill: "adaptiveIntelligence",   category: "Strategi",           score: brain.adaptiveIntelligence },
+    { skill: "predictionAccuracy",     category: "Strategi",           score: brain.predictionAccuracy },
+  ].sort((a, b) => a.score - b.score);
+}
+
 export function getAvailableTopics(): string[] {
-  const seen = new Set<string>();
-  const topics: string[] = [];
-  for (const q of QUESTION_BANK) {
-    if (!seen.has(q.category)) { seen.add(q.category); topics.push(q.category); }
-  }
-  return topics;
+  return Object.values(SKILL_TO_TOPICS).map(m => m.category).filter((v, i, a) => a.indexOf(v) === i);
 }
 
 export function getTotalQuestions(): number {
-  return QUESTION_BANK.length;
+  return Object.values(SKILL_TO_TOPICS).reduce((sum, m) => sum + m.topics.length, 0);
 }
