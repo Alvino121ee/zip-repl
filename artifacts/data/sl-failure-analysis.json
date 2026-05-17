@@ -1,6 +1,58 @@
 {
   "records": [
     {
+      "id": "16f0dc0f-0c20-427e-90bd-46ed7ba9e3e7",
+      "timestamp": 1779014914358,
+      "tradeId": "daa42e4f-4065-4677-a9b2-1aaa7db7e182",
+      "symbol": "CGPTUSDT",
+      "side": "long",
+      "entryPrice": 0.039637,
+      "slPrice": 0.03823278571428571,
+      "exitPrice": 0.038149,
+      "pnlPct": -3.754,
+      "confidence": 94,
+      "strategy": "auto_institutional",
+      "marketCondition": "ranging",
+      "holdTimeMs": 2212278,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "AI overconfident — confidence tinggi tidak mencerminkan kompleksitas kondisi pasar saat itu. (Confidence: 94%, namun trade kena SL dalam 37m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 3.543,
+      "improvementApplied": false
+    },
+    {
+      "id": "29c43441-15b5-4980-8683-d1f60dba6f2d",
+      "timestamp": 1779014778405,
+      "tradeId": "b10ed4a2-5d87-4bd3-b046-604642d4e57b",
+      "symbol": "TAUSDT",
+      "side": "long",
+      "entryPrice": 0.06295,
+      "slPrice": 0.06187428571428572,
+      "exitPrice": 0.06178,
+      "pnlPct": -1.859,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 1175587,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Skor confidence yang tinggi membuat AI meremehkan risiko entry dalam kondisi yang sebenarnya kompleks. (Confidence: 99%, namun trade kena SL dalam 20m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.709,
+      "improvementApplied": false
+    },
+    {
       "id": "fa20de5c-27e6-4816-a95c-417d5c409e65",
       "timestamp": 1779013353791,
       "tradeId": "f38ccd2a-6496-4ed6-9431-983e36fb76c7",
@@ -375,29 +427,30 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779013353791
+      "lastSeen": 1779014914358
     },
     {
       "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
       "pattern": "Overconfidence AI",
       "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 3,
+      "occurrences": 5,
       "primaryCause": "overconfidence",
       "associatedStrategies": [
         "auto_institutional"
       ],
       "associatedConditions": [
+        "ranging",
         "trending_up_strong",
         "trending_up_normal"
       ],
-      "avgPnlPct": -0.78,
+      "avgPnlPct": -1.59,
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
-      "severity": "low",
+      "severity": "medium",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779013353791
+      "lastSeen": 1779014914358
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 12,
+  "totalAnalyzed": 14,
   "improvementScore": 45
 }

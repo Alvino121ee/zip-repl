@@ -9,6 +9,13 @@ import {
   TRAINING_STRATEGIES,
   type StrategyName,
 } from "../services/ai-training-lab.js";
+import {
+  getBrainStats,
+  startContinuousLearning,
+  stopContinuousLearning,
+  isLearningActive,
+  resetBrainStats,
+} from "../services/ai-continuous-learning.js";
 
 const STRATEGY_LABELS: Record<StrategyName, string> = {
   scalp_5m: "Scalping 5M (EMA Cross)",
@@ -21,6 +28,8 @@ const STRATEGY_LABELS: Record<StrategyName, string> = {
 };
 
 const router: IRouter = Router();
+
+// ─── Backtest Routes ───────────────────────────────────────────────────────────
 
 router.get("/training-lab/state", (_req, res) => {
   res.json(getTrainingLabState());
@@ -64,6 +73,45 @@ router.post("/training-lab/start", async (req, res) => {
 router.post("/training-lab/stop", (_req, res) => {
   stopTrainingLab();
   res.json({ stopped: true, message: "Training dihentikan" });
+});
+
+// ─── AI Brain / Continuous Learning Routes ────────────────────────────────────
+
+router.get("/training-lab/ai-brain", (_req, res) => {
+  res.json(getBrainStats());
+});
+
+router.get("/training-lab/evolution", (_req, res) => {
+  const stats = getBrainStats();
+  res.json({
+    history: stats.evolutionHistory,
+    current: {
+      iq: stats.iq,
+      level: stats.level,
+      chartsAnalyzed: stats.chartsAnalyzed,
+      predictionAccuracy: stats.predictionAccuracy,
+      marketReading: stats.marketReading,
+    },
+  });
+});
+
+router.post("/training-lab/continuous/start", (_req, res) => {
+  if (isLearningActive()) {
+    res.status(409).json({ error: "Pembelajaran sudah berjalan" });
+    return;
+  }
+  const started = startContinuousLearning();
+  res.json({ started, message: started ? "Pembelajaran berkelanjutan dimulai" : "Sudah berjalan" });
+});
+
+router.post("/training-lab/continuous/stop", (_req, res) => {
+  stopContinuousLearning();
+  res.json({ stopped: true, message: "Pembelajaran dihentikan" });
+});
+
+router.post("/training-lab/ai-brain/reset", (_req, res) => {
+  resetBrainStats();
+  res.json({ reset: true, message: "AI Brain direset ke kondisi awal" });
 });
 
 export default router;
