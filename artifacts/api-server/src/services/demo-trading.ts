@@ -203,6 +203,14 @@ function saveState() {
 
 loadState();
 
+// Auto-start engine if it was enabled before restart
+setImmediate(() => {
+  if (demoConfig.autoEnabled) {
+    startDemoAutoEngine();
+    logger.info("Demo auto engine resumed (autoEnabled=true from saved config)");
+  }
+});
+
 // ─── Market price fetching ────────────────────────────────────────────────────
 
 async function getMarkPrice(symbol: string): Promise<number | null> {
@@ -439,50 +447,45 @@ async function runAutoEngineCycle() {
   demoEngineStatus.lastCycleAt = Date.now();
   demoEngineStatus.cycleCount++;
 
-  logActivity({ source: "demo", level: "scan", message: "Memulai siklus analisis pasar demo..." });
-
   try {
-    logActivity({ source: "demo", level: "scan", message: "Memindai pasar Bybit untuk peluang trading..." });
     const candidates = await scanBybitUniverse();
     demoEngineStatus.totalScanned = candidates.length;
-    demoEngineStatus.lastSignalsFound = candidates.filter(c => c.confidence >= demoConfig.minConfidence).length;
 
     const qualified = candidates.filter(c => c.confidence >= demoConfig.minConfidence);
-    logActivity({
-      source: "demo", level: "info",
-      message: `Ditemukan ${qualified.length} kandidat dari ${candidates.length} pasang yang dipindai (min. confidence: ${demoConfig.minConfidence}%)`,
-    });
+    demoEngineStatus.lastSignalsFound = qualified.length;
 
     const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
     const available = state.balance - usedMargin;
     const maxPerTrade = Math.min(demoConfig.maxPositionUSDT, available * 0.25);
 
     if (state.positions.length >= demoConfig.maxPositions) {
-      logActivity({ source: "demo", level: "warning", message: `Batas maksimum ${demoConfig.maxPositions} posisi tercapai — tidak membuka posisi baru` });
+      logActivity({ source: "demo", level: "warning", message: `Slot penuh (${state.positions.length}/${demoConfig.maxPositions}) — tidak membuka posisi baru` });
     }
+
+    let skipped = 0;
+    let opened = 0;
+    let signaled = 0;
+    const skipReasons: string[] = [];
 
     for (const cand of candidates) {
       if (state.positions.length >= demoConfig.maxPositions) break;
       if (cand.confidence < demoConfig.minConfidence) continue;
       if (state.positions.find((p) => p.symbol === cand.symbol)) continue;
 
-      logActivity({ source: "demo", level: "scan", message: `Menganalisis ${cand.symbol} (confidence: ${cand.confidence}%)...`, symbol: cand.symbol, confidence: cand.confidence });
-
       let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
-      try { analysis = await analyzeSymbol(cand.symbol); } catch { continue; }
+      try { analysis = await analyzeSymbol(cand.symbol); } catch { skipped++; continue; }
       if (!analysis || !analysis.shouldEnter || !analysis.side) {
-        logActivity({ source: "demo", level: "info", message: `Skip ${cand.symbol}: tidak ada setup entry yang valid`, symbol: cand.symbol });
+        skipped++;
+        if (analysis?.waitReason) skipReasons.push(analysis.waitReason);
         continue;
       }
-      if (analysis.overallConfidence < demoConfig.minConfidence) {
-        logActivity({ source: "demo", level: "info", message: `Skip ${cand.symbol}: confidence ${analysis.overallConfidence}% di bawah minimum ${demoConfig.minConfidence}%`, symbol: cand.symbol });
-        continue;
-      }
+      if (analysis.overallConfidence < demoConfig.minConfidence) { skipped++; continue; }
 
       const direction = analysis.side === "Buy" ? "LONG" : "SHORT";
 
       if (demoConfig.autoMode === "semi") {
-        logActivity({ source: "demo", level: "signal", message: `[Semi] Sinyal ${direction} ${cand.symbol} terdeteksi — tidak dibuka otomatis (mode semi)`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+        signaled++;
+        logActivity({ source: "demo", level: "signal", message: `[Semi] Sinyal ${direction} ${cand.symbol} ${analysis.overallConfidence}% — ${analysis.reasons[0] ?? "entry valid"}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
         state.log.unshift({
           id: crypto.randomUUID(),
           timestamp: Date.now(),
@@ -507,8 +510,6 @@ async function runAutoEngineCycle() {
       }
 
       // Auto mode — open position
-      logActivity({ source: "demo", level: "signal", message: `⚡ Membuka posisi demo ${direction} ${cand.symbol} @ $${analysis.entryPrice.toFixed(4)} (confidence: ${analysis.overallConfidence}%)`, symbol: cand.symbol, confidence: analysis.overallConfidence });
-
       const sl = analysis.side === "Buy"
         ? analysis.entryPrice * (1 - demoConfig.stopLossPct / 100)
         : analysis.entryPrice * (1 + demoConfig.stopLossPct / 100);
@@ -530,14 +531,30 @@ async function runAutoEngineCycle() {
         source: "auto",
       });
 
-      logActivity({ source: "demo", level: "success", message: `✓ Posisi demo ${direction} ${cand.symbol} berhasil dibuka @ $${analysis.entryPrice.toFixed(4)} | TP: $${tp.toFixed(4)} | SL: $${sl.toFixed(4)}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+      opened++;
+      logActivity({ source: "demo", level: "success", message: `✓ BUKA ${direction} ${cand.symbol} @ $${analysis.entryPrice.toFixed(4)} | conf: ${analysis.overallConfidence}% | TP: $${tp.toFixed(4)} | SL: $${sl.toFixed(4)}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
       logger.info({ symbol: cand.symbol, side: analysis.side, confidence: analysis.overallConfidence }, "Demo auto position opened");
     }
 
-    if (qualified.length === 0) {
-      logActivity({ source: "demo", level: "info", message: "Tidak ada peluang trading valid saat ini — menunggu siklus berikutnya" });
-    } else {
-      logActivity({ source: "demo", level: "info", message: `Siklus ke-${demoEngineStatus.cycleCount} selesai — ${state.positions.length} posisi aktif` });
+    // ── Ringkasan siklus (1 baris, bukan spam per-koin) ─────────────────────
+    const parts: string[] = [];
+    parts.push(`Siklus #${demoEngineStatus.cycleCount}`);
+    parts.push(`pindai: ${candidates.length} · kandidat: ${qualified.length}`);
+    if (skipped > 0) parts.push(`skip: ${skipped}`);
+    if (opened > 0) parts.push(`BUKA: ${opened}`);
+    if (signaled > 0) parts.push(`sinyal: ${signaled}`);
+    parts.push(`posisi: ${state.positions.length}/${demoConfig.maxPositions}`);
+
+    const summaryLevel = opened > 0 ? "success" : signaled > 0 ? "signal" : qualified.length === 0 ? "scan" : "info";
+    logActivity({ source: "demo", level: summaryLevel, message: parts.join(" · ") });
+
+    // Log top skip reason once if nothing opened
+    if (opened === 0 && signaled === 0 && skipReasons.length > 0) {
+      // Count most common reason
+      const freq = new Map<string, number>();
+      for (const r of skipReasons) freq.set(r, (freq.get(r) ?? 0) + 1);
+      const topReason = [...freq.entries()].sort((a, b) => b[1] - a[1])[0];
+      logActivity({ source: "demo", level: "info", message: `Alasan skip terbanyak (${topReason[1]}x): ${topReason[0]}` });
     }
   } catch (err) {
     demoEngineStatus.lastError = String(err);

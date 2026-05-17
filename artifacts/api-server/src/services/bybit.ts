@@ -639,16 +639,12 @@ async function runAutoTradeCycle() {
   engineStatus.orderType = autoConfig.orderType;
   logger.info({ scanSource: autoConfig.scanSource, orderType: autoConfig.orderType }, "Auto-trade cycle started");
 
-  logActivity({ source: "auto", level: "scan", message: "Memulai siklus analisis pasar..." });
-
   try {
     // ── 1. Scan for candidates ───────────────────────────────────────────────
     let candidates: Array<{
       symbol: string; price: number; confidence: number;
       signal: string; side: "Buy" | "Sell"; limitPrice: number;
     }>;
-
-    logActivity({ source: "auto", level: "scan", message: `Memindai pasar via ${autoConfig.scanSource === "universe" ? "Bybit Universe" : "AI Predictions"}...` });
 
     if (autoConfig.scanSource === "universe") {
       const raw = await scanBybitUniverse();
@@ -682,7 +678,6 @@ async function runAutoTradeCycle() {
     }
 
     engineStatus.lastSignalsFound = candidates.length;
-    logActivity({ source: "auto", level: "info", message: `Ditemukan ${candidates.length} kandidat dari ${engineStatus.totalScanned} pasang yang dipindai (min. confidence: ${autoConfig.minConfidence}%)` });
 
     // ── 2. Get current state ─────────────────────────────────────────────────
     const posResult = await getPositions() as {
@@ -768,8 +763,11 @@ async function runAutoTradeCycle() {
     if (candidates.length === 0) {
       logger.info("No new candidates this cycle");
       engineStatus.lastOrdersPlaced = ordersPlaced;
+      logActivity({ source: "auto", level: "scan", message: `Siklus #${engineStatus.cycleCount + 1} · dipindai: ${engineStatus.totalScanned} · tidak ada kandidat ≥${autoConfig.minConfidence}%` });
       return;
     }
+
+    let skippedAuto = 0;
 
     for (const cand of candidates) {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
@@ -788,18 +786,16 @@ async function runAutoTradeCycle() {
           status: "rejected", reason: `Analysis failed: ${String(err)}`,
         });
         if (tradeLog.length > 200) tradeLog.splice(200);
+        skippedAuto++;
         continue;
       }
-
-      logActivity({ source: "auto", level: "scan", message: `Menganalisis ${cand.symbol} (confidence: ${cand.confidence}%)...`, symbol: cand.symbol, confidence: cand.confidence });
 
       // Analysis must agree with the candidate's direction
       if (!analysis.shouldEnter || analysis.side !== cand.side) {
         const reason = !analysis.shouldEnter
           ? (analysis.waitReason ?? "Kondisi belum optimal")
-          : `Analysis arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
+          : `Arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
         logger.info({ symbol: cand.symbol, reason }, "Entry skipped by analysis");
-        logActivity({ source: "auto", level: "info", message: `Skip ${cand.symbol}: ${reason}`, symbol: cand.symbol });
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
           symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
@@ -807,6 +803,7 @@ async function runAutoTradeCycle() {
           status: "rejected", reason,
         });
         if (tradeLog.length > 200) tradeLog.splice(200);
+        skippedAuto++;
         continue;
       }
 
@@ -870,13 +867,16 @@ async function runAutoTradeCycle() {
       saveTradeLog();
     }
 
-    if (ordersPlaced === 0 && candidates.length > 0) {
-      logActivity({ source: "auto", level: "info", message: "Tidak ada order valid — semua kandidat difilter oleh analisis AI" });
-    } else if (candidates.length === 0) {
-      logActivity({ source: "auto", level: "info", message: "Tidak ada kandidat memenuhi syarat saat ini — menunggu siklus berikutnya" });
-    } else {
-      logActivity({ source: "auto", level: "success", message: `Siklus ke-${engineStatus.cycleCount + 1} selesai — ${ordersPlaced} order berhasil dieksekusi` });
-    }
+    const summaryParts: string[] = [];
+    summaryParts.push(`Siklus #${engineStatus.cycleCount + 1}`);
+    summaryParts.push(`dipindai: ${engineStatus.totalScanned}`);
+    summaryParts.push(`kandidat ≥${autoConfig.minConfidence}%: ${candidates.length}`);
+    if (skippedAuto > 0) summaryParts.push(`dianalisis/skip: ${skippedAuto}`);
+    if (ordersPlaced > 0) summaryParts.push(`order: ${ordersPlaced}`);
+    summaryParts.push(`posisi: ${activeSymbols.size}`);
+
+    const summaryLvl = ordersPlaced > 0 ? "success" : candidates.length > 0 ? "info" : "scan";
+    logActivity({ source: "auto", level: summaryLvl, message: summaryParts.join(" · ") });
 
     engineStatus.lastOrdersPlaced = ordersPlaced;
   } catch (err) {

@@ -441,7 +441,7 @@ function analyzeTimeframe(klines: Kline[], interval: string): TimeframeSignal {
   const e50 = ema50s[ema50s.length - 1];
   const rsiVal = rsi(closes);
   const avgVol = avgVolume(klines);
-  const currVol = klines[klines.length - 1].volume;
+  const currVol = klines[klines.length - 2]?.volume ?? klines[klines.length - 1].volume;
   const volRatio = avgVol > 0 ? currVol / avgVol : 1;
   const pattern = detectCandlePattern(klines);
 
@@ -514,7 +514,7 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   const atrVal = atr(primary);
   const vwapVal = vwap(primary);
   const avgVol = avgVolume(primary);
-  const currVol = primary[primary.length - 1].volume;
+  const currVol = primary[primary.length - 2]?.volume ?? primary[primary.length - 1].volume;
   const volRatio = avgVol > 0 ? currVol / avgVol : 1;
   const priceVsVwap: "above" | "below" = price > vwapVal ? "above" : "below";
   const emaAlignment: "bullish" | "bearish" | "mixed" =
@@ -726,9 +726,9 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
 
   const recommendedLeverage = recommendLeverage(overallConfidence, atrPct);
 
-  // ── Entry decision — strict 80%+ rule ───────────────────────────────────
+  // ── Entry decision ──────────────────────────────────────────────────────
   const SCALP_MIN_CONFIDENCE = 80;
-  const SCALP_MIN_AGREEMENT = 75; // at least 75% indicators must agree
+  const SCALP_MIN_AGREEMENT = 55; // sufficient agreement — confirmations is the stronger gate
   const SCALP_MIN_CONFIRMATIONS = 4;
 
   let shouldEnter = false;
@@ -737,9 +737,9 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
   if (side === null) {
     waitReason = "Market sideways — tidak ada setup jelas, tunggu breakout";
   } else if (overallConfidence < SCALP_MIN_CONFIDENCE) {
-    waitReason = `Confidence ${overallConfidence}% di bawah standar scalping (≥${SCALP_MIN_CONFIDENCE}%) — tunggu konfirmasi lebih banyak`;
+    waitReason = `Confidence ${overallConfidence}% di bawah minimum (≥${SCALP_MIN_CONFIDENCE}%) — tunggu konfirmasi lebih banyak`;
   } else if (indicatorAgreementPct < SCALP_MIN_AGREEMENT) {
-    waitReason = `Hanya ${indicatorAgreementPct}% indikator setuju (butuh ≥${SCALP_MIN_AGREEMENT}%) — entry terlalu berisiko`;
+    waitReason = `Hanya ${indicatorAgreementPct}% indikator setuju (butuh ≥${SCALP_MIN_AGREEMENT}%) — sinyal terlalu bertentangan`;
   } else if (confirmations < SCALP_MIN_CONFIRMATIONS) {
     waitReason = `Hanya ${confirmations} konfirmasi (butuh ≥${SCALP_MIN_CONFIRMATIONS}) — setup belum cukup kuat`;
   } else if (riskRewardRatio < 1.5) {
@@ -748,12 +748,12 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
     shouldEnter = true;
   }
 
-  // Hard stops
-  if (side === "Buy" && rsiVal >= 78) {
+  // Hard stops — hanya kondisi benar-benar ekstrem
+  if (side === "Buy" && rsiVal >= 80) {
     shouldEnter = false;
     waitReason = `RSI ${rsiVal.toFixed(0)} overbought ekstrem — tunggu pullback`;
   }
-  if (side === "Sell" && rsiVal <= 22) {
+  if (side === "Sell" && rsiVal <= 20) {
     shouldEnter = false;
     waitReason = `RSI ${rsiVal.toFixed(0)} oversold ekstrem — tunggu rebound`;
   }
@@ -774,32 +774,20 @@ export async function analyzeSymbol(symbol: string): Promise<FullAnalysis> {
     shouldEnter = false;
     waitReason = `Funding rate ${fundingRate.rate.toFixed(4)}% — pasar terlalu crowded short, risiko short squeeze tinggi`;
   }
-  // Risk: chasing price — too far from EMA20
+  // Risk: chasing price — too far from EMA20 (raised to 4% — crypto moves fast)
   const distEma20Pct = ((price - e20) / e20) * 100;
-  if (side === "Buy" && distEma20Pct > 2.5) {
+  if (side === "Buy" && distEma20Pct > 4) {
     shouldEnter = false;
-    waitReason = `Harga ${distEma20Pct.toFixed(1)}% di atas EMA20 — chasing, tunggu pullback ke $${e20.toFixed(4)}`;
+    waitReason = `Harga ${distEma20Pct.toFixed(1)}% di atas EMA20 — chasing, tunggu pullback ke sekitar $${e20.toFixed(4)}`;
   }
-  if (side === "Sell" && distEma20Pct < -2.5) {
+  if (side === "Sell" && distEma20Pct < -4) {
     shouldEnter = false;
-    waitReason = `Harga ${Math.abs(distEma20Pct).toFixed(1)}% di bawah EMA20 — chasing, tunggu rebound ke $${e20.toFixed(4)}`;
-  }
-  // Risk: resistance too close for LONG (bad RR)
-  const distResistancePct = nearestResistance > 0 ? ((nearestResistance - price) / price) * 100 : 99;
-  if (side === "Buy" && distResistancePct < 0.8) {
-    shouldEnter = false;
-    waitReason = `Resistance $${nearestResistance.toFixed(4)} hanya ${distResistancePct.toFixed(1)}% dari harga — RR terlalu buruk untuk LONG`;
-  }
-  // Risk: support too close for SHORT (bad RR)
-  const distSupportPct = nearestSupport > 0 ? ((price - nearestSupport) / price) * 100 : 99;
-  if (side === "Sell" && distSupportPct < 0.8) {
-    shouldEnter = false;
-    waitReason = `Support $${nearestSupport.toFixed(4)} hanya ${distSupportPct.toFixed(1)}% dari harga — RR terlalu buruk untuk SHORT`;
+    waitReason = `Harga ${Math.abs(distEma20Pct).toFixed(1)}% di bawah EMA20 — chasing, tunggu rebound ke sekitar $${e20.toFixed(4)}`;
   }
   // Risk: volume too low — low conviction
-  if (shouldEnter && volRatio < 0.7) {
+  if (shouldEnter && volRatio < 0.5) {
     shouldEnter = false;
-    waitReason = `Volume hanya ${(volRatio * 100).toFixed(0)}% rata-rata — konfirmasi lemah, skip entry`;
+    waitReason = `Volume hanya ${(volRatio * 100).toFixed(0)}% rata-rata — konfirmasi sangat lemah, skip entry`;
   }
 
   // ── Exit signals for existing positions ──────────────────────────────────
