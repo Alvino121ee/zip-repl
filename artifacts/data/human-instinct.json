@@ -1,15 +1,76 @@
 {
-  "totalDecisions": 12,
-  "correctEarlyExits": 12,
+  "totalDecisions": 15,
+  "correctEarlyExits": 15,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.25,
-  "avgContinuationProbAtExit": 16,
+  "avgMomentumAtEarlyExit": 46.333333333333336,
+  "avgContinuationProbAtExit": 15.4,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "9b492ac5-26e8-466f-9038-cd53c9f958f3",
+      "tradeId": "d7fb4857-e9ae-4d10-b960-63ea687ebf46",
+      "symbol": "PHAROSUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 45% — tanda pelemahan",
+      "profitPctAtDecision": 0.506155950752399,
+      "momentumScore": 32,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 45% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779022272815,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.506155950752399,
+      "profitDelta": 0
+    },
+    {
+      "id": "d2897619-0244-414d-a4ad-477a78be3972",
+      "tradeId": "c9e6c8f2-1dbf-48c0-8a93-d674af876c18",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (16%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5227823024433229,
+      "momentumScore": 54,
+      "continuationProb": 16,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779022129004,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5227823024433229,
+      "profitDelta": 0
+    },
+    {
+      "id": "e1f7c36a-92ed-499b-aec1-30dc0f6740de",
+      "tradeId": "626ef1bf-99c0-49d7-a66c-d7b11adfaa71",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5356748398497894,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779021904906,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5356748398497894,
+      "profitDelta": 0
+    },
     {
       "id": "99cf9534-eef0-4de5-bf8c-e3fd907d5a96",
       "tradeId": "66daeb2c-fdb0-4b10-ac27-f6737746f070",
@@ -252,5 +313,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779021344688
+  "lastUpdated": 1779022272816
 }
