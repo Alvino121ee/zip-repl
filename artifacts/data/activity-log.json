@@ -1,5 +1,26 @@
 [
   {
+    "id": "801c103e-1139-40a0-8c76-5501354d2fff",
+    "timestamp": 1779039132102,
+    "source": "demo",
+    "level": "info",
+    "message": "C33 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "f61bfd51-d6ed-41f0-8619-3dc5a9831b75",
+    "timestamp": 1779039132102,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "bd3c93fa-ce3f-428b-82a5-c8dd89721e7e",
+    "timestamp": 1779039130868,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
     "id": "e3a0278a-f234-4797-994f-431f93547759",
     "timestamp": 1779039111230,
     "source": "demo",
@@ -4208,29 +4229,5 @@
     "message": "✅ BUKA LONG KAITOUSDT @ $0.4941 | 99% | Tren Naik ↑ | TP:$0.5311 SL:$0.4793 | RR:2.5x",
     "symbol": "KAITOUSDT",
     "confidence": 99
-  },
-  {
-    "id": "c7577b37-c50b-4f02-9167-d78c5d90b6f8",
-    "timestamp": 1779034763350,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG SPACEUSDT @ $0.0084 | 99% | Tren Naik ↑ | TP:$0.0093 SL:$0.0080 | RR:2.5x",
-    "symbol": "SPACEUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "afa1166b-e3c8-4f43-80f8-bc981cddc410",
-    "timestamp": 1779034761903,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "406412ec-5ef7-4807-a985-047dad1562d3",
-    "timestamp": 1779034750275,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG DUSKUSDT @ $0.1631 | PnL: $+0.07 (+1.30%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "DUSKUSDT"
   }
 ]
