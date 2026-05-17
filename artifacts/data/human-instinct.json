@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 34,
-  "correctEarlyExits": 34,
+  "totalDecisions": 35,
+  "correctEarlyExits": 35,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.411764705882355,
-  "avgContinuationProbAtExit": 13.911764705882353,
+  "avgMomentumAtEarlyExit": 45.114285714285714,
+  "avgContinuationProbAtExit": 13.857142857142858,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "fc272936-50b8-4d1c-9b80-7ad758060934",
+      "tradeId": "4a9743b4-f39a-4d5d-8539-fcc9d22cd540",
+      "symbol": "KAITOUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6410256410256372,
+      "momentumScore": 35,
+      "continuationProb": 12,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 50% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779035305228,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6410256410256372,
+      "profitDelta": 0
+    },
     {
       "id": "0f678e3a-c156-4222-a409-563644d001c5",
       "tradeId": "dddd628b-b3bc-4458-9eb9-7af2c17e4c67",
@@ -694,5 +714,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779035169266
+  "lastUpdated": 1779035305231
 }
