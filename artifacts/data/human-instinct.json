@@ -1,15 +1,74 @@
 {
-  "totalDecisions": 29,
-  "correctEarlyExits": 29,
+  "totalDecisions": 32,
+  "correctEarlyExits": 32,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.172413793103445,
-  "avgContinuationProbAtExit": 13.793103448275861,
+  "avgMomentumAtEarlyExit": 46.0625,
+  "avgContinuationProbAtExit": 14.25,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "b12a7175-5ecb-42f5-8334-c7fad71f0103",
+      "tradeId": "7f437b4f-c5a6-46a8-b5f8-5e5b87f0ed8d",
+      "symbol": "DUSKUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.304590917562273,
+      "momentumScore": 75,
+      "continuationProb": 28,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779034750254,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.304590917562273,
+      "profitDelta": 0
+    },
+    {
+      "id": "c755ad99-fe2a-4764-82b5-eb4065817c7f",
+      "tradeId": "a7a751cd-1876-4346-a92d-2bb7a19916ca",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 3.039736312030767,
+      "momentumScore": 75,
+      "continuationProb": 28,
+      "greedIndex": 55,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779034750111,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 3.039736312030767,
+      "profitDelta": 0
+    },
+    {
+      "id": "b67339d7-df3d-49ea-b19b-1a64db686943",
+      "tradeId": "5bfbef1b-14ea-42f6-a1f7-fae17e81f593",
+      "symbol": "DUSKUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.57% diamankan.",
+      "profitPctAtDecision": 0.5682172962847467,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (75) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779028588099,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5682172962847467,
+      "profitDelta": 0
+    },
     {
       "id": "3d60ef53-55e4-457e-a9ec-6f573bf2184e",
       "tradeId": "1053852b-1a28-49d0-8555-df2804d0cd99",
@@ -595,5 +654,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779028211982
+  "lastUpdated": 1779034750256
 }

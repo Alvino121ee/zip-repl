@@ -1,8 +1,8 @@
 {
-  "balance": 41.70085793395297,
-  "realizedPnl": -8.25582956604704,
-  "totalFees": 0.08677030048662679,
-  "winCount": 35,
+  "balance": 41.947074671838365,
+  "realizedPnl": -8.00672532816164,
+  "totalFees": 0.09846215020981151,
+  "winCount": 38,
   "lossCount": 19,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 0.36450739429285567,
       "entryPrice": 14.403,
-      "markPrice": 14.3372,
+      "markPrice": 14.3614,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.143607142857144,
       "takeProfit": 15.051482142857141,
-      "unrealisedPnl": -0.023984586544470336,
-      "unrealisedPnlPct": -0.4568492675137207,
+      "unrealisedPnl": -0.015163507602583068,
+      "unrealisedPnlPct": -0.2888287162396775,
       "openedAt": 1779026850561,
       "source": "auto",
       "confidence": 99,
@@ -33,94 +33,147 @@
       "opportunityScore": 100,
       "trailPeakPrice": 14.4352,
       "humanInstinct": {
-        "lastEvalAt": 1779028219914,
-        "momentumScore": 4,
+        "lastEvalAt": 1779034749970,
+        "momentumScore": 0,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume sedikit turun 21%",
+          "Volume turun 64% — momentum sangat lemah",
           "Candle doji terdeteksi — ragu-ragu pasar",
           "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 27,
+        "evalCount": 42,
         "urgency": 15
       }
-    },
-    {
-      "id": "a7a751cd-1876-4346-a92d-2bb7a19916ca",
-      "symbol": "KAIAUSDT",
-      "displayName": "KAIA/USDT",
-      "side": "Buy",
-      "size": 96.13623878410547,
-      "entryPrice": 0.05461,
-      "markPrice": 0.05397,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.05275214285714286,
-      "takeProfit": 0.05925464285714285,
-      "unrealisedPnl": -0.06152719282182766,
-      "unrealisedPnlPct": -1.1719465299395746,
-      "openedAt": 1779027900891,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0526) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.05454,
-      "humanInstinct": {
-        "lastEvalAt": 1779028220048,
-        "momentumScore": 60,
-        "continuationProb": 27,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 5,
-        "urgency": 15
-      }
-    },
-    {
-      "id": "5bfbef1b-14ea-42f6-a1f7-fae17e81f593",
-      "symbol": "DUSKUSDT",
-      "displayName": "DUSK/USDT",
-      "side": "Buy",
-      "size": 32.781767093349984,
-      "entryPrice": 0.16015,
-      "markPrice": 0.15997,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.15687035714285713,
-      "takeProfit": 0.16834910714285714,
-      "unrealisedPnl": -0.005900718076802529,
-      "unrealisedPnlPct": -0.11239463003433389,
-      "openedAt": 1779028220942,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1549) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "entryFee": 0.0028875,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.15997
     }
   ],
   "log": [
+    {
+      "id": "e6671c7c-f8ca-4a78-9414-d52a045f939a",
+      "timestamp": 1779034750255,
+      "openedAt": 1779028600411,
+      "closedAt": 1779034750255,
+      "duration": 6149844,
+      "symbol": "DUSKUSDT",
+      "side": "Sell",
+      "qty": 32.61477293905697,
+      "entryPrice": 0.16097,
+      "closePrice": 0.16307,
+      "realizedPnl": 0.06556585310927474,
+      "realizedPnlPct": 1.304590917562273,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1550) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Intraday",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.005812670062744611,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002925170062744611
+    },
+    {
+      "id": "bc11580b-b953-433c-8c61-1d1e8c8fa151",
+      "timestamp": 1779034750112,
+      "openedAt": 1779027900891,
+      "closedAt": 1779034750112,
+      "duration": 6849221,
+      "symbol": "KAIAUSDT",
+      "side": "Sell",
+      "qty": 96.13623878410547,
+      "entryPrice": 0.05461,
+      "closePrice": 0.05627,
+      "realizedPnl": 0.15661088399560535,
+      "realizedPnlPct": 3.039736312030767,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0526) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Intraday",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.0058627723860098895,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.0029752723860098887
+    },
+    {
+      "id": "b22987b6-985e-4a22-a540-096b48dde434",
+      "timestamp": 1779028600411,
+      "openedAt": 1779028600411,
+      "symbol": "DUSKUSDT",
+      "side": "Buy",
+      "qty": 32.61477293905697,
+      "entryPrice": 0.16097,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.1610 | Fee: -$0.0029",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1550) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
+    {
+      "id": "f883fcaa-574a-4dca-86cc-2e24dd7afa94",
+      "timestamp": 1779028588100,
+      "openedAt": 1779028220942,
+      "closedAt": 1779028588100,
+      "duration": 367158,
+      "symbol": "DUSKUSDT",
+      "side": "Sell",
+      "qty": 32.781767093349984,
+      "entryPrice": 0.16015,
+      "closePrice": 0.16106,
+      "realizedPnl": 0.026927500780518983,
+      "realizedPnlPct": 0.5682172962847467,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.57% diamankan.",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1549) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Scalping",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.005791407274430222,
+      "entryFee": 0.0028875,
+      "exitFee": 0.002903907274430222
+    },
     {
       "id": "cd140618-f876-4ca1-9d14-66253aa53610",
       "timestamp": 1779028220942,
@@ -3399,6 +3452,18 @@
     {
       "timestamp": 1779028211981,
       "balance": 41.6094219469757
+    },
+    {
+      "timestamp": 1779028588100,
+      "balance": 41.59293017392881
+    },
+    {
+      "timestamp": 1779034750112,
+      "balance": 41.85395169740966
+    },
+    {
+      "timestamp": 1779034750255,
+      "balance": 41.931911164235785
     }
   ]
 }
