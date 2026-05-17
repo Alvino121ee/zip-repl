@@ -1,0 +1,277 @@
+{
+  "records": [
+    {
+      "id": "d9c8f924-6510-498d-b86a-982f90b1c07d",
+      "timestamp": 1779011249449,
+      "tradeId": "test-005",
+      "symbol": "ADAUSDT",
+      "side": "long",
+      "entryPrice": 0.52,
+      "slPrice": 0.515,
+      "exitPrice": 0.516,
+      "pnlPct": -0.77,
+      "confidence": 88,
+      "strategy": "scalp_5m",
+      "marketCondition": "sideways",
+      "holdTimeMs": 80000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "fake_breakout",
+        "early_entry",
+        "low_volume"
+      ],
+      "conclusion": "AI masuk saat pasar tidak memiliki arah, menghasilkan trade yang terjebak dalam noise.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Tunggu candle close di atas/bawah level breakout sebelum entry."
+      ],
+      "severity": "major",
+      "slTightnessPct": 0.962,
+      "improvementApplied": false
+    },
+    {
+      "id": "92235973-e8ad-4050-86ae-83b3fdafb491",
+      "timestamp": 1779011249406,
+      "tradeId": "test-004",
+      "symbol": "BNBUSDT",
+      "side": "long",
+      "entryPrice": 420,
+      "slPrice": 417,
+      "exitPrice": 417.2,
+      "pnlPct": -0.67,
+      "confidence": 65,
+      "strategy": "auto_institutional",
+      "marketCondition": "choppy",
+      "holdTimeMs": 320000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "low_volume",
+        "weak_momentum",
+        "poor_risk_reward"
+      ],
+      "conclusion": "AI masuk saat pasar tidak memiliki arah, menghasilkan trade yang terjebak dalam noise.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Wajibkan volume > 1.3× rata-rata 20-bar sebagai syarat entry."
+      ],
+      "severity": "major",
+      "slTightnessPct": 0.714,
+      "improvementApplied": false
+    },
+    {
+      "id": "14068f09-cbe4-470b-b5b7-e50aa75b4123",
+      "timestamp": 1779011249362,
+      "tradeId": "test-003",
+      "symbol": "SOLUSDT",
+      "side": "short",
+      "entryPrice": 145,
+      "slPrice": 147,
+      "exitPrice": 146.8,
+      "pnlPct": -1.38,
+      "confidence": 78,
+      "strategy": "scalp_5m",
+      "marketCondition": "choppy",
+      "holdTimeMs": 115000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "market_manipulation",
+        "fake_breakout",
+        "early_entry"
+      ],
+      "conclusion": "Kondisi ranging menyebabkan sinyal buy dan sell bergantian tanpa arah yang konsisten.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones)."
+      ],
+      "severity": "major",
+      "slTightnessPct": 1.379,
+      "improvementApplied": false
+    },
+    {
+      "id": "9d40c43b-10e5-4dfe-9cdf-0c3bf4b7f8bb",
+      "timestamp": 1779011249320,
+      "tradeId": "test-002",
+      "symbol": "ETHUSDT",
+      "side": "long",
+      "entryPrice": 3800,
+      "slPrice": 3760,
+      "exitPrice": 3762,
+      "pnlPct": -1.05,
+      "confidence": 92,
+      "strategy": "auto_institutional",
+      "marketCondition": "bearish",
+      "holdTimeMs": 90000,
+      "primaryCause": "wrong_trend",
+      "secondaryCauses": [
+        "market_manipulation",
+        "fake_breakout",
+        "early_entry"
+      ],
+      "conclusion": "Trade gagal karena AI masuk berlawanan dengan tren utama pasar. (Kondisi: bearish, Posisi: LONG)",
+      "recommendations": [
+        "Konfirmasi arah tren di timeframe yang lebih tinggi (1H/4H) sebelum entry.",
+        "Tambahkan filter tren dengan EMA 200 — hanya long di atas EMA 200, short di bawah.",
+        "Hindari counter-trend entry kecuali ada konfluensi reversal yang sangat kuat.",
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones)."
+      ],
+      "severity": "major",
+      "slTightnessPct": 1.053,
+      "improvementApplied": false
+    },
+    {
+      "id": "ab6360a8-78e0-46a4-bbfc-a9afe3a1627c",
+      "timestamp": 1779011249278,
+      "tradeId": "test-001",
+      "symbol": "BTCUSDT",
+      "side": "long",
+      "entryPrice": 68500,
+      "slPrice": 67900,
+      "exitPrice": 67950,
+      "pnlPct": -0.81,
+      "confidence": 87,
+      "strategy": "scalp_5m",
+      "marketCondition": "sideways",
+      "holdTimeMs": 240000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "fake_breakout",
+        "low_volume",
+        "weak_momentum"
+      ],
+      "conclusion": "Pasar dalam kondisi choppy/sideways — tidak ada tren jelas dan pergerakan acak.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Tunggu candle close di atas/bawah level breakout sebelum entry."
+      ],
+      "severity": "major",
+      "slTightnessPct": 0.876,
+      "improvementApplied": false
+    },
+    {
+      "id": "6d90bafc-308c-46fe-bc21-3b9279307d15",
+      "timestamp": 1779011237048,
+      "tradeId": "test-003",
+      "symbol": "SOLUSDT",
+      "side": "short",
+      "entryPrice": 145,
+      "slPrice": 147,
+      "exitPrice": 146.8,
+      "pnlPct": -1.38,
+      "confidence": 78,
+      "strategy": "scalp_5m",
+      "marketCondition": "choppy",
+      "holdTimeMs": 115000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "market_manipulation",
+        "fake_breakout",
+        "early_entry"
+      ],
+      "conclusion": "Kondisi ranging menyebabkan sinyal buy dan sell bergantian tanpa arah yang konsisten.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones)."
+      ],
+      "severity": "major",
+      "slTightnessPct": 1.379,
+      "improvementApplied": false
+    },
+    {
+      "id": "2d8c4ed9-52a8-4fff-a102-07eaea64d7d3",
+      "timestamp": 1779011236993,
+      "tradeId": "test-002",
+      "symbol": "ETHUSDT",
+      "side": "long",
+      "entryPrice": 3800,
+      "slPrice": 3760,
+      "exitPrice": 3762,
+      "pnlPct": -1.05,
+      "confidence": 92,
+      "strategy": "auto_institutional",
+      "marketCondition": "bearish",
+      "holdTimeMs": 90000,
+      "primaryCause": "wrong_trend",
+      "secondaryCauses": [
+        "market_manipulation",
+        "fake_breakout",
+        "early_entry"
+      ],
+      "conclusion": "Trade gagal karena AI masuk berlawanan dengan tren utama pasar. (Kondisi: bearish, Posisi: LONG)",
+      "recommendations": [
+        "Konfirmasi arah tren di timeframe yang lebih tinggi (1H/4H) sebelum entry.",
+        "Tambahkan filter tren dengan EMA 200 — hanya long di atas EMA 200, short di bawah.",
+        "Hindari counter-trend entry kecuali ada konfluensi reversal yang sangat kuat.",
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones)."
+      ],
+      "severity": "major",
+      "slTightnessPct": 1.053,
+      "improvementApplied": false
+    },
+    {
+      "id": "3fe6a32e-cf5b-4c14-8cbc-2946f473f7cc",
+      "timestamp": 1779011230636,
+      "tradeId": "test-001",
+      "symbol": "BTCUSDT",
+      "side": "long",
+      "entryPrice": 68500,
+      "slPrice": 67900,
+      "exitPrice": 67950,
+      "pnlPct": -0.81,
+      "confidence": 87,
+      "strategy": "scalp_5m",
+      "marketCondition": "sideways",
+      "holdTimeMs": 240000,
+      "primaryCause": "choppy_market",
+      "secondaryCauses": [
+        "fake_breakout",
+        "low_volume",
+        "weak_momentum"
+      ],
+      "conclusion": "Pasar dalam kondisi choppy/sideways — tidak ada tren jelas dan pergerakan acak.",
+      "recommendations": [
+        "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+        "ADX < 20 = pasar ranging/choppy, skip semua entry directional.",
+        "Tunggu breakout yang terkonfirmasi dari range sebelum masuk posisi.",
+        "Tunggu candle close di atas/bawah level breakout sebelum entry."
+      ],
+      "severity": "major",
+      "slTightnessPct": 0.876,
+      "improvementApplied": false
+    }
+  ],
+  "patterns": [
+    {
+      "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
+      "pattern": "Pasar Choppy / Sideways",
+      "description": "Pola berulang: Pasar Choppy / Sideways terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 6,
+      "primaryCause": "choppy_market",
+      "associatedStrategies": [
+        "scalp_5m",
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "sideways",
+        "choppy"
+      ],
+      "avgPnlPct": -0.97,
+      "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
+      "severity": "high",
+      "firstSeen": 1779011249278,
+      "lastSeen": 1779011249449
+    }
+  ],
+  "avoidanceRules": [],
+  "totalAnalyzed": 8,
+  "improvementScore": 43
+}

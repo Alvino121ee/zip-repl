@@ -1,8 +1,8 @@
 {
-  "balance": 44.78601520876631,
-  "realizedPnl": -5.213984791233687,
+  "balance": 44.74539982415092,
+  "realizedPnl": -5.254600175849072,
   "winCount": 1,
-  "lossCount": 4,
+  "lossCount": 5,
   "positions": [
     {
       "id": "9a03f65c-9f39-450a-82b0-b13f9d16b852",
@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 72.74490785645006,
       "entryPrice": 0.06186,
-      "markPrice": 0.06176,
+      "markPrice": 0.06216,
       "leverage": 1,
       "margin": 4.5,
       "stopLoss": 0.06068571428571428,
       "takeProfit": 0.06479571428571429,
-      "unrealisedPnl": -0.007274490785644709,
-      "unrealisedPnlPct": -0.16165535079210464,
+      "unrealisedPnl": 0.021823472356935138,
+      "unrealisedPnlPct": 0.4849660523763364,
       "openedAt": 1779006888454,
       "source": "auto",
       "confidence": 99,
@@ -29,34 +29,7 @@
       ],
       "marketCondition": "trending_up_strong",
       "opportunityScore": 100,
-      "trailPeakPrice": 0.06209
-    },
-    {
-      "id": "ae2d3b3d-ae1f-4fad-ad32-e25e1039079b",
-      "symbol": "CHZUSDT",
-      "displayName": "CHZ/USDT",
-      "side": "Buy",
-      "size": 46.15384615384615,
-      "entryPrice": 0.04875,
-      "markPrice": 0.04828,
-      "leverage": 1,
-      "margin": 2.25,
-      "stopLoss": 0.04793035714285714,
-      "takeProfit": 0.05079910714285714,
-      "unrealisedPnl": -0.021692307692307608,
-      "unrealisedPnlPct": -0.9641025641025603,
-      "openedAt": 1779007608704,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0484) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.04885
+      "trailPeakPrice": 0.06216
     },
     {
       "id": "b2debaee-ea02-4340-9437-4b42c4c7e1f3",
@@ -65,13 +38,13 @@
       "side": "Buy",
       "size": 1.7299375300336377,
       "entryPrice": 10.405,
-      "markPrice": 10.373,
+      "markPrice": 10.318,
       "leverage": 2,
       "margin": 9,
       "stopLoss": 10.252749999999999,
       "takeProfit": 10.785625,
-      "unrealisedPnl": -0.11071600192215292,
-      "unrealisedPnlPct": -0.6150888995675162,
+      "unrealisedPnl": -0.3010091302258521,
+      "unrealisedPnlPct": -1.6722729456991783,
       "openedAt": 1779008374118,
       "source": "auto",
       "confidence": 99,
@@ -84,9 +57,90 @@
       "marketCondition": "trending_up_strong",
       "opportunityScore": 100,
       "trailPeakPrice": 10.441
+    },
+    {
+      "id": "292eb475-eba5-4708-8bfc-0afbffdd72ac",
+      "symbol": "ATOMUSDT",
+      "displayName": "ATOM/USDT",
+      "side": "Buy",
+      "size": 8.38400761932176,
+      "entryPrice": 2.087,
+      "markPrice": 2.0838,
+      "leverage": 2,
+      "margin": 8.748711950762258,
+      "stopLoss": 2.0651857142857146,
+      "takeProfit": 2.1415357142857143,
+      "unrealisedPnl": -0.053657648763660803,
+      "unrealisedPnlPct": -0.3066602779108856,
+      "openedAt": 1779010689809,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($2.0690) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal",
+      "opportunityScore": 100,
+      "trailPeakPrice": 2.0867
     }
   ],
   "log": [
+    {
+      "id": "944ec717-d6fa-421c-be19-32f4e9cf39ae",
+      "timestamp": 1779010689809,
+      "openedAt": 1779010689809,
+      "symbol": "ATOMUSDT",
+      "side": "Buy",
+      "qty": 8.38400761932176,
+      "entryPrice": 2.087,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 2,
+      "margin": 8.748711950762258,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $2.0870",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($2.0690) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
+    {
+      "id": "8474c773-a3e2-4301-8feb-4bb5bba653db",
+      "timestamp": 1779010676431,
+      "openedAt": 1779007608704,
+      "closedAt": 1779010676431,
+      "duration": 3067727,
+      "symbol": "CHZUSDT",
+      "side": "Sell",
+      "qty": 46.15384615384615,
+      "entryPrice": 0.04875,
+      "closePrice": 0.04787,
+      "realizedPnl": -0.04061538461538456,
+      "realizedPnlPct": -1.8051282051282025,
+      "leverage": 1,
+      "margin": 2.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $0.0479",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0484) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
     {
       "id": "401e8ac4-3ec3-451d-b10f-bbbc807362e7",
       "timestamp": 1779008374118,
@@ -449,6 +503,10 @@
     {
       "timestamp": 1779008355980,
       "balance": 44.74603595039132
+    },
+    {
+      "timestamp": 1779010676431,
+      "balance": 44.62739136369558
     }
   ]
 }

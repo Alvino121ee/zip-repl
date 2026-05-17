@@ -13,6 +13,7 @@ import {
 import { scanBybitUniverse } from "./bybit.js";
 import { scanScalp5m } from "./scalping5m.js";
 import { logActivity } from "./activity-log.js";
+import { analyzeSLFailure } from "./sl-failure-analysis.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -525,6 +526,32 @@ export function closeDemoPosition(
     message: `${icon} ${direction} ${pos.symbol} @ $${closePrice.toFixed(4)} | PnL: $${pnlStr} (${pnlPctStr}%) | ${reasonText}`,
     symbol: pos.symbol,
   });
+
+  // Auto-trigger SL Failure Analysis
+  if (reason === "sl") {
+    try {
+      analyzeSLFailure({
+        tradeId: pos.id,
+        symbol: pos.symbol,
+        side: pos.side === "Buy" ? "long" : "short",
+        entryPrice: pos.entryPrice,
+        slPrice: pos.stopLoss ?? closePrice,
+        exitPrice: closePrice,
+        pnlPct: pos.leverage > 0 ? pnlPct / pos.leverage : pnlPct,
+        confidence: pos.confidence,
+        strategy: pos.source === "scalp" ? "scalp_5m" : pos.source === "auto" ? "auto_institutional" : "manual",
+        marketCondition: pos.marketCondition,
+        holdTimeMs: duration,
+        isChoppy:
+          pos.marketCondition?.toLowerCase().includes("choppy") ||
+          pos.marketCondition?.toLowerCase().includes("sideways") ||
+          false,
+        liquiditySweepDetected: false,
+      });
+    } catch (err) {
+      logger.warn({ err }, "SL failure analysis error — non-critical");
+    }
+  }
 
   return logEntry;
 }
