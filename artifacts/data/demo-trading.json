@@ -1,0 +1,47 @@
+{
+  "balance": 10000,
+  "realizedPnl": 0,
+  "winCount": 0,
+  "lossCount": 0,
+  "positions": [
+    {
+      "id": "b4096f36-3ddf-4f9d-9a08-e86f8699a648",
+      "symbol": "BSBUSDT",
+      "displayName": "BSB/USDT",
+      "side": "Buy",
+      "size": 1321.003963011889,
+      "entryPrice": 0.4542,
+      "markPrice": 0.4547,
+      "leverage": 3,
+      "margin": 200,
+      "stopLoss": 0.449658,
+      "takeProfit": 0.463284,
+      "unrealisedPnl": 1.9815059445178353,
+      "unrealisedPnlPct": 0.3302509907529725,
+      "openedAt": 1778990161949,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "buy"
+    }
+  ],
+  "log": [
+    {
+      "id": "9b457736-fdd4-42f5-8c95-d8a8dcea50f2",
+      "timestamp": 1778990161949,
+      "symbol": "BSBUSDT",
+      "side": "Buy",
+      "qty": 1321.003963011889,
+      "entryPrice": 0.4542,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 3,
+      "margin": 200,
+      "confidence": 99,
+      "signal": "buy",
+      "status": "opened",
+      "reason": "Demo LONG opened at $0.4542",
+      "source": "auto"
+    }
+  ]
+}
