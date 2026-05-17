@@ -1,5 +1,33 @@
 [
   {
+    "id": "85c6d280-b8f3-43fa-9de6-8f3a71dd0c60",
+    "timestamp": 1778991640872,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #8 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "8fce960f-9ccb-452b-b0f9-5db2d322c20c",
+    "timestamp": 1778991640872,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
+    "id": "59866373-91c9-4971-af39-f94b85db5070",
+    "timestamp": 1778991620957,
+    "source": "demo",
+    "level": "info",
+    "message": "Siklus #7 · pindai: 20 · kandidat: 20 · posisi: 4/4"
+  },
+  {
+    "id": "25393a1e-4a6f-4451-96fd-8d6045434040",
+    "timestamp": 1778991620957,
+    "source": "demo",
+    "level": "warning",
+    "message": "Slot penuh (4/4) — tidak membuka posisi baru"
+  },
+  {
     "id": "fae08cfd-8fa9-4415-bff1-97a606b3abe0",
     "timestamp": 1778991600852,
     "source": "demo",
@@ -4956,39 +4984,5 @@
     "level": "info",
     "message": "Skip JCTUSDT: tidak ada setup entry yang valid",
     "symbol": "JCTUSDT"
-  },
-  {
-    "id": "e3fa0fd3-5a12-4599-86bb-f2f18ddf7b8d",
-    "timestamp": 1778990101875,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis JCTUSDT (confidence: 99%)...",
-    "symbol": "JCTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "41dd0ffb-111d-4df6-b686-dbf94ef8ee7e",
-    "timestamp": 1778990101873,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip BILLUSDT: tidak ada setup entry yang valid",
-    "symbol": "BILLUSDT"
-  },
-  {
-    "id": "0f0266fb-cb83-450e-84ce-d50780a07a8a",
-    "timestamp": 1778990101873,
-    "source": "demo",
-    "level": "scan",
-    "message": "Menganalisis BILLUSDT (confidence: 99%)...",
-    "symbol": "BILLUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "dad418f7-34d5-472d-ba35-a60915736453",
-    "timestamp": 1778990101873,
-    "source": "demo",
-    "level": "info",
-    "message": "Skip ATOMUSDT: tidak ada setup entry yang valid",
-    "symbol": "ATOMUSDT"
   }
 ]
