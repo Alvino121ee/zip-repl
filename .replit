@@ -33,20 +33,20 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/crypto-saham run dev"
+args = "fuser -k 5000/tcp 2>/dev/null; sleep 0.5; pnpm --filter @workspace/crypto-saham run dev"
 waitForPort = 5000
 
 [[workflows.workflow]]
 name = "API Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
-waitForPort = 8080
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "fuser -k 8080/tcp 2>/dev/null; sleep 0.5; PORT=8080 pnpm --filter @workspace/api-server run dev"
+waitForPort = 8080
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -58,10 +58,6 @@ timeoutMs = 20000
 
 [[ports]]
 localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 8081
 externalPort = 80
 
 [[ports]]
@@ -79,6 +75,10 @@ externalPort = 3003
 [[ports]]
 localPort = 18124
 externalPort = 3000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
 
 [userenv]
 

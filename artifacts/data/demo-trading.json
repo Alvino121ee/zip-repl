@@ -1,7 +1,7 @@
 {
-  "balance": 44.67278047024997,
-  "realizedPnl": -5.3272195297500256,
-  "winCount": 7,
+  "balance": 44.80070702505652,
+  "realizedPnl": -5.199292974943477,
+  "winCount": 9,
   "lossCount": 7,
   "positions": [
     {
@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 412.52171811742255,
       "entryPrice": 0.039637,
-      "markPrice": 0.039504,
+      "markPrice": 0.038826,
       "leverage": 2,
       "margin": 8.175561670510138,
       "stopLoss": 0.03823278571428571,
       "takeProfit": 0.04314753571428571,
-      "unrealisedPnl": -0.10973077701923536,
-      "unrealisedPnlPct": -0.6710901430481679,
+      "unrealisedPnl": -0.6691102267864587,
+      "unrealisedPnlPct": -4.092136135429014,
       "openedAt": 1779012702079,
       "source": "auto",
       "confidence": 94,
@@ -31,7 +31,7 @@
       "opportunityScore": 97,
       "trailPeakPrice": 0.039651,
       "humanInstinct": {
-        "lastEvalAt": 1779013745581,
+        "lastEvalAt": 1779014321687,
         "momentumScore": 14,
         "continuationProb": 0,
         "greedIndex": 0,
@@ -42,48 +42,7 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 20,
-        "urgency": 15
-      }
-    },
-    {
-      "id": "4b65d654-d98f-4491-a3b8-e4e15f237d3f",
-      "symbol": "AIGENSYNUSDT",
-      "displayName": "AIGENSYN/USDT",
-      "side": "Buy",
-      "size": 405.61824548404286,
-      "entryPrice": 0.0385,
-      "markPrice": 0.0385,
-      "leverage": 2,
-      "margin": 7.808151225567825,
-      "stopLoss": 0.03718857142857143,
-      "takeProfit": 0.04177857142857143,
-      "unrealisedPnl": 0,
-      "unrealisedPnlPct": 0,
-      "openedAt": 1779013262310,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas VWAP ($0.0371) — buyers in control",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.03861,
-      "humanInstinct": {
-        "lastEvalAt": 1779013729646,
-        "momentumScore": 71,
-        "continuationProb": 34,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Potensi fake breakout ke atas — harga kembali di bawah resistance",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (34%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 8,
+        "evalCount": 32,
         "urgency": 15
       }
     },
@@ -94,13 +53,13 @@
       "side": "Buy",
       "size": 255.2164867599098,
       "entryPrice": 0.06295,
-      "markPrice": 0.06279,
+      "markPrice": 0.06259,
       "leverage": 2,
       "margin": 8.032938920768162,
       "stopLoss": 0.06187428571428572,
       "takeProfit": 0.06563928571428572,
-      "unrealisedPnl": -0.0816692757631749,
-      "unrealisedPnlPct": -0.5083399523431528,
+      "unrealisedPnl": -0.18375587046713465,
+      "unrealisedPnlPct": -1.1437648927720387,
       "openedAt": 1779013602817,
       "source": "auto",
       "confidence": 99,
@@ -114,7 +73,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.06302,
       "humanInstinct": {
-        "lastEvalAt": 1779013729786,
+        "lastEvalAt": 1779014305764,
         "momentumScore": 39,
         "continuationProb": 2,
         "greedIndex": 0,
@@ -125,12 +84,146 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 1,
+        "evalCount": 13,
         "urgency": 15
       }
+    },
+    {
+      "id": "461dcc1e-7c21-4778-a44b-a50e8406c422",
+      "symbol": "VVVUSDT",
+      "displayName": "VVV/USDT",
+      "side": "Buy",
+      "size": 1.11053097537216,
+      "entryPrice": 14.418,
+      "markPrice": 14.4393,
+      "leverage": 2,
+      "margin": 8.005817801457901,
+      "stopLoss": 14.166214285714286,
+      "takeProfit": 15.047464285714284,
+      "unrealisedPnl": 0.047308619550854226,
+      "unrealisedPnlPct": 0.2954640033291732,
+      "openedAt": 1779014203324,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0223) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "opportunityScore": 100,
+      "trailPeakPrice": 14.4461
     }
   ],
   "log": [
+    {
+      "id": "cc53252b-d6d5-4bd4-bd99-103d8953eecd",
+      "timestamp": 1779014203324,
+      "openedAt": 1779014203324,
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "qty": 1.11053097537216,
+      "entryPrice": 14.418,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 2,
+      "margin": 8.005817801457901,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $14.4180",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0223) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "995566ec-d7ef-48a7-b4ae-90b8777acaa6",
+      "timestamp": 1779014193818,
+      "openedAt": 1779013923505,
+      "closedAt": 1779014193818,
+      "duration": 270313,
+      "symbol": "VVVUSDT",
+      "side": "Sell",
+      "qty": 0.8065987062203579,
+      "entryPrice": 14.341,
+      "closePrice": 14.4203,
+      "realizedPnl": 0.12792655480654863,
+      "realizedPnlPct": 1.1059200892545837,
+      "leverage": 2,
+      "margin": 5.783716022953076,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (16%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0150) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Scalping",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "3ebc7312-c15f-44b1-b5bb-8eca5f8fdc8c",
+      "timestamp": 1779013923505,
+      "openedAt": 1779013923505,
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "qty": 0.8065987062203579,
+      "entryPrice": 14.341,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 2,
+      "margin": 5.783716022953076,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $14.3410",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($14.0150) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "90070a39-af61-4365-af5b-e3ddcd0ff71a",
+      "timestamp": 1779013921748,
+      "openedAt": 1779013262310,
+      "closedAt": 1779013921748,
+      "duration": 659438,
+      "symbol": "AIGENSYNUSDT",
+      "side": "Sell",
+      "qty": 405.61824548404286,
+      "entryPrice": 0.0385,
+      "closePrice": 0.0385,
+      "realizedPnl": 0,
+      "realizedPnlPct": 0,
+      "leverage": 2,
+      "margin": 7.808151225567825,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "Tren berbalik BEARISH (78% conf, 7 konfirmasi) — close LONG",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas VWAP ($0.0371) — buyers in control",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
     {
       "id": "3e8605b4-f221-47e9-bc07-d2b4a5b19ed4",
       "timestamp": 1779013602817,
@@ -1015,6 +1108,14 @@
     {
       "timestamp": 1779013588762,
       "balance": 44.06115051837438
+    },
+    {
+      "timestamp": 1779013921748,
+      "balance": 44.11577677952094
+    },
+    {
+      "timestamp": 1779014193818,
+      "balance": 43.97078807489971
     }
   ]
 }
