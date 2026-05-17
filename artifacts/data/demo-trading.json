@@ -1,7 +1,7 @@
 {
-  "balance": 41.52975186295555,
+  "balance": 41.52686436295555,
   "realizedPnl": -8.386510637044452,
-  "totalFees": 0.17057330944353008,
+  "totalFees": 0.17346080944353007,
   "winCount": 46,
   "lossCount": 23,
   "positions": [
@@ -33,7 +33,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.008596,
       "humanInstinct": {
-        "lastEvalAt": 1779041732053,
+        "lastEvalAt": 1779041827998,
         "momentumScore": 0,
         "continuationProb": 0,
         "greedIndex": 0,
@@ -44,7 +44,7 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 12,
+        "evalCount": 14,
         "urgency": 15
       }
     },
@@ -55,13 +55,13 @@
       "side": "Sell",
       "size": 2.2133220910623947,
       "entryPrice": 2.372,
-      "markPrice": 2.362,
+      "markPrice": 2.36,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 2.416785714285714,
       "takeProfit": 2.260035714285714,
-      "unrealisedPnl": 0.022133220910623475,
-      "unrealisedPnlPct": 0.4215851602023519,
+      "unrealisedPnl": 0.026559865092748762,
+      "unrealisedPnlPct": 0.5059021922428335,
       "openedAt": 1779041197683,
       "source": "auto",
       "confidence": 99,
@@ -76,21 +76,76 @@
       "opportunityScore": 100,
       "trailPeakPrice": 2.36,
       "humanInstinct": {
-        "lastEvalAt": 1779041708105,
-        "momentumScore": 60,
-        "continuationProb": 32,
+        "lastEvalAt": 1779041804085,
+        "momentumScore": 75,
+        "continuationProb": 41,
         "greedIndex": 0,
         "decaySignals": [
-          "Data kline tidak tersedia — estimasi moderat"
+          "Candle doji terdeteksi — ragu-ragu pasar"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (32%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 9,
+        "reason": "⚡ Probabilitas menurun (41%) namun R:R masih 1.8x — pertimbangkan amankan sebagian profit",
+        "evalCount": 11,
         "urgency": 15
       }
+    },
+    {
+      "id": "ef834db1-0853-4531-a808-a08350b2386f",
+      "symbol": "HYPEUSDT",
+      "displayName": "HYPE/USDT",
+      "side": "Buy",
+      "size": 0.11907191943934135,
+      "entryPrice": 44.091,
+      "markPrice": 44.082,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 43.624607142857144,
+      "takeProfit": 45.25698214285714,
+      "unrealisedPnl": -0.0010716472749541129,
+      "unrealisedPnlPct": -0.020412329046745007,
+      "openedAt": 1779041742691,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.5869) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 44.082
     }
   ],
   "log": [
+    {
+      "id": "a7786047-784a-45c3-b7e7-2658762e48a7",
+      "timestamp": 1779041742691,
+      "openedAt": 1779041742691,
+      "symbol": "HYPEUSDT",
+      "side": "Buy",
+      "qty": 0.11907191943934135,
+      "entryPrice": 44.091,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $44.0910 | Fee: -$0.0029",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($43.5869) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_normal"
+    },
     {
       "id": "8e03aeeb-b14e-4ea8-af86-64748ddf7f2c",
       "timestamp": 1779041731904,
