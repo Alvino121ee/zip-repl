@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AILiveStatus } from "@/components/shared/AILiveStatus";
 import { ActivityFeed } from "@/components/shared/ActivityFeed";
+import { PanelSetupEntry } from "@/components/shared/PanelSetupEntry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,8 +74,9 @@ interface Scalp5mSignal {
 interface DemoEngineStatus {
   autoRunning: boolean; autoAnalyzing: boolean;
   scalpRunning: boolean; scalpAnalyzing: boolean;
-  lastCycleAt: number | null; cycleCount: number;
-  lastSignalsFound: number; lastError: string | null;
+  lastCycleAt: number | null; nextCycleAt: number | null;
+  cycleCount: number; lastSignalsFound: number;
+  totalScanned: number; lastError: string | null;
 }
 
 interface BrainStats {
@@ -1148,6 +1150,26 @@ export default function DemoTrading() {
 
       {/* ── Tab: Auto Trading ────────────────────────────────────────────── */}
       {tab === "auto" && config && engineStatus && (
+        <div className="space-y-4">
+        <PanelSetupEntry
+          engineRunning={engineStatus.autoRunning}
+          analyzing={engineStatus.autoAnalyzing}
+          lastCycleAt={engineStatus.lastCycleAt}
+          nextCycleAt={engineStatus.nextCycleAt}
+          intervalMs={config.intervalMs}
+          cycleCount={engineStatus.cycleCount}
+          signalsFound={engineStatus.lastSignalsFound}
+          totalScanned={engineStatus.totalScanned}
+          minConfidence={config.minConfidence}
+          maxPositions={config.maxPositions}
+          currentPositions={positions.length}
+          mode={config.autoMode}
+          enabled={config.autoEnabled}
+          lastError={engineStatus.lastError}
+          source="demo"
+          onForceScan={pindaiSekarang}
+          forcingNow={triggeringNow}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-3">
@@ -1361,6 +1383,7 @@ export default function DemoTrading() {
               )}
             </CardContent>
           </Card>
+        </div>
         </div>
       )}
 

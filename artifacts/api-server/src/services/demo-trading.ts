@@ -90,8 +90,10 @@ export interface DemoEngineStatus {
   scalpRunning: boolean;
   scalpAnalyzing: boolean;
   lastCycleAt: number | null;
+  nextCycleAt: number | null;
   cycleCount: number;
   lastSignalsFound: number;
+  totalScanned: number;
   lastError: string | null;
 }
 
@@ -164,8 +166,10 @@ export const demoEngineStatus: DemoEngineStatus = {
   scalpRunning: false,
   scalpAnalyzing: false,
   lastCycleAt: null,
+  nextCycleAt: null,
   cycleCount: 0,
   lastSignalsFound: 0,
+  totalScanned: 0,
   lastError: null,
 };
 
@@ -440,7 +444,8 @@ async function runAutoEngineCycle() {
   try {
     logActivity({ source: "demo", level: "scan", message: "Memindai pasar Bybit untuk peluang trading..." });
     const candidates = await scanBybitUniverse();
-    demoEngineStatus.lastSignalsFound = candidates.length;
+    demoEngineStatus.totalScanned = candidates.length;
+    demoEngineStatus.lastSignalsFound = candidates.filter(c => c.confidence >= demoConfig.minConfidence).length;
 
     const qualified = candidates.filter(c => c.confidence >= demoConfig.minConfidence);
     logActivity({
@@ -540,14 +545,17 @@ async function runAutoEngineCycle() {
     logger.error({ err }, "Demo auto engine cycle error");
   } finally {
     demoEngineStatus.autoAnalyzing = false;
+    demoEngineStatus.nextCycleAt = Date.now() + demoConfig.intervalMs;
   }
 }
 
 export function startDemoAutoEngine() {
   if (autoTimer) clearInterval(autoTimer);
   demoEngineStatus.autoRunning = true;
+  demoEngineStatus.nextCycleAt = Date.now() + demoConfig.intervalMs;
   runAutoEngineCycle().catch(() => {});
   autoTimer = setInterval(() => {
+    demoEngineStatus.nextCycleAt = Date.now() + demoConfig.intervalMs;
     runAutoEngineCycle().catch(() => {});
   }, demoConfig.intervalMs);
   logger.info({ intervalMs: demoConfig.intervalMs }, "Demo auto engine started");
@@ -556,6 +564,7 @@ export function startDemoAutoEngine() {
 export function stopDemoAutoEngine() {
   if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
   demoEngineStatus.autoRunning = false;
+  demoEngineStatus.nextCycleAt = null;
   logger.info("Demo auto engine stopped");
 }
 

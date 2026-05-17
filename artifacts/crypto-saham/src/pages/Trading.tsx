@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { AILiveStatus } from "@/components/shared/AILiveStatus";
 import { ActivityFeed } from "@/components/shared/ActivityFeed";
+import { PanelSetupEntry } from "@/components/shared/PanelSetupEntry";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -1180,6 +1181,24 @@ export default function Trading() {
           <div className="text-xs text-muted-foreground capitalize">{config.mode} mode</div>
         </CardContent></Card>
       </div>
+
+      <PanelSetupEntry
+        engineRunning={engineStat?.running ?? false}
+        analyzing={engineStat?.analyzing ?? false}
+        lastCycleAt={engineStat?.lastCycleAt ?? null}
+        nextCycleAt={engineStat?.nextCycleAt ?? null}
+        intervalMs={config.intervalMs}
+        cycleCount={engineStat?.cycleCount ?? 0}
+        signalsFound={engineStat?.lastSignalsFound ?? 0}
+        totalScanned={(engineStat as any)?.totalScanned ?? 0}
+        minConfidence={config.minConfidence}
+        maxPositions={config.maxPositions}
+        currentPositions={positions.length}
+        mode={config.mode}
+        enabled={config.enabled}
+        lastError={engineStat?.lastError}
+        source="trading"
+      />
 
       <EngineStatusPanel stat={engineStat} config={config} />
 
