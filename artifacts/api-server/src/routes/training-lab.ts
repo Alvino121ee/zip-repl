@@ -7,6 +7,7 @@ import {
 import {
   getBrainStats, getMemoryBank, startContinuousLearning,
   stopContinuousLearning, isLearningActive, resetBrainStats,
+  manualTrain,
 } from "../services/ai-continuous-learning.js";
 
 const STRATEGY_LABELS: Record<StrategyName, string> = {
@@ -92,6 +93,24 @@ router.post("/training-lab/continuous/stop", (_req, res) => {
 router.post("/training-lab/ai-brain/reset", (_req, res) => {
   resetBrainStats();
   res.json({ reset: true, message: "AI Brain direset ke kondisi awal" });
+});
+
+router.post("/training-lab/manual-train", (req, res) => {
+  const { text } = (req.body ?? {}) as { text?: string };
+  if (!text || typeof text !== "string") {
+    res.status(400).json({ error: "Field 'text' wajib diisi" });
+    return;
+  }
+  if (text.trim().length < 10) {
+    res.status(400).json({ error: "Teks terlalu pendek — minimal 10 karakter" });
+    return;
+  }
+  if (text.length > 5000) {
+    res.status(400).json({ error: "Teks terlalu panjang — maksimal 5000 karakter" });
+    return;
+  }
+  const result = manualTrain(text);
+  res.json(result);
 });
 
 export default router;

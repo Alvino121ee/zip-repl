@@ -1,7 +1,7 @@
 {
-  "balance": 41.92887833673674,
-  "realizedPnl": -8.071121663263254,
-  "winCount": 12,
+  "balance": 41.950035504266964,
+  "realizedPnl": -8.049964495733029,
+  "winCount": 13,
   "lossCount": 12,
   "positions": [
     {
@@ -11,13 +11,13 @@
       "side": "Buy",
       "size": 245.7424610529857,
       "entryPrice": 0.06181,
-      "markPrice": 0.06133,
+      "markPrice": 0.06093,
       "leverage": 2,
       "margin": 7.594670758842523,
       "stopLoss": 0.060720357142857145,
       "takeProfit": 0.06453410714285714,
-      "unrealisedPnl": -0.2359127626108635,
-      "unrealisedPnlPct": -1.5531467400096888,
+      "unrealisedPnl": -0.43250673145325425,
+      "unrealisedPnlPct": -2.8474356900177926,
       "openedAt": 1779014917126,
       "source": "auto",
       "confidence": 99,
@@ -31,19 +31,19 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.06181,
       "humanInstinct": {
-        "lastEvalAt": 1779017832200,
+        "lastEvalAt": 1779018264255,
         "momentumScore": 0,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume turun 65% — momentum sangat lemah",
+          "Volume menurun 48% — tanda pelemahan",
           "Candle doji terdeteksi — ragu-ragu pasar",
           "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 59,
+        "evalCount": 68,
         "urgency": 15
       }
     },
@@ -54,13 +54,13 @@
       "side": "Buy",
       "size": 0.3684469085549863,
       "entryPrice": 14.249,
-      "markPrice": 14.1796,
+      "markPrice": 14.2217,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.006642857142857,
       "takeProfit": 14.854892857142858,
-      "unrealisedPnl": -0.025570215453716013,
-      "unrealisedPnlPct": -0.4870517229279241,
+      "unrealisedPnl": -0.010058600603551245,
+      "unrealisedPnlPct": -0.19159239244859516,
       "openedAt": 1779015883455,
       "source": "auto",
       "confidence": 99,
@@ -74,64 +74,52 @@
       "opportunityScore": 100,
       "trailPeakPrice": 14.2836,
       "humanInstinct": {
-        "lastEvalAt": 1779017832336,
-        "momentumScore": 0,
+        "lastEvalAt": 1779018264389,
+        "momentumScore": 20,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume turun 59% — momentum sangat lemah",
+          "Volume turun 60% — momentum sangat lemah",
           "Candle doji terdeteksi — ragu-ragu pasar",
-          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 39,
-        "urgency": 15
-      }
-    },
-    {
-      "id": "45d651f5-fa33-4e35-abff-864b6579b11c",
-      "symbol": "KAIAUSDT",
-      "displayName": "KAIA/USDT",
-      "side": "Buy",
-      "size": 100.74841681059299,
-      "entryPrice": 0.05211,
-      "markPrice": 0.05228,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.05116071428571428,
-      "takeProfit": 0.05448321428571428,
-      "unrealisedPnl": 0.017127230857801157,
-      "unrealisedPnlPct": 0.32623296872002205,
-      "openedAt": 1779017427017,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0504) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.05228,
-      "humanInstinct": {
-        "lastEvalAt": 1779017840333,
-        "momentumScore": 85,
-        "continuationProb": 47,
-        "greedIndex": 0,
-        "decaySignals": [
-          "RSI proxy overbought (87) — risiko reversal meningkat"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas menurun (47%) namun R:R masih 2.0x — pertimbangkan amankan sebagian profit",
-        "evalCount": 7,
+        "evalCount": 48,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "c8e4939a-7d0f-42b9-b948-9f0db4c21e6d",
+      "timestamp": 1779018272398,
+      "openedAt": 1779017427017,
+      "closedAt": 1779018272398,
+      "duration": 845381,
+      "symbol": "KAIAUSDT",
+      "side": "Sell",
+      "qty": 100.74841681059299,
+      "entryPrice": 0.05211,
+      "closePrice": 0.05232,
+      "realizedPnl": 0.021157167530224712,
+      "realizedPnlPct": 0.4029936672423755,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.40% diamankan.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0504) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
     {
       "id": "9e5b24e1-8f71-4f5a-8356-d2e50417587c",
       "timestamp": 1779017427017,
@@ -1595,6 +1583,10 @@
     {
       "timestamp": 1779017413504,
       "balance": 41.78255937748887
+    },
+    {
+      "timestamp": 1779018272398,
+      "balance": 41.54594153808896
     }
   ]
 }

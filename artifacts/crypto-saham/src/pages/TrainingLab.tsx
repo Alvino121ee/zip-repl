@@ -221,7 +221,7 @@ export default function TrainingLab() {
   const [memory, setMemory]       = useState<MemoryBank | null>(null);
   const [labState, setLabState]   = useState<LabState | null>(null);
   const [comparison, setComparison] = useState<Record<string, { winRate: number; sharpe: number; pf: number; trades: number }>>({});
-  const [activeTab, setActiveTab] = useState<"kecerdasan" | "live" | "memori" | "backtest" | "evolusi">("live");
+  const [activeTab, setActiveTab] = useState<"kecerdasan" | "live" | "memori" | "backtest" | "evolusi" | "ajar">("live");
   const [memoryTab, setMemoryTab] = useState<"learnedPatterns" | "bestSetups" | "worstSetups" | "dangerousConditions">("learnedPatterns");
   const [selectedPairs, setSelectedPairs]         = useState<string[]>(["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT"]);
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>(ALL_STRATEGIES.map(s => s.key));

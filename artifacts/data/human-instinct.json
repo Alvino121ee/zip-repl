@@ -1,15 +1,37 @@
 {
-  "totalDecisions": 8,
-  "correctEarlyExits": 8,
+  "totalDecisions": 9,
+  "correctEarlyExits": 9,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 41.375,
-  "avgContinuationProbAtExit": 13.25,
+  "avgMomentumAtEarlyExit": 39.55555555555556,
+  "avgContinuationProbAtExit": 11.777777777777779,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "e73974c0-3811-4a65-bf46-0ea325471cbe",
+      "tradeId": "45d651f5-fa33-4e35-abff-864b6579b11c",
+      "symbol": "KAIAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.40% diamankan.",
+      "profitPctAtDecision": 0.4029936672423755,
+      "momentumScore": 25,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "Potensi fake breakout ke atas — harga kembali di bawah resistance",
+        "RSI proxy overbought (86) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779018272397,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.4029936672423755,
+      "profitDelta": 0
+    },
     {
       "id": "975fdf21-b4ac-4782-8b47-c46ef0e89d15",
       "tradeId": "a06a566a-3fcf-482d-bf40-84de8835711e",
@@ -171,5 +193,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779017413504
+  "lastUpdated": 1779018272399
 }

@@ -25,7 +25,7 @@ export interface MemoryEntry {
   timestamp: number;
   symbol: string;
   interval: string;
-  type: "best_setup" | "worst_setup" | "dangerous" | "pattern" | "manipulation" | "replay";
+  type: "best_setup" | "worst_setup" | "dangerous" | "pattern" | "manipulation" | "replay" | "manual";
   title: string;
   description: string;
   tags: string[];
@@ -908,6 +908,245 @@ export function resetBrainStats(): void {
   };
   saveBrainStats();
   addActivity("🔄 AI Brain direset ke kondisi awal — memulai perjalanan belajar baru.", "info", null);
+}
+
+// ─── Manual Training (Input dari User) ────────────────────────────────────────
+
+export interface ManualTrainResult {
+  xpGained: number;
+  conceptsFound: string[];
+  categoriesHit: string[];
+  skillsImproved: { skill: string; label: string }[];
+  memorySaved: boolean;
+  iqBefore: number;
+  iqAfter: number;
+  grade: "S" | "A" | "B" | "C" | "D";
+  analysis: string;
+  feedback: string;
+}
+
+// Kamus konsep trading (multi-bahasa: Indonesia + English)
+const KEYWORD_SETS = {
+  technical: {
+    label: "Indikator Teknikal",
+    skill: "patternRecognition" as keyof AiBrainStats,
+    xpEach: 3,
+    words: [
+      "rsi","macd","ema","sma","bollinger","vwap","atr","fibonacci","fib",
+      "stochastic","ichimoku","cci","adx","supertrend","parabolic sar",
+      "moving average","rata-rata bergerak","divergence","divergensi",
+      "overbought","oversold","jenuh beli","jenuh jual",
+    ],
+  },
+  pattern: {
+    label: "Pola Chart",
+    skill: "candlePsychology" as keyof AiBrainStats,
+    xpEach: 4,
+    words: [
+      "breakout","breakdown","reversal","doji","hammer","engulfing","shooting star",
+      "morning star","evening star","marubozu","pinbar","pin bar","inside bar",
+      "triangle","wedge","flag","pennant","head and shoulders","double top",
+      "double bottom","cup and handle","ascending","descending","symmetrical",
+      "channel","flag","pembalikan","pembalikan arah","pola candle",
+      "liquidity sweep","fake breakout","fakeout","bull trap","bear trap",
+      "order block","fair value gap","fvg","bos","choch","break of structure",
+    ],
+  },
+  market_concept: {
+    label: "Konsep Pasar",
+    skill: "marketReading" as keyof AiBrainStats,
+    xpEach: 3,
+    words: [
+      "support","resistance","trend","tren","momentum","volume","likuiditas",
+      "liquidity","orderflow","order flow","smart money","institutional",
+      "institusional","retail","manipulasi","manipulation","accumulation",
+      "akumulasi","distribusi","distribution","konsolidasi","consolidation",
+      "area of interest","poi","key level","level kunci","swing high","swing low",
+      "higher high","lower low","higher low","lower high","market structure",
+      "struktur pasar","imbalance","imbalans","demand zone","supply zone",
+      "zona demand","zona supply",
+    ],
+  },
+  risk: {
+    label: "Manajemen Risiko",
+    skill: "riskManagement" as keyof AiBrainStats,
+    xpEach: 5,
+    words: [
+      "stop loss","sl","take profit","tp","risk reward","rr","risk management",
+      "manajemen risiko","position size","ukuran posisi","leverage","drawdown",
+      "max drawdown","cut loss","profit","kerugian","keuntungan","modal",
+      "capital","1%","2%","risk per trade","trailing stop","partial close",
+      "partial tp","be","breakeven","break even",
+    ],
+  },
+  psychology: {
+    label: "Psikologi Trading",
+    skill: "emotionalDiscipline" as keyof AiBrainStats,
+    xpEach: 4,
+    words: [
+      "fomo","fear","greed","takut","serakah","emosi","emotion","disiplin",
+      "discipline","sabar","patience","overtrading","revenge trading","over leverage",
+      "psikologi","psychology","mentalitas","mindset","journal","jurnal",
+      "evaluasi","review","belajar dari kesalahan","mistake","kesalahan",
+      "konfirmasi","confirmation","wait","tunggu","setup","sinyal","signal",
+    ],
+  },
+  strategy: {
+    label: "Strategi",
+    skill: "adaptiveIntelligence" as keyof AiBrainStats,
+    xpEach: 4,
+    words: [
+      "scalping","swing trading","position trading","day trading","intraday",
+      "multi timeframe","mtf","confluence","konfluens","entry","exit","setup",
+      "strategi","strategy","sistem","system","backtest","forward test",
+      "rekap","recap","win rate","profit factor","sharpe","expectancy",
+      "ekspektansi","edge","keunggulan","rule","aturan",
+    ],
+  },
+};
+
+function gradeFromXp(xp: number): ManualTrainResult["grade"] {
+  if (xp >= 60) return "S";
+  if (xp >= 40) return "A";
+  if (xp >= 25) return "B";
+  if (xp >= 12) return "C";
+  return "D";
+}
+
+function feedbackFromGrade(grade: ManualTrainResult["grade"], categories: string[]): string {
+  const catList = categories.join(", ");
+  switch (grade) {
+    case "S": return `Luar biasa! Input sangat kaya — mencakup ${catList}. AI mendapat banyak pengetahuan berharga dari kamu!`;
+    case "A": return `Bagus sekali! Input berkualitas tinggi — menyentuh ${catList}. Teruskan berbagi insight seperti ini!`;
+    case "B": return `Input baik — mencakup ${catList}. Tambahkan lebih banyak detail strategi atau manajemen risiko untuk nilai lebih tinggi.`;
+    case "C": return `Input cukup — AI mempelajari konsep ${catList}. Coba tulis lebih detail dengan contoh konkret.`;
+    default:  return `Input diterima. Coba tambahkan lebih banyak konsep teknikal, pola, atau insight strategi spesifik agar AI bisa belajar lebih banyak.`;
+  }
+}
+
+export function manualTrain(rawText: string): ManualTrainResult {
+  const text  = rawText.trim();
+  const lower = text.toLowerCase();
+
+  if (text.length < 10) {
+    return {
+      xpGained: 0, conceptsFound: [], categoriesHit: [], skillsImproved: [],
+      memorySaved: false, iqBefore: brainStats.iq, iqAfter: brainStats.iq,
+      grade: "D", analysis: "Teks terlalu pendek.",
+      feedback: "Tuliskan minimal 1 kalimat berisi insight atau strategi trading yang ingin diajarkan ke AI.",
+    };
+  }
+
+  const iqBefore = brainStats.iq;
+  const allConcepts: string[] = [];
+  const categoriesHit: string[] = [];
+  const skillsImproved: { skill: string; label: string }[] = [];
+  const skillBoostMap: Partial<Record<keyof AiBrainStats, number>> = {};
+
+  let xpGained = 8; // base XP untuk setiap input
+
+  // ── Scan tiap kategori ──
+  for (const [, cat] of Object.entries(KEYWORD_SETS)) {
+    const hits: string[] = [];
+    for (const word of cat.words) {
+      if (lower.includes(word) && !allConcepts.includes(word)) {
+        hits.push(word);
+        allConcepts.push(word);
+      }
+    }
+    if (hits.length > 0) {
+      const bonus = Math.min(hits.length, 5) * cat.xpEach; // max 5 hit per kategori
+      xpGained += bonus;
+      categoriesHit.push(cat.label);
+      const sk = cat.skill as string;
+      skillBoostMap[cat.skill] = (skillBoostMap[cat.skill] ?? 0) + 0.18 * hits.length;
+      skillsImproved.push({ skill: sk, label: cat.label });
+    }
+  }
+
+  // ── Bonus panjang teks ──
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  xpGained += Math.min(20, Math.floor(wordCount / 8));
+
+  // ── Multi-kategori bonus ──
+  if (categoriesHit.length >= 4) xpGained += 15;
+  else if (categoriesHit.length >= 3) xpGained += 8;
+  else if (categoriesHit.length >= 2) xpGained += 4;
+
+  // ── Cap XP ──
+  xpGained = Math.min(100, xpGained);
+
+  const grade = gradeFromXp(xpGained);
+
+  // ── Terapkan ke brain stats ──
+  brainStats.experiencePoints += xpGained;
+  brainStats.learningCycles   += 1;
+  brainStats.lastLearningAt    = Date.now();
+
+  for (const [skill, boost] of Object.entries(skillBoostMap)) {
+    const key = skill as keyof AiBrainStats;
+    if (typeof brainStats[key] === "number") {
+      (brainStats as Record<string, number>)[key] = nudgeSkill(
+        (brainStats as Record<string, number>)[key],
+        Math.min(boost, 0.6)
+      );
+    }
+  }
+
+  // ── Selalu naikkan sedikit skill umum ──
+  brainStats.adaptiveIntelligence = nudgeSkill(brainStats.adaptiveIntelligence, 0.12);
+  brainStats.marketReading        = nudgeSkill(brainStats.marketReading, 0.08);
+
+  brainStats.level = computeLevel(brainStats.experiencePoints);
+  brainStats.iq    = computeIq(brainStats);
+
+  // ── Simpan ke memori ──
+  const title = text.length > 60 ? text.slice(0, 57) + "..." : text;
+  const tags  = [
+    "manual-training",
+    ...categoriesHit.slice(0, 3),
+    ...(allConcepts.slice(0, 4)),
+  ];
+
+  addMemory(
+    {
+      symbol: "MANUAL",
+      interval: "–",
+      type: "manual",
+      title: `[Manual] ${title}`,
+      description: `Input dari pengguna — ${wordCount} kata, ${allConcepts.length} konsep ditemukan (${categoriesHit.join(", ") || "umum"})`,
+      tags,
+      xpValue: xpGained,
+    },
+    "learnedPatterns"
+  );
+
+  const feedback = feedbackFromGrade(grade, categoriesHit);
+  const analysis = allConcepts.length > 0
+    ? `Konsep ditemukan: ${allConcepts.slice(0, 12).join(", ")}${allConcepts.length > 12 ? " ..." : ""}`
+    : "Tidak ada konsep teknikal spesifik yang terdeteksi.";
+
+  addActivity(
+    `📖 Manual training diterima — ${allConcepts.length} konsep, +${xpGained} XP | "${title}"`,
+    "success",
+    null,
+    xpGained
+  );
+
+  saveBrainStats();
+
+  return {
+    xpGained,
+    conceptsFound: allConcepts.slice(0, 20),
+    categoriesHit,
+    skillsImproved,
+    memorySaved: true,
+    iqBefore,
+    iqAfter: brainStats.iq,
+    grade,
+    analysis,
+    feedback,
+  };
 }
 
 // ─── Auto-start ───────────────────────────────────────────────────────────────
