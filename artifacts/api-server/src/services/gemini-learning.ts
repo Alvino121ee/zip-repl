@@ -4,12 +4,63 @@
  * mengirim ke Groq Cloud API, lalu menyimpan jawaban ke bank pengetahuan.
  */
 
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
 import { manualTrain, getBrainStats } from "./ai-continuous-learning.js";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY ?? "";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, "../../data");
+const SETTINGS_FILE = join(DATA_DIR, "groq-settings.json");
+
+// ─── Persisted Settings ───────────────────────────────────────────────────────
+
+interface GroqPersistedSettings {
+  autoEnabled: boolean;
+  autoIntervalMinutes: number;
+  totalSessionsRun: number;
+  totalXPEarned: number;
+  questionCount: number;
+}
+
+function loadSettings(): GroqPersistedSettings {
+  try {
+    if (existsSync(SETTINGS_FILE)) {
+      const raw = readFileSync(SETTINGS_FILE, "utf-8");
+      return JSON.parse(raw) as GroqPersistedSettings;
+    }
+  } catch {
+    // silently fall back to defaults
+  }
+  return {
+    autoEnabled: false,
+    autoIntervalMinutes: 60,
+    totalSessionsRun: 0,
+    totalXPEarned: 0,
+    questionCount: 5,
+  };
+}
+
+function saveSettings(): void {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    const data: GroqPersistedSettings = {
+      autoEnabled,
+      autoIntervalMinutes,
+      totalSessionsRun,
+      totalXPEarned,
+      questionCount: persistedQuestionCount,
+    };
+    writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    logger.warn("Failed to save groq settings", { error: String(err) });
+  }
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -44,6 +95,7 @@ export interface GeminiStatus {
   nextAutoAt: number | null;
   provider: string;
   model: string;
+  questionCount: number;
 }
 
 // ─── Peta Skill ke Kategori & Topik ─────────────────────────────────────────
@@ -259,14 +311,17 @@ function generateQuestionsFromNeeds(count: number): Array<{ category: string; qu
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
+const _saved = loadSettings();
+
 let currentSession: GeminiSession | null = null;
 let lastSession: GeminiSession | null = null;
-let totalSessionsRun = 0;
-let totalXPEarned = 0;
+let totalSessionsRun = _saved.totalSessionsRun;
+let totalXPEarned = _saved.totalXPEarned;
 let autoEnabled = false;
-let autoIntervalMinutes = 60;
+let autoIntervalMinutes = _saved.autoIntervalMinutes;
 let nextAutoAt: number | null = null;
 let autoTimer: ReturnType<typeof setTimeout> | null = null;
+let persistedQuestionCount = _saved.questionCount;
 
 // ─── Groq API Call ────────────────────────────────────────────────────────────
 
@@ -329,6 +384,9 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   if (!GROQ_API_KEY) {
     throw new Error("GROQ_API_KEY belum dikonfigurasi");
   }
+
+  persistedQuestionCount = questionCount;
+  saveSettings();
 
   const questions = generateQuestionsFromNeeds(questionCount);
 
@@ -414,6 +472,7 @@ export async function runGeminiSession(questionCount = 5): Promise<GeminiSession
   currentSession = null;
   totalSessionsRun++;
   totalXPEarned += session.totalXP;
+  saveSettings();
 
   session.log.push({
     timestamp: Date.now(),
@@ -452,6 +511,7 @@ function scheduleNextAuto() {
 export function startAutoLearning(intervalMinutes = 60): void {
   autoEnabled = true;
   autoIntervalMinutes = intervalMinutes;
+  saveSettings();
   scheduleNextAuto();
   logger.info("Groq auto-learning enabled", { intervalMinutes });
 }
@@ -460,7 +520,17 @@ export function stopAutoLearning(): void {
   autoEnabled = false;
   if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
   nextAutoAt = null;
+  saveSettings();
   logger.info("Groq auto-learning disabled");
+}
+
+// ─── Auto-resume on startup ───────────────────────────────────────────────────
+// Jika sebelum server restart, auto-learning aktif — langsung jalankan kembali.
+if (_saved.autoEnabled) {
+  logger.info("Groq auto-learning: melanjutkan dari sesi sebelumnya", {
+    intervalMinutes: _saved.autoIntervalMinutes,
+  });
+  startAutoLearning(_saved.autoIntervalMinutes);
 }
 
 // ─── Status ───────────────────────────────────────────────────────────────────
@@ -477,6 +547,7 @@ export function getGeminiStatus(): GeminiStatus {
     nextAutoAt,
     provider: "Groq Cloud",
     model: GROQ_MODEL,
+    questionCount: persistedQuestionCount,
   };
 }
 

@@ -1,6 +1,37 @@
 {
   "records": [
     {
+      "id": "11eeccce-6db4-44c3-9cc4-6f81cbea2f5b",
+      "timestamp": 1779041190632,
+      "tradeId": "84260b2f-2ef3-46a4-b50d-952394363128",
+      "symbol": "MLNUSDT",
+      "side": "short",
+      "entryPrice": 2.34,
+      "slPrice": 2.381357142857143,
+      "exitPrice": 2.386,
+      "pnlPct": -1.966,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_down_normal",
+      "holdTimeMs": 72838,
+      "primaryCause": "market_manipulation",
+      "secondaryCauses": [
+        "fake_breakout",
+        "early_entry",
+        "overconfidence"
+      ],
+      "conclusion": "Aktivitas whale atau market maker menyebabkan harga bergerak berlawanan secara mendadak.",
+      "recommendations": [
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones).",
+        "Waspadai pergerakan mendadak tanpa berita fundamental — bisa jadi stop hunt.",
+        "Gunakan SL yang 'tersembunyi' di bawah/atas level yang tidak obvious.",
+        "Tunggu candle close di atas/bawah level breakout sebelum entry."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 1.767,
+      "improvementApplied": false
+    },
+    {
       "id": "1aff2ed9-036b-46ad-9417-17b52c00e3c3",
       "timestamp": 1779038156840,
       "tradeId": "bacd5794-5793-4f3c-aa81-5c859ef1f228",
@@ -727,7 +758,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779038156840
+      "lastSeen": 1779041190632
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -747,7 +778,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779038156840
+      "lastSeen": 1779041190632
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -766,10 +797,10 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "low",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779038156840
+      "lastSeen": 1779041190632
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 25,
-  "improvementScore": 49
+  "totalAnalyzed": 26,
+  "improvementScore": 50
 }

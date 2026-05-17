@@ -255,12 +255,21 @@ export default function KnowledgeLearning() {
   const fetchGeminiStatus = useCallback(async () => {
     try {
       const r = await fetch(`${API}/api/gemini-learning/status`);
-      if (r.ok) setGeminiStatus(await r.json());
+      if (r.ok) {
+        const data = await r.json();
+        setGeminiStatus(data);
+        return data;
+      }
     } catch {}
+    return null;
   }, []);
 
   useEffect(() => {
-    fetchGeminiStatus();
+    fetchGeminiStatus().then((data) => {
+      if (!data) return;
+      if (typeof data.questionCount === "number") setGeminiQuestionCount(data.questionCount);
+      if (typeof data.autoIntervalMinutes === "number") setGeminiAutoInterval(data.autoIntervalMinutes);
+    });
   }, [fetchGeminiStatus]);
 
   useEffect(() => {
