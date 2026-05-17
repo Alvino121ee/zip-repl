@@ -1,9 +1,9 @@
 {
-  "balance": 42.061507807658835,
-  "realizedPnl": -7.874967192341168,
-  "totalFees": 0.12741601305907987,
+  "balance": 41.88328761363785,
+  "realizedPnl": -8.050299886362154,
+  "totalFees": 0.13309611600899077,
   "winCount": 42,
-  "lossCount": 19,
+  "lossCount": 20,
   "positions": [
     {
       "id": "bacd5794-5793-4f3c-aa81-5c859ef1f228",
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 0.36450739429285567,
       "entryPrice": 14.403,
-      "markPrice": 14.2684,
+      "markPrice": 14.2441,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 14.143607142857144,
       "takeProfit": 15.051482142857141,
-      "unrealisedPnl": -0.049062695271818633,
-      "unrealisedPnlPct": -0.9345275289870215,
+      "unrealisedPnl": -0.057920224953135105,
+      "unrealisedPnlPct": -1.1032423800597162,
       "openedAt": 1779026850561,
       "source": "auto",
       "confidence": 99,
@@ -33,7 +33,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 14.4352,
       "humanInstinct": {
-        "lastEvalAt": 1779036945378,
+        "lastEvalAt": 1779037233402,
         "momentumScore": 60,
         "continuationProb": 17,
         "greedIndex": 0,
@@ -43,7 +43,7 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (17%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 84,
+        "evalCount": 90,
         "urgency": 15
       }
     },
@@ -54,13 +54,13 @@
       "side": "Buy",
       "size": 623.2193732193733,
       "entryPrice": 0.008424,
-      "markPrice": 0.008376,
+      "markPrice": 0.008445,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.008041821428571428,
       "takeProfit": 0.009379446428571428,
-      "unrealisedPnl": -0.029914529914529565,
-      "unrealisedPnlPct": -0.5698005698005632,
+      "unrealisedPnl": 0.013087606837606956,
+      "unrealisedPnlPct": 0.2492877492877515,
       "openedAt": 1779035182343,
       "source": "auto",
       "confidence": 99,
@@ -75,68 +75,110 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.008465,
       "humanInstinct": {
-        "lastEvalAt": 1779036937427,
-        "momentumScore": 0,
-        "continuationProb": 0,
+        "lastEvalAt": 1779037225486,
+        "momentumScore": 38,
+        "continuationProb": 2,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume turun 54% — momentum sangat lemah",
+          "Volume menurun 35% — tanda pelemahan",
           "Candle doji terdeteksi — ragu-ragu pasar",
-          "Candle rejection atas — tekanan jual kuat",
-          "Potensi fake breakout ke atas — harga kembali di bawah resistance",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 35,
+        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 41,
         "urgency": 15
       }
     },
     {
-      "id": "5847dd3e-a6b8-4fea-8e21-2dfd68c0c67f",
-      "symbol": "KAITOUSDT",
-      "displayName": "KAITO/USDT",
+      "id": "332e0243-0e0f-4beb-b883-2224f5720bc5",
+      "symbol": "ARCUSDT",
+      "displayName": "ARC/USDT",
       "side": "Buy",
-      "size": 10.393981389823798,
-      "entryPrice": 0.5051,
-      "markPrice": 0.5017,
+      "size": 76.86676427525622,
+      "entryPrice": 0.0683,
+      "markPrice": 0.06841,
       "leverage": 1,
       "margin": 5.25,
-      "stopLoss": 0.4890285714285714,
-      "takeProfit": 0.5452785714285714,
-      "unrealisedPnl": -0.03533953672540048,
-      "unrealisedPnlPct": -0.673134032864771,
-      "openedAt": 1779035603398,
+      "stopLoss": 0.066785,
+      "takeProfit": 0.0720875,
+      "unrealisedPnl": 0.008455344070278106,
+      "unrealisedPnlPct": 0.16105417276720205,
+      "openedAt": 1779037231615,
       "source": "auto",
-      "confidence": 99,
+      "confidence": 91,
       "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.4877) — momentum bullish",
+      "openReason": "Ranging / Sideways | OppScore:96 | Harga di atas EMA20 ($0.0669) — momentum bullish; Harga di atas VWAP ($0.0643) — buyers in control",
       "tags": [
         "Auto AI",
         "Kepercayaan Tinggi"
       ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.5063,
-      "humanInstinct": {
-        "lastEvalAt": 1779036929626,
-        "momentumScore": 42,
-        "continuationProb": 4,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Volume menurun 49% — tanda pelemahan",
-          "Candle rejection atas — tekanan jual kuat",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (4%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 26,
-        "urgency": 15
-      }
+      "marketCondition": "ranging",
+      "entryFee": 0.0028875,
+      "opportunityScore": 96,
+      "trailPeakPrice": 0.06841
     }
   ],
   "log": [
+    {
+      "id": "53c2780d-7afd-4e76-b1ab-ad12806873e3",
+      "timestamp": 1779037231615,
+      "openedAt": 1779037231615,
+      "symbol": "ARCUSDT",
+      "side": "Buy",
+      "qty": 76.86676427525622,
+      "entryPrice": 0.0683,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 91,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0683 | Fee: -$0.0029",
+      "openReason": "Ranging / Sideways | OppScore:96 | Harga di atas EMA20 ($0.0669) — momentum bullish; Harga di atas VWAP ($0.0643) — buyers in control",
+      "entryFee": 0.0028875,
+      "fee": 0.0028875,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging"
+    },
+    {
+      "id": "257a6d60-e7a5-4320-a2ba-65db7da035ff",
+      "timestamp": 1779037225553,
+      "openedAt": 1779035603398,
+      "closedAt": 1779037225553,
+      "duration": 1622155,
+      "symbol": "KAITOUSDT",
+      "side": "Sell",
+      "qty": 10.393981389823798,
+      "entryPrice": 0.5051,
+      "closePrice": 0.4885,
+      "realizedPnl": -0.175332694020986,
+      "realizedPnlPct": -3.286477925163335,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $0.4885",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.4877) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.00568010294991091,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002792602949910909
+    },
     {
       "id": "06912e81-6643-44d6-983e-74b642373ef6",
       "timestamp": 1779035603398,
@@ -3856,6 +3898,10 @@
     {
       "timestamp": 1779035593280,
       "balance": 41.941131290814056
+    },
+    {
+      "timestamp": 1779037225553,
+      "balance": 41.83061263362864
     }
   ]
 }
