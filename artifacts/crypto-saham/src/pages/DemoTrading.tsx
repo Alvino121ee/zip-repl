@@ -6,7 +6,8 @@ import {
   ChevronDown, ChevronUp, Brain, Target, Shield, Flame,
   BookOpen, Star, Terminal, Filter, Tag, Calendar,
   TrendingDown as DrawdownIcon, ArrowUpRight, ArrowDownRight,
-  Layers, Award, PieChart, List, Hash,
+  Layers, Award, PieChart, List, Hash, Cpu, Radar, Waves, Eye,
+  ArrowRightLeft, Lock, Lightbulb, Gauge,
 } from "lucide-react";
 import { AILiveStatus } from "@/components/shared/AILiveStatus";
 import { ActivityFeed } from "@/components/shared/ActivityFeed";
@@ -128,6 +129,24 @@ interface BrainConfigRecommendation {
   reasoning: Record<string, string>;
   riskLevel: "rendah" | "sedang" | "tinggi" | "ekstrем";
   summary: string; generatedAt: number;
+}
+
+type AIPhase = "idle" | "scanning" | "filtering" | "analyzing" | "confirming" | "waiting" | "executing" | "monitoring" | "switching" | "protecting" | "exiting";
+
+interface AIActivityStatus {
+  phase: AIPhase;
+  phaseLabel: string;
+  symbol: string | null;
+  step: string;
+  detail: string;
+  progress: number;
+  findings: string[];
+  warnings: string[];
+  marketCondition: string | null;
+  marketConditionLabel: string;
+  scanStats: { totalScanned: number; qualified: number; skipped: number; lastUpdated: number };
+  updatedAt: number;
+  cycleId: string;
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -1231,9 +1250,277 @@ function TabOtakAI({ brainStats, onReset }: { brainStats: BrainStats | null; onR
   );
 }
 
+// ─── Tab: Lab AI Institusional ────────────────────────────────────────────────
+
+const PHASE_META: Record<string, { color: string; bg: string; icon: React.ElementType; label: string }> = {
+  idle:       { color: "text-muted-foreground", bg: "bg-muted/30",         icon: Eye,           label: "Standby" },
+  scanning:   { color: "text-blue-400",         bg: "bg-blue-500/10",      icon: Radar,         label: "Memindai Pasar" },
+  filtering:  { color: "text-cyan-400",         bg: "bg-cyan-500/10",      icon: Filter,        label: "Menyaring Kandidat" },
+  analyzing:  { color: "text-violet-400",       bg: "bg-violet-500/10",    icon: Cpu,           label: "Analisis Institusional" },
+  confirming: { color: "text-amber-400",        bg: "bg-amber-500/10",     icon: Lightbulb,     label: "Konfirmasi Setup" },
+  waiting:    { color: "text-yellow-400",       bg: "bg-yellow-500/10",    icon: Clock,         label: "Menunggu Kondisi" },
+  executing:  { color: "text-green-400",        bg: "bg-green-500/10",     icon: Zap,           label: "Eksekusi Order" },
+  monitoring: { color: "text-primary",          bg: "bg-primary/10",       icon: Activity,      label: "Monitoring Posisi" },
+  switching:  { color: "text-orange-400",       bg: "bg-orange-500/10",    icon: ArrowRightLeft,label: "Smart Switch" },
+  protecting: { color: "text-emerald-400",      bg: "bg-emerald-500/10",   icon: Shield,        label: "Trailing Stop" },
+  exiting:    { color: "text-red-400",          bg: "bg-red-500/10",       icon: Lock,          label: "Menutup Posisi" },
+};
+
+const CONDITION_EMOJI: Record<string, string> = {
+  trending_up: "📈", trending_down: "📉", ranging: "↔️",
+  breakout: "🚀", breakdown: "💥", high_volatility: "⚡",
+  low_volatility: "😴", accumulation: "🏦", distribution: "📤",
+  squeeze: "🔧", default: "❓",
+};
+
+function TabLabAI({ aiStatus, engineStatus, stats }: {
+  aiStatus: AIActivityStatus | null;
+  engineStatus: DemoEngineStatus | null;
+  stats: DemoStats | null;
+}) {
+  const phase = aiStatus?.phase ?? "idle";
+  const meta = PHASE_META[phase] ?? PHASE_META.idle;
+  const PhaseIcon = meta.icon;
+  const isActive = phase !== "idle";
+  const timeSinceUpdate = aiStatus ? Math.floor((Date.now() - aiStatus.updatedAt) / 1000) : null;
+
+  return (
+    <div className="space-y-4">
+      {/* ─── Live Status Banner ─── */}
+      <Card className={`border ${meta.bg.replace("/10", "/20")} overflow-hidden`}>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            <div className={`p-3 rounded-xl ${meta.bg} shrink-0`}>
+              <PhaseIcon className={`h-6 w-6 ${meta.color} ${isActive ? "animate-pulse" : ""}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-sm font-bold ${meta.color}`}>{aiStatus?.phaseLabel ?? "⚪ Standby"}</span>
+                {aiStatus?.symbol && (
+                  <span className="text-xs font-mono bg-background/60 px-2 py-0.5 rounded border border-border">
+                    {aiStatus.symbol.replace("USDT", "/USDT")}
+                  </span>
+                )}
+                {aiStatus?.cycleId && (
+                  <span className="text-xs text-muted-foreground">#{aiStatus.cycleId}</span>
+                )}
+                <span className="ml-auto text-xs text-muted-foreground shrink-0">
+                  {timeSinceUpdate != null ? (timeSinceUpdate < 3 ? "baru saja" : `${timeSinceUpdate}d lalu`) : "—"}
+                </span>
+              </div>
+              <p className="text-sm font-medium mt-0.5">{aiStatus?.step ?? "Tidak ada aktivitas"}</p>
+              {aiStatus?.detail && aiStatus.detail !== aiStatus.step && (
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{aiStatus.detail}</p>
+              )}
+              {/* Progress Bar */}
+              {aiStatus && aiStatus.progress > 0 && aiStatus.progress < 100 && (
+                <div className="mt-2">
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${isActive ? "bg-primary" : "bg-muted-foreground"}`}
+                      style={{ width: `${aiStatus.progress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
+                    <span>{meta.label}</span>
+                    <span>{aiStatus.progress}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── Kondisi Pasar + Stat Pindai ─── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="col-span-2 sm:col-span-1">
+          <CardContent className="p-3 text-center">
+            <div className="text-2xl mb-1">
+              {CONDITION_EMOJI[aiStatus?.marketCondition ?? ""] ?? CONDITION_EMOJI.default}
+            </div>
+            <div className="text-xs font-bold truncate">{aiStatus?.marketConditionLabel || "Belum terdeteksi"}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Kondisi Pasar</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 text-center">
+            <div className="text-xl font-bold text-blue-400">{aiStatus?.scanStats.totalScanned ?? engineStatus?.totalScanned ?? "—"}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Dipindai</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 text-center">
+            <div className="text-xl font-bold text-amber-400">{aiStatus?.scanStats.qualified ?? engineStatus?.lastSignalsFound ?? "—"}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Kandidat</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 text-center">
+            <div className="text-xl font-bold text-muted-foreground">{aiStatus?.scanStats.skipped ?? "—"}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">Dilewati</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* ─── Temuan AI ─── */}
+        <Card>
+          <CardHeader className="pb-2 pt-3 px-4">
+            <CardTitle className="text-xs flex items-center gap-1.5">
+              <Lightbulb className="h-3.5 w-3.5 text-amber-400" /> Temuan AI
+              {aiStatus?.findings.length ? (
+                <span className="ml-auto text-[10px] text-muted-foreground">{aiStatus.findings.length} temuan</span>
+              ) : null}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {!aiStatus?.findings.length ? (
+              <div className="py-4 text-center text-muted-foreground text-xs">
+                <Cpu className="h-6 w-6 mx-auto mb-1 opacity-20" />
+                Belum ada temuan — tunggu siklus AI
+              </div>
+            ) : (
+              <ul className="space-y-1">
+                {aiStatus.findings.slice(0, 8).map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs">
+                    <span className="text-green-400 shrink-0 mt-0.5">✓</span>
+                    <span className="text-foreground/80">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ─── Peringatan AI ─── */}
+        <Card>
+          <CardHeader className="pb-2 pt-3 px-4">
+            <CardTitle className="text-xs flex items-center gap-1.5">
+              <AlertTriangle className="h-3.5 w-3.5 text-yellow-400" /> Peringatan & Catatan
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {!aiStatus?.warnings.length ? (
+              <div className="py-4 text-center text-muted-foreground text-xs">
+                <Shield className="h-6 w-6 mx-auto mb-1 opacity-20" />
+                Tidak ada peringatan aktif
+              </div>
+            ) : (
+              <ul className="space-y-1">
+                {aiStatus.warnings.slice(0, 8).map((w, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs">
+                    <span className="text-yellow-400 shrink-0 mt-0.5">⚠</span>
+                    <span className="text-foreground/80">{w}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ─── Siklus & Statistik Mesin ─── */}
+      <Card>
+        <CardHeader className="pb-2 pt-3 px-4">
+          <CardTitle className="text-xs flex items-center gap-1.5">
+            <Gauge className="h-3.5 w-3.5 text-primary" /> Status Mesin Institusional
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="p-2 rounded-lg bg-muted/30">
+              <div className={`text-sm font-bold ${engineStatus?.autoRunning ? "text-green-400" : "text-muted-foreground"}`}>
+                {engineStatus?.autoRunning ? "🟢 AKTIF" : "⚫ MATI"}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Auto Engine</div>
+            </div>
+            <div className="p-2 rounded-lg bg-muted/30">
+              <div className="text-sm font-bold text-primary">{engineStatus?.cycleCount ?? 0}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Total Siklus</div>
+            </div>
+            <div className="p-2 rounded-lg bg-muted/30">
+              <div className="text-sm font-bold text-amber-400">{waktuLalu(engineStatus?.lastCycleAt ?? null)}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Siklus Terakhir</div>
+            </div>
+            <div className="p-2 rounded-lg bg-muted/30">
+              <div className="text-sm font-bold text-cyan-400">{waktuLalu(engineStatus?.nextCycleAt ?? null)}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Siklus Berikut</div>
+            </div>
+          </div>
+          {/* Sharpe Ratio & Risk Metrics */}
+          {stats && (
+            <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+              <div className="p-2 rounded-lg bg-primary/5 border border-primary/10">
+                <div className={`text-sm font-bold ${stats.winRate >= 50 ? "text-green-400" : "text-red-400"}`}>
+                  {fmt(stats.winRate, 1)}%
+                </div>
+                <div className="text-[10px] text-muted-foreground">Win Rate</div>
+              </div>
+              <div className="p-2 rounded-lg bg-primary/5 border border-primary/10">
+                <div className={`text-sm font-bold ${stats.profitFactor >= 1 ? "text-green-400" : "text-red-400"}`}>
+                  {fmt(stats.profitFactor, 2)}x
+                </div>
+                <div className="text-[10px] text-muted-foreground">Profit Factor</div>
+              </div>
+              <div className="p-2 rounded-lg bg-primary/5 border border-primary/10">
+                <div className={`text-sm font-bold ${stats.maxDrawdownPct > -10 ? "text-green-400" : "text-red-400"}`}>
+                  {fmt(stats.maxDrawdownPct, 1)}%
+                </div>
+                <div className="text-[10px] text-muted-foreground">Maks Drawdown</div>
+              </div>
+            </div>
+          )}
+          {engineStatus?.lastError && (
+            <div className="mt-3 text-xs text-red-400 bg-red-500/5 border border-red-500/20 rounded-lg p-2">
+              ⚠ Error: {engineStatus.lastError.slice(0, 120)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ─── Fase Alur AI ─── */}
+      <Card>
+        <CardHeader className="pb-2 pt-3 px-4">
+          <CardTitle className="text-xs flex items-center gap-1.5">
+            <Waves className="h-3.5 w-3.5 text-violet-400" /> Alur 8 Fase Institusional
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="flex items-center gap-0 overflow-x-auto pb-1">
+            {[
+              { id: "scanning",   label: "Pindai",    icon: Radar },
+              { id: "analyzing",  label: "Risiko",    icon: Shield },
+              { id: "filtering",  label: "Filter",    icon: Filter },
+              { id: "analyzing",  label: "Analisis",  icon: Cpu },
+              { id: "switching",  label: "Switch",    icon: ArrowRightLeft },
+              { id: "confirming", label: "Konfirmasi",icon: Lightbulb },
+              { id: "executing",  label: "Eksekusi",  icon: Zap },
+              { id: "monitoring", label: "Monitor",   icon: Activity },
+            ].map((f, idx) => {
+              const m = PHASE_META[f.id] ?? PHASE_META.idle;
+              const FIcon = f.icon;
+              const isCurrent = phase === f.id;
+              return (
+                <React.Fragment key={idx}>
+                  <div className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg min-w-max transition-all ${isCurrent ? `${m.bg} border border-current/20` : ""}`}>
+                    <FIcon className={`h-4 w-4 ${isCurrent ? m.color + " animate-pulse" : "text-muted-foreground/40"}`} />
+                    <span className={`text-[9px] font-medium ${isCurrent ? m.color : "text-muted-foreground/40"}`}>{f.label}</span>
+                  </div>
+                  {idx < 7 && <div className="w-3 h-px bg-border shrink-0" />}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Halaman Utama ────────────────────────────────────────────────────────────
 
-type TabKey = "auto" | "scalp" | "riwayat" | "statistik" | "analitik" | "otak" | "live";
+type TabKey = "auto" | "scalp" | "riwayat" | "statistik" | "analitik" | "otak" | "live" | "lab";
 
 export default function DemoTrading() {
   const { toast } = useToast();
@@ -1253,6 +1540,7 @@ export default function DemoTrading() {
   const [executingId, setExecutingId] = useState<string | null>(null);
   const [mereset, setMereset] = useState(false);
   const [triggeringNow, setTriggeringNow] = useState(false);
+  const [aiStatus, setAiStatus] = useState<AIActivityStatus | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -1302,6 +1590,14 @@ export default function DemoTrading() {
   }, []);
 
   useEffect(() => { if (tab === "scalp") fetchScalp(); }, [tab]);
+
+  // Poll AI status every 2s when on lab tab
+  useEffect(() => {
+    const fetch = () => apiFetch<AIActivityStatus>("/api/demo/ai-status").then(setAiStatus).catch(() => {});
+    fetch();
+    const id = setInterval(fetch, 2_000);
+    return () => clearInterval(id);
+  }, []);
 
   async function updateConfig(update: Partial<DemoConfig>) {
     try {
@@ -1424,7 +1720,7 @@ export default function DemoTrading() {
   const totalUnrealised = positions.reduce((s, p) => s + p.unrealisedPnl, 0);
   const validScalpSignals = scalpSignals.filter(s => s.side !== null);
 
-  const tabList: { key: TabKey; label: string; icon: React.ElementType; badge?: number }[] = [
+  const tabList: { key: TabKey; label: string; icon: React.ElementType; badge?: number; pulse?: boolean }[] = [
     { key: "auto", label: "Auto", icon: Bot },
     { key: "scalp", label: "Scalping", icon: Timer },
     { key: "riwayat", label: "Riwayat", icon: Clock, badge: log.filter(l => l.status === "closed_tp" || l.status === "closed_sl" || l.status === "closed_manual").length },
@@ -1432,6 +1728,7 @@ export default function DemoTrading() {
     { key: "analitik", label: "Analitik", icon: BarChart2 },
     { key: "otak", label: "Otak AI", icon: Brain, badge: brainStats?.mistakeCount },
     { key: "live", label: "Live Feed", icon: Terminal },
+    { key: "lab", label: "Lab AI", icon: Cpu, pulse: aiStatus?.phase !== "idle" && aiStatus?.phase != null },
   ];
 
   return (
@@ -1480,15 +1777,18 @@ export default function DemoTrading() {
 
       {/* Tab Nav */}
       <div className="flex gap-1 bg-muted/40 rounded-xl p-1 overflow-x-auto">
-        {tabList.map(({ key, label, icon: Icon, badge }) => (
+        {tabList.map(({ key, label, icon: Icon, badge, pulse }) => (
           <button key={key} onClick={() => setTab(key)}
             className={`flex-1 min-w-max flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
               tab === key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}>
-            <Icon className="h-3.5 w-3.5" />
+            <Icon className={`h-3.5 w-3.5 ${pulse ? "text-violet-400 animate-pulse" : ""}`} />
             {label}
             {badge != null && badge > 0 && (
               <span className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded-full font-bold">{badge}</span>
+            )}
+            {pulse && !badge && (
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
             )}
           </button>
         ))}
@@ -1788,6 +2088,11 @@ export default function DemoTrading() {
           <AILiveStatus />
           <ActivityFeed source="demo" maxItems={50} />
         </div>
+      )}
+
+      {/* ── Tab: Lab AI Institusional ── */}
+      {tab === "lab" && (
+        <TabLabAI aiStatus={aiStatus} engineStatus={engineStatus} stats={stats} />
       )}
     </div>
   );
