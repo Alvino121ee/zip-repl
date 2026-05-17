@@ -1,5 +1,572 @@
 [
   {
+    "id": "e3a0278a-f234-4797-994f-431f93547759",
+    "timestamp": 1779039111230,
+    "source": "demo",
+    "level": "info",
+    "message": "C32 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "2570a8e2-18d4-410d-96e2-19fe58a2c6e2",
+    "timestamp": 1779039111230,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "24d7f205-8ee5-417d-9f59-5c44e414cab5",
+    "timestamp": 1779039110867,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "939bca43-3c7f-402f-8bff-62fdaa4088e7",
+    "timestamp": 1779039092025,
+    "source": "demo",
+    "level": "info",
+    "message": "C31 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "252b7553-b92f-4b95-91d8-4bc28fbdddf6",
+    "timestamp": 1779039092025,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "691a1851-a4f0-4a07-9afb-9ede2db277a3",
+    "timestamp": 1779039090965,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "242f4cbe-092d-4423-8097-f97d0710294e",
+    "timestamp": 1779039071222,
+    "source": "demo",
+    "level": "info",
+    "message": "C30 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "5f92667d-7056-4625-898b-2d10c8df8079",
+    "timestamp": 1779039071222,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "27744e08-7ac0-4bea-ba9f-453a7634f8f8",
+    "timestamp": 1779039070861,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "11dd47ba-b7cf-41c0-b34a-81bbf6d00820",
+    "timestamp": 1779039052125,
+    "source": "demo",
+    "level": "info",
+    "message": "C29 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "29a6691b-692d-4e02-b794-9e2f6ccfe005",
+    "timestamp": 1779039052125,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "099598da-3ca8-4a3a-bbbb-9c514a7eb571",
+    "timestamp": 1779039050862,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "e35f992a-d3ac-4c5e-96d8-b17b214679b2",
+    "timestamp": 1779039031339,
+    "source": "demo",
+    "level": "info",
+    "message": "C28 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "7975ff78-f4ab-43be-b6bc-2e215063f3d8",
+    "timestamp": 1779039031339,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "5b30789e-a2f7-445b-a8c7-800ad94c13f8",
+    "timestamp": 1779039030977,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "1ae6fd2c-9fb0-4f26-8dd8-f3a3c34e10f5",
+    "timestamp": 1779039012293,
+    "source": "demo",
+    "level": "info",
+    "message": "C27 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "55405c8e-56c4-4992-aaf7-4919ad0fbd7a",
+    "timestamp": 1779039012293,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "8977102a-a762-451b-af0c-1e2c800673c8",
+    "timestamp": 1779039010859,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "ab8ebc30-bef8-4aa8-baa1-069935c3239f",
+    "timestamp": 1779038991221,
+    "source": "demo",
+    "level": "info",
+    "message": "C26 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "f90d48cd-530c-46a7-a227-33eea789e8aa",
+    "timestamp": 1779038991221,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "bc3bff9a-d780-43f7-9114-079d0a856e60",
+    "timestamp": 1779038990859,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "61cba4a9-3e5a-43af-99e8-1f2d68200913",
+    "timestamp": 1779038972179,
+    "source": "demo",
+    "level": "info",
+    "message": "C25 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a21e0b36-00c3-41c5-a2b2-1d2234155794",
+    "timestamp": 1779038972179,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "3fc48124-d2e1-4963-b12a-4df215a8fd11",
+    "timestamp": 1779038970974,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "1cd684f5-70fb-4b9b-a938-ad842660b17d",
+    "timestamp": 1779038951308,
+    "source": "demo",
+    "level": "info",
+    "message": "C24 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "1c1482aa-c47d-4efd-abca-ac2f203b752f",
+    "timestamp": 1779038951308,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "d6242354-3b03-4d72-b059-2c2785626f57",
+    "timestamp": 1779038950857,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "8db38b55-bf0f-4e70-9003-95bf0fd1bdf4",
+    "timestamp": 1779038931830,
+    "source": "demo",
+    "level": "info",
+    "message": "C23 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a66171a8-f3fb-4f63-97a0-7b86483ca2d8",
+    "timestamp": 1779038931830,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "ac537a23-21c5-4682-8b8c-d65c82e3c6c4",
+    "timestamp": 1779038930854,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "c216ee99-bd32-44d3-9776-3ae766ba1a20",
+    "timestamp": 1779038911406,
+    "source": "demo",
+    "level": "info",
+    "message": "C22 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a5267ee0-20b8-471c-9829-e63b90fa07ad",
+    "timestamp": 1779038911406,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "6368a080-8b69-4894-85af-5bf2d6065c08",
+    "timestamp": 1779038910956,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "99ab1fb1-cfd4-4807-814c-2cb32ed336a4",
+    "timestamp": 1779038892218,
+    "source": "demo",
+    "level": "info",
+    "message": "C21 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "7fe1e1e5-6e97-434f-961b-2f87e81e48df",
+    "timestamp": 1779038892218,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "0e79ae1c-2286-448f-be11-ef84e041b20d",
+    "timestamp": 1779038890854,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "9ca58801-1583-4720-b0df-fbeffcdc9cbe",
+    "timestamp": 1779038871212,
+    "source": "demo",
+    "level": "info",
+    "message": "C20 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "c083e90b-7df3-473d-aab7-7ea40433dd39",
+    "timestamp": 1779038871212,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "75af664d-9104-4103-b508-e7dd4bffe64b",
+    "timestamp": 1779038870851,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "f81ee5d5-81d4-42d2-9ceb-70370a9b14ba",
+    "timestamp": 1779038852559,
+    "source": "demo",
+    "level": "info",
+    "message": "C19 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "57ad7e62-865f-4c65-ab44-8403376c57d3",
+    "timestamp": 1779038852559,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "dd5d902f-0dbd-4b7a-889b-599bfd236e2c",
+    "timestamp": 1779038850961,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "60e8782f-429a-4c62-aa39-61f2f3e83233",
+    "timestamp": 1779038831212,
+    "source": "demo",
+    "level": "info",
+    "message": "C18 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "d189b891-2e9b-4bdd-88c5-d3a55d4563fe",
+    "timestamp": 1779038831212,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "23a45442-66c7-4bee-a827-9c602f5176c4",
+    "timestamp": 1779038830849,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "45db52ab-9593-422e-8764-ce37c9ae12ca",
+    "timestamp": 1779038812299,
+    "source": "demo",
+    "level": "info",
+    "message": "C17 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "82c92bdc-5b6c-4010-bc1e-5d5ed7d66fcb",
+    "timestamp": 1779038812299,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "1ad87cad-28c2-4403-a470-bd814730debd",
+    "timestamp": 1779038810848,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "243df88d-7791-426e-9219-0355d4827e3e",
+    "timestamp": 1779038791365,
+    "source": "demo",
+    "level": "info",
+    "message": "C16 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "5ef33060-6d03-4cca-9011-ece1c7fe15ef",
+    "timestamp": 1779038791365,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "1039d553-97df-4bf9-9701-bd6c3ae6a184",
+    "timestamp": 1779038791004,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "c2c3c4d3-075a-4233-afce-547ca593e1f4",
+    "timestamp": 1779038772034,
+    "source": "demo",
+    "level": "info",
+    "message": "C15 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a2227514-63bf-40a1-b7fd-dfcc9d71c6ef",
+    "timestamp": 1779038772034,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "b65f0eed-4d44-469d-9d3c-bf4d28b43f2e",
+    "timestamp": 1779038770850,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "d48d237c-1e99-40e4-a07a-52af7bff39fd",
+    "timestamp": 1779038751206,
+    "source": "demo",
+    "level": "info",
+    "message": "C14 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "73af8419-7efd-427e-8671-799d7a9d4bc6",
+    "timestamp": 1779038751206,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "f3d93e71-51c6-4289-be0c-f571c95c5578",
+    "timestamp": 1779038750845,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "2f1e0bd5-4239-44a6-b073-534ab3c00c39",
+    "timestamp": 1779038732107,
+    "source": "demo",
+    "level": "info",
+    "message": "C13 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "95001109-f220-46dc-b881-6f64ac5f5e82",
+    "timestamp": 1779038732107,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "2f505b79-5684-430e-8366-548ce24be63c",
+    "timestamp": 1779038730950,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "d0299923-764d-4199-9c1e-6e38f2fd4ac0",
+    "timestamp": 1779038711206,
+    "source": "demo",
+    "level": "info",
+    "message": "C12 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "5845d728-5094-4f86-a278-d4a83a2fc250",
+    "timestamp": 1779038711206,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "67e68990-4425-4bd5-9cc8-bff24461fa14",
+    "timestamp": 1779038710845,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "a5957f00-7ed7-4579-ae30-6bf2d6208e46",
+    "timestamp": 1779038691906,
+    "source": "demo",
+    "level": "info",
+    "message": "C11 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "d870ef68-10e8-4aae-abfe-854938933738",
+    "timestamp": 1779038691906,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "c6035272-b863-4892-ba19-38990b38d656",
+    "timestamp": 1779038690846,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "c8cc6981-c995-4e53-b757-8298d9383009",
+    "timestamp": 1779038671308,
+    "source": "demo",
+    "level": "info",
+    "message": "C10 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "02be1012-00b0-42bc-b28b-b7088386820c",
+    "timestamp": 1779038671308,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "c44c879a-e7fd-4e7d-b259-556e3cd9e3b7",
+    "timestamp": 1779038670947,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "a0706cfe-8872-4a09-a3b2-dde32abe0d8b",
+    "timestamp": 1779038651880,
+    "source": "demo",
+    "level": "info",
+    "message": "C9 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "5f3f6912-2a6e-4d1a-bf98-001dd4871c73",
+    "timestamp": 1779038651880,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "8e75c9e8-62dd-4e62-98dd-39fa21df9c65",
+    "timestamp": 1779038650846,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "ba0789d5-d599-4fea-b4f0-f13b4b70d594",
+    "timestamp": 1779038631207,
+    "source": "demo",
+    "level": "info",
+    "message": "C8 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "431726ca-fe20-4468-b419-17149aecfbd7",
+    "timestamp": 1779038631207,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "f4e9c836-e5ee-4f5c-9cf9-2951358ccfc7",
+    "timestamp": 1779038630845,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "02f81e08-c65a-41ee-94c7-03454d83f869",
+    "timestamp": 1779038612562,
+    "source": "demo",
+    "level": "info",
+    "message": "C7 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "4d99e6fe-ff3e-4041-bfcf-139297e8dcfa",
+    "timestamp": 1779038612562,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "8ab0e317-f2a8-4083-b5b4-d847fdf81881",
+    "timestamp": 1779038610949,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "5cd61417-a9b4-49b3-a572-6301803ca283",
+    "timestamp": 1779038591205,
+    "source": "demo",
+    "level": "info",
+    "message": "C6 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "25d449b7-a9ea-4670-bce1-3928c8988c21",
+    "timestamp": 1779038591205,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "8a17da4b-4ee4-442a-ad98-75aee33ffd95",
+    "timestamp": 1779038590843,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
     "id": "11077c8c-beed-49b7-aec5-658bea450a6c",
     "timestamp": 1779038571907,
     "source": "demo",
@@ -3665,641 +4232,5 @@
     "level": "info",
     "message": "↩ EXIT LONG DUSKUSDT @ $0.1631 | PnL: $+0.07 (+1.30%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
     "symbol": "DUSKUSDT"
-  },
-  {
-    "id": "892f2655-0666-4d88-b8d8-dc2a98b82d7c",
-    "timestamp": 1779034750255,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG DUSKUSDT @ $0.1631 | Profit: +1.30% | 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "DUSKUSDT"
-  },
-  {
-    "id": "fb76ec9a-f73e-44fc-ba78-9d226ce25fc8",
-    "timestamp": 1779034750114,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG KAIAUSDT @ $0.0563 | PnL: $+0.16 (+3.04%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "KAIAUSDT"
-  },
-  {
-    "id": "885ab583-b452-4401-ae0f-ac5ba8e394cf",
-    "timestamp": 1779034750112,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG KAIAUSDT @ $0.0563 | Profit: +3.04% | 📉 Probabilitas kelanjutan rendah (28%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "KAIAUSDT"
-  },
-  {
-    "id": "4f0e4d82-0ee2-4d2c-b877-f1e3f2105f73",
-    "timestamp": 1779034743182,
-    "source": "demo",
-    "level": "info",
-    "message": "C1 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "09827216-f63b-4e7f-bd58-66213bdb14ec",
-    "timestamp": 1779034743182,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "5b543b75-9a1f-4268-af03-35d5c6d19b21",
-    "timestamp": 1779034742088,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "6d70aa8e-02b8-4877-9f55-7af0910f372f",
-    "timestamp": 1779028900756,
-    "source": "demo",
-    "level": "info",
-    "message": "C101 · pindai:20 · kandidat:17 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "20559521-d878-4f2c-bca3-2b88ae211edc",
-    "timestamp": 1779028900756,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "c90b3641-8eb1-4b76-84e7-7eb52444c77d",
-    "timestamp": 1779028899735,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "f8bfc0c8-f00a-4f52-a83b-690022d20e03",
-    "timestamp": 1779028880218,
-    "source": "demo",
-    "level": "info",
-    "message": "C100 · pindai:20 · kandidat:17 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "10dff14a-d540-4978-abad-8b4011ff7591",
-    "timestamp": 1779028880218,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "f0cdf335-3e0a-4bb2-8f75-de313b7c73a4",
-    "timestamp": 1779028879833,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "0ceadc7e-63e9-4d6d-8352-ad10d45b36c4",
-    "timestamp": 1779028864159,
-    "source": "auto",
-    "level": "info",
-    "message": "Siklus #33 · dipindai: 20 · kandidat ≥75%: 16 · dianalisis/skip: 9 · posisi: 0"
-  },
-  {
-    "id": "fc21d999-7a19-4231-b371-df6e199817dd",
-    "timestamp": 1779028864157,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi MLNUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "MLNUSDT"
-  },
-  {
-    "id": "62be73b6-33a0-43d2-98c6-2ff784b74f3b",
-    "timestamp": 1779028864089,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT MLNUSDT @ $2.3780 (confidence: 99% | Market)",
-    "symbol": "MLNUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "29df237f-1bc0-4325-808f-bb86fcbd5319",
-    "timestamp": 1779028864015,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi QNTUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "QNTUSDT"
-  },
-  {
-    "id": "8f826027-169b-475a-8d55-fafd9d22ffcb",
-    "timestamp": 1779028863906,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT QNTUSDT @ $77.7900 (confidence: 99% | Market)",
-    "symbol": "QNTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "85258b48-ec15-4d75-b513-cbf5e960c778",
-    "timestamp": 1779028863487,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi UBUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "UBUSDT"
-  },
-  {
-    "id": "54ed12a7-6603-4c2d-be6a-bffb473526fc",
-    "timestamp": 1779028863415,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT UBUSDT @ $0.1421 (confidence: 99% | Market)",
-    "symbol": "UBUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "4603cbf9-cf0f-475e-ae84-2caaf62e77d9",
-    "timestamp": 1779028863261,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi HUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "HUSDT"
-  },
-  {
-    "id": "b9c47cc6-7225-479e-bcae-b75e7738d203",
-    "timestamp": 1779028863188,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG HUSDT @ $0.2415 (confidence: 99% | Market)",
-    "symbol": "HUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "466791e2-725f-4957-8881-11e645feaaae",
-    "timestamp": 1779028863095,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi TAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "c61b9111-2890-4454-9401-bdbb6b30547f",
-    "timestamp": 1779028863025,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG TAUSDT @ $0.0630 (confidence: 99% | Market)",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "5b0e7818-ff8e-4e5d-9ee3-0048d423b94a",
-    "timestamp": 1779028863024,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi KAIAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "KAIAUSDT"
-  },
-  {
-    "id": "ebe29754-fc26-4e89-a568-dbb6cdf7b47a",
-    "timestamp": 1779028862954,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG KAIAUSDT @ $0.0534 (confidence: 99% | Market)",
-    "symbol": "KAIAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "b5c51a87-c75d-448a-a178-dce6f661fa63",
-    "timestamp": 1779028862953,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi DUSKUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "DUSKUSDT"
-  },
-  {
-    "id": "9d090810-952b-4cdb-8522-6f1c9a612940",
-    "timestamp": 1779028862881,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG DUSKUSDT @ $0.1601 (confidence: 99% | Market)",
-    "symbol": "DUSKUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "db6de605-4dd9-44d1-a611-6ced80608ed0",
-    "timestamp": 1779028860692,
-    "source": "demo",
-    "level": "info",
-    "message": "C99 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "f29da1cd-d063-40e8-9f56-8e6d0c529e28",
-    "timestamp": 1779028860692,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "ebe69bb4-325b-47b3-ad69-3f0727e6b2fc",
-    "timestamp": 1779028859735,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "6f9210ba-9258-40e1-9164-fae9b8aa76d3",
-    "timestamp": 1779028840113,
-    "source": "demo",
-    "level": "info",
-    "message": "C98 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "f5114a26-620b-44a3-8e45-080b5f92775f",
-    "timestamp": 1779028840113,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "d94cd5dc-39cd-4d4a-add9-26522a9b53c5",
-    "timestamp": 1779028839733,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "24648fe1-60c6-4ea2-a43e-7f7a357e6002",
-    "timestamp": 1779028821992,
-    "source": "demo",
-    "level": "info",
-    "message": "C97 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "9b929497-0569-4461-aa5c-9ecd84b6e3f6",
-    "timestamp": 1779028821992,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "6e24d706-f937-456f-a5de-ed28b4c825e0",
-    "timestamp": 1779028820016,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "fa66e4ae-8583-4819-acde-47b35697c925",
-    "timestamp": 1779028804224,
-    "source": "auto",
-    "level": "info",
-    "message": "Siklus #32 · dipindai: 20 · kandidat ≥75%: 16 · dianalisis/skip: 8 · posisi: 0"
-  },
-  {
-    "id": "b5984183-1287-483c-a824-749eac9e38c6",
-    "timestamp": 1779028804223,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi MLNUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "MLNUSDT"
-  },
-  {
-    "id": "bc040358-a938-4fab-b4c0-c22c68bec41d",
-    "timestamp": 1779028804154,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT MLNUSDT @ $2.3780 (confidence: 99% | Market)",
-    "symbol": "MLNUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "b73b1848-8dfc-45e4-a450-909ad542fae3",
-    "timestamp": 1779028804080,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi QNTUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "QNTUSDT"
-  },
-  {
-    "id": "f7e62e22-6a3c-4781-9f34-a232e46430f8",
-    "timestamp": 1779028804009,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT QNTUSDT @ $77.9000 (confidence: 99% | Market)",
-    "symbol": "QNTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "7a1f44ab-6211-4648-9d4b-c5eaf1591cd4",
-    "timestamp": 1779028803536,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi UBUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "UBUSDT"
-  },
-  {
-    "id": "b457fc3e-dcda-45b7-897f-709fbd8a6632",
-    "timestamp": 1779028803464,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT UBUSDT @ $0.1426 (confidence: 99% | Market)",
-    "symbol": "UBUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "4c4d9555-b14f-424a-b953-62aa26539e04",
-    "timestamp": 1779028803390,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi KAITOUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "KAITOUSDT"
-  },
-  {
-    "id": "f9825dd7-8238-48fe-8ebf-f1bc878d2e3a",
-    "timestamp": 1779028803316,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG KAITOUSDT @ $0.4746 (confidence: 99% | Market)",
-    "symbol": "KAITOUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "10a83a42-8569-4492-ab91-e3d1bcd020cf",
-    "timestamp": 1779028803244,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi HUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "HUSDT"
-  },
-  {
-    "id": "1d4c3fd3-e41c-4a0a-ad21-9f95b82ac005",
-    "timestamp": 1779028803174,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG HUSDT @ $0.2416 (confidence: 99% | Market)",
-    "symbol": "HUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "7acbbc3b-220a-412c-8342-035ae5c4d205",
-    "timestamp": 1779028803093,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi TAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "7763d519-edc8-4296-8800-03ef7209a181",
-    "timestamp": 1779028803020,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG TAUSDT @ $0.0628 (confidence: 99% | Market)",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "14175662-4af5-4104-b039-4c4566c3277e",
-    "timestamp": 1779028803019,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi KAIAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "KAIAUSDT"
-  },
-  {
-    "id": "fcafadd3-6209-4368-a0ae-c91f3a580f7e",
-    "timestamp": 1779028802950,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG KAIAUSDT @ $0.0534 (confidence: 99% | Market)",
-    "symbol": "KAIAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "72902b27-4482-4d73-8336-296d798caced",
-    "timestamp": 1779028802949,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi DUSKUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "DUSKUSDT"
-  },
-  {
-    "id": "49ff128b-b4ca-4c69-98e5-642304625cca",
-    "timestamp": 1779028802879,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG DUSKUSDT @ $0.1596 (confidence: 99% | Market)",
-    "symbol": "DUSKUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "4226b7d8-3c38-4f1f-ac32-e0fa50ad7ee0",
-    "timestamp": 1779028800112,
-    "source": "demo",
-    "level": "info",
-    "message": "C96 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "00dd8586-d992-4d88-b49f-9205f3ce4b7e",
-    "timestamp": 1779028800112,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "7558328a-5203-451f-95cc-954129c489e3",
-    "timestamp": 1779028799730,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "40c40e5e-3cd3-48a9-a621-3afb689a41d9",
-    "timestamp": 1779028780612,
-    "source": "demo",
-    "level": "info",
-    "message": "C95 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "6d8d699f-d180-4f33-bb59-162b59217304",
-    "timestamp": 1779028780612,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "e96ff134-110a-419f-af88-68debff41ccd",
-    "timestamp": 1779028779728,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "47ca5177-a45b-41f8-9b04-a7a7bfc67265",
-    "timestamp": 1779028760272,
-    "source": "demo",
-    "level": "info",
-    "message": "C94 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "3eafc1a9-859c-4cc2-8e25-4f19250df970",
-    "timestamp": 1779028760272,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "ef20987c-15f1-43c1-811b-e97e293ecac2",
-    "timestamp": 1779028759831,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "263ce558-10e9-4981-aa92-713b6905a4c2",
-    "timestamp": 1779028743853,
-    "source": "auto",
-    "level": "info",
-    "message": "Siklus #31 · dipindai: 20 · kandidat ≥75%: 14 · dianalisis/skip: 7 · posisi: 0"
-  },
-  {
-    "id": "7d183359-76c5-4bc5-b9af-b2449d851608",
-    "timestamp": 1779028743622,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi UBUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "UBUSDT"
-  },
-  {
-    "id": "2d275107-d143-4b5a-874e-8bceb0712ea7",
-    "timestamp": 1779028743550,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi SHORT UBUSDT @ $0.1432 (confidence: 99% | Market)",
-    "symbol": "UBUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "2112d366-d1fd-4ffd-aecd-e79b65e41d93",
-    "timestamp": 1779028743475,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi KAITOUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "KAITOUSDT"
-  },
-  {
-    "id": "c061fc60-178a-42ca-a684-f6a70abce212",
-    "timestamp": 1779028743404,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG KAITOUSDT @ $0.4781 (confidence: 99% | Market)",
-    "symbol": "KAITOUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "c8e9e118-6c66-48a5-98fb-1a54fd03631b",
-    "timestamp": 1779028743329,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi HUSDT: Error: Bybit: Order does not meet minimum order value 5USDT (110094)",
-    "symbol": "HUSDT"
-  },
-  {
-    "id": "42e9bfac-ce79-4c4d-ac46-4c8ac8aa4386",
-    "timestamp": 1779028743256,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG HUSDT @ $0.2426 (confidence: 99% | Market)",
-    "symbol": "HUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "8d0df2b9-f7b5-41dc-9e72-49e0a29c5adc",
-    "timestamp": 1779028743164,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi VVVUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "VVVUSDT"
-  },
-  {
-    "id": "ea57f422-cfa4-4062-9835-50adbf3574eb",
-    "timestamp": 1779028743094,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG VVVUSDT @ $14.3020 (confidence: 99% | Market)",
-    "symbol": "VVVUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "fe4d5f91-7fe7-4a33-b560-b5f6c5d7ec12",
-    "timestamp": 1779028743093,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi TAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "0c7e8aee-c57f-4878-a4fb-4a2a09e8599b",
-    "timestamp": 1779028743023,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG TAUSDT @ $0.0627 (confidence: 99% | Market)",
-    "symbol": "TAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "4c4f09cd-ecb5-458d-9fcc-eb7a1e7081f4",
-    "timestamp": 1779028743021,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi KAIAUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "KAIAUSDT"
-  },
-  {
-    "id": "1358e1fd-8bae-45f2-91f5-1af5f18940fe",
-    "timestamp": 1779028742951,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG KAIAUSDT @ $0.0534 (confidence: 99% | Market)",
-    "symbol": "KAIAUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "7e1dcd38-a991-4f73-9130-139417146537",
-    "timestamp": 1779028742950,
-    "source": "auto",
-    "level": "error",
-    "message": "✕ Gagal membuka posisi DUSKUSDT: Error: Bybit: ab not enough for new order (110007)",
-    "symbol": "DUSKUSDT"
-  },
-  {
-    "id": "b9350829-f5b0-49aa-b871-8e1135c78873",
-    "timestamp": 1779028742881,
-    "source": "auto",
-    "level": "signal",
-    "message": "⚡ Membuka posisi LONG DUSKUSDT @ $0.1598 (confidence: 99% | Market)",
-    "symbol": "DUSKUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "78b9fcb2-4a84-4b0a-b8c3-d413e9b640d0",
-    "timestamp": 1779028740568,
-    "source": "demo",
-    "level": "info",
-    "message": "C93 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "7c493417-c880-45ac-b11f-c141dfd4faa7",
-    "timestamp": 1779028740568,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "e15bc466-c9b8-4dc1-8103-5ae2da491771",
-    "timestamp": 1779028739728,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "fd72cedc-999f-44e6-b5d8-e96f0725f978",
-    "timestamp": 1779028720107,
-    "source": "demo",
-    "level": "info",
-    "message": "C92 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
   }
 ]
