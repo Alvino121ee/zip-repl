@@ -1,6 +1,123 @@
 {
   "records": [
     {
+      "id": "51e28cf0-4d2f-4175-89c9-d95a83a7bc43",
+      "timestamp": 1779066635898,
+      "tradeId": "97435880-6747-4f15-b4db-3cfe5380ee8c",
+      "symbol": "QUSDT",
+      "side": "long",
+      "entryPrice": 0.02498,
+      "slPrice": 0.024510714285714285,
+      "exitPrice": 0.023508,
+      "pnlPct": -5.893,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 6615217,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Harga sudah bergerak signifikan sebelum entry, menyisakan ruang gerak minimal untuk profit.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.879,
+      "improvementApplied": false
+    },
+    {
+      "id": "5a57ec3f-92c5-4d3a-809f-67023568e71a",
+      "timestamp": 1779060463427,
+      "tradeId": "fd24155f-d19a-4245-8c75-3b81b0ccbbcb",
+      "symbol": "BOBBOBUSDT",
+      "side": "long",
+      "entryPrice": 0.007872,
+      "slPrice": 0.0084224912,
+      "exitPrice": 0.008415,
+      "pnlPct": 6.898,
+      "confidence": 93,
+      "strategy": "auto_institutional",
+      "marketCondition": "volatile",
+      "holdTimeMs": 262820,
+      "primaryCause": "fake_breakout",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Breakout tidak valid — volume tidak mendukung pergerakan harga yang tampak kuat. (SL hit dalam 4 menit setelah entry)",
+      "recommendations": [
+        "Tunggu candle close di atas/bawah level breakout sebelum entry.",
+        "Gunakan konfirmasi volume — breakout valid memerlukan volume > 1.5× rata-rata.",
+        "Tambahkan delay entry 1-2 bar setelah breakout untuk menghindari fakeout.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 6.993,
+      "improvementApplied": false
+    },
+    {
+      "id": "e9fa862b-67d1-4682-9e0f-57c3b86b50ed",
+      "timestamp": 1779060199449,
+      "tradeId": "11c938fb-a1fa-443c-bd54-36a67840845d",
+      "symbol": "BOBBOBUSDT",
+      "side": "long",
+      "entryPrice": 0.007865,
+      "slPrice": 0.007871292,
+      "exitPrice": 0.007858,
+      "pnlPct": -0.089,
+      "confidence": 93,
+      "strategy": "auto_institutional",
+      "marketCondition": "volatile",
+      "holdTimeMs": 59576,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "AI masuk terlalu dini, sebelum breakout atau reversal mendapat konfirmasi valid. (SL hit dalam 1 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "d81b1671-ee86-43f4-a06f-d484de95c2ff",
+      "timestamp": 1779060007480,
+      "tradeId": "26f4ac16-f842-4c96-a7c2-88cf47e9ad31",
+      "symbol": "VVVUSDT",
+      "side": "long",
+      "entryPrice": 14.694,
+      "slPrice": 14.452607142857143,
+      "exitPrice": 14.3548,
+      "pnlPct": -2.308,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "breakout",
+      "holdTimeMs": 15007109,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Setup valid namun eksekusi terlambat, posisi masuk dekat titik balik.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.643,
+      "improvementApplied": false
+    },
+    {
       "id": "d1d2eec8-d772-427d-ba9f-91d52788f601",
       "timestamp": 1779042745291,
       "tradeId": "27a124c7-4859-4576-9fb9-030ede531a41",
@@ -810,7 +927,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779042745292
+      "lastSeen": 1779066635898
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -830,7 +947,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779042745292
+      "lastSeen": 1779066635898
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -849,10 +966,29 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "low",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779042745292
+      "lastSeen": 1779066635898
+    },
+    {
+      "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
+      "pattern": "Entry Terlambat",
+      "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 3,
+      "primaryCause": "late_entry",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "trending_up_normal",
+        "breakout"
+      ],
+      "avgPnlPct": -3.34,
+      "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+      "severity": "low",
+      "firstSeen": 1779066635898,
+      "lastSeen": 1779066635898
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 28,
-  "improvementScore": 50
+  "totalAnalyzed": 32,
+  "improvementScore": 54
 }

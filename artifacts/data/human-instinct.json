@@ -1,15 +1,257 @@
 {
-  "totalDecisions": 43,
-  "correctEarlyExits": 43,
+  "totalDecisions": 55,
+  "correctEarlyExits": 55,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.2093023255814,
-  "avgContinuationProbAtExit": 14,
+  "avgMomentumAtEarlyExit": 46.18181818181818,
+  "avgContinuationProbAtExit": 13.836363636363636,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "75d44e22-ef04-4914-afaa-4517cf95714f",
+      "tradeId": "9fe04a0c-194e-4efe-9b47-3d3a99487b1d",
+      "symbol": "SPACEUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8858267716535329,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779067076290,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8858267716535329,
+      "profitDelta": 0
+    },
+    {
+      "id": "bde67717-4d9f-4e1f-bbcd-14c307963d0b",
+      "tradeId": "fb2ec391-b624-451a-83c6-36d880cf507b",
+      "symbol": "TACUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (35%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5458404932780601,
+      "momentumScore": 78,
+      "continuationProb": 35,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume menurun 43% — tanda pelemahan"
+      ],
+      "timestamp": 1779066924155,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5458404932780601,
+      "profitDelta": 0
+    },
+    {
+      "id": "631a749d-8ddf-48f6-99db-419cd846b434",
+      "tradeId": "f77402d8-a29e-4f92-bc5e-aff3ed026a07",
+      "symbol": "CLOUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 3.342768567192357,
+      "momentumScore": 60,
+      "continuationProb": 0,
+      "greedIndex": 55,
+      "decaySignals": [
+        "Volume turun 87% — momentum sangat lemah"
+      ],
+      "timestamp": 1779066636175,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 3.342768567192357,
+      "profitDelta": 0
+    },
+    {
+      "id": "cba4dace-8bc9-46b1-993e-589206b643ef",
+      "tradeId": "bb4af259-7dd6-4d56-b321-20d4df1c848d",
+      "symbol": "BIOUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (39%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7236665773251308,
+      "momentumScore": 85,
+      "continuationProb": 39,
+      "greedIndex": 0,
+      "decaySignals": [
+        "RSI proxy oversold (20) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779060607586,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7236665773251308,
+      "profitDelta": 0
+    },
+    {
+      "id": "d76f1975-622b-441e-b02f-90047e2235a4",
+      "tradeId": "ed5d4c7f-2905-4209-907a-5e6649be983f",
+      "symbol": "BOBBOBUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7098491570541323,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779060127355,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7098491570541323,
+      "profitDelta": 0
+    },
+    {
+      "id": "d3feb457-f000-444d-882d-87ffcf291aed",
+      "tradeId": "f27a5ac8-ca19-4d40-a2cf-70be6dd62227",
+      "symbol": "QNTUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 2.3114669421487504,
+      "momentumScore": 39,
+      "continuationProb": 0,
+      "greedIndex": 100,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat",
+        "RSI proxy oversold (8) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779060007322,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 2.3114669421487504,
+      "profitDelta": 0
+    },
+    {
+      "id": "dfc92377-1ec3-414e-a895-91e1cc8df4c1",
+      "tradeId": "61289a9e-f302-403c-9867-2ede69c6dc9c",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (27%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6733652480404037,
+      "momentumScore": 60,
+      "continuationProb": 27,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (84) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779045382333,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6733652480404037,
+      "profitDelta": 0
+    },
+    {
+      "id": "77df6812-4ae7-4f4e-8ed1-9925eb23067d",
+      "tradeId": "445775d9-ed78-42c0-88d2-6591c34693ce",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.587268993839841,
+      "momentumScore": 39,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (78) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779044982330,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.587268993839841,
+      "profitDelta": 0
+    },
+    {
+      "id": "e383658c-32e4-4682-ae28-65fec9f9bc08",
+      "tradeId": "3a640015-9e92-4e32-b97d-052b241f1a36",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5987735134017775,
+      "momentumScore": 39,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (76) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779044846379,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5987735134017775,
+      "profitDelta": 0
+    },
+    {
+      "id": "dfcd9541-cdcf-426d-833c-820c95288a4b",
+      "tradeId": "60580d74-9cf2-4d01-9b30-2a98d5a250f1",
+      "symbol": "BIOUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 56% — momentum sangat lemah. Profit $0.37% diamankan.",
+      "profitPctAtDecision": 0.36784025223330086,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 56% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779044566184,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.36784025223330086,
+      "profitDelta": 0
+    },
+    {
+      "id": "3624da4d-6f6e-4736-8513-df9a010ca75b",
+      "tradeId": "381c4067-61b6-423a-a73b-87fd38184d93",
+      "symbol": "HYPEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.94% diamankan.",
+      "profitPctAtDecision": 0.9363836066301219,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (87) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779044422314,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.9363836066301219,
+      "profitDelta": 0
+    },
+    {
+      "id": "d3953533-5078-4b87-b12e-a89901a937ad",
+      "tradeId": "61eae520-aa11-4929-bc98-52e70ccbf045",
+      "symbol": "HYPEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.728658332776251,
+      "momentumScore": 60,
+      "continuationProb": 12,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (86) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779044294227,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.728658332776251,
+      "profitDelta": 0
+    },
     {
       "id": "0653b507-ecd6-4217-b82b-af32a7ae74e2",
       "tradeId": "ef834db1-0853-4531-a808-a08350b2386f",
@@ -875,5 +1117,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779043593730
+  "lastUpdated": 1779067076293
 }
