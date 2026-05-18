@@ -1,5 +1,68 @@
 [
   {
+    "id": "39ed95d4-c5ae-4487-816e-de977bd90784",
+    "timestamp": 1779071462177,
+    "source": "demo",
+    "level": "info",
+    "message": "C3 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "07aa90ca-7ee4-4384-b4e3-cb6e65c99a58",
+    "timestamp": 1779071462177,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "0ca22e01-b2e8-4e49-a850-32adf4501165",
+    "timestamp": 1779071460945,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
+  },
+  {
+    "id": "1a1ea534-a462-4803-aaec-9ae8e6d6ba58",
+    "timestamp": 1779071441306,
+    "source": "demo",
+    "level": "info",
+    "message": "C2 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "b3eb6104-9817-42f1-bb4f-058d67230e5a",
+    "timestamp": 1779071441306,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "51ba3d32-0ebd-4319-bde8-47c5fd8a47ff",
+    "timestamp": 1779071440943,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
+  },
+  {
+    "id": "f146b285-c843-4df9-b607-ff926cfcea34",
+    "timestamp": 1779071422400,
+    "source": "demo",
+    "level": "info",
+    "message": "C1 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "bc8cc363-efb9-4f4b-8334-aacdd1889c3e",
+    "timestamp": 1779071422400,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "d61b4749-4c06-42fc-a3bd-158b50c30f19",
+    "timestamp": 1779071421088,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
+  },
+  {
     "id": "7ab5118f-7d6e-4391-b643-8c45c43ab3e9",
     "timestamp": 1779070861672,
     "source": "demo",
@@ -4231,70 +4294,5 @@
     "source": "demo",
     "level": "info",
     "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "81215d9c-3996-4cbe-abda-f682372dac94",
-    "timestamp": 1779044917969,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "b08dba8f-974a-4f62-82a7-74a7821cdde6",
-    "timestamp": 1779044898415,
-    "source": "demo",
-    "level": "info",
-    "message": "C50 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "bc95b6c6-4a32-4b26-9d36-f7b2c3c8cd43",
-    "timestamp": 1779044898415,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "1a4fd735-b8c8-4497-ac9c-2fdd735d3fa9",
-    "timestamp": 1779044897966,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "d0021e21-9b29-46ff-af6a-b58414c555e2",
-    "timestamp": 1779044879514,
-    "source": "demo",
-    "level": "info",
-    "message": "C49 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "b94e464f-0769-4d6d-8e27-897b100c2081",
-    "timestamp": 1779044879514,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "0ae9dd2f-0ce4-4417-ac4a-152474c0f205",
-    "timestamp": 1779044878082,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "4ec29fc1-6855-4b58-a623-bc2dea250876",
-    "timestamp": 1779044860163,
-    "source": "demo",
-    "level": "success",
-    "message": "C48 · pindai:20 · kandidat:17 · skip:6 · BUKA:1 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "2f9e29b5-a5ad-4b3e-ad7f-ed221191c1e0",
-    "timestamp": 1779044860163,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG VVVUSDT @ $14.6100 | 99% | Breakout | TP:$15.1904 SL:$14.3778 | RR:2.5x",
-    "symbol": "VVVUSDT",
-    "confidence": 99
   }
 ]

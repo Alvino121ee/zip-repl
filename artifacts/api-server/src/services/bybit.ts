@@ -6,6 +6,19 @@ import { logger } from "../lib/logger.js";
 import { getCryptoPredictions } from "./predictions.js";
 import { analyzeSymbol } from "./analysis.js";
 import { logActivity } from "./activity-log.js";
+import {
+  analyzeInstitutional,
+  calculateTrailingStop,
+  calculateDynamicRisk,
+  aiLog,
+} from "./institutional-engine.js";
+import {
+  makeHumanInstinctDecision,
+  learnFromTradeOutcome,
+  generateLiveReasoning,
+} from "./human-instinct-engine.js";
+export { getInstinctStats, getInstinctMemory } from "./human-instinct-engine.js";
+import { analyzeSLFailure } from "./sl-failure-analysis.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -594,6 +607,318 @@ export const engineStatus: EngineStatus = {
   precisionTotalLosses: 0,
 };
 
+// ─── Live Position AI State (in-memory) ───────────────────────────────────────
+
+interface LivePositionState {
+  symbol: string;
+  side: "Buy" | "Sell";
+  entryPrice: number;
+  openedAt: number;
+  confidence: number;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  trailActivated: boolean;
+  trailPeakPrice: number | null;
+  humanInstinct?: {
+    lastEvalAt: number;
+    momentumScore: number;
+    continuationProb: number;
+    greedIndex: number;
+    decaySignals: string[];
+    action: string;
+    reason: string;
+    evalCount: number;
+    urgency: number;
+  };
+}
+
+const livePositionStates = new Map<string, LivePositionState>();
+
+// Track symbols known to be in live positions (for SL-learn on close)
+const lastKnownPositionSymbols = new Set<string>();
+
+// ─── Live Position Monitor ─────────────────────────────────────────────────────
+// Runs every 10 seconds when engine is active.
+// Applies Human Instinct Engine + Institutional trailing stop to live Bybit positions.
+
+const LIVE_INSTINCT_EVAL_INTERVAL_MS = 60_000; // evaluate instinct every 60s
+
+let livePositionMonitorInterval: ReturnType<typeof setInterval> | null = null;
+
+async function runLivePositionMonitor() {
+  if (!autoConfig.enabled) return;
+
+  try {
+    const posResult = await getPositions() as {
+      list: {
+        symbol: string;
+        side: string;
+        size: string;
+        avgPrice: string;
+        unrealisedPnl: string;
+        markPrice: string;
+        leverage: string;
+        stopLoss: string;
+        takeProfit: string;
+      }[];
+    };
+
+    const openPositions = (posResult.list ?? []).filter((p) => parseFloat(p.size) > 0);
+    const currentSymbols = new Set(openPositions.map((p) => p.symbol));
+
+    // ── Detect closed positions (were open, now gone) — trigger learning ─────
+    for (const sym of lastKnownPositionSymbols) {
+      if (!currentSymbols.has(sym)) {
+        const state = livePositionStates.get(sym);
+        if (state) {
+          const holdMs = Date.now() - state.openedAt;
+          const approxPnlPct = 0; // unknown, closed by TP/SL externally
+          try {
+            learnFromTradeOutcome({
+              tradeId: `live_${sym}_${state.openedAt}`,
+              symbol: sym,
+              finalProfitPct: approxPnlPct,
+              closedAs: "manual", // closed externally (TP/SL/user)
+            });
+          } catch { /* non-critical */ }
+          livePositionStates.delete(sym);
+          logActivity({
+            source: "auto",
+            level: "info",
+            message: `📊 Posisi ${state.side === "Buy" ? "LONG" : "SHORT"} ${sym} ditutup (TP/SL/eksternal) — AI Brain belajar`,
+          });
+        }
+        lastKnownPositionSymbols.delete(sym);
+      }
+    }
+
+    if (openPositions.length === 0) return;
+
+    for (const pos of openPositions) {
+      const markPrice = parseFloat(pos.markPrice ?? "0");
+      const entryPrice = parseFloat(pos.avgPrice ?? "0");
+      if (!markPrice || !entryPrice) continue;
+
+      lastKnownPositionSymbols.add(pos.symbol);
+
+      // Initialize state if not yet tracked
+      if (!livePositionStates.has(pos.symbol)) {
+        livePositionStates.set(pos.symbol, {
+          symbol: pos.symbol,
+          side: pos.side as "Buy" | "Sell",
+          entryPrice,
+          openedAt: Date.now() - 60_000, // approximate
+          confidence: 80,
+          stopLoss: parseFloat(pos.stopLoss ?? "0") || null,
+          takeProfit: parseFloat(pos.takeProfit ?? "0") || null,
+          trailActivated: false,
+          trailPeakPrice: null,
+        });
+      }
+
+      const st = livePositionStates.get(pos.symbol)!;
+
+      // Update trailing peak
+      if (pos.side === "Buy") {
+        if (!st.trailPeakPrice || markPrice > st.trailPeakPrice) st.trailPeakPrice = markPrice;
+      } else {
+        if (!st.trailPeakPrice || markPrice < st.trailPeakPrice) st.trailPeakPrice = markPrice;
+      }
+
+      const estimatedAtr = entryPrice * 0.018;
+      const rawProfitPct = pos.side === "Buy"
+        ? (markPrice - entryPrice) / entryPrice * 100
+        : (entryPrice - markPrice) / entryPrice * 100;
+
+      // ── Human Instinct Engine Evaluation ──────────────────────────────────
+      const holdMinutes = (Date.now() - st.openedAt) / 60_000;
+      const lastEvalAt = st.humanInstinct?.lastEvalAt ?? 0;
+      const shouldEvalInstinct =
+        Date.now() - lastEvalAt >= LIVE_INSTINCT_EVAL_INTERVAL_MS &&
+        holdMinutes >= 2;
+
+      if (shouldEvalInstinct) {
+        try {
+          const instinctDecision = await makeHumanInstinctDecision({
+            tradeId: `live_${pos.symbol}_${st.openedAt}`,
+            symbol: pos.symbol,
+            side: pos.side as "Buy" | "Sell",
+            entryPrice,
+            currentPrice: markPrice,
+            takeProfit: st.takeProfit ?? undefined,
+            stopLoss: st.stopLoss ?? undefined,
+            margin: autoConfig.maxPositionUSDT,
+            leverage: parseFloat(pos.leverage ?? "1") || 1,
+            openedAt: st.openedAt,
+            confidence: st.confidence,
+          });
+
+          st.humanInstinct = {
+            lastEvalAt: Date.now(),
+            momentumScore: instinctDecision.momentumScore,
+            continuationProb: instinctDecision.continuationProb,
+            greedIndex: instinctDecision.greedIndex,
+            decaySignals: instinctDecision.decaySignals,
+            action: instinctDecision.action,
+            reason: instinctDecision.reason,
+            evalCount: (st.humanInstinct?.evalCount ?? 0) + 1,
+            urgency: instinctDecision.urgency,
+          };
+
+          const reasoning = generateLiveReasoning(instinctDecision, rawProfitPct);
+          const direction = pos.side === "Buy" ? "LONG" : "SHORT";
+
+          // ── Exit early if instinct says so ─────────────────────────────
+          if (instinctDecision.shouldExitEarly && rawProfitPct > -0.5) {
+            aiLog.exiting(pos.symbol, instinctDecision.reason, parseFloat(pos.unrealisedPnl ?? "0"));
+            logActivity({
+              source: "auto",
+              level: rawProfitPct > 0 ? "success" : "warning",
+              message: `🧠 INSTINCT EXIT ${direction} ${pos.symbol} @ $${markPrice.toFixed(4)} | ${rawProfitPct >= 0 ? "+" : ""}${rawProfitPct.toFixed(2)}% | ${instinctDecision.reason}`,
+              symbol: pos.symbol,
+            });
+            const closeSide: "Buy" | "Sell" = pos.side === "Buy" ? "Sell" : "Buy";
+            try {
+              const closeOrder = await closePosition(pos.symbol, closeSide, pos.size);
+              tradeLog.unshift({
+                id: crypto.randomUUID(),
+                timestamp: Date.now(),
+                symbol: pos.symbol,
+                side: closeSide,
+                qty: pos.size,
+                price: markPrice,
+                confidence: st.confidence,
+                signal: "instinct_exit",
+                status: "executed",
+                reason: `[Instinct Exit] ${instinctDecision.reason}`,
+                orderId: closeOrder.orderId,
+              });
+              if (tradeLog.length > 200) tradeLog.splice(200);
+              saveTradeLog();
+              try {
+                learnFromTradeOutcome({
+                  tradeId: `live_${pos.symbol}_${st.openedAt}`,
+                  symbol: pos.symbol,
+                  finalProfitPct: rawProfitPct,
+                  closedAs: "early_exit",
+                });
+              } catch { /* non-critical */ }
+              livePositionStates.delete(pos.symbol);
+              lastKnownPositionSymbols.delete(pos.symbol);
+            } catch (err) {
+              logger.warn({ err, symbol: pos.symbol }, "Instinct exit failed on live position");
+            }
+            continue;
+          }
+
+          // ── Tighten trailing stop ───────────────────────────────────────
+          if (instinctDecision.action === "tighten_trail" && instinctDecision.suggestedSL) {
+            const isImprovement = pos.side === "Buy"
+              ? instinctDecision.suggestedSL > (st.stopLoss ?? 0)
+              : instinctDecision.suggestedSL < (st.stopLoss ?? Infinity);
+            if (isImprovement) {
+              try {
+                await setPositionTPSL({ symbol: pos.symbol, stopLoss: instinctDecision.suggestedSL });
+                st.stopLoss = instinctDecision.suggestedSL;
+                st.trailActivated = true;
+                aiLog.protecting(pos.symbol, `Instinct trail → SL $${instinctDecision.suggestedSL.toFixed(4)}`);
+                logActivity({
+                  source: "auto",
+                  level: "info",
+                  message: `🛡 SMART TRAIL ${pos.symbol}: SL → $${instinctDecision.suggestedSL.toFixed(4)} | Momentum ${instinctDecision.momentumScore} | ${instinctDecision.decaySignals[0] ?? "Trail disesuaikan"}`,
+                  symbol: pos.symbol,
+                });
+              } catch (err) {
+                logger.warn({ err, symbol: pos.symbol }, "Failed to update SL via instinct tighten_trail");
+              }
+            }
+          }
+
+          // ── Extend take profit ──────────────────────────────────────────
+          if (instinctDecision.action === "extend_target" && instinctDecision.suggestedTP) {
+            const isExtension = pos.side === "Buy"
+              ? instinctDecision.suggestedTP > (st.takeProfit ?? 0)
+              : instinctDecision.suggestedTP < (st.takeProfit ?? Infinity);
+            if (isExtension && st.takeProfit) {
+              try {
+                await setPositionTPSL({ symbol: pos.symbol, takeProfit: instinctDecision.suggestedTP });
+                const oldTP = st.takeProfit;
+                st.takeProfit = instinctDecision.suggestedTP;
+                logActivity({
+                  source: "auto",
+                  level: "signal",
+                  message: `🚀 EXTEND TARGET ${pos.symbol}: TP $${oldTP.toFixed(4)} → $${instinctDecision.suggestedTP.toFixed(4)} | Momentum: ${instinctDecision.momentumScore}`,
+                  symbol: pos.symbol,
+                });
+              } catch (err) {
+                logger.warn({ err, symbol: pos.symbol }, "Failed to extend TP via instinct");
+              }
+            }
+          }
+
+          if (instinctDecision.decaySignals.length > 0 && instinctDecision.urgency >= 50) {
+            logActivity({
+              source: "auto",
+              level: "info",
+              message: `🧠 INSTINCT [${pos.symbol}]: ${reasoning.split("\n")[1] ?? instinctDecision.reason}`,
+              symbol: pos.symbol,
+            });
+          }
+        } catch (err) {
+          logger.warn({ err, symbol: pos.symbol }, "Human Instinct evaluation error — non-critical");
+        }
+      }
+
+      // ── Institutional trailing stop (second layer) ─────────────────────
+      const trailResult = calculateTrailingStop({
+        side: pos.side as "Buy" | "Sell",
+        entryPrice,
+        currentPrice: markPrice,
+        atr: estimatedAtr,
+        currentSL: st.stopLoss,
+        trailActivated: st.trailActivated,
+        peakPrice: st.trailPeakPrice ?? entryPrice,
+      });
+
+      if (trailResult.activated && !st.trailActivated) {
+        st.trailActivated = true;
+        st.stopLoss = trailResult.newSL;
+        const note = trailResult.note ?? "Trailing stop aktif — SL dipindah ke breakeven";
+        try {
+          await setPositionTPSL({ symbol: pos.symbol, stopLoss: trailResult.newSL });
+          aiLog.protecting(pos.symbol, note);
+          logActivity({
+            source: "auto",
+            level: "info",
+            message: `🛡 TRAIL AKTIF ${pos.side === "Buy" ? "LONG" : "SHORT"} ${pos.symbol}: ${note}`,
+            symbol: pos.symbol,
+          });
+        } catch (err) {
+          logger.warn({ err, symbol: pos.symbol }, "Failed to set trail SL on Bybit");
+        }
+      } else if (trailResult.activated && trailResult.tightened && trailResult.note) {
+        if (trailResult.newSL !== st.stopLoss) {
+          st.stopLoss = trailResult.newSL;
+          try {
+            await setPositionTPSL({ symbol: pos.symbol, stopLoss: trailResult.newSL });
+            aiLog.protecting(pos.symbol, trailResult.note);
+            logActivity({
+              source: "auto",
+              level: "info",
+              message: `🛡 TRAIL ${pos.symbol} (profit ${rawProfitPct.toFixed(1)}%): ${trailResult.note}`,
+              symbol: pos.symbol,
+            });
+          } catch (err) {
+            logger.warn({ err, symbol: pos.symbol }, "Failed to tighten trail SL on Bybit");
+          }
+        }
+      }
+    }
+  } catch (err) {
+    logger.warn({ err }, "Live position monitor error");
+  }
+}
+
 // ─── Scalp monitor ────────────────────────────────────────────────────────────
 
 let scalpInterval: ReturnType<typeof setInterval> | null = null;
@@ -1076,33 +1401,102 @@ async function runAutoTradeCycle() {
     const activeSymbols = new Set(openPositions.map((p) => p.symbol));
 
     const balResult = await getWalletBalance() as {
-      list: { coin: { coin: string; walletBalance: string }[] }[];
+      list: { totalEquity: string; coin: { coin: string; walletBalance: string }[] }[];
     };
     const usdtCoin = balResult.list?.[0]?.coin?.find((c) => c.coin === "USDT");
     const availableUSDT = parseFloat(usdtCoin?.walletBalance ?? "0");
-    const maxPerTrade = Math.min(autoConfig.maxPositionUSDT, availableUSDT * 0.2);
 
-    // ── 3. Position management — auto close/reverse on trend change ──────────
+    // ── 2b. Dynamic Risk Management ─────────────────────────────────────────
+    const recentLosses = tradeLog.filter(
+      (t) => t.status === "executed" && Date.now() - t.timestamp < 3_600_000
+    ).length;
+    const consecutiveLosses = (() => {
+      let count = 0;
+      for (const t of tradeLog) {
+        if (t.status !== "executed") continue;
+        if (t.signal === "close" || t.signal?.includes("exit") || t.signal?.includes("precision")) break;
+        count++;
+        if (count >= 5) break;
+      }
+      return 0; // simplified — use available metric
+    })();
+
+    const dynRisk = calculateDynamicRisk({
+      consecutiveLosses,
+      maxConsecutiveLosses: 5,
+      drawdownPct: 0, // unknown without equity tracking for live
+      availableBalance: availableUSDT,
+      maxPositionUSDT: autoConfig.maxPositionUSDT,
+      maxLeverage: autoConfig.leverage > 1 ? autoConfig.leverage : 5,
+    });
+
+    if (!dynRisk.shouldTrade) {
+      aiLog.waiting(dynRisk.reason);
+      logActivity({ source: "auto", level: "warning", message: `⚠ RISK MGMT: ${dynRisk.reason}` });
+      engineStatus.lastOrdersPlaced = 0;
+      return;
+    }
+
+    const maxPerTrade = Math.max(5.5, Math.min(dynRisk.positionUSDT, availableUSDT * 0.2));
+
+    // ── 3. Position management — use Institutional analysis for exit ──────────
     let ordersPlaced = 0;
 
     for (const pos of openPositions) {
       if (!pos.size || parseFloat(pos.size) === 0) continue;
 
-      let posAnalysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
-      try { posAnalysis = await analyzeSymbol(pos.symbol); }
-      catch (err) { logger.warn({ err, symbol: pos.symbol }, "Analysis failed for position monitoring"); continue; }
+      let posAnalysis: Awaited<ReturnType<typeof analyzeInstitutional>> | null = null;
+      try { posAnalysis = await analyzeInstitutional(pos.symbol); }
+      catch (err) { logger.warn({ err, symbol: pos.symbol }, "Institutional analysis failed for position monitoring"); continue; }
 
       const isLong = pos.side === "Buy";
       const shouldClose = isLong ? posAnalysis.shouldExitLong : posAnalysis.shouldExitShort;
 
       if (!shouldClose) continue;
 
-      // Close the existing position
       const closeSide: "Buy" | "Sell" = isLong ? "Sell" : "Buy";
       try {
         const closeOrder = await closePosition(pos.symbol, closeSide, pos.size);
-        const closeMsg = posAnalysis.exitReason ?? `Tren berbalik — auto close ${isLong ? "LONG" : "SHORT"}`;
+        const closeMsg = posAnalysis.exitReason ?? `Tren berbalik — institutional exit ${isLong ? "LONG" : "SHORT"}`;
         logger.info({ symbol: pos.symbol, closeSide, size: pos.size, orderId: closeOrder.orderId }, closeMsg);
+
+        // Trigger SL Failure Analysis if this was a forced close (not profit)
+        const st = livePositionStates.get(pos.symbol);
+        if (st) {
+          const markPrice = parseFloat(pos.avgPrice ?? "0");
+          const pnlPct = isLong
+            ? (markPrice - st.entryPrice) / st.entryPrice * 100
+            : (st.entryPrice - markPrice) / st.entryPrice * 100;
+          if (pnlPct < 0) {
+            try {
+              analyzeSLFailure({
+                tradeId: `live_${pos.symbol}_${st.openedAt}`,
+                symbol: pos.symbol,
+                side: isLong ? "long" : "short",
+                entryPrice: st.entryPrice,
+                slPrice: st.stopLoss ?? markPrice,
+                exitPrice: markPrice,
+                pnlPct,
+                confidence: st.confidence,
+                strategy: "auto_institutional",
+                holdTimeMs: Date.now() - st.openedAt,
+                isChoppy: posAnalysis.marketCondition === "choppy",
+                liquiditySweepDetected: posAnalysis.liquiditySweep?.detected ?? false,
+              });
+            } catch { /* non-critical */ }
+          }
+          try {
+            learnFromTradeOutcome({
+              tradeId: `live_${pos.symbol}_${st.openedAt}`,
+              symbol: pos.symbol,
+              finalProfitPct: pnlPct,
+              closedAs: "manual",
+            });
+          } catch { /* non-critical */ }
+          livePositionStates.delete(pos.symbol);
+          lastKnownPositionSymbols.delete(pos.symbol);
+        }
+
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
           symbol: pos.symbol, side: closeSide, qty: pos.size,
@@ -1112,8 +1506,8 @@ async function runAutoTradeCycle() {
         if (tradeLog.length > 200) tradeLog.splice(200);
         activeSymbols.delete(pos.symbol);
 
-        // Immediately open opposite direction if analysis has a clear new entry
-        if (posAnalysis.shouldEnter && posAnalysis.side && posAnalysis.side !== pos.side) {
+        // Open reverse if institutional analysis confirms new direction
+        if (posAnalysis.institutionalShouldTrade && posAnalysis.shouldEnter && posAnalysis.side && posAnalysis.side !== pos.side) {
           const reversePrice = posAnalysis.entryPrice;
           const reverseQty = formatQty(maxPerTrade / reversePrice, reversePrice);
           const reverseSL = posAnalysis.stopLoss;
@@ -1138,6 +1532,19 @@ async function runAutoTradeCycle() {
             if (tradeLog.length > 200) tradeLog.splice(200);
             activeSymbols.add(pos.symbol);
             ordersPlaced++;
+            // Register new position state
+            livePositionStates.set(pos.symbol, {
+              symbol: pos.symbol,
+              side: posAnalysis.side,
+              entryPrice: reversePrice,
+              openedAt: Date.now(),
+              confidence: posAnalysis.overallConfidence,
+              stopLoss: reverseSL,
+              takeProfit: reverseTP,
+              trailActivated: false,
+              trailPeakPrice: null,
+            });
+            lastKnownPositionSymbols.add(pos.symbol);
             logger.info({ symbol: pos.symbol, side: posAnalysis.side, qty: reverseQty, orderId: reverseOrder.orderId }, `Auto-reversed to ${reverseLabel}`);
           } catch (err) {
             logger.warn({ err, symbol: pos.symbol }, "Failed to place reverse order");
@@ -1148,7 +1555,7 @@ async function runAutoTradeCycle() {
       }
     }
 
-    // ── 4. Open new positions from candidate signals ─────────────────────────
+    // ── 4. Open new positions using Institutional AI analysis ────────────────
     if (candidates.length === 0) {
       logger.info("No new candidates this cycle");
       engineStatus.lastOrdersPlaced = ordersPlaced;
@@ -1162,12 +1569,12 @@ async function runAutoTradeCycle() {
       if (activeSymbols.size >= autoConfig.maxPositions) break;
       if (activeSymbols.has(cand.symbol)) continue;
 
-      // Full AI analysis gate — must confirm the candidate's intended direction
-      let analysis: Awaited<ReturnType<typeof analyzeSymbol>> | null = null;
+      // Full Institutional AI analysis gate
+      let analysis: Awaited<ReturnType<typeof analyzeInstitutional>> | null = null;
       try {
-        analysis = await analyzeSymbol(cand.symbol);
+        analysis = await analyzeInstitutional(cand.symbol);
       } catch (err) {
-        logger.warn({ err, symbol: cand.symbol }, "Analysis unavailable, skipping");
+        logger.warn({ err, symbol: cand.symbol }, "Institutional analysis unavailable, skipping");
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
           symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
@@ -1179,16 +1586,18 @@ async function runAutoTradeCycle() {
         continue;
       }
 
-      // Analysis must agree with the candidate's direction
-      if (!analysis.shouldEnter || analysis.side !== cand.side) {
-        const reason = !analysis.shouldEnter
-          ? (analysis.waitReason ?? "Kondisi belum optimal")
-          : `Arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
-        logger.info({ symbol: cand.symbol, reason }, "Entry skipped by analysis");
+      // Institutional engine must agree: condition tradeable + direction matches
+      if (!analysis.institutionalShouldTrade || !analysis.shouldEnter || analysis.side !== cand.side) {
+        const reason = !analysis.institutionalShouldTrade
+          ? `Kondisi pasar tidak ideal: ${analysis.conditionLabel}`
+          : !analysis.shouldEnter
+            ? (analysis.waitReason ?? "Kondisi belum optimal")
+            : `Arah berbeda (kandidat: ${cand.side}, analisis: ${analysis.side ?? "sideways"})`;
+        logger.info({ symbol: cand.symbol, reason, condition: analysis.marketCondition }, "Entry skipped by institutional analysis");
         tradeLog.unshift({
           id: crypto.randomUUID(), timestamp: Date.now(),
           symbol: cand.symbol, side: cand.side ?? "Buy", qty: "0", price: cand.price,
-          confidence: analysis.overallConfidence, signal: cand.signal,
+          confidence: analysis.institutionalConfidence, signal: cand.signal,
           status: "rejected", reason,
         });
         if (tradeLog.length > 200) tradeLog.splice(200);
@@ -1196,11 +1605,10 @@ async function runAutoTradeCycle() {
         continue;
       }
 
-      const tradeSide = analysis.side; // "Buy" or "Sell"
+      const tradeSide = analysis.side as "Buy" | "Sell";
       const execPrice = autoConfig.orderType === "Limit" ? cand.limitPrice : cand.price;
       const qty = formatQty(maxPerTrade / execPrice, execPrice);
 
-      // Direction-aware SL/TP fallback
       const slPrice = analysis.stopLoss > 0
         ? analysis.stopLoss
         : tradeSide === "Sell"
@@ -1216,12 +1624,18 @@ async function runAutoTradeCycle() {
       const logEntry: TradeLogEntry = {
         id: crypto.randomUUID(), timestamp: Date.now(),
         symbol: cand.symbol, side: tradeSide, qty, price: execPrice,
-        confidence: analysis.overallConfidence, signal: cand.signal,
-        status: "pending", reason: reasonSummary,
+        confidence: analysis.institutionalConfidence, signal: cand.signal,
+        status: "pending", reason: `[${analysis.conditionLabel}] ${reasonSummary}`,
       };
 
       const direction = tradeSide === "Sell" ? "SHORT" : "LONG";
-      logActivity({ source: "auto", level: "signal", message: `⚡ Membuka posisi ${direction} ${cand.symbol} @ $${execPrice.toFixed(4)} (confidence: ${analysis.overallConfidence}% | ${autoConfig.orderType})`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+      logActivity({
+        source: "auto",
+        level: "signal",
+        message: `⚡ Membuka posisi ${direction} ${cand.symbol} @ $${execPrice.toFixed(4)} (conf: ${analysis.institutionalConfidence}% | ${analysis.conditionLabel} | ${autoConfig.orderType})`,
+        symbol: cand.symbol,
+        confidence: analysis.institutionalConfidence,
+      });
 
       try {
         const order = await placeOrder({
@@ -1230,7 +1644,6 @@ async function runAutoTradeCycle() {
           price: autoConfig.orderType === "Limit" ? cand.limitPrice : undefined,
         });
 
-        // Wait 1.5s for market order to fill before setting TP/SL
         await setPositionTPSL({ symbol: cand.symbol, takeProfit: tpPrice, stopLoss: slPrice }, 1500)
           .catch((e) => logger.warn({ e, symbol: cand.symbol }, "Failed to set TP/SL"));
 
@@ -1238,10 +1651,31 @@ async function runAutoTradeCycle() {
         logEntry.orderId = order.orderId;
         activeSymbols.add(cand.symbol);
         ordersPlaced++;
-        logActivity({ source: "auto", level: "success", message: `✓ Posisi ${direction} ${cand.symbol} berhasil dibuka | TP: $${tpPrice.toFixed(4)} | SL: $${slPrice.toFixed(4)}`, symbol: cand.symbol, confidence: analysis.overallConfidence });
+
+        // Register live position state for AI monitoring
+        livePositionStates.set(cand.symbol, {
+          symbol: cand.symbol,
+          side: tradeSide,
+          entryPrice: execPrice,
+          openedAt: Date.now(),
+          confidence: analysis.institutionalConfidence,
+          stopLoss: slPrice,
+          takeProfit: tpPrice,
+          trailActivated: false,
+          trailPeakPrice: null,
+        });
+        lastKnownPositionSymbols.add(cand.symbol);
+
+        logActivity({
+          source: "auto",
+          level: "success",
+          message: `✓ Posisi ${direction} ${cand.symbol} dibuka | TP: $${tpPrice.toFixed(4)} | SL: $${slPrice.toFixed(4)} | ${analysis.conditionLabel}`,
+          symbol: cand.symbol,
+          confidence: analysis.institutionalConfidence,
+        });
         logger.info(
           { symbol: cand.symbol, side: tradeSide, qty, orderId: order.orderId,
-            confidence: analysis.overallConfidence, confirmations: analysis.confirmations, slPrice, tpPrice },
+            confidence: analysis.institutionalConfidence, condition: analysis.marketCondition, slPrice, tpPrice },
           `Auto-trade ${direction} placed`
         );
       } catch (err) {
@@ -1285,9 +1719,16 @@ export function startAutoEngine() {
   if (scalpInterval) clearInterval(scalpInterval);
   if (precisionInterval) clearInterval(precisionInterval);
   if (precisionPositionMonitorInterval) clearInterval(precisionPositionMonitorInterval);
+  if (livePositionMonitorInterval) clearInterval(livePositionMonitorInterval);
 
   engineStatus.running = true;
   engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
+
+  // ── Live Position AI Monitor — always active (every 10s) ──────────────────
+  livePositionMonitorInterval = setInterval(() => {
+    void runLivePositionMonitor();
+  }, 10_000);
+  void runLivePositionMonitor();
 
   if (autoConfig.precisionMode) {
     // ── PRECISION MODE — sniper cycle + position monitor ────────────────────
@@ -1302,9 +1743,9 @@ export function startAutoEngine() {
     }, 15_000);
     void runPrecisionModeCycle();
     void runPrecisionPositionMonitor();
-    logger.info({ intervalMs: autoConfig.intervalMs }, "Precision sniper engine started");
+    logger.info({ intervalMs: autoConfig.intervalMs }, "Precision sniper engine started (with AI position monitor)");
   } else {
-    // ── STANDARD MODE — bidirectional auto cycle + scalp monitor ───────────
+    // ── STANDARD MODE — bidirectional institutional auto cycle + scalp monitor
     autoInterval = setInterval(() => {
       engineStatus.nextCycleAt = Date.now() + autoConfig.intervalMs;
       void runAutoTradeCycle();
@@ -1314,7 +1755,7 @@ export function startAutoEngine() {
     }, 10_000);
     void runAutoTradeCycle();
     void runScalpMonitor();
-    logger.info({ intervalMs: autoConfig.intervalMs, scalpEnabled: autoConfig.scalpEnabled }, "Standard auto-trading engine started");
+    logger.info({ intervalMs: autoConfig.intervalMs, scalpEnabled: autoConfig.scalpEnabled }, "Institutional auto-trading engine started (with Human Instinct + Trail AI)");
   }
 }
 
@@ -1323,10 +1764,15 @@ export function stopAutoEngine() {
   if (scalpInterval) { clearInterval(scalpInterval); scalpInterval = null; }
   if (precisionInterval) { clearInterval(precisionInterval); precisionInterval = null; }
   if (precisionPositionMonitorInterval) { clearInterval(precisionPositionMonitorInterval); precisionPositionMonitorInterval = null; }
+  if (livePositionMonitorInterval) { clearInterval(livePositionMonitorInterval); livePositionMonitorInterval = null; }
   engineStatus.running = false;
   engineStatus.analyzing = false;
   engineStatus.scalpMonitoring = false;
   engineStatus.nextCycleAt = null;
   engineStatus.precisionSniperStatus = "Engine dimatikan";
   logger.info("Auto-trading engine stopped");
+}
+
+export function getLivePositionStates() {
+  return Object.fromEntries(livePositionStates.entries());
 }

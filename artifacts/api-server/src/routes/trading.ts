@@ -17,6 +17,9 @@ import {
   engineStatus,
   saveTradingConfig,
   saveTradeLog,
+  getLivePositionStates,
+  getInstinctStats,
+  getInstinctMemory,
   type AutoTradingConfig,
   type PrecisionBestSetup,
 } from "../services/bybit.js";
@@ -319,6 +322,27 @@ router.get("/trading/scalp5m/session", (_req, res) => {
 router.post("/trading/scalp5m/session/reset", (_req, res) => {
   resetSessionStats();
   res.json({ ok: true });
+});
+
+// ─── Live Position AI State ────────────────────────────────────────────────────
+
+// GET /api/trading/live-positions/ai-state — Human Instinct + Trail state per position
+router.get("/trading/live-positions/ai-state", (_req, res) => {
+  res.json(getLivePositionStates());
+});
+
+// GET /api/trading/instinct/stats — Human Instinct Engine statistics
+router.get("/trading/instinct/stats", (_req, res) => {
+  res.json(getInstinctStats());
+});
+
+// GET /api/trading/instinct/memory — Recent instinct decisions
+router.get("/trading/instinct/memory", (_req, res) => {
+  const mem = getInstinctMemory();
+  res.json({
+    ...mem,
+    records: mem.records.slice(0, 50),
+  });
 });
 
 export default router;
