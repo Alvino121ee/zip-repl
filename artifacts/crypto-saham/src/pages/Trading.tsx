@@ -1238,7 +1238,7 @@ function ConfirmCloseDialog({ pos, onClose, onConfirm, closing }: {
 
 // ─── Live Trading Content ─────────────────────────────────────────────────────
 
-function LiveTradingContent({ onSwitchToDemo }: { onSwitchToDemo: () => void }) {
+function LiveTradingContent() {
   const { toast } = useToast();
 
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -1424,13 +1424,6 @@ function LiveTradingContent({ onSwitchToDemo }: { onSwitchToDemo: () => void }) 
           <p className="text-sm text-muted-foreground">Bybit Futures · MACD · Market Structure · OI · Funding Rate · Min 80% Conf</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={onSwitchToDemo}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-green-500/30 text-green-400 bg-green-500/5 hover:bg-green-500/15 transition-colors"
-          >
-            <FlaskConical className="h-3.5 w-3.5" />
-            Mode Demo
-          </button>
           <Button variant="outline" size="sm" onClick={() => void loadAll(true)} disabled={refreshing}>
             {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           </Button>
@@ -1658,48 +1651,27 @@ function LiveTradingContent({ onSwitchToDemo }: { onSwitchToDemo: () => void }) 
   );
 }
 
-// ─── Main Trading Page (Mode Toggle) ─────────────────────────────────────────
+// ─── Main Trading Page ────────────────────────────────────────────────────────
 
 export default function Trading() {
-  const [tradingMode, setTradingMode] = useState<"live" | "demo">(() => {
-    return (localStorage.getItem("trading-mode") as "live" | "demo") ?? "demo";
-  });
+  return (
+    <div className="space-y-10">
+      {/* ── Live Trading (Bybit) ── */}
+      <LiveTradingContent />
 
-  function switchMode(m: "live" | "demo") {
-    setTradingMode(m);
-    localStorage.setItem("trading-mode", m);
-  }
-
-  if (tradingMode === "demo") {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-3 px-1">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-green-500/15 rounded-lg border border-green-500/20">
-              <FlaskConical className="h-4 w-4 text-green-400" />
-            </div>
-            <div>
-              <div className="font-bold text-sm text-green-400 flex items-center gap-2">
-                Mode Demo Aktif
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-400">
-                  Virtual $50 USDT
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground">Harga real Bybit · Tanpa risiko uang nyata · AI belajar otomatis</div>
-            </div>
-          </div>
-          <button
-            onClick={() => switchMode("live")}
-            className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
-          >
-            <Bot className="h-3.5 w-3.5" />
-            Beralih ke Live Bybit
-          </button>
+      {/* ── Divider Demo ── */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-border" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+          <FlaskConical className="h-3.5 w-3.5 text-green-400" />
+          <span className="text-green-400">Akun Demo</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400">Virtual $50 USDT</span>
         </div>
-        <DemoTrading />
+        <div className="flex-1 h-px bg-border" />
       </div>
-    );
-  }
 
-  return <LiveTradingContent onSwitchToDemo={() => switchMode("demo")} />;
+      {/* ── Demo Trading ── */}
+      <DemoTrading />
+    </div>
+  );
 }
