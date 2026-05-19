@@ -14,6 +14,7 @@ import geminiLearningRouter from "./gemini-learning.js";
 import demoForexRouter from "./demo-forex.js";
 import forexProRouter from "./forex-pro.js";
 import cryptoProRouter from "./crypto-pro.js";
+import mt5BridgeRouter from "./mt5-bridge.js";
 
 const router: IRouter = Router();
 
@@ -28,6 +29,7 @@ router.use(demoTradingRouter);
 router.use(demoForexRouter);
 router.use(forexProRouter);
 router.use(cryptoProRouter);
+router.use(mt5BridgeRouter);
 router.use(trainingLabRouter);
 router.use(slAnalysisRouter);
 router.use(fmpRouter);

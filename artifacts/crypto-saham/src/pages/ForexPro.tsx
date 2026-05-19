@@ -208,130 +208,236 @@ const MT5SettingsPanel: React.FC<{
   onClose: () => void;
   connecting: boolean;
   hasRealBridge: boolean;
-}> = ({ mt5, onChange, onConnect, onDisconnect, onClose, connecting, hasRealBridge }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-    <div className="bg-[#0a0f1a] border border-blue-500/30 rounded-xl w-full max-w-md mx-4 shadow-2xl">
+  pythonBridgeConnected: boolean;
+  pythonBridgeSecondsSince: number | null;
+  replitUrl: string;
+}> = ({ mt5, onChange, onConnect, onDisconnect, onClose, connecting, hasRealBridge, pythonBridgeConnected, pythonBridgeSecondsSince, replitUrl }) => {
+  const [tab, setTab] = React.useState<"connect" | "setup">(pythonBridgeConnected ? "connect" : "setup");
+  const [copied, setCopied] = React.useState(false);
+
+  const copyUrl = () => {
+    navigator.clipboard.writeText(replitUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2">
+    <div className="bg-[#0a0f1a] border border-blue-500/30 rounded-xl w-full max-w-md shadow-2xl flex flex-col max-h-[92vh]">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <Server className="h-5 w-5 text-blue-400" />
           <span className="font-bold text-white">Koneksi MetaTrader 5</span>
-          {hasRealBridge && (
-            <span className="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded font-semibold">LIVE</span>
-          )}
+          {hasRealBridge
+            ? <span className="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded font-semibold">SIAP</span>
+            : <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded font-semibold">BELUM AKTIF</span>
+          }
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-white transition-colors">
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <div className="p-5 space-y-4">
-        {/* Bridge status notice */}
-        {!hasRealBridge && (
-          <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-[11px] text-amber-300">
-            <div className="font-semibold mb-1">⚠️ Mode Simulasi Aktif</div>
-            Untuk koneksi MT5 nyata, tambahkan <strong>METAAPI_TOKEN</strong> di Secrets. Daftar gratis di{" "}
-            <a href="https://metaapi.cloud" target="_blank" rel="noreferrer" className="underline text-amber-400">metaapi.cloud</a>,
-            lalu masukkan token di Secrets Replit dengan nama <code className="bg-black/30 px-1 rounded">METAAPI_TOKEN</code>.
-          </div>
-        )}
-        {hasRealBridge && (
-          <div className="rounded-lg bg-green-500/10 border border-green-500/30 p-3 text-[11px] text-green-300">
-            <div className="font-semibold mb-1 flex items-center gap-1"><Wifi className="h-3 w-3" /> Bridge MT5 Aktif</div>
-            Koneksi nyata ke MetaTrader 5 tersedia. Masukkan kredensial akun MT5 Anda di bawah.
-            Proses koneksi pertama membutuhkan waktu 1–2 menit.
-          </div>
-        )}
+      {/* Tab */}
+      <div className="flex border-b border-border shrink-0">
+        <button
+          onClick={() => setTab("setup")}
+          className={`flex-1 py-2.5 text-xs font-medium transition-colors ${tab === "setup" ? "text-blue-400 border-b-2 border-blue-400" : "text-muted-foreground hover:text-white"}`}
+        >
+          {pythonBridgeConnected ? "✅ Panduan Setup" : "🔧 Cara Setup (Gratis)"}
+        </button>
+        <button
+          onClick={() => setTab("connect")}
+          className={`flex-1 py-2.5 text-xs font-medium transition-colors ${tab === "connect" ? "text-blue-400 border-b-2 border-blue-400" : "text-muted-foreground hover:text-white"}`}
+        >
+          {pythonBridgeConnected ? "📡 Status Koneksi" : "🔗 Status & Koneksi"}
+        </button>
+      </div>
 
-        {/* Status */}
-        <div className={`flex items-center gap-3 rounded-lg p-3 border ${mt5.connected ? "bg-green-500/10 border-green-500/30" : "bg-zinc-800/50 border-border"}`}>
-          {mt5.connected
-            ? <><Wifi className="h-5 w-5 text-green-400" /><div><div className="text-sm font-semibold text-green-400">Terhubung ke MT5{hasRealBridge ? " (Nyata)" : " (Simulasi)"}</div><div className="text-[11px] text-muted-foreground">{mt5.accountName} — {mt5.broker}</div></div></>
-            : <><WifiOff className="h-5 w-5 text-zinc-500" /><div className="text-sm text-muted-foreground">Belum terhubung</div></>
-          }
-        </div>
+      <div className="overflow-y-auto flex-1">
 
-        {/* Connected account info */}
-        {mt5.connected && (
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { l: "Balance", v: `${mt5.accountCurrency} ${mt5.accountBalance.toFixed(2)}`, c: "text-white" },
-              { l: "Leverage", v: `1:${mt5.leverage}`, c: "text-yellow-400" },
-              { l: "Mata Uang", v: mt5.accountCurrency, c: "text-blue-400" },
-            ].map((item, i) => (
-              <div key={i} className="rounded border border-border p-2 text-center">
-                <div className="text-[9px] text-muted-foreground">{item.l}</div>
-                <div className={`text-xs font-bold font-mono ${item.c}`}>{item.v}</div>
+        {/* ── TAB SETUP ── */}
+        {tab === "setup" && (
+          <div className="p-4 space-y-3">
+            <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3 text-[11px] text-blue-200">
+              <div className="font-semibold text-blue-300 mb-1">🐍 Python Bridge — Gratis, Pakai PC Teman</div>
+              Script Python dijalankan di PC Windows teman yang sudah ada MT5-nya. Tidak perlu install apapun selain Python (gratis).
+            </div>
+
+            {/* URL app */}
+            <div className="rounded-lg border border-zinc-700 bg-zinc-900/60 p-3 space-y-1.5">
+              <div className="text-[10px] text-zinc-400 uppercase font-semibold">URL App Ini (salin ke script)</div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-[11px] text-green-400 font-mono bg-black/40 px-2 py-1.5 rounded truncate">{replitUrl}</code>
+                <button onClick={copyUrl}
+                  className={`shrink-0 px-2.5 py-1.5 rounded text-[11px] font-medium transition-colors border ${copied ? "border-green-500/40 text-green-400 bg-green-500/10" : "border-zinc-700 text-zinc-400 hover:text-white"}`}>
+                  {copied ? "✓ Disalin" : "Salin"}
+                </button>
               </div>
-            ))}
+            </div>
+
+            {/* Langkah-langkah */}
+            <div className="space-y-2">
+              {[
+                {
+                  no: "1", color: "bg-blue-600",
+                  title: "Install Python di PC teman",
+                  body: <>Download Python gratis di <a href="https://python.org" target="_blank" rel="noreferrer" className="text-blue-400 underline">python.org</a> → pilih versi 3.8+. Saat install, centang <strong>"Add Python to PATH"</strong>.</>,
+                },
+                {
+                  no: "2", color: "bg-purple-600",
+                  title: "Install library yang dibutuhkan",
+                  body: <>Buka <strong>Command Prompt</strong> di PC teman, ketik:<br/>
+                    <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">pip install MetaTrader5 requests</code>
+                    Tunggu sampai selesai.
+                  </>,
+                },
+                {
+                  no: "3", color: "bg-green-700",
+                  title: "Salin file mt5_bridge.py ke PC teman",
+                  body: <>Di Replit, file <strong>mt5_bridge.py</strong> sudah ada di root project. Copy isinya ke file baru di PC teman dengan nama yang sama.</>,
+                },
+                {
+                  no: "4", color: "bg-orange-600",
+                  title: "Edit 2 baris di mt5_bridge.py",
+                  body: <>Buka file di PC teman, cari dan ganti:<br/>
+                    <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">REPLIT_URL = "<span className="text-green-300">{replitUrl}</span>"</code>
+                    Baris SECRET biarkan default.
+                  </>,
+                },
+                {
+                  no: "5", color: "bg-cyan-700",
+                  title: "Buka MT5, login ke akun Anda",
+                  body: "Pastikan MetaTrader 5 sudah terbuka dan akun Anda sudah login di PC teman. MT5 harus tetap berjalan selama script aktif.",
+                },
+                {
+                  no: "6", color: "bg-green-600",
+                  title: "Jalankan script Python",
+                  body: <>Di Command Prompt:<br/>
+                    <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">python mt5_bridge.py</code>
+                    Jika berhasil, akan muncul <span className="text-green-400">✅ MT5 Terhubung!</span>
+                  </>,
+                },
+              ].map(step => (
+                <div key={step.no} className="flex gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
+                  <div className={`shrink-0 w-5 h-5 rounded-full ${step.color} text-white text-[10px] font-bold flex items-center justify-center`}>{step.no}</div>
+                  <div className="text-[11px] space-y-0.5">
+                    <div className="font-semibold text-white">{step.title}</div>
+                    <div className="text-zinc-400 leading-relaxed">{step.body}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={() => setTab("connect")}
+              className="w-full py-2.5 rounded-lg border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 text-xs font-medium transition-colors">
+              Cek status koneksi →
+            </button>
           </div>
         )}
 
-        {/* Form */}
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Server Broker</label>
-            <input
-              type="text"
-              value={mt5.server}
-              onChange={e => onChange({ server: e.target.value })}
-              placeholder="contoh: ICMarketsGlobal-Demo01"
-              className="w-full bg-zinc-900 border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Nomor Akun (Login)</label>
-            <input
-              type="text"
-              value={mt5.login}
-              onChange={e => onChange({ login: e.target.value })}
-              placeholder="contoh: 12345678"
-              className="w-full bg-zinc-900 border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-blue-500 focus:outline-none font-mono"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Password</label>
-            <input
-              type="password"
-              value={mt5.password}
-              onChange={e => onChange({ password: e.target.value })}
-              placeholder="Password akun MT5"
-              className="w-full bg-zinc-900 border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-        </div>
+        {/* ── TAB STATUS/CONNECT ── */}
+        {tab === "connect" && (
+          <div className="p-4 space-y-3">
 
-        {/* Info cent */}
-        <div className="rounded-lg bg-blue-500/5 border border-blue-500/20 p-3 text-[11px] text-blue-300">
-          <div className="font-semibold mb-1">ℹ️ Mode Akun Cent</div>
-          Semua order menggunakan <strong>cent lot</strong> (1¢ = 0.01 lot standar). Cocok untuk akun cent/micro dengan risiko lebih kecil.
-        </div>
+            {/* Status Python Bridge */}
+            <div className={`rounded-lg p-3 border ${pythonBridgeConnected ? "bg-green-500/10 border-green-500/30" : "bg-zinc-800/50 border-zinc-700"}`}>
+              <div className="flex items-center gap-2 mb-1">
+                {pythonBridgeConnected
+                  ? <><Wifi className="h-4 w-4 text-green-400" /><span className="text-sm font-bold text-green-400">Python Bridge Aktif 🎉</span></>
+                  : <><WifiOff className="h-4 w-4 text-zinc-500" /><span className="text-sm font-semibold text-zinc-400">Menunggu script Python...</span></>
+                }
+              </div>
+              {pythonBridgeConnected ? (
+                <div className="text-[11px] text-green-300/80">
+                  Data MT5 diterima {pythonBridgeSecondsSince !== null ? `${pythonBridgeSecondsSince}s` : ""} yang lalu.
+                  Akun: <strong>{mt5.accountName}</strong> | {mt5.broker}
+                </div>
+              ) : (
+                <div className="text-[11px] text-zinc-500">
+                  Ikuti langkah di tab "Cara Setup" lalu jalankan script di PC teman.
+                  Halaman ini auto-update setiap 5 detik.
+                </div>
+              )}
+            </div>
 
-        {/* Buttons */}
-        <div className="flex gap-2">
-          {mt5.connected ? (
-            <button onClick={onDisconnect}
-              className="flex-1 py-2.5 rounded-lg bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 text-sm font-medium transition-all flex items-center justify-center gap-2">
-              <WifiOff className="h-4 w-4" /> Putuskan Koneksi
+            {/* Info akun jika terhubung */}
+            {pythonBridgeConnected && mt5.connected && (
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { l: "Balance", v: `${mt5.accountCurrency} ${mt5.accountBalance.toLocaleString("id-ID", { minimumFractionDigits: 2 })}`, c: "text-white" },
+                  { l: "Leverage", v: `1:${mt5.leverage}`, c: "text-yellow-400" },
+                  { l: "Mata Uang", v: mt5.accountCurrency, c: "text-blue-400" },
+                ].map((item, i) => (
+                  <div key={i} className="rounded border border-border p-2 text-center">
+                    <div className="text-[9px] text-muted-foreground">{item.l}</div>
+                    <div className={`text-xs font-bold font-mono ${item.c}`}>{item.v}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Jika tidak ada bridge, tampilkan form manual (MetaApi fallback) */}
+            {!pythonBridgeConnected && hasRealBridge && (
+              <>
+                <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-[11px] text-amber-300">
+                  <div className="font-semibold mb-1">MetaApi Token Terdeteksi</div>
+                  Python Bridge belum aktif, tapi Anda bisa konek via MetaApi dengan isi form di bawah.
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { label: "Server Broker", key: "server" as const, placeholder: "ICMarketsGlobal-Demo01", hint: "Cek di MT5 → Settings → Servers", type: "text" },
+                    { label: "Nomor Akun", key: "login" as const, placeholder: "12345678", type: "text" },
+                    { label: "Password", key: "password" as const, placeholder: "Password akun MT5", type: "password" },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label className="text-xs text-muted-foreground mb-1 block">{f.label}</label>
+                      <input type={f.type} value={mt5[f.key]} onChange={e => onChange({ [f.key]: e.target.value })}
+                        placeholder={f.placeholder}
+                        className="w-full bg-zinc-900 border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-blue-500 focus:outline-none" />
+                      {f.hint && <div className="text-[10px] text-zinc-500 mt-0.5">{f.hint}</div>}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  {mt5.connected ? (
+                    <button onClick={onDisconnect}
+                      className="flex-1 py-2.5 rounded-lg bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30 text-sm font-medium transition-all flex items-center justify-center gap-2">
+                      <WifiOff className="h-4 w-4" /> Putuskan Koneksi
+                    </button>
+                  ) : (
+                    <button onClick={onConnect} disabled={connecting || !mt5.server || !mt5.login || !mt5.password}
+                      className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-all flex items-center justify-center gap-2">
+                      {connecting
+                        ? <><RefreshCw className="h-4 w-4 animate-spin" /> Menghubungkan...</>
+                        : <><LogIn className="h-4 w-4" /> Hubungkan via MetaApi</>
+                      }
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Info cent lot */}
+            <div className="rounded-lg bg-blue-500/5 border border-blue-500/20 p-3 text-[11px] text-blue-300">
+              <div className="font-semibold mb-1">ℹ️ Mode Akun Cent</div>
+              Semua order pakai <strong>cent lot</strong> (1¢ = 0.01 lot standar). Cocok untuk akun cent/micro.
+            </div>
+
+            <button onClick={onClose}
+              className="w-full py-2.5 rounded-lg border border-border text-muted-foreground hover:text-white text-sm transition-colors">
+              Tutup
             </button>
-          ) : (
-            <button onClick={onConnect} disabled={connecting || !mt5.server || !mt5.login || !mt5.password}
-              className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-all flex items-center justify-center gap-2">
-              {connecting
-                ? <><RefreshCw className="h-4 w-4 animate-spin" /> {hasRealBridge ? "Menghubungkan ke MT5 nyata..." : "Menghubungkan..."}</>
-                : <><LogIn className="h-4 w-4" /> Hubungkan MT5</>
-              }
-            </button>
-          )}
-          <button onClick={onClose}
-            className="px-4 py-2.5 rounded-lg border border-border text-muted-foreground hover:text-white text-sm transition-colors">
-            Tutup
-          </button>
-        </div>
+          </div>
+        )}
+
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // ─── Komponen Utama ────────────────────────────────────────────────────────────
 
@@ -362,18 +468,44 @@ export default function ForexPro() {
   const [showMT5Settings, setShowMT5Settings] = useState(false);
   const [mt5Connecting, setMT5Connecting] = useState(false);
   const [hasRealBridge, setHasRealBridge] = useState(false);
+  const [pythonBridgeConnected, setPythonBridgeConnected] = useState(false);
+  const [pythonBridgeSecondsSince, setPythonBridgeSecondsSince] = useState<number | null>(null);
   const [mt5, setMT5] = useState<MT5Config>({
     server: "", login: "", password: "",
     connected: false, accountName: "", accountBalance: 0,
     accountCurrency: "USD", broker: "", leverage: 100,
   });
 
-  // Cek apakah MetaApi token tersedia (koneksi MT5 nyata)
+  // Cek capability (MetaApi token + Python Bridge)
   useEffect(() => {
-    fetch(`${API}/api/forex-pro/mt5/capability`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setHasRealBridge(d.hasMetaApiToken ?? false); })
-      .catch(() => {});
+    const check = () => {
+      fetch(`${API}/api/forex-pro/mt5/capability`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (!d) return;
+          setHasRealBridge(d.hasMetaApiToken ?? false);
+          const pb = d.pythonBridge;
+          const bridgeOk = pb?.connected ?? false;
+          setPythonBridgeConnected(bridgeOk);
+          setPythonBridgeSecondsSince(pb?.secondsSinceLastPush ?? null);
+          if (bridgeOk && pb?.account) {
+            setMT5(prev => ({
+              ...prev,
+              connected: true,
+              accountName: pb.account.name || `Akun #${pb.account.login}`,
+              accountBalance: pb.account.balance,
+              accountCurrency: pb.account.currency,
+              broker: pb.account.broker || pb.account.server,
+              leverage: pb.account.leverage,
+            }));
+            setAccountMode("real");
+          }
+        })
+        .catch(() => {});
+    };
+    check();
+    const t = setInterval(check, 5000);
+    return () => clearInterval(t);
   }, []);
 
   const addActivity = useCallback((msg: string) => {
@@ -559,6 +691,9 @@ export default function ForexPro() {
           onClose={() => setShowMT5Settings(false)}
           connecting={mt5Connecting}
           hasRealBridge={hasRealBridge}
+          pythonBridgeConnected={pythonBridgeConnected}
+          pythonBridgeSecondsSince={pythonBridgeSecondsSince}
+          replitUrl={window.location.origin}
         />
       )}
 

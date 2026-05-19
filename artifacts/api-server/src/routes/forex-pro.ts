@@ -25,6 +25,16 @@ import {
   isMT5RealConnected,
 } from "../services/forex-pro.js";
 import { hasMetaApiToken, placeOrderReal, fetchPositionsReal } from "../services/metaapi-mt5.js";
+import {
+  isPythonBridgeConnected,
+  getBridgeAccount,
+  getBridgePositions,
+  getBridgeStatus,
+  queueOrder,
+  getOrderResult,
+  removeOrderResult,
+} from "../services/mt5-python-bridge.js";
+import { randomUUID } from "crypto";
 
 const router = Router();
 
@@ -79,7 +89,25 @@ router.get("/forex-pro/stats", (_req, res) => {
 });
 
 router.get("/forex-pro/balance", async (_req, res) => {
-  // Jika MT5 real terhubung, refresh balance dari server MT5
+  // Prioritas 1: Python Bridge
+  if (isPythonBridgeConnected()) {
+    const acc = getBridgeAccount();
+    if (acc) {
+      const bridgePositions = getBridgePositions();
+      const unrealisedPnl = bridgePositions.reduce((s, p) => s + p.profit, 0);
+      return res.json({
+        balance: acc.balance,
+        equity: acc.equity,
+        unrealisedPnl,
+        usedMargin: acc.margin,
+        isReal: true,
+        isPythonBridge: true,
+        currency: acc.currency,
+      });
+    }
+  }
+
+  // Prioritas 2: MetaApi Real
   if (isMT5RealConnected()) {
     await refreshMT5Balance().catch(() => {});
   }
@@ -87,9 +115,8 @@ router.get("/forex-pro/balance", async (_req, res) => {
   const mt5Status = getMT5Status();
   const unrealisedPnl = state.positions.reduce((s, p) => s + p.unrealisedPnl, 0);
 
-  // Jika real mode, kembalikan balance MT5 asli
   if (isMT5RealConnected()) {
-    res.json({
+    return res.json({
       balance: mt5Status.balance,
       equity: mt5Status.equity,
       unrealisedPnl,
@@ -97,7 +124,6 @@ router.get("/forex-pro/balance", async (_req, res) => {
       isReal: true,
       currency: mt5Status.currency,
     });
-    return;
   }
 
   res.json({
@@ -110,12 +136,45 @@ router.get("/forex-pro/balance", async (_req, res) => {
 });
 
 router.get("/forex-pro/positions", async (_req, res) => {
-  // Jika MT5 real terhubung, ambil posisi dari MT5 nyata
+  // Prioritas 1: Python Bridge
+  if (isPythonBridgeConnected()) {
+    const bridgePositions = getBridgePositions();
+    const mapped = bridgePositions.map((p) => {
+      const pairInfo = FOREX_PAIRS_PRO.find(x => x.symbol === p.symbol);
+      return {
+        id: String(p.ticket),
+        symbol: p.symbol,
+        pairName: pairInfo?.name ?? p.symbol,
+        emoji: pairInfo?.emoji ?? "📊",
+        side: p.type === "buy" ? "Buy" : "Sell",
+        lotSize: p.volume,
+        entryPrice: p.priceOpen,
+        currentPrice: p.priceCurrent,
+        stopLoss: p.sl,
+        takeProfit: p.tp,
+        leverage: 100,
+        margin: 0,
+        unrealisedPnl: p.profit,
+        unrealisedPips: 0,
+        openedAt: p.openTime,
+        strategy: "MT5 Python Bridge",
+        confidence: 100,
+        reasoning: ["Posisi nyata dari MetaTrader 5 via Python Bridge"],
+        trailActivated: false,
+        breakeven: false,
+        riskReward: 2,
+        timeframe: "H1",
+        aiNote: p.comment || "Posisi live dari akun MT5 nyata",
+      };
+    });
+    return res.json(mapped);
+  }
+
+  // Prioritas 2: MetaApi Real
   if (isMT5RealConnected()) {
     const accountId = getMT5AccountId();
     if (accountId) {
       const realPositions = await fetchPositionsReal(accountId);
-      // Map format MetaApi ke format aplikasi
       const mapped = realPositions.map((p: any) => ({
         id: p.id,
         symbol: p.symbol,
@@ -145,6 +204,7 @@ router.get("/forex-pro/positions", async (_req, res) => {
       return;
     }
   }
+
   updateOpenPositions();
   res.json(getForexProState().positions);
 });
@@ -183,11 +243,13 @@ router.get("/forex-pro/config", (_req, res) => {
 // ─── Order Management ─────────────────────────────────────────────────────────
 
 router.post("/forex-pro/order", async (req, res) => {
-  const { symbol, direction, timeframe, lot, accountMode } = req.body as {
+  const { symbol, direction, timeframe, lot, sl, tp, accountMode } = req.body as {
     symbol: string;
     direction: "Buy" | "Sell";
     timeframe?: Timeframe;
     lot?: number;
+    sl?: number;
+    tp?: number;
     accountMode?: "demo" | "real";
   };
 
@@ -195,7 +257,35 @@ router.post("/forex-pro/order", async (req, res) => {
     return res.status(400).json({ error: "symbol dan direction wajib diisi" });
   }
 
-  // Jika mode real dan MT5 nyata terhubung, kirim order ke MT5 sungguhan
+  // Prioritas 1: Python Bridge (mode real)
+  if (accountMode === "real" && isPythonBridgeConnected()) {
+    const orderId = randomUUID();
+    const volume = lot ?? 0.01;
+    queueOrder({
+      id: orderId,
+      symbol,
+      type: direction === "Buy" ? "buy" : "sell",
+      volume,
+      sl,
+      tp,
+      comment: "VINZ-PREDICT",
+    });
+
+    // Tunggu hasil hingga 10 detik
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const result = getOrderResult(orderId);
+      if (result) {
+        removeOrderResult(orderId);
+        if (!result.ok) return res.status(400).json({ error: result.error ?? "Order gagal di MT5" });
+        return res.json({ ok: true, ticket: result.ticket, isReal: true, isPythonBridge: true, symbol, direction, volume });
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+    return res.status(408).json({ error: "Timeout: script Python tidak merespons dalam 10 detik. Pastikan script sedang berjalan." });
+  }
+
+  // Prioritas 2: MetaApi Real
   if (accountMode === "real" && isMT5RealConnected()) {
     const accountId = getMT5AccountId();
     if (accountId) {
@@ -209,7 +299,7 @@ router.post("/forex-pro/order", async (req, res) => {
     }
   }
 
-  // Mode demo atau MT5 tidak terhubung — gunakan engine internal
+  // Mode demo atau tidak ada koneksi real
   const result = openForexProPosition(symbol, direction, timeframe ?? "H1", true, lot);
   if (!result.ok) return res.status(400).json({ error: result.error });
   res.json(result);
@@ -218,7 +308,31 @@ router.post("/forex-pro/order", async (req, res) => {
 router.post("/forex-pro/close/:id", async (req, res) => {
   const { id } = req.params;
 
-  // Jika MT5 real terhubung, tutup posisi di MT5 nyata
+  // Prioritas 1: Python Bridge
+  if (isPythonBridgeConnected()) {
+    const orderId = randomUUID();
+    queueOrder({
+      id: orderId,
+      symbol: "CLOSE",
+      type: "sell",
+      volume: 0,
+      comment: `CLOSE:${id}`,
+    });
+
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const result = getOrderResult(orderId);
+      if (result) {
+        removeOrderResult(orderId);
+        if (!result.ok) return res.status(400).json({ error: result.error ?? "Gagal tutup posisi" });
+        return res.json({ ok: true, isReal: true, isPythonBridge: true });
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+    return res.status(408).json({ error: "Timeout: script Python tidak merespons" });
+  }
+
+  // Prioritas 2: MetaApi Real
   if (isMT5RealConnected()) {
     const accountId = getMT5AccountId();
     if (accountId) {
@@ -287,15 +401,40 @@ router.post("/forex-pro/reset", (_req, res) => {
 // ─── MetaTrader 5 Koneksi ─────────────────────────────────────────────────────
 
 router.get("/forex-pro/mt5/capability", (_req, res) => {
+  const pythonBridge = getBridgeStatus();
   res.json({
     hasMetaApiToken: hasMetaApiToken(),
-    message: hasMetaApiToken()
-      ? "MetaApi token tersedia — koneksi MT5 nyata aktif"
-      : "METAAPI_TOKEN belum diset — koneksi MT5 berjalan dalam mode simulasi",
+    hasPythonBridge: pythonBridge.connected,
+    pythonBridge,
+    message: pythonBridge.connected
+      ? "Python Bridge aktif — MT5 terhubung via script Python"
+      : hasMetaApiToken()
+        ? "MetaApi token tersedia — koneksi MT5 nyata aktif"
+        : "Belum ada koneksi MT5. Jalankan script mt5_bridge.py di PC dengan MT5.",
   });
 });
 
 router.post("/forex-pro/mt5/connect", async (req, res) => {
+  // Jika Python Bridge sudah aktif, kembalikan info bridge langsung
+  if (isPythonBridgeConnected()) {
+    const acc = getBridgeAccount();
+    if (acc) {
+      return res.json({
+        connected: true,
+        accountId: "python-bridge",
+        login: acc.login,
+        server: acc.server,
+        accountName: acc.name || `Akun #${acc.login}`,
+        balance: acc.balance,
+        equity: acc.equity,
+        currency: acc.currency,
+        broker: acc.broker || acc.server,
+        leverage: acc.leverage,
+        isPythonBridge: true,
+      });
+    }
+  }
+
   const { server, login, password } = req.body as { server: string; login: string; password: string };
   if (!server || !login || !password) {
     return res.status(400).json({ error: "server, login, dan password wajib diisi" });
@@ -315,8 +454,26 @@ router.post("/forex-pro/mt5/disconnect", async (_req, res) => {
 });
 
 router.get("/forex-pro/mt5/status", (_req, res) => {
+  const pythonBridge = getBridgeStatus();
+  if (pythonBridge.connected) {
+    const acc = getBridgeAccount();
+    return res.json({
+      connected: true,
+      isPythonBridge: true,
+      hasMetaApiToken: hasMetaApiToken(),
+      login: acc?.login ?? "",
+      server: acc?.server ?? "",
+      accountName: acc?.name ?? "",
+      balance: acc?.balance ?? 0,
+      equity: acc?.equity ?? 0,
+      currency: acc?.currency ?? "USD",
+      broker: acc?.broker ?? "",
+      leverage: acc?.leverage ?? 100,
+      secondsSinceLastPush: pythonBridge.secondsSinceLastPush,
+    });
+  }
   const status = getMT5Status();
-  res.json({ ...status, hasMetaApiToken: hasMetaApiToken() });
+  res.json({ ...status, hasMetaApiToken: hasMetaApiToken(), isPythonBridge: false });
 });
 
 export default router;
