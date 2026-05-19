@@ -1,6 +1,92 @@
 {
   "records": [
     {
+      "id": "6bd0b3b2-6d7f-4fc0-a1a9-d05bf9836a40",
+      "timestamp": 1779194323769,
+      "tradeId": "f4d38aeb-149f-4070-8ac7-5c2332d90480",
+      "symbol": "ENJUSDT",
+      "side": "long",
+      "entryPrice": 0.045317,
+      "slPrice": 0.0453532536,
+      "exitPrice": 0.045345,
+      "pnlPct": 0.062,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 38425,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "Sinyal belum terkonfirmasi penuh saat posisi dibuka; harga masih dalam fase konsolidasi. (SL hit dalam 1 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "61bc759d-525a-414f-b1c9-164b74205947",
+      "timestamp": 1779194275810,
+      "tradeId": "8bfa235d-8556-4211-848d-e66de890003e",
+      "symbol": "ENJUSDT",
+      "side": "long",
+      "entryPrice": 0.045432,
+      "slPrice": 0.0454952232,
+      "exitPrice": 0.045308,
+      "pnlPct": -0.273,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 69743,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "AI masuk terlalu dini, sebelum breakout atau reversal mendapat konfirmasi valid. (SL hit dalam 1 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.139,
+      "improvementApplied": false
+    },
+    {
+      "id": "774838cd-2b64-4019-a620-6a8b48233c46",
+      "timestamp": 1779194275663,
+      "tradeId": "ba433459-b2ad-43e4-b763-de81bb60e672",
+      "symbol": "ONTUSDT",
+      "side": "long",
+      "entryPrice": 0.06702,
+      "slPrice": 0.0649425,
+      "exitPrice": 0.06492,
+      "pnlPct": -3.133,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 3236395,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Skor confidence yang tinggi membuat AI meremehkan risiko entry dalam kondisi yang sebenarnya kompleks. (Confidence: 99%, namun trade kena SL dalam 54m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 3.1,
+      "improvementApplied": false
+    },
+    {
       "id": "b60bcc97-ba62-4be0-96c5-91de14bb65d5",
       "timestamp": 1779188800020,
       "tradeId": "1446206e-b2e2-48d7-a09d-5ec93da05cb1",
@@ -1230,7 +1316,7 @@
       "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
       "pattern": "Overconfidence AI",
       "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 15,
+      "occurrences": 16,
       "primaryCause": "overconfidence",
       "associatedStrategies": [
         "auto_institutional"
@@ -1241,11 +1327,11 @@
         "trending_up_normal",
         "ranging"
       ],
-      "avgPnlPct": -2.42,
+      "avgPnlPct": -2.46,
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779188800020
+      "lastSeen": 1779194323769
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1265,7 +1351,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779188800020
+      "lastSeen": 1779194323769
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1284,7 +1370,7 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "high",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779188800020
+      "lastSeen": 1779194323769
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
@@ -1304,10 +1390,30 @@
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779188800020
+      "lastSeen": 1779194323769
+    },
+    {
+      "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
+      "pattern": "Entry Terlalu Cepat",
+      "description": "Pola berulang: Entry Terlalu Cepat terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 4,
+      "primaryCause": "early_entry",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "trending_up_normal",
+        "volatile",
+        "trending_up_strong"
+      ],
+      "avgPnlPct": -0.04,
+      "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+      "severity": "medium",
+      "firstSeen": 1779194275810,
+      "lastSeen": 1779194323769
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 43,
-  "improvementScore": 64
+  "totalAnalyzed": 46,
+  "improvementScore": 66
 }
