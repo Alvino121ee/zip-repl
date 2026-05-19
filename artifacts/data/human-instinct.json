@@ -1,15 +1,260 @@
 {
-  "totalDecisions": 58,
-  "correctEarlyExits": 58,
+  "totalDecisions": 70,
+  "correctEarlyExits": 70,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.3448275862069,
-  "avgContinuationProbAtExit": 13.879310344827585,
+  "avgMomentumAtEarlyExit": 46.01428571428571,
+  "avgContinuationProbAtExit": 12.885714285714286,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "2f5d816d-9e00-4b6e-b42e-0b712ebe9c0b",
+      "tradeId": "b208034c-02a7-4079-a1a7-41b5aea4d8e6",
+      "symbol": "VINEUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume menurun 39% — tanda pelemahan. Profit $0.39% diamankan.",
+      "profitPctAtDecision": 0.393408974285875,
+      "momentumScore": 7,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume menurun 39% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779163845673,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.393408974285875,
+      "profitDelta": 0
+    },
+    {
+      "id": "fb6ec8c5-274c-48f9-9207-cba712d3c8b6",
+      "tradeId": "0b7c3415-af40-468b-8d4b-a6bc3e7bc991",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5314145974416818,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779120408862,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5314145974416818,
+      "profitDelta": 0
+    },
+    {
+      "id": "334f1732-328b-4af5-b4cf-f58505aed084",
+      "tradeId": "a925be9f-c95d-4877-afb4-2c3dde591e31",
+      "symbol": "MAGMAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⏰ Trade sudah 381 menit — momentum melemah (39). Waktu untuk mengambil profit.",
+      "profitPctAtDecision": 0.08857722827088482,
+      "momentumScore": 39,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+      ],
+      "timestamp": 1779120352833,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.08857722827088482,
+      "profitDelta": 0
+    },
+    {
+      "id": "85d9666d-87f0-404d-92aa-e05d73a65e1e",
+      "tradeId": "8e1ca8c6-1187-4b6d-a1e6-a6115bbeb9cf",
+      "symbol": "DYMUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.9211053263916741,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779119944856,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.9211053263916741,
+      "profitDelta": 0
+    },
+    {
+      "id": "01ffad37-8299-49a3-a869-f850336092d3",
+      "tradeId": "dcba0edd-98fc-4eff-b1c6-9aa1849e09cb",
+      "symbol": "COOKIEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.1422691021353226,
+      "momentumScore": 35,
+      "continuationProb": 0,
+      "greedIndex": 50,
+      "decaySignals": [
+        "Volume turun 55% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779097490013,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.1422691021353226,
+      "profitDelta": 0
+    },
+    {
+      "id": "303cb044-8abe-49f0-89cf-5673e9d18169",
+      "tradeId": "c7e188b9-1e8a-445b-b43c-e1bb32902ffd",
+      "symbol": "MAGMAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.5821242454916962,
+      "momentumScore": 54,
+      "continuationProb": 0,
+      "greedIndex": 40,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779097489867,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.5821242454916962,
+      "profitDelta": 0
+    },
+    {
+      "id": "698d54d9-c9bc-4344-a867-60f970d3fdc4",
+      "tradeId": "c39852f4-edb3-4c26-9209-e17a81680e88",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⏰ Trade sudah 290 menit — momentum melemah (39). Waktu untuk mengambil profit.",
+      "profitPctAtDecision": 0.061299550469967816,
+      "momentumScore": 39,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+      ],
+      "timestamp": 1779097489723,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.061299550469967816,
+      "profitDelta": 0
+    },
+    {
+      "id": "abc607d6-a454-44d4-9acc-977480d7a750",
+      "tradeId": "f1ca3282-0657-4a81-8933-72fd127f3445",
+      "symbol": "COOKIEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.3254709596618524,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779087065409,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.3254709596618524,
+      "profitDelta": 0
+    },
+    {
+      "id": "8355d515-3b6a-410b-b705-bb2ae776dbf1",
+      "tradeId": "3963c360-5319-4660-9c15-22c467842d89",
+      "symbol": "BEATUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (20%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6514368624431949,
+      "momentumScore": 60,
+      "continuationProb": 20,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (77) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779080360659,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6514368624431949,
+      "profitDelta": 0
+    },
+    {
+      "id": "5251f185-5edc-4c3d-9721-58c092e7fdb5",
+      "tradeId": "b0900cb8-3f80-401c-b9e5-5c23d85e50ea",
+      "symbol": "OPENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (2%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 2.5231639009579596,
+      "momentumScore": 39,
+      "continuationProb": 2,
+      "greedIndex": 80,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (80) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779080112701,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 2.5231639009579596,
+      "profitDelta": 0
+    },
+    {
+      "id": "5b060022-8e32-4442-88cc-5406345b953d",
+      "tradeId": "0e72db30-5016-4c5e-aee6-e8c10ccb4b55",
+      "symbol": "MAGMAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (6%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5127815550575523,
+      "momentumScore": 54,
+      "continuationProb": 6,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779079736459,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5127815550575523,
+      "profitDelta": 0
+    },
+    {
+      "id": "a20a0f11-0c63-4f73-85d0-4b45b6500c65",
+      "tradeId": "d497eeab-0bfe-4e4c-9e8d-0c0b79f05f9a",
+      "symbol": "CLOUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 2.2017837235228512,
+      "momentumScore": 44,
+      "continuationProb": 0,
+      "greedIndex": 75,
+      "decaySignals": [
+        "Volume sedikit turun 19%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection bawah — tekanan beli kuat"
+      ],
+      "timestamp": 1779079640453,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 2.2017837235228512,
+      "profitDelta": 0
+    },
     {
       "id": "3be45f5b-e60d-449e-b710-40808884d02d",
       "tradeId": "ce2d813a-b0f7-4238-8de5-192215be99bc",
@@ -1178,5 +1423,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779069769160
+  "lastUpdated": 1779163845679
 }
