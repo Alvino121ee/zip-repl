@@ -1,15 +1,77 @@
 {
-  "totalDecisions": 100,
-  "correctEarlyExits": 100,
+  "totalDecisions": 103,
+  "correctEarlyExits": 103,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 43.14,
-  "avgContinuationProbAtExit": 11.3,
+  "avgMomentumAtEarlyExit": 42.66019417475728,
+  "avgContinuationProbAtExit": 11.194174757281553,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "29eb32ba-4542-4240-8330-9b44bd17fd3b",
+      "tradeId": "454e91f2-a255-4368-975c-c340282e82d9",
+      "symbol": "HOMEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.5164801155413374,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 40,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779210429491,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.5164801155413374,
+      "profitDelta": 0
+    },
+    {
+      "id": "7b069db6-affa-476a-ab7b-4458b3ba28e7",
+      "tradeId": "dbeb57ab-4e8c-430d-a96b-9032ad25d9f9",
+      "symbol": "SAHARAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume menurun 31% — tanda pelemahan. Profit $0.59% diamankan.",
+      "profitPctAtDecision": 0.5895035615840204,
+      "momentumScore": 18,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 31% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "Potensi fake breakout ke atas — harga kembali di bawah resistance"
+      ],
+      "timestamp": 1779210157405,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5895035615840204,
+      "profitDelta": 0
+    },
+    {
+      "id": "0792fe63-c393-4959-ab46-345d9447b99e",
+      "tradeId": "f61c25d2-32fa-4225-928b-31bd241796db",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.34% diamankan.",
+      "profitPctAtDecision": 0.34006376195537485,
+      "momentumScore": 8,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779209661561,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.34006376195537485,
+      "profitDelta": 0
+    },
     {
       "id": "01ef29b4-397c-4ed5-bd96-7468761c946a",
       "tradeId": "4d160d9d-fd32-4a39-bbc7-e1bdc574afb8",
@@ -2032,5 +2094,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779208941405
+  "lastUpdated": 1779210429495
 }

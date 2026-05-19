@@ -6,7 +6,7 @@ import {
   Eye, GraduationCap, Flame, Star, TrendingDown, RotateCcw,
   Lightbulb, Swords, Trophy, Database, AlertTriangle, Layers,
   BarChart, Repeat, BookMarked, BrainCircuit, Gauge,
-  ChevronRight, Wifi, WifiOff,
+  ChevronRight, Wifi, WifiOff, Upload, FileText, X, CheckCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -265,6 +265,19 @@ export default function TrainingLab() {
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
   const [manualHistory, setManualHistory] = useState<string[]>([]);
 
+  // ── TXT File Upload Training ──
+  const [txtLessons, setTxtLessons]         = useState<string[]>([]);
+  const [txtFileName, setTxtFileName]       = useState("");
+  const [txtProgress, setTxtProgress]       = useState(0);
+  const [txtTotal, setTxtTotal]             = useState(0);
+  const [txtRunning, setTxtRunning]         = useState(false);
+  const [txtDone, setTxtDone]               = useState(false);
+  const [txtTotalXp, setTxtTotalXp]         = useState(0);
+  const [txtCurrentLesson, setTxtCurrentLesson] = useState("");
+  const [txtLessonResults, setTxtLessonResults] = useState<Array<{ text: string; xp: number; grade: string; ok: boolean }>>([]);
+  const [txtDragOver, setTxtDragOver]       = useState(false);
+  const txtAbortRef = useRef(false);
+
   const pollRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const feedRef  = useRef<HTMLDivElement>(null);
 
@@ -328,6 +341,112 @@ export default function TrainingLab() {
     await fetch(`${API}/api/training-lab/ai-brain/reset`, { method: "POST" });
     toast({ title: "AI Brain direset", description: "AI memulai perjalanan belajar dari awal" });
     setTimeout(() => { fetchBrain(); fetchMemory(); }, 600);
+  };
+
+  // ── TXT Upload: parse file jadi daftar pelajaran ──────────────────────────
+  const parseTxtFile = (content: string): string[] => {
+    // Coba split by numbered items: "1. ...\n2. ..."
+    const numbered = content.match(/^\d+[\.\)]\s+[\s\S]+?(?=\n\d+[\.\)]\s|$)/gm);
+    if (numbered && numbered.length >= 2) {
+      return numbered.map(s => s.replace(/^\d+[\.\)]\s+/, "").trim()).filter(s => s.length >= 10).slice(0, 100);
+    }
+    // Split by double newline (paragraf)
+    const paragraphs = content.split(/\n\s*\n/).map(s => s.trim()).filter(s => s.length >= 10);
+    if (paragraphs.length >= 2) {
+      const chunks: string[] = [];
+      let buf = "";
+      for (const p of paragraphs) {
+        if ((buf + "\n\n" + p).length > 4800) {
+          if (buf.length >= 10) chunks.push(buf.trim());
+          buf = p;
+        } else {
+          buf = buf ? buf + "\n\n" + p : p;
+        }
+      }
+      if (buf.length >= 10) chunks.push(buf.trim());
+      return chunks.slice(0, 100);
+    }
+    // Fallback: split by single newline
+    const lines = content.split("\n").map(s => s.trim()).filter(s => s.length >= 10);
+    const chunks: string[] = [];
+    let buf = "";
+    for (const l of lines) {
+      if ((buf + " " + l).length > 4800) {
+        if (buf.length >= 10) chunks.push(buf.trim());
+        buf = l;
+      } else {
+        buf = buf ? buf + " " + l : l;
+      }
+    }
+    if (buf.length >= 10) chunks.push(buf.trim());
+    return chunks.slice(0, 100);
+  };
+
+  const handleTxtFile = (file: File) => {
+    if (!file.name.endsWith(".txt")) {
+      toast({ title: "Format tidak didukung", description: "Harap upload file berekstensi .txt", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      const lessons = parseTxtFile(content);
+      if (lessons.length === 0) {
+        toast({ title: "File kosong atau terlalu pendek", description: "Tidak ada pelajaran yang bisa diekstrak dari file ini.", variant: "destructive" });
+        return;
+      }
+      setTxtLessons(lessons);
+      setTxtFileName(file.name);
+      setTxtProgress(0);
+      setTxtTotal(lessons.length);
+      setTxtDone(false);
+      setTxtTotalXp(0);
+      setTxtLessonResults([]);
+      setTxtCurrentLesson("");
+    };
+    reader.readAsText(file, "utf-8");
+  };
+
+  const handleStartTxtTraining = async () => {
+    if (txtLessons.length === 0) return;
+    setTxtRunning(true);
+    setTxtDone(false);
+    setTxtProgress(0);
+    setTxtTotalXp(0);
+    setTxtLessonResults([]);
+    txtAbortRef.current = false;
+    let totalXp = 0;
+    const results: Array<{ text: string; xp: number; grade: string; ok: boolean }> = [];
+    for (let i = 0; i < txtLessons.length; i++) {
+      if (txtAbortRef.current) break;
+      const lesson = txtLessons[i];
+      setTxtCurrentLesson(lesson.slice(0, 80) + (lesson.length > 80 ? "..." : ""));
+      try {
+        const res = await fetch(`${API}/api/training-lab/manual-train`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: lesson }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          totalXp += data.xpGained ?? 0;
+          setTxtTotalXp(totalXp);
+          results.push({ text: lesson.slice(0, 60) + (lesson.length > 60 ? "…" : ""), xp: data.xpGained, grade: data.grade, ok: true });
+        } else {
+          results.push({ text: lesson.slice(0, 60) + "…", xp: 0, grade: "D", ok: false });
+        }
+      } catch {
+        results.push({ text: lesson.slice(0, 60) + "…", xp: 0, grade: "D", ok: false });
+      }
+      setTxtProgress(i + 1);
+      setTxtLessonResults([...results]);
+      await new Promise(r => setTimeout(r, 350));
+    }
+    setTxtRunning(false);
+    setTxtDone(true);
+    setTxtCurrentLesson("");
+    fetchBrain();
+    toast({ title: `✅ File selesai dipelajari!`, description: `${results.length} pelajaran · Total +${totalXp} XP diperoleh AI` });
   };
 
   const handleManualTrain = async () => {
@@ -1232,6 +1351,136 @@ export default function TrainingLab() {
               </Card>
             </div>
           </div>
+
+          {/* ── UPLOAD FILE TXT ─────────────────────────────────────── */}
+          <Card className="border-emerald-500/30 bg-emerald-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <FileText className="w-4 h-4 text-emerald-400" />
+                Upload File TXT — Ajar AI Massal
+                <span className="ml-auto text-xs text-muted-foreground font-normal">Max 100 pelajaran per file</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Info */}
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Upload file <code className="bg-muted px-1 rounded">.txt</code> berisi strategi, catatan trading, atau pengetahuan apapun.
+                AI akan membaca <strong className="text-emerald-400">pelajaran per pelajaran</strong> secara otomatis dan menyimpan semuanya ke memori.
+                Pisahkan tiap pelajaran dengan <strong>baris kosong</strong> atau gunakan format bernomor <code className="bg-muted px-1 rounded">1. ... 2. ...</code>
+              </p>
+
+              {/* Drop Zone */}
+              {!txtLessons.length ? (
+                <label
+                  className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-all ${
+                    txtDragOver ? "border-emerald-400 bg-emerald-500/10" : "border-border hover:border-emerald-500/50 hover:bg-emerald-500/5"
+                  }`}
+                  onDragOver={e => { e.preventDefault(); setTxtDragOver(true); }}
+                  onDragLeave={() => setTxtDragOver(false)}
+                  onDrop={e => { e.preventDefault(); setTxtDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleTxtFile(f); }}
+                >
+                  <input type="file" accept=".txt" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleTxtFile(f); }} />
+                  <Upload className={`w-8 h-8 ${txtDragOver ? "text-emerald-400" : "text-muted-foreground/50"}`} />
+                  <p className="text-sm font-medium text-muted-foreground">Klik atau drag & drop file .txt di sini</p>
+                  <p className="text-xs text-muted-foreground/60">Format: teks biasa (.txt), encoding UTF-8</p>
+                </label>
+              ) : (
+                <div className="space-y-3">
+                  {/* File info + reset */}
+                  <div className="flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-2">
+                    <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="text-sm font-medium flex-1 truncate">{txtFileName}</span>
+                    <span className="text-xs text-emerald-400 font-semibold">{txtLessons.length} pelajaran terdeteksi</span>
+                    {!txtRunning && (
+                      <button onClick={() => { setTxtLessons([]); setTxtFileName(""); setTxtDone(false); setTxtLessonResults([]); }}
+                        className="ml-1 text-muted-foreground hover:text-destructive transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Preview pelajaran */}
+                  {!txtRunning && !txtDone && (
+                    <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+                      {txtLessons.slice(0, 5).map((l, i) => (
+                        <div key={i} className="text-xs bg-muted/30 rounded-lg px-3 py-1.5 text-muted-foreground line-clamp-1">
+                          <span className="text-emerald-400 font-semibold mr-2">#{i + 1}</span>{l}
+                        </div>
+                      ))}
+                      {txtLessons.length > 5 && (
+                        <p className="text-xs text-muted-foreground pl-2">... dan {txtLessons.length - 5} pelajaran lainnya</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Progress bar saat berjalan */}
+                  {(txtRunning || txtDone) && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">
+                          {txtRunning ? `Memproses pelajaran ${txtProgress} dari ${txtTotal}...` : `✅ Selesai — ${txtProgress} pelajaran dipelajari`}
+                        </span>
+                        <span className="text-amber-400 font-bold">+{txtTotalXp} XP</span>
+                      </div>
+                      <Progress value={(txtProgress / txtTotal) * 100} className="h-2" />
+                      {txtRunning && txtCurrentLesson && (
+                        <p className="text-xs text-emerald-300 bg-emerald-500/10 rounded-lg px-3 py-1.5 italic line-clamp-1">
+                          🧠 AI membaca: "{txtCurrentLesson}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Hasil per pelajaran */}
+                  {txtLessonResults.length > 0 && (
+                    <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                      {txtLessonResults.map((r, i) => (
+                        <div key={i} className={`flex items-center gap-2 text-xs rounded-lg px-3 py-1.5 ${r.ok ? "bg-muted/30" : "bg-red-500/10"}`}>
+                          {r.ok
+                            ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            : <X className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                          }
+                          <span className={`w-5 font-bold shrink-0 ${
+                            r.grade === "S" ? "text-yellow-400" : r.grade === "A" ? "text-emerald-400" :
+                            r.grade === "B" ? "text-blue-400" : r.grade === "C" ? "text-orange-400" : "text-muted-foreground"
+                          }`}>{r.grade}</span>
+                          <span className="text-amber-400 font-semibold shrink-0">+{r.xp}</span>
+                          <span className="text-muted-foreground truncate flex-1">{r.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tombol aksi */}
+                  <div className="flex gap-2">
+                    {!txtRunning && !txtDone && (
+                      <Button className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white" onClick={handleStartTxtTraining}>
+                        <Brain className="w-4 h-4 mr-2" />Mulai Latih AI ({txtLessons.length} Pelajaran)
+                      </Button>
+                    )}
+                    {txtRunning && (
+                      <Button variant="destructive" className="flex-1" onClick={() => { txtAbortRef.current = true; }}>
+                        <Square className="w-4 h-4 mr-2" />Hentikan
+                      </Button>
+                    )}
+                    {txtDone && (
+                      <>
+                        <div className="flex-1 flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span className="text-xs text-emerald-300 font-medium">Semua tersimpan di memori AI!</span>
+                          <span className="ml-auto text-amber-400 font-bold text-sm">+{txtTotalXp} XP</span>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => { setTxtLessons([]); setTxtFileName(""); setTxtDone(false); setTxtLessonResults([]); setTxtProgress(0); setTxtTotalXp(0); }}>
+                          <Upload className="w-3.5 h-3.5 mr-1.5" />Upload Baru
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
         </div>
       )}
 

@@ -32,7 +32,7 @@ from datetime import datetime
 MT5_SERVER   = "RoboForex-Pro"
 MT5_LOGIN    = 37347868
 MT5_PASSWORD = "Alvino121#"
-REPLIT_URL   = "https://24b9a11f-c52a-4f12-b81e-540bab806882-00-1zvuinsw1zefi.sisko.replit.dev"
+REPLIT_URL   = "https://zip-repl-1--sitongata50.replit.app"
 SECRET       = "vinzpredict2024"
 
 # ══════════════════════════════════════════════════════════════════════════════
