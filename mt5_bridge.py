@@ -31,7 +31,7 @@ from datetime import datetime
 MT5_SERVER   = "RoboForex-Pro"
 MT5_LOGIN    = 37347868
 MT5_PASSWORD = "Alvino121#"
-REPLIT_URL   = "https://zip-repl-1--sitongata50.replit.app/"
+REPLIT_URL   = "https://24b9a11f-c52a-4f12-b81e-540bab806882-00-1zvuinsw1zefi.sisko.replit.dev"
 SECRET       = "vinzpredict2024"
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -309,7 +309,7 @@ def execute_order(order: dict) -> None:
         return
 
     # ── Buka posisi baru ──────────────────────────────────────────────────────
-    # Coba dengan suffix 'm' dulu (Exness pakai suffix ini)
+    # Coba dengan suffix 'm' dulu (beberapa broker pakai suffix ini, misal RoboForex: EURUSDm)
     sym_to_try = [symbol, symbol + "m"] if not symbol.endswith("m") else [symbol, symbol[:-1]]
     info = None
     final_symbol = symbol
@@ -437,7 +437,7 @@ def main() -> None:
     print()
     print("=" * 58)
     print("   VINZ PREDICT — MT5 Python Bridge  v2.0")
-    print("   Akun  : Exness-MT5Real37 | #263423277")
+    print(f"   Akun  : {MT5_SERVER} | #{MT5_LOGIN}")
     print("=" * 58)
     print()
 
