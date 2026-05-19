@@ -1,0 +1,11 @@
+{
+  "autoEnabled": true,
+  "autoMode": "auto",
+  "minConfidence": 72,
+  "maxPositionUSDT": 10,
+  "stopLossPct": 1.5,
+  "takeProfitPct": 3,
+  "maxPositions": 3,
+  "leverage": 3,
+  "intervalMs": 30000
+}

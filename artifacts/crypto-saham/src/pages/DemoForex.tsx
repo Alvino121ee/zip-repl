@@ -91,6 +91,27 @@ interface ForexScanResult {
   price: number; change24h: number; confidence: number; side: "Buy" | "Sell" | null;
 }
 
+interface BrainStats {
+  totalPredictions: number;
+  totalWins: number;
+  totalLosses: number;
+  winRate: number;
+  learningCycles: number;
+  consecutiveLosses: number;
+  currentWinStreak: number;
+  bestWinStreak: number;
+  iq: number;
+  symbolPerformance: Record<string, { symbol: string; wins: number; losses: number; consecutiveLosses: number; avoidUntil: number | null }>;
+  strategyWeights: Record<string, { name: string; weight: number; wins: number; losses: number }>;
+}
+
+interface BrainRecommendedConfig {
+  minConfidence: number;
+  maxPositionUSDT: number;
+  leverage: number;
+  reasoning: Record<string, string>;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmt(n: number, dec = 2) {
@@ -404,13 +425,153 @@ function PanelUniverse({ onBuka }: { onBuka: (symbol: string, side: "Buy" | "Sel
   );
 }
 
+// ─── Panel Otak AI ────────────────────────────────────────────────────────────
+
+function PanelOtakAI({ brainStats, brainRec }: { brainStats: BrainStats; brainRec: BrainRecommendedConfig }) {
+  const totalTrades = brainStats.totalWins + brainStats.totalLosses;
+  const winRate = totalTrades > 0 ? (brainStats.totalWins / totalTrades) * 100 : 0;
+
+  const avoidedSymbols = Object.values(brainStats.symbolPerformance).filter(
+    s => s.avoidUntil && Date.now() < s.avoidUntil
+  );
+
+  const forexSymbols = ["XAUUSDT", "XAGUUSDT", "EURUSDT", "GBPUSDT", "BNBUSDT"];
+  const forexPerf = forexSymbols
+    .map(sym => brainStats.symbolPerformance[sym])
+    .filter(Boolean)
+    .sort((a, b) => (b.wins + b.losses) - (a.wins + a.losses));
+
+  const swing1h = brainStats.strategyWeights["swing_1h"];
+  const swingWeight = swing1h ? swing1h.weight : 1.0;
+
+  const consLoss = brainStats.consecutiveLosses;
+  const brainHealthColor = consLoss >= 5 ? "text-red-400" : consLoss >= 3 ? "text-orange-400" : consLoss >= 1 ? "text-yellow-400" : "text-green-400";
+  const brainHealthLabel = consLoss >= 5 ? "⚠ Kritis" : consLoss >= 3 ? "⚠ Hati-hati" : consLoss >= 1 ? "🟡 Waspada" : "✅ Sehat";
+
+  return (
+    <Card className="border border-purple-500/30 bg-purple-500/5">
+      <CardHeader className="pb-2 pt-4 px-4">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Brain className="h-4 w-4 text-purple-400" />
+          Status Otak AI
+          <Badge className="text-[10px] bg-purple-500/20 text-purple-400 border-purple-500/30">
+            IQ {brainStats.iq ?? 200} · {brainStats.learningCycles} siklus belajar
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="px-4 pb-4 space-y-3">
+        {/* Statistik global */}
+        <div className="grid grid-cols-4 gap-2">
+          <div className="text-center p-2 bg-muted/30 rounded-lg">
+            <p className="text-[10px] text-muted-foreground">Win Rate</p>
+            <p className={`text-sm font-bold ${winRate >= 55 ? "text-green-400" : winRate >= 45 ? "text-yellow-400" : "text-red-400"}`}>
+              {fmt(winRate, 1)}%
+            </p>
+          </div>
+          <div className="text-center p-2 bg-muted/30 rounded-lg">
+            <p className="text-[10px] text-muted-foreground">Prediksi</p>
+            <p className="text-sm font-bold">{brainStats.totalPredictions}</p>
+          </div>
+          <div className="text-center p-2 bg-muted/30 rounded-lg">
+            <p className="text-[10px] text-muted-foreground">Health</p>
+            <p className={`text-sm font-bold ${brainHealthColor}`}>{brainHealthLabel}</p>
+          </div>
+          <div className="text-center p-2 bg-muted/30 rounded-lg">
+            <p className="text-[10px] text-muted-foreground">Strategi Forex</p>
+            <p className={`text-sm font-bold ${swingWeight >= 1.2 ? "text-green-400" : swingWeight >= 0.8 ? "text-yellow-400" : "text-red-400"}`}>
+              {swingWeight.toFixed(2)}×
+            </p>
+          </div>
+        </div>
+
+        {/* Rekomendasi brain untuk forex */}
+        <div className="text-xs space-y-1.5 border-t border-border pt-2">
+          <p className="font-semibold text-purple-300 flex items-center gap-1">
+            <Lightbulb className="h-3 w-3" /> Rekomendasi Brain untuk Forex
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-muted/20 rounded p-1.5 text-center">
+              <p className="text-[10px] text-muted-foreground">Min Confidence</p>
+              <p className="font-bold text-purple-300">{brainRec.minConfidence}%</p>
+            </div>
+            <div className="bg-muted/20 rounded p-1.5 text-center">
+              <p className="text-[10px] text-muted-foreground">Max Posisi</p>
+              <p className="font-bold text-purple-300">${brainRec.maxPositionUSDT}</p>
+            </div>
+            <div className="bg-muted/20 rounded p-1.5 text-center">
+              <p className="text-[10px] text-muted-foreground">Leverage</p>
+              <p className="font-bold text-purple-300">{brainRec.leverage}×</p>
+            </div>
+          </div>
+          {brainRec.reasoning.minConfidence && (
+            <p className="text-[10px] text-muted-foreground italic">
+              💬 {brainRec.reasoning.minConfidence}
+            </p>
+          )}
+        </div>
+
+        {/* Performa per pasangan forex */}
+        {forexPerf.length > 0 && (
+          <div className="text-xs space-y-1 border-t border-border pt-2">
+            <p className="font-semibold text-purple-300 flex items-center gap-1">
+              <BarChart2 className="h-3 w-3" /> Memori Brain per Pasangan Forex
+            </p>
+            {forexPerf.map(sym => {
+              const total = sym.wins + sym.losses;
+              const wr = total > 0 ? (sym.wins / total) * 100 : 0;
+              const isAvoided = sym.avoidUntil && Date.now() < sym.avoidUntil;
+              return (
+                <div key={sym.symbol} className={`flex items-center justify-between px-2 py-1 rounded ${isAvoided ? "bg-red-500/10 border border-red-500/20" : "bg-muted/20"}`}>
+                  <span className={isAvoided ? "text-red-400 font-bold" : "font-medium"}>
+                    {isAvoided ? "🚫 " : ""}{sym.symbol}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">{sym.wins}M/{sym.losses}K</span>
+                    <span className={`font-bold ${wr >= 60 ? "text-green-400" : wr >= 40 ? "text-yellow-400" : "text-red-400"}`}>
+                      {fmt(wr, 0)}%
+                    </span>
+                    {isAvoided && (
+                      <Badge className="text-[9px] bg-red-500/20 text-red-400 border-red-500/30 px-1">HINDARI</Badge>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Simbol dihindari brain */}
+        {avoidedSymbols.length > 0 && (
+          <div className="text-xs p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="font-semibold text-red-400 mb-1">🚫 Brain Menghindari {avoidedSymbols.length} Pasangan</p>
+            {avoidedSymbols.map(sym => {
+              const minsLeft = sym.avoidUntil ? Math.round((sym.avoidUntil - Date.now()) / 60000) : 0;
+              return (
+                <p key={sym.symbol} className="text-muted-foreground">
+                  {sym.symbol} — {sym.consecutiveLosses}× loss berturut, tunggu {minsLeft}m
+                </p>
+              );
+            })}
+          </div>
+        )}
+
+        <p className="text-[10px] text-muted-foreground border-t border-border pt-2">
+          🧠 Otak AI memantau setiap trade forex dan secara otomatis menyesuaikan confidence, menghindari pasangan yang sedang rugi berturut, serta menaikkan threshold saat kondisi berbahaya.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Tab Kontrol Engine ───────────────────────────────────────────────────────
 
-function TabKontrol({ config, engineStatus, onConfigChange, onTrigger }: {
+function TabKontrol({ config, engineStatus, onConfigChange, onTrigger, brainStats, brainRec }: {
   config: ForexConfig | null;
   engineStatus: ForexEngineStatus | null;
   onConfigChange: (patch: Partial<ForexConfig>) => void;
   onTrigger: () => void;
+  brainStats: BrainStats | null;
+  brainRec: BrainRecommendedConfig | null;
 }) {
   if (!config) return <Card><CardContent className="p-4 animate-pulse h-40 bg-muted/20" /></Card>;
 
@@ -543,6 +704,11 @@ function TabKontrol({ config, engineStatus, onConfigChange, onTrigger }: {
           </div>
         </CardContent>
       </Card>
+
+      {/* Panel Otak AI */}
+      {brainStats && brainRec && (
+        <PanelOtakAI brainStats={brainStats} brainRec={brainRec} />
+      )}
 
       {/* Gold Analysis Info */}
       <Card className="border border-yellow-500/30 bg-yellow-500/5">
@@ -745,19 +911,24 @@ export default function DemoForex() {
   const [config, setConfig] = useState<ForexConfig | null>(null);
   const [engineStatus, setEngineStatus] = useState<ForexEngineStatus | null>(null);
   const [stats, setStats] = useState<ForexStats | null>(null);
+  const [brainStats, setBrainStats] = useState<BrainStats | null>(null);
+  const [brainRec, setBrainRec] = useState<BrainRecommendedConfig | null>(null);
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const [b, p, l, c, es, st] = await Promise.all([
+      const [b, p, l, c, es, st, bs, br] = await Promise.all([
         apiFetch<ForexBalance>("/api/forex-demo/balance"),
         apiFetch<ForexPosition[]>("/api/forex-demo/positions"),
         apiFetch<ForexTradeLog[]>("/api/forex-demo/log"),
         apiFetch<ForexConfig>("/api/forex-demo/config"),
         apiFetch<ForexEngineStatus>("/api/forex-demo/engine-status"),
         apiFetch<ForexStats>("/api/forex-demo/stats"),
+        apiFetch<BrainStats>("/api/ai/brain/stats"),
+        apiFetch<BrainRecommendedConfig>("/api/ai/brain/recommend-config"),
       ]);
       setBalance(b); setPositions(p); setLog(l); setConfig(c); setEngineStatus(es); setStats(st);
+      setBrainStats(bs); setBrainRec(br);
     } catch (err) { /* silent */ }
   }, []);
 
@@ -939,7 +1110,7 @@ export default function DemoForex() {
 
       {tab === "kontrol" && (
         <div className="max-w-lg">
-          <TabKontrol config={config} engineStatus={engineStatus} onConfigChange={handleConfigChange} onTrigger={handleTrigger} />
+          <TabKontrol config={config} engineStatus={engineStatus} onConfigChange={handleConfigChange} onTrigger={handleTrigger} brainStats={brainStats} brainRec={brainRec} />
         </div>
       )}
 

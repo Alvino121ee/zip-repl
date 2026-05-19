@@ -7,12 +7,20 @@ import {
   calculateDynamicRisk,
   shouldSwitchOpportunity,
   type OpportunityScore,
+  type MarketConditionType,
 } from "./institutional-engine.js";
 import { logActivity } from "./activity-log.js";
 import {
   learnFromTradeOutcome,
 } from "./human-instinct-engine.js";
 import { analyzeSLFailure } from "./sl-failure-analysis.js";
+import {
+  adjustConfidence,
+  isSymbolEligible,
+  getBrainRecommendedConfig,
+  learnFromOutcome,
+  detectMarketCondition,
+} from "./ai-brain.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -155,9 +163,9 @@ let state: ForexState = {
 };
 
 export const forexConfig: ForexConfig = {
-  autoEnabled: false,
-  autoMode: "semi",
-  minConfidence: 75,
+  autoEnabled: true,
+  autoMode: "auto",
+  minConfidence: 72,
   maxPositionUSDT: 10,
   stopLossPct: 1.5,
   takeProfitPct: 3,
@@ -245,6 +253,36 @@ async function getMarkPrice(symbol: string): Promise<number | null> {
   } catch {
     return null;
   }
+}
+
+// ─── Brain helpers ────────────────────────────────────────────────────────────
+
+function mapToBrainCondition(mct: MarketConditionType): ReturnType<typeof detectMarketCondition> {
+  if (mct === "trending_up_strong" || mct === "trending_up_normal") return "trending_up";
+  if (mct === "trending_down_strong" || mct === "trending_down_normal") return "trending_down";
+  if (mct === "volatile" || mct === "breakout") return "volatile";
+  if (mct === "manipulation") return "low_liquidity";
+  return "sideways";
+}
+
+function mapReasonsToIndicators(reasons: string[], side: "Buy" | "Sell"): string[] {
+  const combined = reasons.join(" ").toLowerCase();
+  const keys: string[] = [];
+  if (combined.includes("rsi")) {
+    keys.push(side === "Buy" ? "rsi_oversold" : "rsi_overbought");
+  }
+  if (combined.includes("ema") || combined.includes("golden cross")) keys.push("ema_golden_cross");
+  if (combined.includes("death cross")) keys.push("ema_death_cross");
+  if (combined.includes("macd")) keys.push(side === "Buy" ? "macd_bullish" : "macd_bearish");
+  if (combined.includes("bos") || combined.includes("break of structure")) keys.push(side === "Buy" ? "bos_bullish" : "bos_bearish");
+  if (combined.includes("order block")) keys.push(side === "Buy" ? "order_block_demand" : "order_block_supply");
+  if (combined.includes("fvg") || combined.includes("fair value")) keys.push(side === "Buy" ? "fvg_bullish" : "fvg_bearish");
+  if (combined.includes("vwap")) keys.push(side === "Buy" ? "vwap_above" : "vwap_below");
+  if (combined.includes("momentum")) keys.push("momentum_strong");
+  if (combined.includes("multi") || combined.includes("timeframe")) keys.push("multi_tf_aligned");
+  if (combined.includes("volume")) keys.push("volume_spike");
+  if (combined.includes("bollinger") || combined.includes("squeeze")) keys.push("bb_squeeze");
+  return [...new Set(keys)];
 }
 
 // ─── Universe scan ────────────────────────────────────────────────────────────
@@ -439,6 +477,26 @@ export function closeForexPosition(
     learnFromTradeOutcome({ tradeId: pos.id, symbol: pos.symbol, finalProfitPct: rawPnlPct, closedAs });
   } catch { /* non-critical */ }
 
+  // Ajarkan AI Brain dari hasil trade forex
+  try {
+    const brainCondition = detectMarketCondition({ priceChange24h: netPnl > 0 ? 2 : -2 });
+    const indicators = mapReasonsToIndicators([pos.openReason ?? pos.signal], pos.side);
+    learnFromOutcome({
+      id: pos.id,
+      symbol: pos.symbol,
+      direction: pos.side === "Buy" ? "LONG" : "SHORT",
+      confidence: pos.confidence,
+      signal: pos.signal,
+      result: netPnl > 0.01 ? "WIN" : netPnl < -0.01 ? "LOSS" : "NEUTRAL",
+      priceDeltaPct: pos.leverage > 0 ? pnlPct / pos.leverage : pnlPct,
+      reasoning: [pos.openReason ?? pos.signal, `Forex ${pos.category}`, pos.marketCondition ?? ""],
+      indicatorsActive: indicators,
+      condition: brainCondition,
+      strategy: pos.source === "manual" ? "momentum" : "swing_1h",
+      virtualPnl: netPnl,
+    });
+  } catch { /* non-critical */ }
+
   const icon = reason === "tp" ? "✅ TP" : reason === "sl" ? "❌ SL" : "🔒 TUTUP";
   const dir = pos.side === "Buy" ? "LONG" : "SHORT";
   logActivity({
@@ -600,6 +658,17 @@ async function runForexEngineCycle() {
     const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
     const available = state.balance - usedMargin;
 
+    // Ambil rekomendasi dari AI Brain untuk threshold dinamis
+    let brainMinConfidence = forexConfig.minConfidence;
+    try {
+      const brainRec = getBrainRecommendedConfig();
+      // Gunakan threshold brain hanya jika lebih tinggi (lebih konservatif)
+      brainMinConfidence = Math.max(forexConfig.minConfidence, brainRec.minConfidence);
+      if (brainRec.minConfidence !== forexConfig.minConfidence) {
+        logger.info({ institutional: forexConfig.minConfidence, brain: brainRec.minConfidence, effective: brainMinConfidence }, "[Brain Forex] Threshold confidence dinamis dari brain");
+      }
+    } catch { /* non-critical */ }
+
     const dynRisk = calculateDynamicRisk({
       consecutiveLosses: stats.consecutiveLosses,
       maxConsecutiveLosses: 5,
@@ -665,18 +734,42 @@ async function runForexEngineCycle() {
       }
     }
 
-    // Open new positions
-    let opened = 0, signaled = 0;
+    // Open new positions dengan AI Brain integration
+    let opened = 0, signaled = 0, brainSkipped = 0;
     for (const cand of preFiltered) {
       if (state.positions.length >= forexConfig.maxPositions) break;
       if (state.positions.find(p => p.symbol === cand.symbol)) continue;
 
       try {
+        // 🧠 Cek eligibilitas dari AI Brain
+        const eligibility = isSymbolEligible(cand.symbol);
+        if (!eligibility.eligible) {
+          brainSkipped++;
+          logActivity({ source: "demo", level: "warning", message: `🧠 [Brain] Skip ${cand.symbol}: ${eligibility.reason}` });
+          continue;
+        }
+
         await new Promise(r => setTimeout(r, 100));
         const analysis = await analyzeInstitutional(cand.symbol, { consecutiveLosses: stats.consecutiveLosses, drawdownPct, availableBalance: available, maxPositionUSDT: forexConfig.maxPositionUSDT, maxLeverage: forexConfig.leverage });
 
         if (!analysis.institutionalShouldTrade || !analysis.side) continue;
-        if (analysis.institutionalConfidence < forexConfig.minConfidence) continue;
+
+        // 🧠 Sesuaikan confidence dengan pengetahuan AI Brain
+        const brainCondition = mapToBrainCondition(analysis.marketCondition);
+        const indicators = mapReasonsToIndicators(analysis.reasons, analysis.side);
+        const brainAdjustedConfidence = adjustConfidence(
+          analysis.institutionalConfidence,
+          cand.symbol,
+          brainCondition,
+          indicators,
+          "swing_1h",
+        );
+
+        // Gunakan confidence yang sudah disesuaikan brain
+        if (brainAdjustedConfidence < brainMinConfidence) {
+          logger.debug({ symbol: cand.symbol, institutional: analysis.institutionalConfidence, brain: brainAdjustedConfidence, threshold: brainMinConfidence }, "[Brain Forex] Confidence terlalu rendah setelah penyesuaian brain");
+          continue;
+        }
 
         const meta = getForexMeta(cand.symbol);
 
@@ -688,14 +781,14 @@ async function runForexEngineCycle() {
             symbol: cand.symbol, displayName: meta.displayName, category: meta.category, emoji: meta.emoji,
             side: analysis.side, qty: 0, entryPrice: analysis.entryPrice, closePrice: null,
             realizedPnl: null, realizedPnlPct: null, leverage: effectiveLeverage, margin: maxPerTrade,
-            confidence: analysis.institutionalConfidence, signal: analysis.side === "Buy" ? "buy" : "sell",
-            status: "rejected", reason: `[Semi] ${dir} ${meta.displayName} — ${analysis.reasons[0] ?? ""}`,
+            confidence: brainAdjustedConfidence, signal: analysis.side === "Buy" ? "buy" : "sell",
+            status: "rejected", reason: `[Semi] ${dir} ${meta.displayName} — ${analysis.reasons[0] ?? ""} | 🧠 ${brainAdjustedConfidence}%`,
             openReason: `${analysis.conditionLabel} | ${analysis.reasons.slice(0, 3).join("; ")}`,
-            source: "auto", tags: generateTags({ source: "auto", confidence: analysis.institutionalConfidence, signal: analysis.side === "Buy" ? "buy" : "sell", leverage: effectiveLeverage }), marketCondition: analysis.marketCondition,
+            source: "auto", tags: generateTags({ source: "auto", confidence: brainAdjustedConfidence, signal: analysis.side === "Buy" ? "buy" : "sell", leverage: effectiveLeverage }), marketCondition: analysis.marketCondition,
           });
           if (state.log.length > 300) state.log.splice(300);
           saveState();
-          logActivity({ source: "demo", level: "signal", message: `${meta.emoji} [Semi] ${dir} ${meta.displayName} | ${analysis.institutionalConfidence}% | ${analysis.conditionLabel}`, symbol: cand.symbol, confidence: analysis.institutionalConfidence });
+          logActivity({ source: "demo", level: "signal", message: `${meta.emoji} [Semi] ${dir} ${meta.displayName} | Institusional: ${analysis.institutionalConfidence}% → 🧠 Brain: ${brainAdjustedConfidence}% | ${analysis.conditionLabel}`, symbol: cand.symbol, confidence: brainAdjustedConfidence });
           continue;
         }
 
@@ -711,22 +804,22 @@ async function runForexEngineCycle() {
           leverage: effectiveLeverage,
           stopLoss: finalSL,
           takeProfit: finalTP,
-          confidence: analysis.institutionalConfidence,
+          confidence: brainAdjustedConfidence,
           signal: analysis.side === "Buy" ? "institutional_long" : "institutional_short",
           source: "auto",
-          openReason: `${analysis.conditionLabel} | ${analysis.reasons.slice(0, 2).join("; ")}`,
+          openReason: `🧠 Brain ${brainAdjustedConfidence}% | ${analysis.conditionLabel} | ${analysis.reasons.slice(0, 2).join("; ")}`,
           marketCondition: analysis.marketCondition,
         });
 
         if ("id" in pos) {
           (pos as ForexPosition).opportunityScore = analysis.opportunityScore;
           opened++;
-          logActivity({ source: "demo", level: "success", message: `${meta.emoji} BUKA ${analysis.side === "Buy" ? "LONG" : "SHORT"} ${meta.displayName} @ $${analysis.entryPrice.toFixed(analysis.entryPrice > 100 ? 2 : 4)} | ${analysis.institutionalConfidence}% | ${analysis.conditionLabel}`, symbol: cand.symbol, confidence: analysis.institutionalConfidence });
+          logActivity({ source: "demo", level: "success", message: `${meta.emoji} 🧠 AI BUKA ${analysis.side === "Buy" ? "LONG" : "SHORT"} ${meta.displayName} @ $${analysis.entryPrice.toFixed(analysis.entryPrice > 100 ? 2 : 4)} | Brain: ${brainAdjustedConfidence}% | ${analysis.conditionLabel}`, symbol: cand.symbol, confidence: brainAdjustedConfidence });
         }
       } catch { continue; }
     }
 
-    const summary = `[Forex] C${forexEngineStatus.cycleCount} · pindai:${candidates.length} · kandidat:${preFiltered.length}${opened > 0 ? ` · BUKA:${opened}` : ""}${signaled > 0 ? ` · sinyal:${signaled}` : ""} · pos:${state.positions.length}/${forexConfig.maxPositions}`;
+    const summary = `🧠 [Forex+Brain] C${forexEngineStatus.cycleCount} · pindai:${candidates.length} · kandidat:${preFiltered.length}${opened > 0 ? ` · BUKA:${opened}` : ""}${signaled > 0 ? ` · sinyal:${signaled}` : ""}${brainSkipped > 0 ? ` · brain-skip:${brainSkipped}` : ""} · pos:${state.positions.length}/${forexConfig.maxPositions}`;
     logActivity({ source: "demo", level: opened > 0 ? "success" : signaled > 0 ? "signal" : "info", message: summary });
 
   } catch (err) {
