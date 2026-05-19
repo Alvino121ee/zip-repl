@@ -706,8 +706,9 @@ function makeAiDecision(
     return noTrade(`Event berdampak tinggi: ${fundamental.upcomingEvent ?? "Berita Penting"} — hindari entry saat volatilitas ekstrem`, cp, smc, fibonacci, qualityScore);
   }
 
-  const currentSpread = pair.volatility * 2;
-  if (currentSpread > config.spreadLimitPips * pair.pipSize) {
+  // Spread simulasi: 1-3 pips untuk major, lebih tinggi untuk cross & komoditas
+  const currentSpreadPips = pair.category === "Major" ? 1.5 : pair.category === "Cross" ? 2.5 : pair.category === "Emas" ? 4.0 : 3.0;
+  if (currentSpreadPips > config.spreadLimitPips) {
     return noTrade("Spread terlalu lebar — risiko tidak sepadan", cp, smc, fibonacci, qualityScore);
   }
 
