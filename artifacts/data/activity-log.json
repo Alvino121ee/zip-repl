@@ -1,5 +1,40 @@
 [
   {
+    "id": "78d27bf7-9bfc-4d57-96b7-100cf5880f74",
+    "timestamp": 1779198489861,
+    "source": "demo",
+    "level": "info",
+    "message": "C39 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ecf81008-e96c-4081-98cc-cabe9724f01e",
+    "timestamp": 1779198489861,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "59f76c41-c387-4c5e-9b66-c81c0e25c940",
+    "timestamp": 1779198488650,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
+  },
+  {
+    "id": "8c3ad958-2488-4afe-8028-3f9fac3b91a8",
+    "timestamp": 1779198479277,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C26 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "a39223d2-ebef-45f2-bf76-800e87ffc015",
+    "timestamp": 1779198478633,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
     "id": "dbab279c-5931-4f9f-8479-695a15c49157",
     "timestamp": 1779198469521,
     "source": "demo",
@@ -4186,40 +4221,5 @@
     "source": "demo",
     "level": "warning",
     "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "cf5ea023-e9ac-4100-9dae-01454954ade6",
-    "timestamp": 1779193963574,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "b303345e-a026-43d6-9ad8-a7055cf98434",
-    "timestamp": 1779193929429,
-    "source": "demo",
-    "level": "info",
-    "message": "C5 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "636277bb-fd98-44ab-ae25-d40afc29c2b0",
-    "timestamp": 1779193929429,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "cef4ec1f-7d9b-445b-ad01-8de0d841663e",
-    "timestamp": 1779193927992,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "324015db-4148-4c36-8c92-c948eff768f2",
-    "timestamp": 1779193908398,
-    "source": "demo",
-    "level": "info",
-    "message": "C4 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
   }
 ]

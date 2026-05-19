@@ -1,10 +1,10 @@
 {
   "iq": 200,
   "level": "Institusional",
-  "experiencePoints": 26092,
-  "learningCycles": 1769,
-  "chartsAnalyzed": 1766,
-  "marketHoursStudied": 592416.4100000003,
+  "experiencePoints": 26105,
+  "learningCycles": 1770,
+  "chartsAnalyzed": 1767,
+  "marketHoursStudied": 592816.4100000003,
   "patternsRecognized": 4483,
   "predictionsValidated": 0,
   "mistakesCorrected": 339,
@@ -14,9 +14,9 @@
   "breakoutsStudied": 21,
   "fakeBreakoutsDetected": 6,
   "reversalsStudied": 9,
-  "replaySessionsCompleted": 412,
+  "replaySessionsCompleted": 413,
   "smartMoneyPatternsFound": 62,
-  "marketReading": 93.49,
+  "marketReading": 93.5,
   "patternRecognition": 96.15,
   "adaptiveIntelligence": 89.07,
   "emotionalDiscipline": 85.93,
@@ -24,19 +24,22 @@
   "trendAnalysis": 92.65,
   "volumeAnalysis": 84.86,
   "momentumReading": 89.18,
-  "candlePsychology": 95.53,
+  "candlePsychology": 95.54,
   "orderflowReading": 81.66,
   "smartMoneyConceptSkill": 77.27,
-  "replayTrainingScore": 70.74,
+  "replayTrainingScore": 70.81,
   "patience": 85.35,
   "selectivity": 84.35,
   "confidenceAccuracy": 81.32,
   "predictionAccuracy": 84.94,
   "isLearning": false,
-  "currentActivity": "✅ FTMUSDT selesai — dipelajari: 3 pola | +14 XP",
-  "currentSymbol": "FTMUSDT",
-  "lastLearningAt": 1779198481867,
+  "currentActivity": "✅ Replay selesai — crash/rally SOLUSDT dipelajari | +13 XP",
+  "currentSymbol": "SOLUSDT",
+  "lastLearningAt": 1779198503693,
   "activityLog": [
+    "[13.48.23] ✅ Replay selesai — crash/rally SOLUSDT dipelajari | +13 XP",
+    "[13.48.23] 📉 Replay CRASH/RALLY: SOLUSDT bergerak 18.3% — mempelajari volatilitas ekstrem...",
+    "[13.48.23] 🔁 Memulai sesi REPLAY TRAINING — SOLUSDT (240M)...",
     "[13.48.01] ✅ FTMUSDT selesai — dipelajari: 3 pola | +14 XP",
     "[13.48.01] ✅ Prediksi berhasil pada FTMUSDT — memperbarui model kepercayaan diri...",
     "[13.48.01] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
@@ -533,12 +536,33 @@
     "[12.55.07] ✅ Prediksi berhasil pada AVAXUSDT — memperbarui model kepercayaan diri...",
     "[12.55.07] 📍 AVAXUSDT mendekati level S/R kuat di 9.14 — berlatih deteksi area kritis...",
     "[12.55.07] 🔇 Volume sangat rendah di AVAXUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[12.55.07] 📊 MACD crossover bullish terdeteksi di AVAXUSDT",
-    "[12.55.07] 📉 Tren turun dikonfirmasi pada AVAXUSDT — EMA9<EMA21<EMA50",
-    "[12.55.06] 📊 Mempelajari struktur chart AVAXUSDT (240M)...",
-    "[12.54.45] ✅ BNBUSDT selesai — dipelajari: 5 pola | +20 XP"
+    "[12.55.07] 📊 MACD crossover bullish terdeteksi di AVAXUSDT"
   ],
   "liveActivities": [
+    {
+      "id": "act_1779197728811",
+      "timestamp": 1779198503693,
+      "message": "✅ Replay selesai — crash/rally SOLUSDT dipelajari | +13 XP",
+      "symbol": "SOLUSDT",
+      "type": "success",
+      "xpGained": 13
+    },
+    {
+      "id": "act_1779197728810",
+      "timestamp": 1779198503693,
+      "message": "📉 Replay CRASH/RALLY: SOLUSDT bergerak 18.3% — mempelajari volatilitas ekstrem...",
+      "symbol": "SOLUSDT",
+      "type": "replay",
+      "xpGained": 10
+    },
+    {
+      "id": "act_1779197728809",
+      "timestamp": 1779198503610,
+      "message": "🔁 Memulai sesi REPLAY TRAINING — SOLUSDT (240M)...",
+      "symbol": "SOLUSDT",
+      "type": "replay",
+      "xpGained": 0
+    },
     {
       "id": "act_1779197728808",
       "timestamp": 1779198481867,
@@ -1314,30 +1338,6 @@
       "symbol": "AVAXUSDT",
       "type": "analysis",
       "xpGained": 3
-    },
-    {
-      "id": "act_1779197728711",
-      "timestamp": 1779198195671,
-      "message": "📉 Tren turun dikonfirmasi pada AVAXUSDT — EMA9<EMA21<EMA50",
-      "symbol": "AVAXUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779197728710",
-      "timestamp": 1779198195601,
-      "message": "📊 Mempelajari struktur chart AVAXUSDT (5M)...",
-      "symbol": "AVAXUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779197728709",
-      "timestamp": 1779198173830,
-      "message": "✅ FTMUSDT selesai — dipelajari: 3 pola | +15 XP",
-      "symbol": "FTMUSDT",
-      "type": "success",
-      "xpGained": 15
     }
   ],
   "memoryBank": {
@@ -2414,6 +2414,22 @@
     ],
     "learnedPatterns": [
       {
+        "symbol": "SOLUSDT",
+        "interval": "240",
+        "type": "replay",
+        "title": "Replay Crash/Rally SOLUSDT 18.3%",
+        "description": "Pergerakan ekstrem 18.3% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "SOLUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779198503693_lcwy",
+        "timestamp": 1779198503693
+      },
+      {
         "symbol": "ETHUSDT",
         "interval": "240",
         "type": "replay",
@@ -3036,22 +3052,6 @@
         "xpValue": 13,
         "id": "mem_1779192323239_03s4",
         "timestamp": 1779192323239
-      },
-      {
-        "symbol": "DOTUSDT",
-        "interval": "60",
-        "type": "replay",
-        "title": "Replay Crash/Rally DOTUSDT 9.4%",
-        "description": "Pergerakan ekstrem 9.4% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "DOTUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779192301067_s97c",
-        "timestamp": 1779192301067
       }
     ]
   },
