@@ -1,14 +1,14 @@
 {
   "iq": 200,
   "level": "Institusional",
-  "experiencePoints": 25303,
-  "learningCycles": 1718,
-  "chartsAnalyzed": 1715,
-  "marketHoursStudied": 577024.7500000003,
-  "patternsRecognized": 4333,
+  "experiencePoints": 25323,
+  "learningCycles": 1719,
+  "chartsAnalyzed": 1716,
+  "marketHoursStudied": 577049.7500000003,
+  "patternsRecognized": 4338,
   "predictionsValidated": 0,
   "mistakesCorrected": 329,
-  "successfulAnalyses": 986,
+  "successfulAnalyses": 987,
   "totalTradesLearned": 0,
   "liquiditySweepsDetected": 181,
   "breakoutsStudied": 21,
@@ -16,27 +16,35 @@
   "reversalsStudied": 9,
   "replaySessionsCompleted": 400,
   "smartMoneyPatternsFound": 60,
-  "marketReading": 92.98,
-  "patternRecognition": 95.71,
-  "adaptiveIntelligence": 88.68,
-  "emotionalDiscipline": 85.54,
-  "riskManagement": 87.98,
-  "trendAnalysis": 92.26,
-  "volumeAnalysis": 84.01,
-  "momentumReading": 88.59,
-  "candlePsychology": 95.06,
-  "orderflowReading": 80.84,
-  "smartMoneyConceptSkill": 76.37,
+  "marketReading": 92.99,
+  "patternRecognition": 95.72,
+  "adaptiveIntelligence": 88.69,
+  "emotionalDiscipline": 85.55,
+  "riskManagement": 87.99,
+  "trendAnalysis": 92.27,
+  "volumeAnalysis": 84.03,
+  "momentumReading": 88.61,
+  "candlePsychology": 95.07,
+  "orderflowReading": 80.86,
+  "smartMoneyConceptSkill": 76.39,
   "replayTrainingScore": 69.88,
-  "patience": 84.96,
-  "selectivity": 83.96,
-  "confidenceAccuracy": 80.6,
-  "predictionAccuracy": 84.26,
+  "patience": 84.97,
+  "selectivity": 83.97,
+  "confidenceAccuracy": 80.62,
+  "predictionAccuracy": 84.28,
   "isLearning": false,
-  "currentActivity": "✅ BNBUSDT selesai — dipelajari: 3 pola | +15 XP",
-  "currentSymbol": "BNBUSDT",
-  "lastLearningAt": 1779195941912,
+  "currentActivity": "✅ SOLUSDT selesai — dipelajari: 5 pola | +20 XP",
+  "currentSymbol": "SOLUSDT",
+  "lastLearningAt": 1779195963915,
   "activityLog": [
+    "[13.06.03] ✅ SOLUSDT selesai — dipelajari: 5 pola | +20 XP",
+    "[13.06.03] ✅ Prediksi berhasil pada SOLUSDT — memperbarui model kepercayaan diri...",
+    "[13.06.03] 📍 SOLUSDT mendekati level S/R kuat di 84.23 — berlatih deteksi area kritis...",
+    "[13.06.03] ⚡ SOLUSDT di dekat VWAP (-0.11%) — zona keputusan kritis",
+    "[13.06.03] 🕯️ Pola candle 'Bearish Engulfing' terdeteksi di SOLUSDT — menganalisis psikologi pasar...",
+    "[13.06.03] ⚡ SQUEEZE terdeteksi di SOLUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[13.06.03] 📊 MACD crossover bullish terdeteksi di SOLUSDT",
+    "[13.06.03] 📊 Mempelajari struktur chart SOLUSDT (5M)...",
     "[13.05.41] ✅ BNBUSDT selesai — dipelajari: 3 pola | +15 XP",
     "[13.05.41] 📚 Prediksi meleset di BNBUSDT — menganalisis kesalahan dan memperbaiki model...",
     "[13.05.41] 📍 BNBUSDT mendekati level S/R kuat di 638.30 — berlatih deteksi area kritis...",
@@ -528,17 +536,73 @@
     "[12.30.19] 📉 Tren turun dikonfirmasi pada MATICUSDT — EMA9<EMA21<EMA50",
     "[12.30.18] 📊 Mempelajari struktur chart MATICUSDT (5M)...",
     "[12.29.56] ✅ OPUSDT selesai — dipelajari: 2 pola | +9 XP",
-    "[12.29.56] ✅ Prediksi berhasil pada OPUSDT — memperbarui model kepercayaan diri...",
-    "[12.29.56] 📍 OPUSDT mendekati level S/R kuat di 0.13 — berlatih deteksi area kritis...",
-    "[12.29.56] 📉 Tren turun dikonfirmasi pada OPUSDT — EMA9<EMA21<EMA50",
-    "[12.29.56] 📊 Mempelajari struktur chart OPUSDT (60M)...",
-    "[12.29.34] ✅ DOTUSDT selesai — dipelajari: 3 pola | +11 XP",
-    "[12.29.34] 📚 Prediksi meleset di DOTUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[12.29.34] 📍 DOTUSDT mendekati level S/R kuat di 1.24 — berlatih deteksi area kritis...",
-    "[12.29.34] 🕯️ Pola candle 'Doji' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
-    "[12.29.34] 📉 Tren turun dikonfirmasi pada DOTUSDT — EMA9<EMA21<EMA50"
+    "[12.29.56] ✅ Prediksi berhasil pada OPUSDT — memperbarui model kepercayaan diri..."
   ],
   "liveActivities": [
+    {
+      "id": "act_1779195826879",
+      "timestamp": 1779195963915,
+      "message": "✅ SOLUSDT selesai — dipelajari: 5 pola | +20 XP",
+      "symbol": "SOLUSDT",
+      "type": "success",
+      "xpGained": 20
+    },
+    {
+      "id": "act_1779195826878",
+      "timestamp": 1779195963915,
+      "message": "✅ Prediksi berhasil pada SOLUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "SOLUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779195826877",
+      "timestamp": 1779195963914,
+      "message": "📍 SOLUSDT mendekati level S/R kuat di 84.23 — berlatih deteksi area kritis...",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779195826876",
+      "timestamp": 1779195963913,
+      "message": "⚡ SOLUSDT di dekat VWAP (-0.11%) — zona keputusan kritis",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779195826875",
+      "timestamp": 1779195963913,
+      "message": "🕯️ Pola candle 'Bearish Engulfing' terdeteksi di SOLUSDT — menganalisis psikologi pasar...",
+      "symbol": "SOLUSDT",
+      "type": "pattern",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779195826874",
+      "timestamp": 1779195963913,
+      "message": "⚡ SQUEEZE terdeteksi di SOLUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "SOLUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779195826873",
+      "timestamp": 1779195963913,
+      "message": "📊 MACD crossover bullish terdeteksi di SOLUSDT",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779195826872",
+      "timestamp": 1779195963842,
+      "message": "📊 Mempelajari struktur chart SOLUSDT (5M)...",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
     {
       "id": "act_1779195826871",
       "timestamp": 1779195941912,
@@ -1274,70 +1338,6 @@
       "symbol": "FTMUSDT",
       "type": "replay",
       "xpGained": 10
-    },
-    {
-      "id": "act_1779194774103",
-      "timestamp": 1779195636914,
-      "message": "🔁 Memulai sesi REPLAY TRAINING — FTMUSDT (60M)...",
-      "symbol": "FTMUSDT",
-      "type": "replay",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779194774102",
-      "timestamp": 1779195614983,
-      "message": "✅ ARBUSDT selesai — dipelajari: 6 pola | +23 XP",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 23
-    },
-    {
-      "id": "act_1779194774101",
-      "timestamp": 1779195614983,
-      "message": "✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779194774100",
-      "timestamp": 1779195614983,
-      "message": "📍 ARBUSDT mendekati level S/R kuat di 0.12 — berlatih deteksi area kritis...",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779194774099",
-      "timestamp": 1779195614983,
-      "message": "🕯️ Pola candle 'Bullish Marubozu' terdeteksi di ARBUSDT — menganalisis psikologi pasar...",
-      "symbol": "ARBUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779194774098",
-      "timestamp": 1779195614982,
-      "message": "⚡ SQUEEZE terdeteksi di ARBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "ARBUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779194774097",
-      "timestamp": 1779195614982,
-      "message": "📈 ARBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779194774096",
-      "timestamp": 1779195614982,
-      "message": "📊 MACD crossover bullish terdeteksi di ARBUSDT",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
     }
   ],
   "memoryBank": {
