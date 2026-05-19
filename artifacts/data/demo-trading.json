@@ -1,8 +1,8 @@
 {
-  "balance": 40.526878247355086,
-  "realizedPnl": -9.236346752644913,
-  "totalFees": 0.4727221735183769,
-  "winCount": 78,
+  "balance": 40.557104019224724,
+  "realizedPnl": -9.203233480775273,
+  "totalFees": 0.47851698483913163,
+  "winCount": 79,
   "lossCount": 43,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 206.93732755222703,
       "entryPrice": 0.02537,
-      "markPrice": 0.0252,
+      "markPrice": 0.02534,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.024573928571428573,
       "takeProfit": 0.02736017857142857,
-      "unrealisedPnl": -0.0351793456838786,
-      "unrealisedPnlPct": -0.670082774931021,
+      "unrealisedPnl": -0.006208119826566558,
+      "unrealisedPnlPct": -0.11824990145841063,
       "openedAt": 1779120210481,
       "source": "auto",
       "confidence": 99,
@@ -33,60 +33,20 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.02548,
       "humanInstinct": {
-        "lastEvalAt": 1779184279328,
-        "momentumScore": 42,
+        "lastEvalAt": 1779184663410,
+        "momentumScore": 50,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume menurun 36% — tanda pelemahan",
-          "Candle rejection atas — tekanan jual kuat",
+          "Volume sedikit turun 28%",
+          "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 23,
+        "evalCount": 31,
         "urgency": 15
       }
-    },
-    {
-      "id": "68617dc2-ef8b-43fb-be4b-6821a87c831b",
-      "symbol": "ONTUSDT",
-      "displayName": "ONT/USDT",
-      "side": "Buy",
-      "size": 81.86496179635115,
-      "entryPrice": 0.06413,
-      "markPrice": 0.06467,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.064181304,
-      "takeProfit": 0.07247453000000002,
-      "unrealisedPnl": 0.044207079370029524,
-      "unrealisedPnlPct": 0.8420396070481815,
-      "openedAt": 1779183500734,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0639) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.06472,
-      "humanInstinct": {
-        "lastEvalAt": 1779184303419,
-        "momentumScore": 100,
-        "continuationProb": 75,
-        "greedIndex": 0,
-        "decaySignals": [],
-        "action": "extend_target",
-        "reason": "🚀 Momentum sangat kuat (skor: 100) — Momentum sangat kuat (100) — target diperluas ke $0.0725",
-        "evalCount": 15,
-        "urgency": 30
-      },
-      "trailActivated": true
     },
     {
       "id": "e87b33b6-e526-42c8-87b3-6fea873d6385",
@@ -95,13 +55,13 @@
       "side": "Buy",
       "size": 5.270026099176873,
       "entryPrice": 0.9962,
-      "markPrice": 0.9904,
+      "markPrice": 0.9966,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.9813607142857143,
       "takeProfit": 1.0332982142857141,
-      "unrealisedPnl": -0.030566151375226006,
-      "unrealisedPnlPct": -0.582212407147162,
+      "unrealisedPnl": 0.002108010439671102,
+      "unrealisedPnlPct": 0.040152579803259085,
       "openedAt": 1779183500979,
       "source": "auto",
       "confidence": 99,
@@ -116,21 +76,109 @@
       "opportunityScore": 100,
       "trailPeakPrice": 1.0024,
       "humanInstinct": {
-        "lastEvalAt": 1779184303559,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779184639452,
+        "momentumScore": 60,
+        "continuationProb": 27,
         "greedIndex": 0,
         "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 15,
+        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 22,
         "urgency": 15
       }
+    },
+    {
+      "id": "329ff094-b3d7-401b-aadf-4f99b09e5e03",
+      "symbol": "ONTUSDT",
+      "displayName": "ONT/USDT",
+      "side": "Buy",
+      "size": 81.2945184267575,
+      "entryPrice": 0.06458,
+      "markPrice": 0.06436,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.06339499999999999,
+      "takeProfit": 0.0675425,
+      "unrealisedPnl": -0.017884794053886488,
+      "unrealisedPnlPct": -0.34066274388355217,
+      "openedAt": 1779184556579,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0640) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.06463
     }
   ],
   "log": [
+    {
+      "id": "f43e2553-ca34-400a-a217-6fb0347e4770",
+      "timestamp": 1779184556579,
+      "openedAt": 1779184556579,
+      "symbol": "ONTUSDT",
+      "side": "Buy",
+      "qty": 81.2945184267575,
+      "entryPrice": 0.06458,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0646 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0640) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "6371924a-b74f-4a5c-ac9f-d2b5ac4ff36c",
+      "timestamp": 1779184543453,
+      "openedAt": 1779183500734,
+      "closedAt": 1779184543453,
+      "duration": 1042719,
+      "symbol": "ONTUSDT",
+      "side": "Sell",
+      "qty": 81.86496179635115,
+      "entryPrice": 0.06413,
+      "closePrice": 0.06457,
+      "realizedPnl": 0.03311327186963946,
+      "realizedPnlPct": 0.6861063464836986,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] ⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 46% — tanda pelemahan",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0639) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.0057948113207547175,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002907311320754717
+    },
     {
       "id": "8ffc12e4-fffc-4ceb-9180-83d865abd7e3",
       "timestamp": 1779183500979,
@@ -7629,6 +7677,10 @@
     {
       "timestamp": 1779163845831,
       "balance": 40.37124213186435
+    },
+    {
+      "timestamp": 1779184543453,
+      "balance": 40.51479912395241
     }
   ]
 }
