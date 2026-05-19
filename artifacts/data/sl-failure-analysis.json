@@ -1,6 +1,35 @@
 {
   "records": [
     {
+      "id": "7f762aa1-7854-4e65-902b-ca23d9f2c8c3",
+      "timestamp": 1779187271228,
+      "tradeId": "e87b33b6-e526-42c8-87b3-6fea873d6385",
+      "symbol": "LITUSDT",
+      "side": "long",
+      "entryPrice": 0.9962,
+      "slPrice": 0.9813607142857143,
+      "exitPrice": 0.9801,
+      "pnlPct": -1.616,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 3770246,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Setup valid namun eksekusi terlambat, posisi masuk dekat titik balik.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 1.49,
+      "improvementApplied": false
+    },
+    {
       "id": "126674a6-4569-49c5-951e-b18015f3dda9",
       "timestamp": 1779163845837,
       "tradeId": "bcb491ff-feae-4d68-8066-428745e6613d",
@@ -1185,7 +1214,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779163845837
+      "lastSeen": 1779187271229
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1205,7 +1234,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779163845837
+      "lastSeen": 1779187271229
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1224,13 +1253,13 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "high",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779163845837
+      "lastSeen": 1779187271229
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
       "pattern": "Entry Terlambat",
       "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 6,
+      "occurrences": 7,
       "primaryCause": "late_entry",
       "associatedStrategies": [
         "auto_institutional"
@@ -1240,14 +1269,14 @@
         "trending_up_normal",
         "breakout"
       ],
-      "avgPnlPct": -3.28,
+      "avgPnlPct": -3.05,
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779163845837
+      "lastSeen": 1779187271229
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 41,
-  "improvementScore": 62
+  "totalAnalyzed": 42,
+  "improvementScore": 63
 }
