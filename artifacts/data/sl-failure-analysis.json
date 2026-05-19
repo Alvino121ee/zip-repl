@@ -1,6 +1,64 @@
 {
   "records": [
     {
+      "id": "aee50553-fa57-48ce-93c9-34a76b576835",
+      "timestamp": 1779202357992,
+      "tradeId": "706fc8bd-f2b3-47a6-a4eb-46ed7c74526b",
+      "symbol": "ESPORTSUSDT",
+      "side": "long",
+      "entryPrice": 0.70131,
+      "slPrice": 0.7018710479999999,
+      "exitPrice": 0.69858,
+      "pnlPct": -0.389,
+      "confidence": 93,
+      "strategy": "auto_institutional",
+      "marketCondition": "volatile",
+      "holdTimeMs": 122227,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Penempatan SL tidak mempertimbangkan ATR atau level support/resistance terdekat.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "57bf01ef-190a-4901-b740-a9e0dfa2405b",
+      "timestamp": 1779202229885,
+      "tradeId": "f7078efd-7811-43fc-aba0-6bb2f1349339",
+      "symbol": "PLAYSOUTUSDT",
+      "side": "long",
+      "entryPrice": 0.12573,
+      "slPrice": 0.126055273,
+      "exitPrice": 0.12517,
+      "pnlPct": -0.445,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 2720019,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Stop Loss terlalu ketat untuk kondisi volatilitas saat itu — kena SL oleh noise pasar biasa.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.259,
+      "improvementApplied": false
+    },
+    {
       "id": "c138e98f-686c-44e9-9c35-b865c0140c1a",
       "timestamp": 1779201964083,
       "tradeId": "9b317185-f6a5-4eae-926a-f26eaffb3368",
@@ -1473,27 +1531,28 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779201964083
+      "lastSeen": 1779202357993
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
       "pattern": "Penempatan SL Tidak Tepat",
       "description": "Pola berulang: Penempatan SL Tidak Tepat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 11,
+      "occurrences": 13,
       "primaryCause": "incorrect_sl_placement",
       "associatedStrategies": [
         "auto_institutional"
       ],
       "associatedConditions": [
+        "volatile",
         "trending_up_strong",
         "trending_up_normal",
         "ranging"
       ],
-      "avgPnlPct": 0.01,
+      "avgPnlPct": -0.06,
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "critical",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779201964083
+      "lastSeen": 1779202357993
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1513,7 +1572,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779201964083
+      "lastSeen": 1779202357993
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
@@ -1533,7 +1592,7 @@
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779201964083
+      "lastSeen": 1779202357993
     },
     {
       "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
@@ -1553,10 +1612,10 @@
       "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
       "severity": "medium",
       "firstSeen": 1779194275810,
-      "lastSeen": 1779201964083
+      "lastSeen": 1779202357993
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 51,
-  "improvementScore": 70
+  "totalAnalyzed": 53,
+  "improvementScore": 72
 }
