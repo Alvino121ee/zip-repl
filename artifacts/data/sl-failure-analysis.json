@@ -1,6 +1,151 @@
 {
   "records": [
     {
+      "id": "da8d7299-1540-4ff1-931d-db765ee64f36",
+      "timestamp": 1779206659114,
+      "tradeId": "00f0f763-0c5d-4f47-a417-9ec8236bb36c",
+      "symbol": "EDENUSDT",
+      "side": "long",
+      "entryPrice": 0.06479,
+      "slPrice": 0.06484183199999999,
+      "exitPrice": 0.06472,
+      "pnlPct": -0.108,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 67610,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "AI masuk terlalu dini, sebelum breakout atau reversal mendapat konfirmasi valid. (SL hit dalam 1 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "e50742bf-26ad-4a04-b22b-e4db2adf2f62",
+      "timestamp": 1779206499008,
+      "tradeId": "0eff519e-b24c-4032-8a26-2a7e09de98cf",
+      "symbol": "APRUSDT",
+      "side": "long",
+      "entryPrice": 0.17032,
+      "slPrice": 0.1666514285714286,
+      "exitPrice": 0.16651,
+      "pnlPct": -2.237,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 6408435,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Entry terlambat — momentum sudah habis saat posisi dibuka, reversal terjadi segera setelah.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 2.154,
+      "improvementApplied": false
+    },
+    {
+      "id": "ebfe716a-890c-4b86-940b-c698a1012ca7",
+      "timestamp": 1779205066887,
+      "tradeId": "cf77c3a6-5bd1-4bc9-b4b5-3658d110d049",
+      "symbol": "EDENUSDT",
+      "side": "long",
+      "entryPrice": 0.06468,
+      "slPrice": 0.066034304,
+      "exitPrice": 0.06592,
+      "pnlPct": 1.917,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 2152255,
+      "primaryCause": "overconfidence",
+      "secondaryCauses": [],
+      "conclusion": "Skor confidence yang tinggi membuat AI meremehkan risiko entry dalam kondisi yang sebenarnya kompleks. (Confidence: 99%, namun trade kena SL dalam 36m)",
+      "recommendations": [
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
+        "Selalu validasi dengan checklist multi-faktor, bukan hanya skor AI.",
+        "Tambahkan buffer keamanan: confidence > 90 masih harus memenuhi semua kriteria manual."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 2.094,
+      "improvementApplied": false
+    },
+    {
+      "id": "e4bb114c-4101-4f1a-b4d6-8069a1a0d14b",
+      "timestamp": 1779202902157,
+      "tradeId": "e0a0acd0-4003-49f3-bc0e-90977beed5b6",
+      "symbol": "EDENUSDT",
+      "side": "long",
+      "entryPrice": 0.06464,
+      "slPrice": 0.064691712,
+      "exitPrice": 0.06452,
+      "pnlPct": -0.186,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 67400,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "AI masuk terlalu dini, sebelum breakout atau reversal mendapat konfirmasi valid. (SL hit dalam 1 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "0d645e23-6bae-4c2b-8074-f44158ff871e",
+      "timestamp": 1779202774001,
+      "tradeId": "e27bf326-5a16-4d17-bbe6-fb3b42341280",
+      "symbol": "ESPORTSUSDT",
+      "side": "long",
+      "entryPrice": 0.69475,
+      "slPrice": 0.6953057999999999,
+      "exitPrice": 0.69352,
+      "pnlPct": -0.177,
+      "confidence": 93,
+      "strategy": "auto_institutional",
+      "marketCondition": "volatile",
+      "holdTimeMs": 117418,
+      "primaryCause": "early_entry",
+      "secondaryCauses": [
+        "incorrect_sl_placement",
+        "overconfidence"
+      ],
+      "conclusion": "Sinyal belum terkonfirmasi penuh saat posisi dibuka; harga masih dalam fase konsolidasi. (SL hit dalam 2 menit setelah entry)",
+      "recommendations": [
+        "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
+        "Gunakan pending order (limit order) bukan market order untuk entry lebih akurat.",
+        "Tambahkan konfirmasi: candle bullish/bearish yang solid harus terbentuk dahulu.",
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
       "id": "aee50553-fa57-48ce-93c9-34a76b576835",
       "timestamp": 1779202357992,
       "tradeId": "706fc8bd-f2b3-47a6-a4eb-46ed7c74526b",
@@ -1516,22 +1661,22 @@
       "id": "fa3dc0f7-add3-4786-96f4-fe6d0c264ec1",
       "pattern": "Overconfidence AI",
       "description": "Pola berulang: Overconfidence AI terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 17,
+      "occurrences": 18,
       "primaryCause": "overconfidence",
       "associatedStrategies": [
         "auto_institutional"
       ],
       "associatedConditions": [
-        "trending_up_normal",
         "trending_up_strong",
+        "trending_up_normal",
         "volatile",
         "ranging"
       ],
-      "avgPnlPct": -2.4,
+      "avgPnlPct": -2.16,
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779202357993
+      "lastSeen": 1779206659114
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1552,7 +1697,7 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "critical",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779202357993
+      "lastSeen": 1779206659114
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1572,13 +1717,13 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779202357993
+      "lastSeen": 1779206659114
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
       "pattern": "Entry Terlambat",
       "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 8,
+      "occurrences": 9,
       "primaryCause": "late_entry",
       "associatedStrategies": [
         "auto_institutional"
@@ -1588,34 +1733,34 @@
         "trending_up_normal",
         "breakout"
       ],
-      "avgPnlPct": -3.12,
+      "avgPnlPct": -3.02,
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779202357993
+      "lastSeen": 1779206659114
     },
     {
       "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
       "pattern": "Entry Terlalu Cepat",
       "description": "Pola berulang: Entry Terlalu Cepat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 4,
+      "occurrences": 7,
       "primaryCause": "early_entry",
       "associatedStrategies": [
         "auto_institutional"
       ],
       "associatedConditions": [
+        "trending_up_strong",
         "trending_up_normal",
-        "volatile",
-        "trending_up_strong"
+        "volatile"
       ],
-      "avgPnlPct": -0.04,
+      "avgPnlPct": -0.09,
       "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
-      "severity": "medium",
+      "severity": "high",
       "firstSeen": 1779194275810,
-      "lastSeen": 1779202357993
+      "lastSeen": 1779206659114
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 53,
-  "improvementScore": 72
+  "totalAnalyzed": 58,
+  "improvementScore": 76
 }

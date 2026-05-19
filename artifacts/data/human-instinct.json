@@ -1,15 +1,202 @@
 {
-  "totalDecisions": 88,
-  "correctEarlyExits": 88,
+  "totalDecisions": 97,
+  "correctEarlyExits": 97,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 44.55681818181818,
-  "avgContinuationProbAtExit": 12.079545454545455,
+  "avgMomentumAtEarlyExit": 43.30927835051546,
+  "avgContinuationProbAtExit": 11.29896907216495,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "88b74f5d-8d29-4f93-846d-6a190e904a32",
+      "tradeId": "db3e7b5e-af53-4367-bf27-f997e401ee31",
+      "symbol": "PLAYSOUTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7577570391640573,
+      "momentumScore": 44,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 17%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779207931395,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7577570391640573,
+      "profitDelta": 0
+    },
+    {
+      "id": "b3a40af9-e4e9-4fc7-a3da-a0ea8e57e593",
+      "tradeId": "1b85afec-68ce-445c-bd91-50cc39281d53",
+      "symbol": "SAHARAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5151843817787302,
+      "momentumScore": 44,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 19%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779207371330,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5151843817787302,
+      "profitDelta": 0
+    },
+    {
+      "id": "a0622656-190a-472d-960d-6552d0f10c9f",
+      "tradeId": "d6bbe9c5-8c23-4a6b-ab84-ef3d3c2bc940",
+      "symbol": "SAHARAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume sedikit turun 23%. Profit $0.55% diamankan.",
+      "profitPctAtDecision": 0.5454793399699953,
+      "momentumScore": 19,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 23%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779206811037,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5454793399699953,
+      "profitDelta": 0
+    },
+    {
+      "id": "37eca5ff-5cd3-456b-a83a-4fb094e82127",
+      "tradeId": "2d42c66c-4380-4b6c-ba7c-46bf364d79dd",
+      "symbol": "EDENUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6935881627620315,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779206795170,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6935881627620315,
+      "profitDelta": 0
+    },
+    {
+      "id": "bf2f054f-e268-4aa6-ba25-9904bfa38298",
+      "tradeId": "c4774553-7f49-4df9-b8f0-743de3e854e4",
+      "symbol": "HOMEUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.38% diamankan.",
+      "profitPctAtDecision": 0.37938186048865474,
+      "momentumScore": 33,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779206579027,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.37938186048865474,
+      "profitDelta": 0
+    },
+    {
+      "id": "e9b93f0a-0e91-4946-83ef-0ff6d59268f7",
+      "tradeId": "08643ab2-cd4c-4b18-aaee-17e6f1cc1a11",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 55% — momentum sangat lemah. Profit $0.68% diamankan.",
+      "profitPctAtDecision": 0.6753812636165529,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 55% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779206491068,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6753812636165529,
+      "profitDelta": 0
+    },
+    {
+      "id": "56e1e56a-45cb-42f3-8493-e453d4ac8f77",
+      "tradeId": "9589e8d2-4601-4dd2-a792-3551dd741974",
+      "symbol": "COMPUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 50% — momentum sangat lemah. Profit $0.49% diamankan.",
+      "profitPctAtDecision": 0.4908135342917932,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 50% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779206451150,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.4908135342917932,
+      "profitDelta": 0
+    },
+    {
+      "id": "68e98ead-7fb3-4fc5-870d-0ee01f83ab79",
+      "tradeId": "c73b6b72-1de4-457a-8882-a69f700f8c44",
+      "symbol": "SAHARAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.7513494453034053,
+      "momentumScore": 44,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 23%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779202829989,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7513494453034053,
+      "profitDelta": 0
+    },
+    {
+      "id": "0d615de3-43be-40d3-847a-b909803982a0",
+      "tradeId": "b37499a8-40ba-4172-8acd-0825d8146ab0",
+      "symbol": "ESPORTSUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 67% — momentum sangat lemah. Profit $0.78% diamankan.",
+      "profitPctAtDecision": 0.7829397006661382,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 67% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779202646040,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7829397006661382,
+      "profitDelta": 0
+    },
     {
       "id": "8caabbb6-4295-4152-81e4-90e5ea724036",
       "tradeId": "83bda37e-7e8c-4192-ad37-aa60e77b580e",
@@ -1784,5 +1971,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779200073151
+  "lastUpdated": 1779207931400
 }
