@@ -1,5 +1,139 @@
 [
   {
+    "id": "ba61532b-fa17-4516-9f8f-dbaf6a01c3f0",
+    "timestamp": 1779194816667,
+    "source": "demo",
+    "level": "success",
+    "message": "C3 · pindai:20 · kandidat:20 · skip:4 · BUKA:2 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "bfdfc061-199d-422a-a38d-ce7158e63496",
+    "timestamp": 1779194816667,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG TAUSDT @ $0.0699 | 99% | Tren Naik ↑ | TP:$0.0716 SL:$0.0692 | RR:2.5x",
+    "symbol": "TAUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "40b613f4-442a-42c2-bc84-24aff917b149",
+    "timestamp": 1779194816181,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG ENJUSDT @ $0.0450 | 99% | Tren Naik ↑ | TP:$0.0473 SL:$0.0441 | RR:2.5x",
+    "symbol": "ENJUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "a1bbe40c-1efb-4a3b-aaaf-4664b31169e0",
+    "timestamp": 1779194813952,
+    "source": "demo",
+    "level": "warning",
+    "message": "❌ SL LONG MUSDT @ $3.4895 | PnL: $-0.07 (-1.38%) | Stop Loss @ $3.4895",
+    "symbol": "MUSDT"
+  },
+  {
+    "id": "a9b272b2-a272-47f0-9305-c68f6d618780",
+    "timestamp": 1779194813926,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "5c8523c3-15f2-4e4b-b49c-0d64486266cb",
+    "timestamp": 1779194804801,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C2 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "b3ad4fa7-c795-47a7-a612-73e04b289696",
+    "timestamp": 1779194803920,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "9b025def-d05b-4ec8-9ad9-1cb3ddf5494e",
+    "timestamp": 1779194798228,
+    "source": "demo",
+    "level": "warning",
+    "message": "❌ SL LONG ENJUSDT @ $0.0451 | PnL: $-0.01 (-0.21%) | Stop Loss @ $0.0451",
+    "symbol": "ENJUSDT"
+  },
+  {
+    "id": "6e3ffc90-57e2-4120-81f6-c336c622d10c",
+    "timestamp": 1779194794291,
+    "source": "demo",
+    "level": "info",
+    "message": "C2 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a9d4f93e-a9ab-4035-9c9c-cbda7209a705",
+    "timestamp": 1779194794290,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "febcbefc-ac43-4776-a6f4-60bd018fbe58",
+    "timestamp": 1779194793928,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "c0d0760e-c627-4d63-aca6-47f0341c9824",
+    "timestamp": 1779194790099,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL ENJUSDT (profit 0.4%): Trail bergerak → SL ke $0.0453 (profit 0.4%)",
+    "symbol": "ENJUSDT"
+  },
+  {
+    "id": "a80e5896-9590-4751-9d9f-57b227e802b9",
+    "timestamp": 1779194782296,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL AKTIF LONG ENJUSDT: Trailing aktif — SL dipindah ke breakeven $0.0452",
+    "symbol": "ENJUSDT"
+  },
+  {
+    "id": "7b17e032-e00e-442b-9560-81a4ebb2fd6e",
+    "timestamp": 1779194775407,
+    "source": "demo",
+    "level": "info",
+    "message": "C1 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "1065cb4a-c936-407a-8a05-d32c0a0c82cb",
+    "timestamp": 1779194775407,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "fe843b0f-e8eb-4897-8742-ab7188880cc2",
+    "timestamp": 1779194774960,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C1 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "cd69e958-153e-4f6f-aba3-cedac1ea3db8",
+    "timestamp": 1779194774121,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "1f98b305-d5ec-455e-a8f9-a18e72e99075",
+    "timestamp": 1779194773919,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
     "id": "4fd502b5-8f55-4905-95b9-e21bf4c6730b",
     "timestamp": 1779194364736,
     "source": "demo",
@@ -4096,135 +4230,5 @@
     "source": "demo",
     "level": "info",
     "message": "C32 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "c9e0298c-abba-4c5b-879a-289089d4a80d",
-    "timestamp": 1779191057618,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "4851a1ca-0c72-42a8-8026-cf51ac4a48b8",
-    "timestamp": 1779191057316,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "3bcd5335-dacd-48a5-a41b-5e563c9f7111",
-    "timestamp": 1779191039270,
-    "source": "demo",
-    "level": "success",
-    "message": "C31 · pindai:20 · kandidat:20 · skip:1 · BUKA:1 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "88a41e45-a7fd-428e-b97f-5dc05a80ad64",
-    "timestamp": 1779191039270,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG ONTUSDT @ $0.0670 | 99% | Tren Naik Kuat ↑↑ | TP:$0.0722 SL:$0.0649 | RR:2.5x",
-    "symbol": "ONTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "da8e6a59-4a66-48e6-8641-ab6e5c0ce885",
-    "timestamp": 1779191037426,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "22ae66dd-3795-45bc-bb45-7d4d87e19041",
-    "timestamp": 1779191021822,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG TAUSDT @ $0.0699 | PnL: $+0.02 (+0.32%) | [Instinct Exit] 🚨 Momentum kritis — Volume turun 85% — momentum sangat lemah. Profit $0.32% diamankan.",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "9c5fc61d-b18f-4e0e-8c9f-9e1c71a6b330",
-    "timestamp": 1779191021818,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG TAUSDT @ $0.0699 | Profit: +0.32% | 🚨 Momentum kritis — Volume turun 85% — momentum sangat lemah. Profit $0.32% diamankan.",
-    "symbol": "TAUSDT"
-  },
-  {
-    "id": "8832cf47-67f5-48d3-b80f-d373d7e1e0c5",
-    "timestamp": 1779191017614,
-    "source": "demo",
-    "level": "info",
-    "message": "C30 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "f3c3754f-b737-412e-a693-a669f8a71dc3",
-    "timestamp": 1779191017614,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "adf2936b-5c38-43b0-b5d1-fee321d89ec0",
-    "timestamp": 1779191017313,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "cef9e6cc-a7a6-436f-a680-cf18782628ef",
-    "timestamp": 1779190998330,
-    "source": "demo",
-    "level": "info",
-    "message": "C29 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "5e463efe-e257-4611-bf86-014d57b5ae3c",
-    "timestamp": 1779190998330,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "138f98a3-d725-487e-a34c-f8b07b5a9dba",
-    "timestamp": 1779190997311,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "dec85fba-b8f3-442f-b663-ae02558f6b57",
-    "timestamp": 1779190977834,
-    "source": "demo",
-    "level": "info",
-    "message": "C28 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "32331c36-d6a6-431d-9ffb-eed9d2c8af52",
-    "timestamp": 1779190977834,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "65e529f2-1e3b-4942-9cca-3cfefc5e0123",
-    "timestamp": 1779190977533,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "fa3ce69c-0194-4def-859f-e6c47492c792",
-    "timestamp": 1779190958571,
-    "source": "demo",
-    "level": "info",
-    "message": "C27 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "60738426-58d0-402c-ad2d-4e779557e63d",
-    "timestamp": 1779190958571,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
   }
 ]
