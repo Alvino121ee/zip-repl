@@ -262,13 +262,13 @@ const MT5SettingsPanel: React.FC<{
         {tab === "setup" && (
           <div className="p-4 space-y-3">
             <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3 text-[11px] text-blue-200">
-              <div className="font-semibold text-blue-300 mb-1">🐍 Python Bridge — Gratis, Pakai PC Teman</div>
-              Script Python dijalankan di PC Windows teman yang sudah ada MT5-nya. Tidak perlu install apapun selain Python (gratis).
+              <div className="font-semibold text-blue-300 mb-1">🐍 Python Bridge v2 — Login Otomatis, Gratis</div>
+              Script Python berjalan di PC Windows, login langsung ke akun MT5 dengan kredensial Anda — <strong>tanpa perlu buka MT5 manual</strong>. Gratis, pakai library resmi MetaQuotes.
             </div>
 
             {/* URL app */}
             <div className="rounded-lg border border-zinc-700 bg-zinc-900/60 p-3 space-y-1.5">
-              <div className="text-[10px] text-zinc-400 uppercase font-semibold">URL App Ini (salin ke script)</div>
+              <div className="text-[10px] text-zinc-400 uppercase font-semibold">URL App Ini — salin ke script (REPLIT_URL)</div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-[11px] text-green-400 font-mono bg-black/40 px-2 py-1.5 rounded truncate">{replitUrl}</code>
                 <button onClick={copyUrl}
@@ -283,52 +283,65 @@ const MT5SettingsPanel: React.FC<{
               {[
                 {
                   no: "1", color: "bg-blue-600",
-                  title: "Install Python di PC teman",
-                  body: <>Download Python gratis di <a href="https://python.org" target="_blank" rel="noreferrer" className="text-blue-400 underline">python.org</a> → pilih versi 3.8+. Saat install, centang <strong>"Add Python to PATH"</strong>.</>,
+                  title: "Install Python di PC Windows Anda",
+                  body: <>Download Python 3.8+ gratis di <a href="https://python.org" target="_blank" rel="noreferrer" className="text-blue-400 underline">python.org</a>. Saat install, <strong>centang "Add Python to PATH"</strong> agar bisa dijalankan dari mana saja.</>,
                 },
                 {
                   no: "2", color: "bg-purple-600",
-                  title: "Install library yang dibutuhkan",
-                  body: <>Buka <strong>Command Prompt</strong> di PC teman, ketik:<br/>
+                  title: "Install library Python",
+                  body: <>Buka <strong>Command Prompt</strong>, ketik perintah berikut lalu tekan Enter:<br/>
                     <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">pip install MetaTrader5 requests</code>
-                    Tunggu sampai selesai.
+                    Tunggu hingga selesai (~1-2 menit).
                   </>,
                 },
                 {
-                  no: "3", color: "bg-green-700",
-                  title: "Salin file mt5_bridge.py ke PC teman",
-                  body: <>Di Replit, file <strong>mt5_bridge.py</strong> sudah ada di root project. Copy isinya ke file baru di PC teman dengan nama yang sama.</>,
+                  no: "3", color: "bg-emerald-700",
+                  title: "Salin file mt5_bridge.py ke PC Anda",
+                  body: <>File <strong>mt5_bridge.py</strong> ada di root project Replit. Salin isinya ke file baru di PC Anda dengan nama yang sama, atau download langsung.</>,
                 },
                 {
                   no: "4", color: "bg-orange-600",
-                  title: "Edit 2 baris di mt5_bridge.py",
-                  body: <>Buka file di PC teman, cari dan ganti:<br/>
-                    <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">REPLIT_URL = "<span className="text-green-300">{replitUrl}</span>"</code>
-                    Baris SECRET biarkan default.
+                  title: "Isi 4 variabel konfigurasi di script",
+                  body: <>Buka <strong>mt5_bridge.py</strong> di PC, cari bagian <em>KONFIGURASI WAJIB</em>, isi:<br/>
+                    <div className="bg-black/40 border border-zinc-700 rounded px-2 py-1.5 text-[10px] font-mono mt-1.5 space-y-0.5">
+                      <div><span className="text-zinc-500">MT5_SERVER</span>   = <span className="text-yellow-300">"NamaServerBroker"</span></div>
+                      <div><span className="text-zinc-500">MT5_LOGIN</span>    = <span className="text-yellow-300">12345678</span></div>
+                      <div><span className="text-zinc-500">MT5_PASSWORD</span> = <span className="text-yellow-300">"PasswordMT5Anda"</span></div>
+                      <div><span className="text-zinc-500">REPLIT_URL</span>   = <span className="text-green-300">"{replitUrl}"</span></div>
+                    </div>
+                    <span className="text-zinc-500 mt-1 block">Nama server broker: cek di MT5 → Tools → Options → Server.</span>
                   </>,
                 },
                 {
                   no: "5", color: "bg-cyan-700",
-                  title: "Buka MT5, login ke akun Anda",
-                  body: "Pastikan MetaTrader 5 sudah terbuka dan akun Anda sudah login di PC teman. MT5 harus tetap berjalan selama script aktif.",
+                  title: "Pastikan MetaTrader 5 terinstall",
+                  body: "MT5 harus terinstall di PC Windows yang sama. Script akan login OTOMATIS — tidak perlu dibuka dulu. Download MT5 gratis dari website broker Anda (IC Markets, Exness, XM, FBS, dll).",
                 },
                 {
                   no: "6", color: "bg-green-600",
                   title: "Jalankan script Python",
-                  body: <>Di Command Prompt:<br/>
+                  body: <>Di Command Prompt, masuk ke folder tempat file berada, lalu:<br/>
                     <code className="bg-black/40 border border-zinc-700 rounded px-2 py-1 text-[10px] text-yellow-300 block mt-1.5">python mt5_bridge.py</code>
-                    Jika berhasil, akan muncul <span className="text-green-400">✅ MT5 Terhubung!</span>
+                    Jika berhasil: <span className="text-green-400 font-semibold">✅ MT5 LOGIN BERHASIL</span> akan muncul, lalu status di app ini berubah hijau otomatis.
                   </>,
                 },
               ].map(step => (
                 <div key={step.no} className="flex gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
-                  <div className={`shrink-0 w-5 h-5 rounded-full ${step.color} text-white text-[10px] font-bold flex items-center justify-center`}>{step.no}</div>
+                  <div className={`shrink-0 w-5 h-5 rounded-full ${step.color} text-white text-[10px] font-bold flex items-center justify-center mt-0.5`}>{step.no}</div>
                   <div className="text-[11px] space-y-0.5">
                     <div className="font-semibold text-white">{step.title}</div>
                     <div className="text-zinc-400 leading-relaxed">{step.body}</div>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Tips */}
+            <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 p-3 text-[11px] text-amber-300/80 space-y-1">
+              <div className="font-semibold text-amber-300">💡 Tips</div>
+              <div>• Script auto-reconnect jika koneksi terputus — biarkan Command Prompt tetap terbuka.</div>
+              <div>• Cocok untuk akun Demo maupun Real. Gunakan akun Demo dulu untuk pengujian.</div>
+              <div>• SECRET default sudah cocok — tidak perlu diubah kecuali ada masalah keamanan.</div>
             </div>
 
             <button onClick={() => setTab("connect")}
