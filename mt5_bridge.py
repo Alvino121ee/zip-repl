@@ -1,78 +1,59 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║              VINZ PREDICT — MT5 Python Bridge  v2.0                        ║
-║  Jalankan script ini di PC Windows yang sudah terinstall MetaTrader 5.     ║
-║  Script ini akan LOGIN OTOMATIS ke akun MT5 Anda tanpa perlu buka MT5.    ║
+║  Script ini SUDAH DIKONFIGURASI — tinggal download dan jalankan!           ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-CARA PAKAI:
-1. Install Python 3.8+ di Windows: https://python.org  (centang "Add to PATH")
-2. Buka Command Prompt, jalankan:
-       pip install MetaTrader5 requests
-3. Isi 4 variabel wajib di bagian KONFIGURASI di bawah:
-       - MT5_SERVER   : nama server broker Anda
-       - MT5_LOGIN    : nomor akun MT5
-       - MT5_PASSWORD : password akun MT5
-       - REPLIT_URL   : URL app VINZ PREDICT Anda di Replit
-4. Jalankan:
-       python mt5_bridge.py
-5. Buka app VINZ PREDICT → halaman Forex Pro → status akan "Terhubung ✅"
+CARA PAKAI (cukup 3 langkah):
+1. Install Python 3.8+ di Windows: https://python.org
+   → Saat install, CENTANG "Add Python to PATH"
 
-CATATAN:
-- MetaTrader 5 TIDAK perlu terbuka sebelumnya — script akan login sendiri.
-- Script akan auto-reconnect jika koneksi terputus.
-- Biarkan jendela Command Prompt tetap terbuka selama ingin trading.
-- Untuk akun Demo: gunakan kredensial akun demo dari broker Anda.
+2. Buka Command Prompt, ketik:
+       pip install MetaTrader5 requests
+
+3. Jalankan script ini:
+       python mt5_bridge.py
+
+Script akan login otomatis ke MT5 dan mengirim data ke VINZ PREDICT.
+Biarkan jendela Command Prompt tetap terbuka selama trading.
 """
 
 import MetaTrader5 as mt5
 import requests
 import time
 import sys
-import json
 from datetime import datetime
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ⚙️  KONFIGURASI WAJIB — Isi 4 variabel ini sesuai akun MT5 Anda
+# ✅  KONFIGURASI — Sudah diisi, tidak perlu diubah
 # ══════════════════════════════════════════════════════════════════════════════
 
-MT5_SERVER   = "GANTI-NAMA-SERVER-BROKER"
-# Contoh: "ICMarketsGlobal-Demo01"  atau  "Exness-MT5Trial"  atau  "XM-MT5"
-# Cara cek: Buka MT5 → Tools → Options → Server
-
-MT5_LOGIN    = 0
-# Contoh: 12345678
-# Nomor akun MT5 Anda (bukan email). Bisa dilihat di pojok kiri atas MT5.
-
-MT5_PASSWORD = "GANTI-PASSWORD-MT5-ANDA"
-# Password untuk login ke akun MT5
-
-REPLIT_URL   = "https://GANTI-DENGAN-URL-REPLIT-ANDA.repl.co"
-# Contoh: "https://vinzpredict.namaanda.repl.co"
-# URL ini bisa dilihat di tab Setup pada halaman Forex Pro di app Anda.
+MT5_SERVER   = "Exness-MT5Real37"
+MT5_LOGIN    = 263423277
+MT5_PASSWORD = "Alvino121#"
+REPLIT_URL   = "https://d1760316-25e2-4974-8986-dbc9ff931067-00-3tk6ugqemqgqv.sisko.replit.dev"
+SECRET       = "vinzpredict2024"
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ⚙️  KONFIGURASI LANJUTAN — Biasanya tidak perlu diubah
+# ⚙️  Konfigurasi Lanjutan — Biasanya tidak perlu diubah
 # ══════════════════════════════════════════════════════════════════════════════
-
-SECRET = "vinzpredict2024"
-# Harus sama dengan MT5_BRIDGE_SECRET di Replit Secrets.
-# Jika tidak diset di Replit, biarkan default ini.
 
 MT5_PATH = ""
-# Kosongkan untuk deteksi otomatis.
-# Isi jika MT5 Anda di lokasi kustom, contoh:
+# Kosongkan = deteksi otomatis. Isi jika MT5 di lokasi kustom, contoh:
 # r"C:\Program Files\MetaTrader 5\terminal64.exe"
 
-PUSH_INTERVAL_SEC      = 3    # Seberapa sering kirim data ke server (detik)
-ORDER_POLL_INTERVAL_SEC = 1   # Seberapa sering cek order baru (detik)
-RECONNECT_DELAY_SEC    = 10   # Tunggu sebelum coba reconnect (detik)
-MAX_RECONNECT_TRIES    = 999  # Maks percobaan reconnect (999 = hampir selamanya)
+PUSH_INTERVAL_SEC       = 3     # Seberapa sering kirim data ke server (detik)
+ORDER_POLL_INTERVAL_SEC = 1     # Seberapa sering cek order baru (detik)
+RECONNECT_DELAY_SEC     = 10    # Tunggu sebelum coba reconnect (detik)
+MAX_RECONNECT_TRIES     = 999   # Maks percobaan reconnect
 
 SYMBOLS = [
+    "EURUSDm", "GBPUSDm", "USDJPYm", "USDCHFm", "AUDUSDm",
+    "USDCADm", "NZDUSDm", "EURJPYm", "GBPJPYm",
+    "XAUUSDm", "XAGUSDm",
+    # Versi tanpa suffix 'm' sebagai fallback
     "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD",
-    "USDCAD", "NZDUSD", "EURJPY", "GBPJPY",
-    "XAUUSD", "XAGUSD", "USOIL",
+    "USDCAD", "NZDUSD", "EURJPY", "GBPJPY", "XAUUSD",
 ]
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -95,32 +76,9 @@ def log(level: str, msg: str) -> None:
     print(f"[{ts}] {icon}  {msg}")
 
 
-def validate_config() -> bool:
-    errors = []
-    if "GANTI" in MT5_SERVER or not MT5_SERVER:
-        errors.append("MT5_SERVER belum diisi  (contoh: ICMarketsGlobal-Demo01)")
-    if MT5_LOGIN == 0:
-        errors.append("MT5_LOGIN belum diisi   (contoh: 12345678)")
-    if "GANTI" in MT5_PASSWORD or not MT5_PASSWORD:
-        errors.append("MT5_PASSWORD belum diisi")
-    if "GANTI" in REPLIT_URL or not REPLIT_URL.startswith("http"):
-        errors.append("REPLIT_URL belum diisi  (contoh: https://vinzpredict.anda.repl.co)")
-
-    if errors:
-        print()
-        print("❌  KONFIGURASI TIDAK LENGKAP!")
-        print("    Edit bagian KONFIGURASI WAJIB di atas script, lalu jalankan ulang.")
-        print()
-        for e in errors:
-            print(f"    ✗  {e}")
-        print()
-        return False
-    return True
-
-
 def init_mt5(attempt: int = 1) -> bool:
     global _initialized
-    log("INFO", f"Menghubungkan ke MetaTrader 5...  (percobaan #{attempt})")
+    log("INFO", f"Menghubungkan ke MetaTrader 5... (percobaan #{attempt})")
 
     kwargs: dict = {}
     if MT5_PATH:
@@ -163,12 +121,11 @@ def init_mt5(attempt: int = 1) -> bool:
     print(f"  ║  ✅  MT5 LOGIN BERHASIL                  ║")
     print("  ╠══════════════════════════════════════════╣")
     print(f"  ║  Akun    : #{info.login:<30} ║")
-    print(f"  ║  Nama    : {info.name:<31} ║")
-    print(f"  ║  Server  : {info.server:<31} ║")
-    print(f"  ║  Broker  : {info.company[:31]:<31} ║")
+    print(f"  ║  Nama    : {str(info.name)[:31]:<31} ║")
+    print(f"  ║  Server  : {str(info.server)[:31]:<31} ║")
+    print(f"  ║  Broker  : {str(info.company)[:31]:<31} ║")
     print(f"  ║  Balance : {info.currency} {info.balance:>25,.2f}  ║")
     print(f"  ║  Equity  : {info.currency} {info.equity:>25,.2f}  ║")
-    print(f"  ║  Margin  : {info.currency} {info.margin:>25,.2f}  ║")
     print(f"  ║  Leverage: 1:{info.leverage:<29} ║")
     print(f"  ║  Tipe    : {'REAL' if info.trade_mode == 0 else 'DEMO':<31} ║")
     print("  ╚══════════════════════════════════════════╝")
@@ -233,15 +190,20 @@ def get_positions() -> list:
 
 def get_prices() -> dict:
     prices = {}
+    seen = set()
     for sym in SYMBOLS:
+        base = sym.replace("m", "") if sym.endswith("m") else sym
+        if base in seen:
+            continue
         try:
             tick = mt5.symbol_info_tick(sym)
-            if tick:
-                prices[sym] = {
+            if tick and tick.bid > 0:
+                prices[base] = {
                     "bid":  tick.bid,
                     "ask":  tick.ask,
                     "time": int(tick.time) * 1000,
                 }
+                seen.add(base)
         except Exception:
             pass
     return prices
@@ -268,13 +230,13 @@ def push_data() -> bool:
         if r.status_code == 200:
             return True
         elif r.status_code == 401:
-            log("ERR", "SECRET tidak cocok! Periksa nilai SECRET di script dan MT5_BRIDGE_SECRET di Replit.")
+            log("ERR", "SECRET tidak cocok! Cek nilai SECRET di script.")
             return False
         else:
             log("WARN", f"Server response: {r.status_code} — {r.text[:120]}")
             return False
     except requests.exceptions.ConnectionError:
-        log("WARN", f"Tidak bisa terhubung ke server. Pastikan URL benar dan app Replit sedang berjalan.")
+        log("WARN", "Tidak bisa terhubung ke server. Cek koneksi internet.")
         return False
     except requests.exceptions.Timeout:
         log("WARN", "Timeout saat kirim data ke server.")
@@ -307,9 +269,9 @@ def execute_order(order: dict) -> None:
 
     log("INFO", f"Eksekusi order: {order_type.upper()} {volume} {symbol}")
 
-    # ── Tutup posisi (comment: "CLOSE:ticket") ──────────────────────────────
+    # ── Tutup posisi ──────────────────────────────────────────────────────────
     if symbol == "CLOSE" or (isinstance(comment, str) and comment.startswith("CLOSE:")):
-        ticket_str = comment.replace("CLOSE:", "")
+        ticket_str = str(comment).replace("CLOSE:", "")
         try:
             ticket = int(ticket_str)
         except ValueError:
@@ -330,17 +292,11 @@ def execute_order(order: dict) -> None:
         price = tick.bid if p.type == mt5.ORDER_TYPE_BUY else tick.ask
 
         request = {
-            "action":        mt5.TRADE_ACTION_DEAL,
-            "symbol":        p.symbol,
-            "volume":        p.volume,
-            "type":          close_type,
-            "position":      ticket,
-            "price":         price,
-            "deviation":     20,
-            "magic":         20240101,
-            "comment":       "VINZ-CLOSE",
-            "type_time":     mt5.ORDER_TIME_GTC,
-            "type_filling":  mt5.ORDER_FILLING_IOC,
+            "action": mt5.TRADE_ACTION_DEAL, "symbol": p.symbol,
+            "volume": p.volume, "type": close_type, "position": ticket,
+            "price": price, "deviation": 20, "magic": 20240101,
+            "comment": "VINZ-CLOSE", "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": mt5.ORDER_FILLING_IOC,
         }
         result = mt5.order_send(request)
         if result.retcode == mt5.TRADE_RETCODE_DONE:
@@ -352,90 +308,77 @@ def execute_order(order: dict) -> None:
             report_result(order_id, False, error=msg)
         return
 
-    # ── Buka posisi baru ─────────────────────────────────────────────────────
-    info = mt5.symbol_info(symbol)
+    # ── Buka posisi baru ──────────────────────────────────────────────────────
+    # Coba dengan suffix 'm' dulu (Exness pakai suffix ini)
+    sym_to_try = [symbol, symbol + "m"] if not symbol.endswith("m") else [symbol, symbol[:-1]]
+    info = None
+    final_symbol = symbol
+    for s in sym_to_try:
+        info = mt5.symbol_info(s)
+        if info is not None:
+            final_symbol = s
+            break
+
     if info is None:
         report_result(order_id, False, error=f"Symbol '{symbol}' tidak ditemukan di MT5")
         return
 
     if not info.visible:
-        mt5.symbol_select(symbol, True)
+        mt5.symbol_select(final_symbol, True)
         time.sleep(0.2)
 
-    tick = mt5.symbol_info_tick(symbol)
+    tick = mt5.symbol_info_tick(final_symbol)
     if tick is None:
-        report_result(order_id, False, error=f"Tidak bisa ambil harga {symbol}")
+        report_result(order_id, False, error=f"Tidak bisa ambil harga {final_symbol}")
         return
 
     mt5_type = mt5.ORDER_TYPE_BUY if order_type.lower() == "buy" else mt5.ORDER_TYPE_SELL
     price    = tick.ask if order_type.lower() == "buy" else tick.bid
 
-    # Validasi volume minimum
-    min_vol = info.volume_min
-    step    = info.volume_step
-    volume  = max(min_vol, round(round(volume / step) * step, 8))
+    min_vol  = info.volume_min
+    step     = info.volume_step
+    volume   = max(min_vol, round(round(volume / step) * step, 8))
 
-    request = {
-        "action":        mt5.TRADE_ACTION_DEAL,
-        "symbol":        symbol,
-        "volume":        volume,
-        "type":          mt5_type,
-        "price":         price,
-        "sl":            sl,
-        "tp":            tp,
-        "deviation":     20,
-        "magic":         20240101,
-        "comment":       str(comment)[:31],
-        "type_time":     mt5.ORDER_TIME_GTC,
-        "type_filling":  mt5.ORDER_FILLING_IOC,
-    }
-
-    result = mt5.order_send(request)
-    if result.retcode == mt5.TRADE_RETCODE_DONE:
-        log("OK", f"{order_type.upper()} {volume} {symbol} @ {price:.5f} — Ticket #{result.order}")
-        report_result(order_id, True, ticket=result.order)
-    else:
-        # Coba filling alternative jika IOC ditolak
-        if result.retcode in (mt5.TRADE_RETCODE_INVALID_FILL,):
-            request["type_filling"] = mt5.ORDER_FILLING_FOK
-            result = mt5.order_send(request)
+    for filling in [mt5.ORDER_FILLING_IOC, mt5.ORDER_FILLING_FOK, mt5.ORDER_FILLING_RETURN]:
+        request = {
+            "action": mt5.TRADE_ACTION_DEAL, "symbol": final_symbol,
+            "volume": volume, "type": mt5_type, "price": price,
+            "sl": sl, "tp": tp, "deviation": 20, "magic": 20240101,
+            "comment": str(comment)[:31], "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": filling,
+        }
+        result = mt5.order_send(request)
         if result.retcode == mt5.TRADE_RETCODE_DONE:
-            log("OK", f"{order_type.upper()} {volume} {symbol} @ {price:.5f} — Ticket #{result.order}")
+            log("OK", f"{order_type.upper()} {volume} {final_symbol} @ {price:.5f} — Ticket #{result.order}")
             report_result(order_id, True, ticket=result.order)
-        else:
-            msg = f"Order gagal: retcode={result.retcode} ({result.comment})"
-            log("ERR", msg)
-            report_result(order_id, False, error=msg)
+            return
+        elif result.retcode not in (mt5.TRADE_RETCODE_INVALID_FILL,):
+            break
+
+    msg = f"Order gagal: retcode={result.retcode} ({result.comment})"
+    log("ERR", msg)
+    report_result(order_id, False, error=msg)
 
 
 def poll_orders() -> None:
     try:
-        r = requests.get(
-            PENDING_ORDERS_URL,
-            params={"secret": SECRET},
-            timeout=6,
-        )
+        r = requests.get(PENDING_ORDERS_URL, params={"secret": SECRET}, timeout=6)
         if r.status_code == 200:
-            orders = r.json()
-            for order in orders:
+            for order in r.json():
                 log("INFO", f"📥 Order masuk: {order.get('type','?').upper()} {order.get('volume','?')} {order.get('symbol','?')}")
                 execute_order(order)
-        elif r.status_code == 401:
-            log("ERR", "Polling ditolak — SECRET tidak cocok.")
     except Exception:
         pass
 
 
 def run_bridge() -> None:
     global last_push, last_order_poll
-
     push_ok_count   = 0
     push_fail_count = 0
     reconnect_tries = 0
 
-    print(f"  🌐  Mengirim ke  : {REPLIT_URL}")
-    print(f"  🔄  Interval push : {PUSH_INTERVAL_SEC} detik")
-    print(f"  📋  Simbol       : {', '.join(SYMBOLS[:6])} ...")
+    print(f"  🌐  Server  : {REPLIT_URL}")
+    print(f"  🔄  Interval: {PUSH_INTERVAL_SEC} detik")
     print()
     print("  ✅  Bridge aktif! Tekan Ctrl+C untuk berhenti.\n")
 
@@ -443,11 +386,10 @@ def run_bridge() -> None:
         while True:
             now = time.time()
 
-            # Reconnect jika terputus
             if not _initialized:
                 reconnect_tries += 1
                 if reconnect_tries > MAX_RECONNECT_TRIES:
-                    log("ERR", f"Melebihi batas reconnect ({MAX_RECONNECT_TRIES}x). Berhenti.")
+                    log("ERR", f"Melebihi batas reconnect. Berhenti.")
                     break
                 log("INFO", f"Reconnect ke MT5... ({reconnect_tries}x)")
                 if init_mt5(reconnect_tries):
@@ -457,7 +399,6 @@ def run_bridge() -> None:
                     time.sleep(RECONNECT_DELAY_SEC)
                     continue
 
-            # Push data ke server
             if now - last_push >= PUSH_INTERVAL_SEC:
                 ok = push_data()
                 last_push = now
@@ -467,19 +408,17 @@ def run_bridge() -> None:
                     if push_ok_count == 1 or push_ok_count % 20 == 0:
                         acc = get_account_data()
                         if acc:
-                            pos_count = len(get_positions())
                             log("DATA", (
                                 f"Push #{push_ok_count} OK | "
                                 f"Balance: {acc['currency']} {acc['balance']:,.2f} | "
                                 f"Equity: {acc['currency']} {acc['equity']:,.2f} | "
-                                f"Posisi: {pos_count}"
+                                f"Posisi: {len(get_positions())}"
                             ))
                 else:
                     push_fail_count += 1
                     if push_fail_count == 5:
-                        log("WARN", "5 kali gagal push berturut-turut. Cek koneksi internet dan URL Replit.")
+                        log("WARN", "5 kali gagal push. Cek koneksi internet dan pastikan app Replit berjalan.")
 
-            # Poll pending orders dari server
             if now - last_order_poll >= ORDER_POLL_INTERVAL_SEC:
                 poll_orders()
                 last_order_poll = now
@@ -488,7 +427,7 @@ def run_bridge() -> None:
 
     except KeyboardInterrupt:
         print()
-        log("INFO", "Bridge dihentikan oleh pengguna (Ctrl+C).")
+        log("INFO", "Bridge dihentikan (Ctrl+C).")
     finally:
         mt5.shutdown()
         log("INFO", "Koneksi MT5 ditutup. Sampai jumpa! 👋")
@@ -496,14 +435,11 @@ def run_bridge() -> None:
 
 def main() -> None:
     print()
-    print("=" * 60)
+    print("=" * 58)
     print("   VINZ PREDICT — MT5 Python Bridge  v2.0")
-    print("=" * 60)
+    print("   Akun  : Exness-MT5Real37 | #263423277")
+    print("=" * 58)
     print()
-
-    if not validate_config():
-        input("Tekan Enter untuk keluar...")
-        sys.exit(1)
 
     if not init_mt5():
         print()
