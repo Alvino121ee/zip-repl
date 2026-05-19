@@ -8,6 +8,12 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { logger } from "../lib/logger.js";
+import {
+  connectMT5Real,
+  disconnectMT5Real,
+  fetchAccountInformation,
+  hasMetaApiToken,
+} from "./metaapi-mt5.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -1445,7 +1451,7 @@ export function resetForexPro(): void {
   saveState();
 }
 
-// ─── MetaTrader 5 Koneksi (Simulasi Bridge) ───────────────────────────────────
+// ─── MetaTrader 5 Koneksi (via MetaApi) ───────────────────────────────────────
 
 interface MT5ConnectionState {
   connected: boolean;
@@ -1453,18 +1459,22 @@ interface MT5ConnectionState {
   login: string;
   accountName: string;
   balance: number;
+  equity: number;
   currency: string;
   broker: string;
   leverage: number;
   connectedAt: number | null;
+  accountId: string | null; // MetaApi account ID
+  isReal: boolean; // true = koneksi nyata via MetaApi
 }
 
 const MT5_CONFIG_FILE = join(DATA_DIR, "mt5-connection.json");
 
 let mt5State: MT5ConnectionState = {
   connected: false, server: "", login: "",
-  accountName: "", balance: 0, currency: "USD",
+  accountName: "", balance: 0, equity: 0, currency: "USD",
   broker: "", leverage: 100, connectedAt: null,
+  accountId: null, isReal: false,
 };
 
 // Load MT5 state from disk on startup
@@ -1485,15 +1495,18 @@ function saveMT5State(): void {
 }
 
 /**
- * Simulasi koneksi MT5.
- * Di lingkungan produksi, ini bisa diganti dengan:
- * - MetaTrader 5 Web API (broker yang mendukung)
- * - REST bridge seperti mt5-server atau custom EA HTTP server
+ * Koneksi MT5 nyata via MetaApi jika METAAPI_TOKEN tersedia,
+ * fallback ke simulasi jika tidak ada token.
  */
-export function connectMT5(server: string, login: string, password: string): {
-  connected: boolean; accountName?: string; balance?: number; currency?: string;
-  broker?: string; leverage?: number; error?: string;
-} {
+export async function connectMT5(
+  server: string,
+  login: string,
+  password: string
+): Promise<{
+  connected: boolean; accountName?: string; balance?: number; equity?: number;
+  currency?: string; broker?: string; leverage?: number;
+  accountId?: string; isReal?: boolean; error?: string;
+}> {
   // Validasi format dasar
   if (login.length < 4) {
     return { connected: false, error: "Nomor akun tidak valid (min 4 digit)" };
@@ -1505,12 +1518,52 @@ export function connectMT5(server: string, login: string, password: string): {
     return { connected: false, error: "Format server tidak valid (contoh: ICMarketsGlobal-Demo01)" };
   }
 
-  // Deteksi tipe akun dari nama server
+  // ── Koneksi nyata via MetaApi ──────────────────────────────────────────────
+  if (hasMetaApiToken()) {
+    try {
+      const info = await connectMT5Real(server, login, password);
+      mt5State = {
+        connected: true,
+        server,
+        login,
+        accountName: info.accountName,
+        balance: info.balance,
+        equity: info.equity,
+        currency: info.currency,
+        broker: info.broker,
+        leverage: info.leverage,
+        connectedAt: Date.now(),
+        accountId: info.accountId,
+        isReal: true,
+      };
+      saveMT5State();
+      logger.info(
+        { server, login: login.slice(0, 4) + "****", broker: info.broker, balance: info.balance },
+        "MT5 terhubung nyata via MetaApi"
+      );
+      return {
+        connected: true,
+        accountName: info.accountName,
+        balance: info.balance,
+        equity: info.equity,
+        currency: info.currency,
+        broker: info.broker,
+        leverage: info.leverage,
+        accountId: info.accountId,
+        isReal: true,
+      };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Koneksi MetaApi gagal";
+      logger.error({ err: msg }, "MetaApi koneksi gagal");
+      return { connected: false, error: msg };
+    }
+  }
+
+  // ── Fallback simulasi (tanpa METAAPI_TOKEN) ───────────────────────────────
   const serverLower = server.toLowerCase();
   const isDemo = serverLower.includes("demo");
   const isCent = serverLower.includes("cent");
 
-  // Tentukan broker dari nama server
   let broker = "Unknown Broker";
   if (serverLower.includes("icmarket") || serverLower.includes("ic-")) broker = "IC Markets";
   else if (serverLower.includes("xm")) broker = "XM Global";
@@ -1522,42 +1575,53 @@ export function connectMT5(server: string, login: string, password: string): {
   else if (serverLower.includes("hotforex") || serverLower.includes("hfm")) broker = "HFM";
   else broker = server.split("-")[0] ?? server.split(".")[0] ?? "Broker";
 
-  const currency = isCent ? "USC" : "USD"; // USC = US Cent
+  const currency = isCent ? "USC" : "USD";
   const leverage = isCent ? 200 : 100;
-  const baseBalance = isCent ? 100000 : 1000; // cent account punya 100000 cent = $1000
+  const baseBalance = isCent ? 100000 : 1000;
   const accountName = `${isDemo ? "Demo" : "Live"} #${login}`;
 
   mt5State = {
-    connected: true,
-    server,
-    login,
-    accountName,
-    balance: baseBalance,
-    currency,
-    broker,
-    leverage,
-    connectedAt: Date.now(),
+    connected: true, server, login, accountName,
+    balance: baseBalance, equity: baseBalance,
+    currency, broker, leverage,
+    connectedAt: Date.now(), accountId: null, isReal: false,
   };
-
   saveMT5State();
-  logger.info({ server, login: login.slice(0, 4) + "****", broker, currency }, "MT5 terhubung (simulasi)");
+  logger.warn(
+    { server, login: login.slice(0, 4) + "****" },
+    "MT5 terhubung dalam mode SIMULASI — set METAAPI_TOKEN untuk koneksi nyata"
+  );
 
-  return {
-    connected: true,
-    accountName,
-    balance: baseBalance,
-    currency,
-    broker,
-    leverage,
-  };
+  return { connected: true, accountName, balance: baseBalance, equity: baseBalance, currency, broker, leverage, isReal: false };
 }
 
-export function disconnectMT5(): void {
-  mt5State = { ...mt5State, connected: false, connectedAt: null };
+export async function disconnectMT5(): Promise<void> {
+  const { accountId, isReal } = mt5State;
+  mt5State = { ...mt5State, connected: false, connectedAt: null, accountId: null, isReal: false };
   saveMT5State();
+  if (isReal && accountId) {
+    await disconnectMT5Real(accountId).catch(() => {});
+  }
   logger.info("MT5 diputuskan");
+}
+
+export async function refreshMT5Balance(): Promise<void> {
+  if (!mt5State.connected || !mt5State.isReal || !mt5State.accountId) return;
+  try {
+    const info = await fetchAccountInformation(mt5State.accountId);
+    mt5State.balance = info.balance ?? mt5State.balance;
+    mt5State.equity = info.equity ?? mt5State.equity;
+  } catch { /* ignore */ }
 }
 
 export function getMT5Status(): MT5ConnectionState {
   return { ...mt5State };
+}
+
+export function getMT5AccountId(): string | null {
+  return mt5State.accountId ?? null;
+}
+
+export function isMT5RealConnected(): boolean {
+  return mt5State.connected && mt5State.isReal;
 }

@@ -1,41 +1,45 @@
 {
-  "balance": 49.9835,
-  "realizedPnl": 0,
-  "totalFees": 0.0165,
+  "balance": 49.882622715200746,
+  "realizedPnl": -0.10087728479925331,
+  "totalFees": 0.03301546633338541,
   "winCount": 0,
-  "lossCount": 0,
-  "positions": [
+  "lossCount": 1,
+  "positions": [],
+  "log": [
     {
-      "id": "0e20fc73-4d38-449f-b203-9e71d653c9b5",
+      "id": "729cdce8-c3e1-46c4-a248-5c93ad816d96",
+      "timestamp": 1779193834354,
+      "openedAt": 1779192462663,
+      "closedAt": 1779193834354,
+      "duration": 1371691,
       "symbol": "BNBUSDT",
       "displayName": "BNB / USDT",
       "category": "Crypto Macro",
       "emoji": "🔶",
-      "side": "Sell",
-      "size": 0.04686767692548039,
+      "side": "Buy",
+      "qty": 0.04686767692548039,
       "entryPrice": 640.1,
-      "markPrice": 640.1,
+      "closePrice": 640.7,
+      "realizedPnl": -0.10087728479925331,
+      "realizedPnlPct": -0.281206061552893,
       "leverage": 3,
       "margin": 10,
-      "stopLoss": 646.501,
-      "takeProfit": 624.0975,
-      "unrealisedPnl": 0,
-      "unrealisedPnlPct": 0,
-      "openedAt": 1779192462663,
-      "source": "auto",
       "confidence": 98,
       "signal": "institutional_short",
+      "status": "closed_manual",
+      "reason": "Tren berbalik BULLISH (99% conf, 8 konfirmasi) — close SHORT",
       "openReason": "🧠 Brain 98% | Tren Turun ↓ | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($640.6928) — momentum bearish",
+      "source": "auto",
       "tags": [
         "Auto AI",
-        "Kepercayaan Tinggi"
+        "Kepercayaan Tinggi",
+        "Loss"
       ],
       "marketCondition": "trending_down_normal",
+      "fee": 0.03301546633338541,
       "entryFee": 0.0165,
-      "opportunityScore": 100
-    }
-  ],
-  "log": [
+      "exitFee": 0.01651546633338541
+    },
     {
       "id": "d79908af-5b13-4bd7-b135-23373e6e589b",
       "timestamp": 1779192462663,
@@ -71,6 +75,10 @@
     {
       "timestamp": 1779184255189,
       "balance": 50
+    },
+    {
+      "timestamp": 1779193834354,
+      "balance": 49.882622715200746
     }
   ]
 }

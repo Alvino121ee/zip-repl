@@ -207,7 +207,8 @@ const MT5SettingsPanel: React.FC<{
   onDisconnect: () => void;
   onClose: () => void;
   connecting: boolean;
-}> = ({ mt5, onChange, onConnect, onDisconnect, onClose, connecting }) => (
+  hasRealBridge: boolean;
+}> = ({ mt5, onChange, onConnect, onDisconnect, onClose, connecting, hasRealBridge }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
     <div className="bg-[#0a0f1a] border border-blue-500/30 rounded-xl w-full max-w-md mx-4 shadow-2xl">
       {/* Header */}
@@ -215,6 +216,9 @@ const MT5SettingsPanel: React.FC<{
         <div className="flex items-center gap-2">
           <Server className="h-5 w-5 text-blue-400" />
           <span className="font-bold text-white">Koneksi MetaTrader 5</span>
+          {hasRealBridge && (
+            <span className="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded font-semibold">LIVE</span>
+          )}
         </div>
         <button onClick={onClose} className="text-muted-foreground hover:text-white transition-colors">
           <X className="h-5 w-5" />
@@ -222,10 +226,27 @@ const MT5SettingsPanel: React.FC<{
       </div>
 
       <div className="p-5 space-y-4">
+        {/* Bridge status notice */}
+        {!hasRealBridge && (
+          <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-[11px] text-amber-300">
+            <div className="font-semibold mb-1">⚠️ Mode Simulasi Aktif</div>
+            Untuk koneksi MT5 nyata, tambahkan <strong>METAAPI_TOKEN</strong> di Secrets. Daftar gratis di{" "}
+            <a href="https://metaapi.cloud" target="_blank" rel="noreferrer" className="underline text-amber-400">metaapi.cloud</a>,
+            lalu masukkan token di Secrets Replit dengan nama <code className="bg-black/30 px-1 rounded">METAAPI_TOKEN</code>.
+          </div>
+        )}
+        {hasRealBridge && (
+          <div className="rounded-lg bg-green-500/10 border border-green-500/30 p-3 text-[11px] text-green-300">
+            <div className="font-semibold mb-1 flex items-center gap-1"><Wifi className="h-3 w-3" /> Bridge MT5 Aktif</div>
+            Koneksi nyata ke MetaTrader 5 tersedia. Masukkan kredensial akun MT5 Anda di bawah.
+            Proses koneksi pertama membutuhkan waktu 1–2 menit.
+          </div>
+        )}
+
         {/* Status */}
         <div className={`flex items-center gap-3 rounded-lg p-3 border ${mt5.connected ? "bg-green-500/10 border-green-500/30" : "bg-zinc-800/50 border-border"}`}>
           {mt5.connected
-            ? <><Wifi className="h-5 w-5 text-green-400" /><div><div className="text-sm font-semibold text-green-400">Terhubung ke MT5</div><div className="text-[11px] text-muted-foreground">{mt5.accountName} — {mt5.broker}</div></div></>
+            ? <><Wifi className="h-5 w-5 text-green-400" /><div><div className="text-sm font-semibold text-green-400">Terhubung ke MT5{hasRealBridge ? " (Nyata)" : " (Simulasi)"}</div><div className="text-[11px] text-muted-foreground">{mt5.accountName} — {mt5.broker}</div></div></>
             : <><WifiOff className="h-5 w-5 text-zinc-500" /><div className="text-sm text-muted-foreground">Belum terhubung</div></>
           }
         </div>
@@ -296,7 +317,10 @@ const MT5SettingsPanel: React.FC<{
           ) : (
             <button onClick={onConnect} disabled={connecting || !mt5.server || !mt5.login || !mt5.password}
               className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-all flex items-center justify-center gap-2">
-              {connecting ? <><RefreshCw className="h-4 w-4 animate-spin" /> Menghubungkan...</> : <><LogIn className="h-4 w-4" /> Hubungkan MT5</>}
+              {connecting
+                ? <><RefreshCw className="h-4 w-4 animate-spin" /> {hasRealBridge ? "Menghubungkan ke MT5 nyata..." : "Menghubungkan..."}</>
+                : <><LogIn className="h-4 w-4" /> Hubungkan MT5</>
+              }
             </button>
           )}
           <button onClick={onClose}
@@ -337,11 +361,20 @@ export default function ForexPro() {
   const [accountMode, setAccountMode] = useState<AccountMode>("demo");
   const [showMT5Settings, setShowMT5Settings] = useState(false);
   const [mt5Connecting, setMT5Connecting] = useState(false);
+  const [hasRealBridge, setHasRealBridge] = useState(false);
   const [mt5, setMT5] = useState<MT5Config>({
     server: "", login: "", password: "",
     connected: false, accountName: "", accountBalance: 0,
     accountCurrency: "USD", broker: "", leverage: 100,
   });
+
+  // Cek apakah MetaApi token tersedia (koneksi MT5 nyata)
+  useEffect(() => {
+    fetch(`${API}/api/forex-pro/mt5/capability`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setHasRealBridge(d.hasMetaApiToken ?? false); })
+      .catch(() => {});
+  }, []);
 
   const addActivity = useCallback((msg: string) => {
     setActivityFeed(prev => [`[${new Date().toLocaleTimeString("id-ID")}] ${msg}`, ...prev.slice(0, 29)]);
@@ -525,6 +558,7 @@ export default function ForexPro() {
           onDisconnect={handleMT5Disconnect}
           onClose={() => setShowMT5Settings(false)}
           connecting={mt5Connecting}
+          hasRealBridge={hasRealBridge}
         />
       )}
 

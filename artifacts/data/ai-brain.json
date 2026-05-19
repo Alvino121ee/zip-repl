@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "learningCycles": 3,
-  "totalPredictions": 3,
+  "learningCycles": 4,
+  "totalPredictions": 4,
   "totalWins": 1,
-  "totalLosses": 0,
-  "lastUpdated": 1778968419849,
+  "totalLosses": 1,
+  "lastUpdated": 1779193834355,
   "indicatorStats": {
     "rsi_oversold": {
       "name": "RSI Oversold",
@@ -21,8 +21,8 @@
     "ema_golden_cross": {
       "name": "EMA Golden Cross",
       "correct": 0,
-      "total": 0,
-      "weight": 1
+      "total": 1,
+      "weight": 0.3
     },
     "ema_death_cross": {
       "name": "EMA Death Cross",
@@ -117,8 +117,8 @@
     "momentum_strong": {
       "name": "Strong Momentum",
       "correct": 0,
-      "total": 0,
-      "weight": 1
+      "total": 1,
+      "weight": 0.3
     }
   },
   "symbolPerformance": {
@@ -154,6 +154,17 @@
       "lastTrade": 1778968419849,
       "consecutiveLosses": 0,
       "avoidUntil": null
+    },
+    "BNBUSDT": {
+      "symbol": "BNBUSDT",
+      "wins": 0,
+      "losses": 1,
+      "neutrals": 0,
+      "totalPnl": -0.10087728479925331,
+      "avgConfidence": 98,
+      "lastTrade": 1779193834355,
+      "consecutiveLosses": 1,
+      "avoidUntil": null
     }
   },
   "conditionPerformance": {
@@ -169,7 +180,7 @@
     },
     "sideways": {
       "wins": 0,
-      "losses": 0,
+      "losses": 1,
       "neutrals": 2
     },
     "volatile": {
@@ -193,10 +204,10 @@
     },
     "swing_1h": {
       "name": "Swing 1H",
-      "weight": 1,
+      "weight": 0.4,
       "wins": 0,
-      "losses": 0,
-      "lastAdjusted": 0
+      "losses": 1,
+      "lastAdjusted": 1779193834355
     },
     "bos_choch": {
       "name": "BOS/CHOCH",
@@ -241,7 +252,30 @@
       "lastAdjusted": 1778968419849
     }
   },
-  "mistakes": [],
+  "mistakes": [
+    {
+      "id": "5d1aa8e0-9be6-4879-bbff-66d1a20f89d8",
+      "timestamp": 1779193834355,
+      "symbol": "BNBUSDT",
+      "direction": "SHORT",
+      "confidence": 98,
+      "signal": "institutional_short",
+      "result": "LOSS",
+      "priceDeltaPct": -0.09373535385096433,
+      "reasoning": [
+        "🧠 Brain 98% | Tren Turun ↓ | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($640.6928) — momentum bearish",
+        "Forex Crypto Macro",
+        "trending_down_normal"
+      ],
+      "condition": "sideways",
+      "lesson": "Setup SHORT (jual) gagal, pasar bergerak 0.09% berlawanan arah. Kondisi sideways kurang cocok untuk directional trade.",
+      "correctedApproach": "Di kondisi sideways: tunggu breakout konfirmasi atau gunakan range strategy. Hindari prediksi directional tanpa volume spike.",
+      "indicatorsActive": [
+        "ema_golden_cross",
+        "momentum_strong"
+      ]
+    }
+  ],
   "successPatterns": [
     {
       "id": "520381cb-c1cc-4a50-9971-3963f5db2ea2",
@@ -257,8 +291,33 @@
       "usageCount": 1
     }
   ],
-  "consecutiveLosses": 0,
-  "maxDrawdownSeen": 0,
+  "consecutiveLosses": 1,
+  "maxDrawdownSeen": -0.10087728479925331,
   "bestWinStreak": 1,
-  "currentWinStreak": 1
+  "currentWinStreak": 0,
+  "tradeReturns": [
+    -0.09373535385096433
+  ],
+  "confidenceAccuracyBands": {
+    "50-59": {
+      "correct": 0,
+      "total": 0
+    },
+    "60-69": {
+      "correct": 0,
+      "total": 0
+    },
+    "70-79": {
+      "correct": 0,
+      "total": 0
+    },
+    "80-89": {
+      "correct": 0,
+      "total": 0
+    },
+    "90-99": {
+      "correct": 0,
+      "total": 1
+    }
+  }
 }

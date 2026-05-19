@@ -20,7 +20,11 @@ import {
   connectMT5,
   disconnectMT5,
   getMT5Status,
+  refreshMT5Balance,
+  getMT5AccountId,
+  isMT5RealConnected,
 } from "../services/forex-pro.js";
+import { hasMetaApiToken, placeOrderReal, fetchPositionsReal } from "../services/metaapi-mt5.js";
 
 const router = Router();
 
@@ -74,18 +78,73 @@ router.get("/forex-pro/stats", (_req, res) => {
   res.json(getForexProStats());
 });
 
-router.get("/forex-pro/balance", (_req, res) => {
+router.get("/forex-pro/balance", async (_req, res) => {
+  // Jika MT5 real terhubung, refresh balance dari server MT5
+  if (isMT5RealConnected()) {
+    await refreshMT5Balance().catch(() => {});
+  }
   const state = getForexProState();
+  const mt5Status = getMT5Status();
   const unrealisedPnl = state.positions.reduce((s, p) => s + p.unrealisedPnl, 0);
+
+  // Jika real mode, kembalikan balance MT5 asli
+  if (isMT5RealConnected()) {
+    res.json({
+      balance: mt5Status.balance,
+      equity: mt5Status.equity,
+      unrealisedPnl,
+      usedMargin: state.positions.reduce((s, p) => s + p.margin, 0),
+      isReal: true,
+      currency: mt5Status.currency,
+    });
+    return;
+  }
+
   res.json({
     balance: state.balance,
     equity: state.equity,
     unrealisedPnl,
     usedMargin: state.positions.reduce((s, p) => s + p.margin, 0),
+    isReal: false,
   });
 });
 
-router.get("/forex-pro/positions", (_req, res) => {
+router.get("/forex-pro/positions", async (_req, res) => {
+  // Jika MT5 real terhubung, ambil posisi dari MT5 nyata
+  if (isMT5RealConnected()) {
+    const accountId = getMT5AccountId();
+    if (accountId) {
+      const realPositions = await fetchPositionsReal(accountId);
+      // Map format MetaApi ke format aplikasi
+      const mapped = realPositions.map((p: any) => ({
+        id: p.id,
+        symbol: p.symbol,
+        pairName: p.symbol,
+        emoji: "📊",
+        side: p.type === "POSITION_TYPE_BUY" ? "Buy" : "Sell",
+        lotSize: p.volume ?? 0,
+        entryPrice: p.openPrice ?? 0,
+        currentPrice: p.currentPrice ?? p.openPrice ?? 0,
+        stopLoss: p.stopLoss ?? 0,
+        takeProfit: p.takeProfit ?? 0,
+        leverage: 100,
+        margin: p.margin ?? 0,
+        unrealisedPnl: p.unrealizedProfit ?? 0,
+        unrealisedPips: 0,
+        openedAt: p.time ? new Date(p.time).getTime() : Date.now(),
+        strategy: "MT5 Real",
+        confidence: 100,
+        reasoning: ["Posisi nyata dari MetaTrader 5"],
+        trailActivated: false,
+        breakeven: false,
+        riskReward: 2,
+        timeframe: "H1",
+        aiNote: "Posisi live dari akun MT5 nyata",
+      }));
+      res.json(mapped);
+      return;
+    }
+  }
   updateOpenPositions();
   res.json(getForexProState().positions);
 });
@@ -123,25 +182,53 @@ router.get("/forex-pro/config", (_req, res) => {
 
 // ─── Order Management ─────────────────────────────────────────────────────────
 
-router.post("/forex-pro/order", (req, res) => {
-  const { symbol, direction, timeframe, lot } = req.body as {
+router.post("/forex-pro/order", async (req, res) => {
+  const { symbol, direction, timeframe, lot, accountMode } = req.body as {
     symbol: string;
     direction: "Buy" | "Sell";
     timeframe?: Timeframe;
     lot?: number;
+    accountMode?: "demo" | "real";
   };
 
   if (!symbol || !direction) {
     return res.status(400).json({ error: "symbol dan direction wajib diisi" });
   }
 
+  // Jika mode real dan MT5 nyata terhubung, kirim order ke MT5 sungguhan
+  if (accountMode === "real" && isMT5RealConnected()) {
+    const accountId = getMT5AccountId();
+    if (accountId) {
+      const orderType = direction === "Buy" ? "ORDER_TYPE_BUY" : "ORDER_TYPE_SELL";
+      const volume = lot ?? 0.01;
+      const result = await placeOrderReal(accountId, symbol, orderType, volume);
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+      return res.json({ ok: true, orderId: result.orderId, isReal: true, symbol, direction, volume });
+    }
+  }
+
+  // Mode demo atau MT5 tidak terhubung — gunakan engine internal
   const result = openForexProPosition(symbol, direction, timeframe ?? "H1", true, lot);
   if (!result.ok) return res.status(400).json({ error: result.error });
   res.json(result);
 });
 
-router.post("/forex-pro/close/:id", (req, res) => {
+router.post("/forex-pro/close/:id", async (req, res) => {
   const { id } = req.params;
+
+  // Jika MT5 real terhubung, tutup posisi di MT5 nyata
+  if (isMT5RealConnected()) {
+    const accountId = getMT5AccountId();
+    if (accountId) {
+      const { closePositionReal } = await import("../services/metaapi-mt5.js");
+      const r = await closePositionReal(accountId, id);
+      if (!r.ok) return res.status(400).json({ error: r.error });
+      return res.json({ ok: true, isReal: true });
+    }
+  }
+
   const result = closeForexProPosition(id, "Manual");
   if (!result.ok) return res.status(404).json({ error: result.error });
   res.json(result);
@@ -199,22 +286,37 @@ router.post("/forex-pro/reset", (_req, res) => {
 
 // ─── MetaTrader 5 Koneksi ─────────────────────────────────────────────────────
 
-router.post("/forex-pro/mt5/connect", (req, res) => {
+router.get("/forex-pro/mt5/capability", (_req, res) => {
+  res.json({
+    hasMetaApiToken: hasMetaApiToken(),
+    message: hasMetaApiToken()
+      ? "MetaApi token tersedia — koneksi MT5 nyata aktif"
+      : "METAAPI_TOKEN belum diset — koneksi MT5 berjalan dalam mode simulasi",
+  });
+});
+
+router.post("/forex-pro/mt5/connect", async (req, res) => {
   const { server, login, password } = req.body as { server: string; login: string; password: string };
   if (!server || !login || !password) {
     return res.status(400).json({ error: "server, login, dan password wajib diisi" });
   }
-  const result = connectMT5(server, login, password);
-  res.json(result);
+  try {
+    const result = await connectMT5(server, login, password);
+    res.json(result);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Koneksi gagal";
+    res.status(500).json({ connected: false, error: msg });
+  }
 });
 
-router.post("/forex-pro/mt5/disconnect", (_req, res) => {
-  disconnectMT5();
+router.post("/forex-pro/mt5/disconnect", async (_req, res) => {
+  await disconnectMT5();
   res.json({ ok: true, message: "MT5 diputuskan" });
 });
 
 router.get("/forex-pro/mt5/status", (_req, res) => {
-  res.json(getMT5Status());
+  const status = getMT5Status();
+  res.json({ ...status, hasMetaApiToken: hasMetaApiToken() });
 });
 
 export default router;
