@@ -1,8 +1,8 @@
 {
-  "balance": 40.98049537928663,
-  "realizedPnl": -8.739417120713371,
-  "totalFees": 0.5596537917253878,
-  "winCount": 89,
+  "balance": 41.11251540546464,
+  "realizedPnl": -8.604509594535362,
+  "totalFees": 0.5655046206957194,
+  "winCount": 90,
   "lossCount": 47,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 6.572358537806711,
       "entryPrice": 0.7988,
-      "markPrice": 0.7945,
+      "markPrice": 0.7956,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.7844642857142856,
       "takeProfit": 0.8346392857142858,
-      "unrealisedPnl": -0.02826114171256866,
-      "unrealisedPnlPct": -0.538307461191784,
+      "unrealisedPnl": -0.021031547320981347,
+      "unrealisedPnlPct": -0.40060090135202564,
       "openedAt": 1779188713580,
       "source": "auto",
       "confidence": 99,
@@ -33,60 +33,19 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.8007,
       "humanInstinct": {
-        "lastEvalAt": 1779191984497,
-        "momentumScore": 60,
-        "continuationProb": 27,
+        "lastEvalAt": 1779192308152,
+        "momentumScore": 0,
+        "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
+          "Volume menurun 45% — tanda pelemahan",
           "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (27%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 61,
-        "urgency": 15
-      }
-    },
-    {
-      "id": "57abb03c-2f40-452d-9b47-e31c9e58d164",
-      "symbol": "STORJUSDT",
-      "displayName": "STORJ/USDT",
-      "side": "Buy",
-      "size": 43.63001745200698,
-      "entryPrice": 0.12033,
-      "markPrice": 0.11931,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.11728500000000001,
-      "takeProfit": 0.1279425,
-      "unrealisedPnl": -0.044502617801047424,
-      "unrealisedPnlPct": -0.8476689104961413,
-      "openedAt": 1779188813022,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1171) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.12094,
-      "humanInstinct": {
-        "lastEvalAt": 1779191984638,
-        "momentumScore": 50,
-        "continuationProb": 9,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Volume sedikit turun 18%",
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (9%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 59,
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 63,
         "urgency": 15
       }
     },
@@ -97,13 +56,13 @@
       "side": "Buy",
       "size": 78.3348254252462,
       "entryPrice": 0.06702,
-      "markPrice": 0.06677,
+      "markPrice": 0.06612,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.0649425,
       "takeProfit": 0.07221375,
-      "unrealisedPnl": -0.019583706356311566,
-      "unrealisedPnlPct": -0.37302297821545843,
+      "unrealisedPnl": -0.07050134288272142,
+      "unrealisedPnlPct": -1.3428827215756463,
       "openedAt": 1779191039265,
       "source": "auto",
       "confidence": 99,
@@ -118,21 +77,110 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.06712,
       "humanInstinct": {
-        "lastEvalAt": 1779191984774,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779192308293,
+        "momentumScore": 50,
+        "continuationProb": 9,
         "greedIndex": 0,
         "decaySignals": [
+          "Volume sedikit turun 23%",
+          "Candle doji terdeteksi — ragu-ragu pasar",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 18,
+        "reason": "⚡ Probabilitas kelanjutan rendah (9%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 20,
         "urgency": 15
       }
+    },
+    {
+      "id": "636dbd13-fea6-442f-88af-913a0899f768",
+      "symbol": "BCHUSDT",
+      "displayName": "BCH/USDT",
+      "side": "Buy",
+      "size": 0.01377591183416426,
+      "entryPrice": 381.1,
+      "markPrice": 380.6,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 377.28900000000004,
+      "takeProfit": 390.6275,
+      "unrealisedPnl": -0.00688795591708213,
+      "unrealisedPnlPct": -0.1311991603253739,
+      "openedAt": 1779192273614,
+      "source": "auto",
+      "confidence": 94,
+      "signal": "institutional_long",
+      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($377.8614) — momentum bullish; Harga di atas VWAP ($373.3539) — buyers in control",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 380.79
     }
   ],
   "log": [
+    {
+      "id": "f58b55ca-3af6-4788-a4ba-5eacf4c93200",
+      "timestamp": 1779192273614,
+      "openedAt": 1779192273614,
+      "symbol": "BCHUSDT",
+      "side": "Buy",
+      "qty": 0.01377591183416426,
+      "entryPrice": 381.1,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 94,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $381.1000 | Fee: -$0.0029",
+      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($377.8614) — momentum bullish; Harga di atas VWAP ($373.3539) — buyers in control",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging"
+    },
+    {
+      "id": "9fd148b4-b83b-4927-b542-7d675a125956",
+      "timestamp": 1779192260277,
+      "openedAt": 1779188813022,
+      "closedAt": 1779192260277,
+      "duration": 3447255,
+      "symbol": "STORJUSDT",
+      "side": "Sell",
+      "qty": 43.63001745200698,
+      "entryPrice": 0.12033,
+      "closePrice": 0.12349,
+      "realizedPnl": 0.1349075261780103,
+      "realizedPnlPct": 2.6261115266350834,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (13%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1171) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.005850828970331588,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.0029633289703315884
+    },
     {
       "id": "56601d25-698f-4263-a42a-c5f887764bed",
       "timestamp": 1779191039265,
@@ -8576,6 +8624,10 @@
     {
       "timestamp": 1779191021818,
       "balance": 40.939840089097856
+    },
+    {
+      "timestamp": 1779192260277,
+      "balance": 41.06492911398064
     }
   ]
 }

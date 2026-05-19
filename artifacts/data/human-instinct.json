@@ -1,15 +1,34 @@
 {
-  "totalDecisions": 82,
-  "correctEarlyExits": 82,
+  "totalDecisions": 83,
+  "correctEarlyExits": 83,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 43.890243902439025,
-  "avgContinuationProbAtExit": 11.841463414634147,
+  "avgMomentumAtEarlyExit": 44.265060240963855,
+  "avgContinuationProbAtExit": 11.855421686746988,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "9f22367d-4bd3-4b93-9101-870b9bdb3a88",
+      "tradeId": "57abb03c-2f40-452d-9b47-e31c9e58d164",
+      "symbol": "STORJUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (13%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 2.6261115266350834,
+      "momentumScore": 75,
+      "continuationProb": 13,
+      "greedIndex": 40,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779192260276,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 2.6261115266350834,
+      "profitDelta": 0
+    },
     {
       "id": "36e813fa-b7ca-4018-983c-c993b76368b4",
       "tradeId": "ccebb1b8-2f28-4452-a901-02666d6a975b",
@@ -1666,5 +1685,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779191021821
+  "lastUpdated": 1779192260280
 }
