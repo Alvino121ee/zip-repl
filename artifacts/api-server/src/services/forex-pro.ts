@@ -261,6 +261,88 @@ export interface ForexProConfig {
   intervalMs: number;
 }
 
+// ─── Live Rates dari Frankfurter API (ECB) & Gold-API ────────────────────────
+// Sumber: https://www.frankfurter.app — gratis, tanpa API key (dari public-apis)
+// Sumber: https://api.gold-api.com — gratis, tanpa API key (dari public-apis)
+
+interface LiveRateCache {
+  rates: Record<string, number>; // symbol → harga
+  fetchedAt: number;
+}
+
+let liveRateCache: LiveRateCache | null = null;
+const LIVE_RATE_TTL_MS = 60_000; // refresh tiap 60 detik
+
+async function fetchLiveForexRates(): Promise<Record<string, number>> {
+  try {
+    // Frankfurter: rates vs USD (ECB data, gratis tanpa key)
+    const resp = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,CHF,AUD,CAD,NZD", {
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!resp.ok) throw new Error(`Frankfurter ${resp.status}`);
+    const data = await resp.json() as { rates: Record<string, number> };
+    const r = data.rates;
+
+    const rates: Record<string, number> = {};
+    if (r.EUR) rates["EURUSD"] = parseFloat((1 / r.EUR).toFixed(5));
+    if (r.GBP) rates["GBPUSD"] = parseFloat((1 / r.GBP).toFixed(5));
+    if (r.JPY) rates["USDJPY"] = parseFloat(r.JPY.toFixed(3));
+    if (r.CHF) rates["USDCHF"] = parseFloat(r.CHF.toFixed(5));
+    if (r.AUD) rates["AUDUSD"] = parseFloat((1 / r.AUD).toFixed(5));
+    if (r.CAD) rates["USDCAD"] = parseFloat(r.CAD.toFixed(5));
+    if (r.NZD) rates["NZDUSD"] = parseFloat((1 / r.NZD).toFixed(5));
+    // Cross rates
+    if (r.EUR && r.JPY) rates["EURJPY"] = parseFloat((r.JPY / r.EUR).toFixed(3));
+    if (r.GBP && r.JPY) rates["GBPJPY"] = parseFloat((r.JPY / r.GBP).toFixed(3));
+
+    // Fetch Gold & Silver dari gold-api.com (gratis, tanpa key, dari public-apis)
+    try {
+      const goldResp = await fetch("https://api.gold-api.com/price/XAU", { signal: AbortSignal.timeout(4000) });
+      if (goldResp.ok) {
+        const goldData = await goldResp.json() as { price?: number; price_gram_24k?: number };
+        const goldPrice = goldData.price ?? (goldData.price_gram_24k ? goldData.price_gram_24k * 31.1035 : null);
+        if (goldPrice && goldPrice > 1000) rates["XAUUSD"] = parseFloat(goldPrice.toFixed(2));
+      }
+    } catch { /* gunakan base price jika gold-api gagal */ }
+
+    try {
+      const silverResp = await fetch("https://api.gold-api.com/price/XAG", { signal: AbortSignal.timeout(4000) });
+      if (silverResp.ok) {
+        const silverData = await silverResp.json() as { price?: number };
+        if (silverData.price && silverData.price > 5) rates["XAGUSD"] = parseFloat(silverData.price.toFixed(3));
+      }
+    } catch { /* gunakan base price jika silver gagal */ }
+
+    logger.info({ pairs: Object.keys(rates).length }, "Live forex rates diperbarui dari Frankfurter + Gold-API");
+    return rates;
+  } catch (err) {
+    logger.warn({ err: String(err) }, "Gagal ambil live forex rates — pakai base price");
+    return {};
+  }
+}
+
+async function getLiveRate(symbol: string): Promise<number | null> {
+  const now = Date.now();
+  if (!liveRateCache || now - liveRateCache.fetchedAt > LIVE_RATE_TTL_MS) {
+    const rates = await fetchLiveForexRates();
+    liveRateCache = { rates, fetchedAt: now };
+  }
+  return liveRateCache.rates[symbol] ?? null;
+}
+
+// Refresh rates di background setiap 60 detik
+async function startLiveRateRefresh(): Promise<void> {
+  const rates = await fetchLiveForexRates();
+  liveRateCache = { rates, fetchedAt: Date.now() };
+  setInterval(async () => {
+    const r = await fetchLiveForexRates();
+    liveRateCache = { rates: r, fetchedAt: Date.now() };
+  }, LIVE_RATE_TTL_MS);
+}
+
+// Mulai refresh saat module dimuat
+startLiveRateRefresh().catch(() => {});
+
 // ─── Harga Simulasi Real-time ─────────────────────────────────────────────────
 
 const priceState: Record<string, { price: number; drift: number; lastUpdate: number }> = {};
@@ -272,7 +354,13 @@ function getPairInfo(symbol: string) {
 function initPrice(symbol: string): void {
   if (priceState[symbol]) return;
   const pair = getPairInfo(symbol);
-  priceState[symbol] = { price: pair.basePrice, drift: 0, lastUpdate: Date.now() };
+  // Gunakan live rate sebagai harga awal jika tersedia
+  const livePrice = liveRateCache?.rates[symbol];
+  priceState[symbol] = { price: livePrice ?? pair.basePrice, drift: 0, lastUpdate: Date.now() };
+}
+
+function getEffectiveBasePrice(symbol: string): number {
+  return liveRateCache?.rates[symbol] ?? getPairInfo(symbol).basePrice;
 }
 
 function updatePrice(symbol: string): number {
@@ -282,13 +370,26 @@ function updatePrice(symbol: string): number {
   const now = Date.now();
   const dt = Math.min((now - state.lastUpdate) / 1000, 5); // max 5 detik
 
-  // Random walk dengan mean reversion
+  // Mean reversion ke harga LIVE (bukan base price statis)
+  const effectiveBase = getEffectiveBasePrice(symbol);
+
+  // Jika ada live rate baru yang berbeda jauh, sesuaikan harga perlahan
+  const liveRate = liveRateCache?.rates[symbol];
+  if (liveRate && Math.abs(state.price - liveRate) / liveRate > 0.005) {
+    // Harga menyimpang >0.5% dari live rate → snap ke live rate
+    state.price = liveRate * (1 + (Math.random() - 0.5) * 0.0002);
+    state.drift = 0;
+    state.lastUpdate = now;
+    return state.price;
+  }
+
+  // Random walk dengan mean reversion ke live rate
   const randomShock = (Math.random() - 0.5) * pair.volatility * 2 * Math.sqrt(dt);
-  const meanReversion = (pair.basePrice - state.price) * 0.0001 * dt;
+  const meanReversion = (effectiveBase - state.price) * 0.0003 * dt;
   const sessionMultiplier = getSessionVolatilityMultiplier();
 
   state.drift = state.drift * 0.95 + randomShock * sessionMultiplier + meanReversion;
-  state.price = Math.max(state.price + state.drift, pair.basePrice * 0.5);
+  state.price = Math.max(state.price + state.drift, effectiveBase * 0.5);
   state.lastUpdate = now;
 
   return state.price;

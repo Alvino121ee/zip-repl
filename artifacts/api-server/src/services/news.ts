@@ -29,6 +29,10 @@ const POSITIVE_WORDS = [
   "institutional", "etf", "accumulate", "support", "recovery", "rebound",
   "naik", "meningkat", "pertumbuhan", "untung", "optimis", "menguat",
   "kenaikan", "positif", "cerah", "outperform", "highs", "inflows", "bought",
+  // Forex-specific positive
+  "hawkish", "rate hike", "tightening", "strong dollar", "usd strength",
+  "safe haven", "risk appetite", "upside", "breakout", "momentum", "bid",
+  "buoyant", "advance", "firm", "supported",
 ];
 
 const NEGATIVE_WORDS = [
@@ -39,6 +43,10 @@ const NEGATIVE_WORDS = [
   "turun", "anjlok", "jatuh", "rugi", "pesimis", "larangan", "tertekan",
   "melemah", "koreksi", "negatif", "underperform", "outflows", "sold", "sued",
   "exploit", "breach", "liquidation", "margin call", "sanctions",
+  // Forex-specific negative
+  "dovish", "rate cut", "easing", "usd weakness", "intervention", "recession",
+  "slowdown", "contraction", "deficit", "devaluation", "pressure", "slide",
+  "retreat", "selloff", "offered", "depreciates",
 ];
 
 export function analyzeSentiment(text: string): { sentiment: "positive" | "negative" | "neutral"; score: number } {
@@ -129,6 +137,150 @@ const FINANCE_FEEDS: FeedDef[] = [
     source: "Investing.com",
     categories: ["stocks", "crypto", "macro"],
     tags: ["stocks", "crypto", "forex", "commodities"],
+  },
+];
+
+// ─── Forex RSS Feeds ──────────────────────────────────────────────────────────
+
+const FOREX_FEEDS: FeedDef[] = [
+  {
+    url: "https://www.forexcrunch.com/feed/",
+    source: "Forex Crunch",
+    categories: ["forex"],
+    tags: ["forex", "EUR", "USD", "analysis"],
+  },
+  {
+    url: "https://www.fxstreet.com/rss/news",
+    source: "FXStreet",
+    categories: ["forex"],
+    tags: ["forex", "central bank", "fundamental"],
+  },
+  {
+    url: "https://www.dailyfx.com/feeds/news",
+    source: "DailyFX",
+    categories: ["forex"],
+    tags: ["forex", "technical", "analysis"],
+  },
+  {
+    url: "https://www.forexlive.com/feed/news",
+    source: "ForexLive",
+    categories: ["forex", "macro"],
+    tags: ["forex", "macro", "rates"],
+  },
+  {
+    url: "https://www.investing.com/rss/news_14.rss",
+    source: "Investing.com Forex",
+    categories: ["forex", "macro"],
+    tags: ["forex", "USD", "EUR", "GBP"],
+  },
+];
+
+// ─── Fallback Forex News ──────────────────────────────────────────────────────
+
+const FOREX_FALLBACK: NewsItem[] = [
+  {
+    id: "fx-fb1",
+    title: "EUR/USD Menguat ke 1.0920 Setelah Data Inflasi Zona Euro Melebihi Ekspektasi",
+    body: "Euro menguat terhadap dolar AS setelah data inflasi zona Euro mencapai 2.4% YoY, melampaui estimasi 2.1%. ECB diperkirakan mempertahankan suku bunga hawkish lebih lama dari perkiraan.",
+    url: "https://www.fxstreet.com",
+    imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop",
+    source: "FXStreet",
+    publishedAt: new Date(Date.now() - 1 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "positive",
+    sentimentScore: 0.65,
+    tags: ["EUR/USD", "ECB", "inflasi", "forex"],
+  },
+  {
+    id: "fx-fb2",
+    title: "USD/JPY Capai Level 154.80 — Bank of Japan Tetap Pertahankan Kebijakan Ultra-Longgar",
+    body: "Yen Jepang terus melemah terhadap dolar AS di tengah perbedaan kebijakan moneter Fed dan BoJ. Bank of Japan mempertahankan suku bunga negatif meski inflasi domestik meningkat.",
+    url: "https://www.dailyfx.com",
+    imageUrl: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&h=200&fit=crop",
+    source: "DailyFX",
+    publishedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "negative",
+    sentimentScore: -0.45,
+    tags: ["USD/JPY", "BoJ", "yen", "forex"],
+  },
+  {
+    id: "fx-fb3",
+    title: "GBP/USD Rebound dari Support 1.2650 — Data Tenaga Kerja UK Positif",
+    body: "Pound sterling menguat setelah data klaim pengangguran UK turun lebih dari perkiraan. GBP/USD rebound dari area support kunci 1.2650 dengan potensi kenaikan menuju 1.2750.",
+    url: "https://www.forexcrunch.com",
+    imageUrl: "https://images.unsplash.com/photo-1560472355-536de3962603?w=400&h=200&fit=crop",
+    source: "Forex Crunch",
+    publishedAt: new Date(Date.now() - 3 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "positive",
+    sentimentScore: 0.55,
+    tags: ["GBP/USD", "BoE", "pound", "forex"],
+  },
+  {
+    id: "fx-fb4",
+    title: "XAUUSD: Emas Uji Resistance $2.380 — Geopolitik dan Ekspektasi Fed Angkat Harga",
+    body: "Harga emas spot (XAUUSD) naik ke $2.380/troy ons ditopang pelemahan dolar dan ketidakpastian geopolitik. Pasar memantau data NFP AS yang dijadwalkan akhir pekan.",
+    url: "https://www.forexlive.com",
+    imageUrl: "https://images.unsplash.com/photo-1624996379697-f01d168b1a52?w=400&h=200&fit=crop",
+    source: "ForexLive",
+    publishedAt: new Date(Date.now() - 4 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "positive",
+    sentimentScore: 0.70,
+    tags: ["XAUUSD", "emas", "gold", "Fed", "forex"],
+  },
+  {
+    id: "fx-fb5",
+    title: "DXY (Indeks Dolar) Tertekan di 104.20 — Data PPI AS di Bawah Ekspektasi",
+    body: "Indeks dolar AS (DXY) terkoreksi ke 104.20 setelah data Producer Price Index AS menunjukkan perlambatan tekanan harga produsen. Pasar mulai hitung kemungkinan pemangkasan Fed pada September.",
+    url: "https://www.investing.com",
+    imageUrl: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=200&fit=crop",
+    source: "Investing.com Forex",
+    publishedAt: new Date(Date.now() - 5 * 3600000).toISOString(),
+    categories: ["forex", "macro"],
+    sentiment: "negative",
+    sentimentScore: -0.40,
+    tags: ["DXY", "USD", "Fed", "PPI", "forex"],
+  },
+  {
+    id: "fx-fb6",
+    title: "AUD/USD Naik 0.5% — Ekspektasi RBA Pertahankan Suku Bunga Tinggi Lebih Lama",
+    body: "Dolar Australia menguat terhadap USD setelah notulen RBA mengindikasikan bank sentral Australia siap mempertahankan suku bunga di level tinggi untuk memerangi inflasi.",
+    url: "https://www.forexcrunch.com",
+    imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop",
+    source: "Forex Crunch",
+    publishedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "positive",
+    sentimentScore: 0.50,
+    tags: ["AUD/USD", "RBA", "aussie", "forex"],
+  },
+  {
+    id: "fx-fb7",
+    title: "Analisis Teknikal EUR/JPY: Pola Bullish Flag Terbentuk — Target 168.50",
+    body: "Pasangan EUR/JPY membentuk pola bullish flag pada timeframe H4. Analisis teknikal menunjukkan potensi kenaikan menuju 168.50 jika level 166.80 berhasil ditembus dengan kuat.",
+    url: "https://www.dailyfx.com",
+    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=200&fit=crop",
+    source: "DailyFX",
+    publishedAt: new Date(Date.now() - 7 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "positive",
+    sentimentScore: 0.45,
+    tags: ["EUR/JPY", "analisis teknikal", "forex"],
+  },
+  {
+    id: "fx-fb8",
+    title: "Minyak WTI Turun ke $77.40 — Stok Minyak AS Meningkat di Luar Ekspektasi",
+    body: "Harga minyak mentah WTI melemah ke $77.40/barel setelah laporan EIA menunjukkan stok minyak AS meningkat 3.2 juta barel, jauh di atas estimasi 1.5 juta barel.",
+    url: "https://www.forexlive.com",
+    imageUrl: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=400&h=200&fit=crop",
+    source: "ForexLive",
+    publishedAt: new Date(Date.now() - 8 * 3600000).toISOString(),
+    categories: ["forex"],
+    sentiment: "negative",
+    sentimentScore: -0.55,
+    tags: ["USOIL", "WTI", "minyak", "EIA", "forex"],
   },
 ];
 
@@ -300,19 +452,45 @@ function extractTags(title: string, categories: string[]): string[] {
   for (const t of stockTickers) {
     if (lower.includes(t.toLowerCase())) tags.push(t);
   }
+  // Forex pairs detection
+  const forexMap: Record<string, string> = {
+    "eurusd": "EUR/USD", "eur/usd": "EUR/USD",
+    "gbpusd": "GBP/USD", "gbp/usd": "GBP/USD",
+    "usdjpy": "USD/JPY", "usd/jpy": "USD/JPY",
+    "usdchf": "USD/CHF", "usd/chf": "USD/CHF",
+    "audusd": "AUD/USD", "aud/usd": "AUD/USD",
+    "usdcad": "USD/CAD", "usd/cad": "USD/CAD",
+    "nzdusd": "NZD/USD", "nzd/usd": "NZD/USD",
+    "eurjpy": "EUR/JPY", "eur/jpy": "EUR/JPY",
+    "gbpjpy": "GBP/JPY", "gbp/jpy": "GBP/JPY",
+    "xauusd": "XAUUSD", "gold": "XAUUSD",
+    "xagusd": "XAGUSD", "silver": "XAGUSD",
+    "usoil": "USOIL", "wti": "USOIL", "crude oil": "USOIL",
+  };
+  for (const [key, tag] of Object.entries(forexMap)) {
+    if (lower.includes(key)) { tags.push(tag); break; }
+  }
+  // Central banks
+  if (lower.includes("federal reserve") || lower.includes(" fed ") || lower.includes("fomc")) tags.push("Fed");
+  if (lower.includes("ecb") || lower.includes("european central bank")) tags.push("ECB");
+  if (lower.includes("bank of japan") || lower.includes("boj")) tags.push("BoJ");
+  if (lower.includes("bank of england") || lower.includes("boe")) tags.push("BoE");
+  if (lower.includes("dxy") || lower.includes("dollar index")) tags.push("DXY");
+  if (lower.includes("nfp") || lower.includes("non-farm payroll")) tags.push("NFP");
   // Topic keywords
   if (lower.includes("bitcoin")) tags.push("bitcoin");
   if (lower.includes("ethereum")) tags.push("ethereum");
   if (lower.includes("defi")) tags.push("DeFi");
   if (lower.includes("nft")) tags.push("NFT");
   if (lower.includes("etf")) tags.push("ETF");
-  if (lower.includes("fed") || lower.includes("federal reserve")) tags.push("Fed");
   if (lower.includes("sec")) tags.push("SEC");
-  if (lower.includes("inflation") || lower.includes("cpi")) tags.push("inflation");
+  if (lower.includes("inflation") || lower.includes("cpi")) tags.push("inflasi");
   if (lower.includes("stablecoin")) tags.push("stablecoin");
+  if (lower.includes("interest rate") || lower.includes("suku bunga")) tags.push("suku bunga");
   // Merge with category-based tags
   if (categories.includes("crypto")) tags.push("crypto");
   if (categories.includes("stocks")) tags.push("stocks");
+  if (categories.includes("forex")) tags.push("forex");
   return [...new Set(tags)].slice(0, 6);
 }
 
@@ -394,26 +572,14 @@ async function fetchFeed(def: FeedDef): Promise<NewsItem[]> {
   }
 }
 
-// ─── Master fetch with parallel feeds + fallback ──────────────────────────────
+// ─── Dedup helper ─────────────────────────────────────────────────────────────
 
-async function fetchAllLive(): Promise<{ crypto: NewsItem[]; stocks: NewsItem[] }> {
-  const allFeeds = [...CRYPTO_FEEDS, ...FINANCE_FEEDS];
-
-  // Fetch all feeds in parallel
-  const results = await Promise.allSettled(allFeeds.map((f) => fetchFeed(f)));
-
-  const all: NewsItem[] = [];
-  for (const r of results) {
-    if (r.status === "fulfilled") all.push(...r.value);
-  }
-
-  // Sort newest first, deduplicate by URL and normalized title
-  all.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+function deduplicateItems(items: NewsItem[]): NewsItem[] {
+  items.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
   const seenUrls = new Set<string>();
   const seenTitleHashes = new Set<string>();
   const deduped: NewsItem[] = [];
-  for (const item of all) {
-    // Normalize title: lowercase, strip punctuation, take first 60 chars
+  for (const item of items) {
     const normalTitle = item.title
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, "")
@@ -427,28 +593,45 @@ async function fetchAllLive(): Promise<{ crypto: NewsItem[]; stocks: NewsItem[] 
       deduped.push(item);
     }
   }
+  return deduped;
+}
+
+// ─── Master fetch with parallel feeds + fallback ──────────────────────────────
+
+async function fetchAllLive(): Promise<{ crypto: NewsItem[]; stocks: NewsItem[]; forex: NewsItem[] }> {
+  const allFeeds = [...CRYPTO_FEEDS, ...FINANCE_FEEDS, ...FOREX_FEEDS];
+
+  // Fetch all feeds in parallel
+  const results = await Promise.allSettled(allFeeds.map((f) => fetchFeed(f)));
+
+  const all: NewsItem[] = [];
+  for (const r of results) {
+    if (r.status === "fulfilled") all.push(...r.value);
+  }
+
+  const deduped = deduplicateItems(all);
 
   const cryptoItems = deduped.filter((n) => n.categories.includes("crypto"));
-  const stockItems = deduped.filter((n) => n.categories.includes("stocks") || n.categories.includes("macro"));
+  const stockItems  = deduped.filter((n) => n.categories.includes("stocks") || n.categories.includes("macro"));
+  const forexItems  = deduped.filter((n) => n.categories.includes("forex"));
 
-  // Always append IDX fallback to stock news (Indonesian-specific)
   return {
     crypto: cryptoItems.length > 0 ? cryptoItems : [],
     stocks: [...stockItems, ...IDX_FALLBACK],
+    forex: forexItems.length > 0 ? forexItems : FOREX_FALLBACK,
   };
 }
 
 // ─── Cached public API ────────────────────────────────────────────────────────
 
-async function getLiveNews(): Promise<{ crypto: NewsItem[]; stocks: NewsItem[] }> {
-  const cacheKey = "live-news-v3";
-  const cached = cache.get<{ crypto: NewsItem[]; stocks: NewsItem[] }>(cacheKey);
+async function getLiveNews(): Promise<{ crypto: NewsItem[]; stocks: NewsItem[]; forex: NewsItem[] }> {
+  const cacheKey = "live-news-v4";
+  const cached = cache.get<{ crypto: NewsItem[]; stocks: NewsItem[]; forex: NewsItem[] }>(cacheKey);
   if (cached) return cached;
 
   const result = await fetchAllLive();
 
-  // Only cache if we got live data
-  const hasLive = result.crypto.length > 0 || result.stocks.length > IDX_FALLBACK.length;
+  const hasLive = result.crypto.length > 0 || result.stocks.length > IDX_FALLBACK.length || result.forex.length > FOREX_FALLBACK.length;
   if (hasLive) {
     cache.set(cacheKey, result, TTL.NEWS);
   }
@@ -506,19 +689,32 @@ export async function getStockNews(limit: number): Promise<NewsItem[]> {
   return stocks.slice(0, limit);
 }
 
+export async function getForexNews(limit: number): Promise<NewsItem[]> {
+  const { forex } = await getLiveNews();
+  const result = forex.length > 0 ? forex : FOREX_FALLBACK;
+  return result.slice(0, limit);
+}
+
 export async function getAllNews(limit: number, type?: string): Promise<NewsItem[]> {
-  const { crypto, stocks } = await getLiveNews();
+  const { crypto, stocks, forex } = await getLiveNews();
 
   if (type === "crypto") return crypto.slice(0, limit);
   if (type === "stock") return stocks.slice(0, limit);
+  if (type === "forex") return (forex.length > 0 ? forex : FOREX_FALLBACK).slice(0, limit);
 
-  // Interleave crypto and stock for a Bloomberg-like mixed feed, deduplicating by ID
+  // Interleave forex (priority) > crypto > stock for a mixed feed
   const mixed: NewsItem[] = [];
   const seenIds = new Set<string>();
+  const f = [...(forex.length > 0 ? forex : FOREX_FALLBACK)];
   const c = [...crypto];
   const s = [...stocks];
-  while (mixed.length < limit && (c.length > 0 || s.length > 0)) {
-    if (c.length > 0) {
+  while (mixed.length < limit && (f.length > 0 || c.length > 0 || s.length > 0)) {
+    // 2 forex items first
+    for (let i = 0; i < 2 && f.length > 0 && mixed.length < limit; i++) {
+      const item = f.shift()!;
+      if (!seenIds.has(item.id)) { seenIds.add(item.id); mixed.push(item); }
+    }
+    if (c.length > 0 && mixed.length < limit) {
       const item = c.shift()!;
       if (!seenIds.has(item.id)) { seenIds.add(item.id); mixed.push(item); }
     }

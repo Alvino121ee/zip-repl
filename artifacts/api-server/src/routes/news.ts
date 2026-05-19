@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCryptoNews, getStockNews, getAllNews } from "../services/news.js";
+import { getCryptoNews, getStockNews, getForexNews, getAllNews } from "../services/news.js";
 import type { NewsItem } from "../services/news.js";
 import { GetNewsQueryParams } from "@workspace/api-zod";
 
@@ -7,7 +7,9 @@ const router = Router();
 
 function toApiArticle(item: NewsItem) {
   const type =
-    item.categories.includes("stocks") && !item.categories.includes("crypto")
+    item.categories.includes("forex")
+      ? "forex"
+      : item.categories.includes("stocks") && !item.categories.includes("crypto")
       ? "stock"
       : item.categories.includes("crypto")
       ? "crypto"
@@ -29,16 +31,18 @@ function toApiArticle(item: NewsItem) {
 }
 
 router.get("/news", async (req, res) => {
+  const rawType = String(req.query.type ?? "all");
   const parse = GetNewsQueryParams.safeParse(req.query);
-  const type = parse.success ? (parse.data.type ?? "all") : "all";
-  const limit = parse.success ? (parse.data.limit ?? 20) : 20;
+  const limit = parse.success ? (parse.data.limit ?? 30) : 30;
 
   try {
     let news: NewsItem[];
 
-    if (type === "crypto") {
+    if (rawType === "forex") {
+      news = await getForexNews(limit);
+    } else if (rawType === "crypto") {
       news = await getCryptoNews(limit);
-    } else if (type === "stock") {
+    } else if (rawType === "stock") {
       news = await getStockNews(limit);
     } else {
       news = await getAllNews(limit);

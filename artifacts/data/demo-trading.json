@@ -1,53 +1,10 @@
 {
-  "balance": 40.861934032274554,
-  "realizedPnl": -8.818790967725475,
-  "totalFees": 0.6384194040713218,
+  "balance": 40.692099889932805,
+  "realizedPnl": -8.985737610067225,
+  "totalFees": 0.6436913948879831,
   "winCount": 97,
-  "lossCount": 53,
+  "lossCount": 54,
   "positions": [
-    {
-      "id": "9b317185-f6a5-4eae-926a-f26eaffb3368",
-      "symbol": "STORJUSDT",
-      "displayName": "STORJ/USDT",
-      "side": "Buy",
-      "size": 36.897343391275825,
-      "entryPrice": 0.12196,
-      "markPrice": 0.11784,
-      "leverage": 1,
-      "margin": 4.5,
-      "stopLoss": 0.11751571428571429,
-      "takeProfit": 0.13307071428571426,
-      "unrealisedPnl": -0.15201705477205635,
-      "unrealisedPnlPct": -3.3781567727123636,
-      "openedAt": 1779194286066,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1190) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.002475,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.12202,
-      "humanInstinct": {
-        "lastEvalAt": 1779201556098,
-        "momentumScore": 39,
-        "continuationProb": 0,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Candle rejection atas — tekanan jual kuat",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 90,
-        "urgency": 15
-      }
-    },
     {
       "id": "f7078efd-7811-43fc-aba0-6bb2f1349339",
       "symbol": "PLAYSOUTUSDT",
@@ -55,13 +12,13 @@
       "side": "Buy",
       "size": 41.75614411834884,
       "entryPrice": 0.12573,
-      "markPrice": 0.12559,
+      "markPrice": 0.12611,
       "leverage": 1,
       "margin": 5.25,
-      "stopLoss": 0.12186535714285715,
-      "takeProfit": 0.13539160714285714,
-      "unrealisedPnl": -0.005845860176568889,
-      "unrealisedPnlPct": -0.11134971764893123,
+      "stopLoss": 0.126055273,
+      "takeProfit": 0.1591545771428571,
+      "unrealisedPnl": 0.015867334764972204,
+      "unrealisedPnlPct": 0.30223494790423244,
       "openedAt": 1779199509862,
       "source": "auto",
       "confidence": 99,
@@ -74,20 +31,19 @@
       "marketCondition": "trending_up_strong",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.12579,
+      "trailPeakPrice": 0.1273,
       "humanInstinct": {
-        "lastEvalAt": 1779201556246,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779202133837,
+        "momentumScore": 100,
+        "continuationProb": 75,
         "greedIndex": 0,
-        "decaySignals": [
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 19,
-        "urgency": 15
-      }
+        "decaySignals": [],
+        "action": "extend_target",
+        "reason": "🚀 Momentum sangat kuat (skor: 100) — Momentum sangat kuat (100) — target diperluas ke $0.1592",
+        "evalCount": 31,
+        "urgency": 30
+      },
+      "trailActivated": true
     },
     {
       "id": "0eff519e-b24c-4032-8a26-2a7e09de98cf",
@@ -96,13 +52,13 @@
       "side": "Buy",
       "size": 30.824330671676844,
       "entryPrice": 0.17032,
-      "markPrice": 0.16831,
+      "markPrice": 0.16864,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.1666514285714286,
       "takeProfit": 0.17949142857142855,
-      "unrealisedPnl": -0.06195690465007082,
-      "unrealisedPnlPct": -1.180131517144206,
+      "unrealisedPnl": -0.0517848755284167,
+      "unrealisedPnlPct": -0.9863785814936514,
       "openedAt": 1779200090568,
       "source": "auto",
       "confidence": 99,
@@ -117,23 +73,126 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.17126,
       "humanInstinct": {
-        "lastEvalAt": 1779201556388,
-        "momentumScore": 14,
+        "lastEvalAt": 1779202133974,
+        "momentumScore": 17,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
+          "Volume menurun 31% — tanda pelemahan",
           "Candle doji terdeteksi — ragu-ragu pasar",
           "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 7,
+        "evalCount": 19,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "c73b6b72-1de4-457a-8882-a69f700f8c44",
+      "symbol": "SAHARAUSDT",
+      "displayName": "SAHARA/USDT",
+      "side": "Buy",
+      "size": 142.40377573439662,
+      "entryPrice": 0.036867,
+      "markPrice": 0.036702,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.03575485714285714,
+      "takeProfit": 0.03964735714285714,
+      "unrealisedPnl": -0.023496622996175227,
+      "unrealisedPnlPct": -0.44755472373667105,
+      "openedAt": 1779201982657,
+      "source": "auto",
+      "confidence": 94,
+      "signal": "institutional_long",
+      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($0.0355) — momentum bullish; Harga di atas VWAP ($0.0341) — buyers in control",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.036884,
+      "humanInstinct": {
+        "lastEvalAt": 1779202157983,
+        "momentumScore": 46,
+        "continuationProb": 7,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Potensi fake breakout ke atas — harga kembali di bawah resistance",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (7%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 2,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "fa801602-7ac3-4d12-913a-5702ba576870",
+      "timestamp": 1779201982657,
+      "openedAt": 1779201982657,
+      "symbol": "SAHARAUSDT",
+      "side": "Buy",
+      "qty": 142.40377573439662,
+      "entryPrice": 0.036867,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 94,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0369 | Fee: -$0.0029",
+      "openReason": "Ranging / Sideways | OppScore:100 | Harga di atas EMA20 ($0.0355) — momentum bullish; Harga di atas VWAP ($0.0341) — buyers in control",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "ranging"
+    },
+    {
+      "id": "0a2cc9b0-d92d-42cd-bb99-ec6246bc9e5c",
+      "timestamp": 1779201964079,
+      "openedAt": 1779194286066,
+      "closedAt": 1779201964079,
+      "duration": 7678013,
+      "symbol": "STORJUSDT",
+      "side": "Sell",
+      "qty": 36.897343391275825,
+      "entryPrice": 0.12196,
+      "closePrice": 0.1175,
+      "realizedPnl": -0.16694664234175158,
+      "realizedPnlPct": -3.6569367005575644,
+      "leverage": 1,
+      "margin": 4.5,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_sl",
+      "reason": "Stop Loss @ $0.1175",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1190) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Intraday",
+        "Loss"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.004859490816661201,
+      "entryFee": 0.002475,
+      "exitFee": 0.0023844908166612004
+    },
     {
       "id": "2e545e9e-2db9-4a1f-91ef-f978e198094c",
       "timestamp": 1779200090568,
@@ -9459,6 +9518,10 @@
     {
       "timestamp": 1779200073148,
       "balance": 40.69996194427895
+    },
+    {
+      "timestamp": 1779201964079,
+      "balance": 40.67068985937598
     }
   ]
 }
