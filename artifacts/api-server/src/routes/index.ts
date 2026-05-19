@@ -12,6 +12,8 @@ import slAnalysisRouter from "./sl-analysis.js";
 import fmpRouter from "./full-margin-precision.js";
 import geminiLearningRouter from "./gemini-learning.js";
 import demoForexRouter from "./demo-forex.js";
+import forexProRouter from "./forex-pro.js";
+import cryptoProRouter from "./crypto-pro.js";
 
 const router: IRouter = Router();
 
@@ -24,6 +26,8 @@ router.use(aiRouter);
 router.use(predictionLocksRouter);
 router.use(demoTradingRouter);
 router.use(demoForexRouter);
+router.use(forexProRouter);
+router.use(cryptoProRouter);
 router.use(trainingLabRouter);
 router.use(slAnalysisRouter);
 router.use(fmpRouter);

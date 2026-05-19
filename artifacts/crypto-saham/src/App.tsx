@@ -26,6 +26,8 @@ import TrainingLab from "@/pages/TrainingLab";
 import KnowledgeLearning from "@/pages/KnowledgeLearning";
 import StopLossAnalysis from "@/pages/StopLossAnalysis";
 import FullMarginPrecision from "@/pages/FullMarginPrecision";
+import ForexPro from "@/pages/ForexPro";
+import CryptoPro from "@/pages/CryptoPro";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +58,8 @@ function Router() {
         <Route path="/knowledge-learning" component={KnowledgeLearning} />
         <Route path="/sl-analysis" component={StopLossAnalysis} />
         <Route path="/full-margin-precision" component={FullMarginPrecision} />
+        <Route path="/forex-pro" component={ForexPro} />
+        <Route path="/crypto-pro" component={CryptoPro} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

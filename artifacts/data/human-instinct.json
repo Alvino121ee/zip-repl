@@ -1,15 +1,77 @@
 {
-  "totalDecisions": 72,
-  "correctEarlyExits": 72,
+  "totalDecisions": 75,
+  "correctEarlyExits": 75,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 46.40277777777778,
-  "avgContinuationProbAtExit": 12.819444444444445,
+  "avgMomentumAtEarlyExit": 45.82666666666667,
+  "avgContinuationProbAtExit": 12.613333333333333,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "885de8ba-5d96-4a39-907a-3ac4eb8a8600",
+      "tradeId": "40dddcb4-b32d-4fe5-bd2b-2607074b620f",
+      "symbol": "AKTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume menurun 44% — tanda pelemahan. Profit $0.48% diamankan.",
+      "profitPctAtDecision": 0.4776869893148995,
+      "momentumScore": 11,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume menurun 44% — tanda pelemahan",
+        "Candle rejection atas — tekanan jual kuat",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779188545741,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.4776869893148995,
+      "profitDelta": 0
+    },
+    {
+      "id": "9a4696cc-faf5-4366-85ba-3b69af465fc5",
+      "tradeId": "bfbb814e-3f19-4211-89ba-4553efd1ffbe",
+      "symbol": "DYMUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⏰ Trade sudah 1127 menit — momentum melemah (20). Waktu untuk mengambil profit.",
+      "profitPctAtDecision": 0.03941663381947021,
+      "momentumScore": 20,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 52% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+      ],
+      "timestamp": 1779187847286,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.03941663381947021,
+      "profitDelta": 0
+    },
+    {
+      "id": "63c93028-f71d-4c5a-b8a3-20292993ba76",
+      "tradeId": "5399b2da-1c33-49a9-8222-50708ba3bd87",
+      "symbol": "AKTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.6193124368048553,
+      "momentumScore": 65,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 25%",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779187839372,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.6193124368048553,
+      "profitDelta": 0
+    },
     {
       "id": "1e5ba993-86b7-4631-b982-29d94444ceba",
       "tradeId": "329ff094-b3d7-401b-aadf-4f99b09e5e03",
@@ -1463,5 +1525,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779187271368
+  "lastUpdated": 1779188545745
 }
