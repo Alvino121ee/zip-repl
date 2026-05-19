@@ -1,7 +1,7 @@
 {
-  "balance": 40.863874768444205,
+  "balance": 40.860987268444205,
   "realizedPnl": -8.873362731555789,
-  "totalFees": 0.5278096361038324,
+  "totalFees": 0.5306971361038324,
   "winCount": 84,
   "lossCount": 47,
   "positions": [
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 78.51054284432482,
       "entryPrice": 0.06687,
-      "markPrice": 0.06676,
+      "markPrice": 0.06677,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.06526071428571428,
       "takeProfit": 0.07089321428571428,
-      "unrealisedPnl": -0.00863615971287565,
-      "unrealisedPnlPct": -0.16449828024525048,
+      "unrealisedPnl": -0.007851054284432706,
+      "unrealisedPnlPct": -0.14954389113205152,
       "openedAt": 1779187924248,
       "source": "auto",
       "confidence": 99,
@@ -33,7 +33,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.0672,
       "humanInstinct": {
-        "lastEvalAt": 1779188767818,
+        "lastEvalAt": 1779188815813,
         "momentumScore": 0,
         "continuationProb": 0,
         "greedIndex": 0,
@@ -45,7 +45,7 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 16,
+        "evalCount": 17,
         "urgency": 15
       }
     },
@@ -76,9 +76,64 @@
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
       "trailPeakPrice": 0.7986
+    },
+    {
+      "id": "57abb03c-2f40-452d-9b47-e31c9e58d164",
+      "symbol": "STORJUSDT",
+      "displayName": "STORJ/USDT",
+      "side": "Buy",
+      "size": 43.63001745200698,
+      "entryPrice": 0.12033,
+      "markPrice": 0.12028,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.11728500000000001,
+      "takeProfit": 0.1279425,
+      "unrealisedPnl": -0.002181500872600714,
+      "unrealisedPnlPct": -0.04155239757334694,
+      "openedAt": 1779188813022,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1171) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.12028
     }
   ],
   "log": [
+    {
+      "id": "14e31aba-d76c-4557-9733-577ed0c354fb",
+      "timestamp": 1779188813022,
+      "openedAt": 1779188813022,
+      "symbol": "STORJUSDT",
+      "side": "Buy",
+      "qty": 43.63001745200698,
+      "entryPrice": 0.12033,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.1203 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1171) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
     {
       "id": "ee516098-0844-429c-8be6-387811ff8600",
       "timestamp": 1779188800017,
