@@ -63,207 +63,90 @@ interface PairInfo { symbol: string; name: string; category: string; emoji: stri
 const TIMEFRAMES = ["M1","M5","M15","M30","H1","H4","D1"];
 const PAIRS = ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","USDCAD","XAUUSD","EURJPY","GBPJPY","XAGUSD"];
 
-// ─── Candlestick Chart SVG ─────────────────────────────────────────────────────
+// ─── Mapping TradingView ───────────────────────────────────────────────────────
 
-const CandlestickChart: React.FC<{
-  candles: Candle[];
-  analysis: Analysis | null;
-  width: number;
-  height: number;
-  showVolume?: boolean;
-}> = ({ candles, analysis, width, height, showVolume = true }) => {
-  const chartH = showVolume ? height * 0.72 : height * 0.88;
-  const volH = showVolume ? height * 0.18 : 0;
-  const padLeft = 8; const padRight = 68; const padTop = 12; const padBottom = 28;
-  const chartW = width - padLeft - padRight;
+const TV_SYMBOL: Record<string, string> = {
+  EURUSD: "FX:EURUSD", GBPUSD: "FX:GBPUSD", USDJPY: "FX:USDJPY",
+  USDCHF: "FX:USDCHF", AUDUSD: "FX:AUDUSD", USDCAD: "FX:USDCAD",
+  NZDUSD: "FX:NZDUSD", EURJPY: "FX:EURJPY", GBPJPY: "FX:GBPJPY",
+  XAUUSD: "TVC:GOLD",  XAGUSD: "TVC:SILVER", USOIL: "TVC:USOIL",
+};
 
-  const visibleCount = Math.min(candles.length, Math.floor(chartW / 8));
-  const visible = candles.slice(-visibleCount);
+const TV_INTERVAL: Record<string, string> = {
+  M1: "1", M5: "5", M15: "15", M30: "30", H1: "60", H4: "240", D1: "D",
+};
 
-  const prices = visible.flatMap(c => [c.high, c.low]);
-  const priceMin = Math.min(...prices) * 0.9995;
-  const priceMax = Math.max(...prices) * 1.0005;
-  const priceRange = priceMax - priceMin || 1;
+// ─── TradingView Advanced Chart Widget ────────────────────────────────────────
 
-  const maxVol = Math.max(...visible.map(c => c.volume), 1);
-  const candleW = Math.max(2, (chartW / visibleCount) * 0.7);
-  const xStep = chartW / visibleCount;
+const TradingViewWidget: React.FC<{ symbol: string; timeframe: string }> = ({ symbol, timeframe }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const idRef = useRef(`tv_${Math.random().toString(36).substr(2, 9)}`);
 
-  const pxY = (p: number) => padTop + ((priceMax - p) / priceRange) * chartH;
-  const pxX = (i: number) => padLeft + (i + 0.5) * xStep;
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-  // EMA計算 (simplified for chart)
-  const ema9 = analysis?.technical.ema9;
-  const ema21 = analysis?.technical.ema21;
-  const ema50 = analysis?.technical.ema50;
+    el.innerHTML = "";
+    const inner = document.createElement("div");
+    inner.id = idRef.current;
+    inner.style.width = "100%";
+    inner.style.height = "100%";
+    el.appendChild(inner);
 
-  // Price labels
-  const priceSteps = 6;
-  const priceLabels = Array.from({ length: priceSteps + 1 }, (_, i) => {
-    const p = priceMin + (priceRange * i) / priceSteps;
-    const isJpy = p > 50;
-    return { y: pxY(p), label: p.toFixed(isJpy ? 2 : 4) };
-  });
+    const tvSymbol = TV_SYMBOL[symbol] ?? `FX:${symbol}`;
+    const tvInterval = TV_INTERVAL[timeframe] ?? "60";
 
-  // Current price
-  const currentPrice = visible[visible.length - 1]?.close ?? 0;
-  const currentY = pxY(currentPrice);
+    const createWidget = () => {
+      if (!(window as any).TradingView) return;
+      new (window as any).TradingView.widget({
+        autosize: true,
+        symbol: tvSymbol,
+        interval: tvInterval,
+        timezone: "Asia/Jakarta",
+        theme: "dark",
+        style: "1",
+        locale: "id",
+        toolbar_bg: "#0d1117",
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        hide_side_toolbar: false,
+        allow_symbol_change: false,
+        save_image: false,
+        container_id: idRef.current,
+        studies: [
+          "RSI@tv-basicstudies",
+          "MACD@tv-basicstudies",
+          "MAExp@tv-basicstudies",
+        ],
+        overrides: {
+          "paneProperties.background": "#0d1117",
+          "paneProperties.backgroundType": "solid",
+          "scalesProperties.textColor": "#94a3b8",
+        },
+        loading_screen: { backgroundColor: "#0d1117", foregroundColor: "#3b82f6" },
+      });
+    };
 
-  return (
-    <svg width={width} height={height} style={{ display: "block" }}>
-      {/* Background */}
-      <rect width={width} height={height} fill="#0a0f1a" />
+    if ((window as any).TradingView) {
+      createWidget();
+    } else {
+      const existing = document.getElementById("tv-script");
+      if (existing) {
+        existing.addEventListener("load", createWidget);
+      } else {
+        const script = document.createElement("script");
+        script.id = "tv-script";
+        script.src = "https://s3.tradingview.com/tv.js";
+        script.async = true;
+        script.onload = createWidget;
+        document.head.appendChild(script);
+      }
+    }
 
-      {/* Grid lines */}
-      {priceLabels.map((pl, i) => (
-        <g key={i}>
-          <line x1={padLeft} y1={pl.y} x2={padLeft + chartW} y2={pl.y} stroke="#1e293b" strokeWidth={0.5} />
-          <text x={padLeft + chartW + 4} y={pl.y + 4} fill="#64748b" fontSize={9} fontFamily="monospace">{pl.label}</text>
-        </g>
-      ))}
+    return () => { if (el) el.innerHTML = ""; };
+  }, [symbol, timeframe]);
 
-      {/* Supply zone */}
-      {analysis?.smc.supplyZone && (
-        <rect
-          x={padLeft} y={pxY(analysis.smc.supplyZone.high)}
-          width={chartW} height={Math.abs(pxY(analysis.smc.supplyZone.low) - pxY(analysis.smc.supplyZone.high))}
-          fill="rgba(239,68,68,0.07)" stroke="rgba(239,68,68,0.3)" strokeWidth={0.5}
-        />
-      )}
-
-      {/* Demand zone */}
-      {analysis?.smc.demandZone && (
-        <rect
-          x={padLeft} y={pxY(analysis.smc.demandZone.high)}
-          width={chartW} height={Math.abs(pxY(analysis.smc.demandZone.low) - pxY(analysis.smc.demandZone.high))}
-          fill="rgba(34,197,94,0.07)" stroke="rgba(34,197,94,0.3)" strokeWidth={0.5}
-        />
-      )}
-
-      {/* Order block */}
-      {analysis?.smc.orderBlock && (
-        <rect
-          x={padLeft} y={pxY(analysis.smc.orderBlock.high)}
-          width={chartW} height={Math.abs(pxY(analysis.smc.orderBlock.low) - pxY(analysis.smc.orderBlock.high))}
-          fill={analysis.smc.orderBlock.type === "Bullish" ? "rgba(59,130,246,0.12)" : "rgba(168,85,247,0.12)"}
-          stroke={analysis.smc.orderBlock.type === "Bullish" ? "rgba(59,130,246,0.4)" : "rgba(168,85,247,0.4)"}
-          strokeWidth={0.5} strokeDasharray="4,2"
-        />
-      )}
-
-      {/* Support levels */}
-      {analysis?.aiDecision.supportLevels.slice(0, 2).map((lvl, i) => (
-        <line key={i} x1={padLeft} y1={pxY(lvl)} x2={padLeft + chartW} y2={pxY(lvl)}
-          stroke="rgba(34,197,94,0.5)" strokeWidth={0.8} strokeDasharray="6,3" />
-      ))}
-
-      {/* Resistance levels */}
-      {analysis?.aiDecision.resistanceLevels.slice(0, 2).map((lvl, i) => (
-        <line key={i} x1={padLeft} y1={pxY(lvl)} x2={padLeft + chartW} y2={pxY(lvl)}
-          stroke="rgba(239,68,68,0.5)" strokeWidth={0.8} strokeDasharray="6,3" />
-      ))}
-
-      {/* Fibonacci levels */}
-      {analysis?.aiDecision.fibonacci.filter(f => [38.2, 50, 61.8].includes(f.level)).map((fib) => (
-        <g key={fib.level}>
-          <line x1={padLeft} y1={pxY(fib.price)} x2={padLeft + chartW} y2={pxY(fib.price)}
-            stroke="rgba(251,191,36,0.35)" strokeWidth={0.7} strokeDasharray="3,4" />
-          <text x={padLeft + 3} y={pxY(fib.price) - 2} fill="rgba(251,191,36,0.6)" fontSize={8} fontFamily="monospace">
-            Fib {fib.level}%
-          </text>
-        </g>
-      ))}
-
-      {/* EMA lines */}
-      {ema9 && visible.length > 9 && (
-        <line x1={padLeft} y1={pxY(ema9)} x2={padLeft + chartW} y2={pxY(ema9)}
-          stroke="#22c55e" strokeWidth={1} strokeDasharray="2,2" opacity={0.8} />
-      )}
-      {ema21 && visible.length > 21 && (
-        <line x1={padLeft} y1={pxY(ema21)} x2={padLeft + chartW} y2={pxY(ema21)}
-          stroke="#3b82f6" strokeWidth={1} strokeDasharray="2,2" opacity={0.8} />
-      )}
-      {ema50 && visible.length > 50 && (
-        <line x1={padLeft} y1={pxY(ema50)} x2={padLeft + chartW} y2={pxY(ema50)}
-          stroke="#a78bfa" strokeWidth={1} strokeDasharray="2,2" opacity={0.8} />
-      )}
-
-      {/* Candlesticks */}
-      {visible.map((c, i) => {
-        const x = pxX(i);
-        const isGreen = c.close >= c.open;
-        const color = isGreen ? "#22c55e" : "#ef4444";
-        const bodyTop = pxY(Math.max(c.open, c.close));
-        const bodyBot = pxY(Math.min(c.open, c.close));
-        const bodyH = Math.max(bodyBot - bodyTop, 1);
-        const wickTop = pxY(c.high);
-        const wickBot = pxY(c.low);
-
-        return (
-          <g key={c.time}>
-            <line x1={x} y1={wickTop} x2={x} y2={wickBot} stroke={color} strokeWidth={1} />
-            <rect x={x - candleW / 2} y={bodyTop} width={candleW} height={bodyH}
-              fill={isGreen ? color : color} fillOpacity={isGreen ? 0.9 : 0.85}
-              stroke={color} strokeWidth={0.5} />
-          </g>
-        );
-      })}
-
-      {/* Current price line */}
-      <line x1={padLeft} y1={currentY} x2={padLeft + chartW} y2={currentY}
-        stroke="#fbbf24" strokeWidth={1} strokeDasharray="4,3" />
-      <rect x={padLeft + chartW + 2} y={currentY - 8} width={padRight - 4} height={16}
-        fill="#fbbf24" rx={3} />
-      <text x={padLeft + chartW + 4} y={currentY + 4} fill="#000" fontSize={9} fontFamily="monospace" fontWeight="bold">
-        {currentPrice.toFixed(currentPrice > 50 ? 2 : 4)}
-      </text>
-
-      {/* AI entry zone */}
-      {analysis?.aiDecision.shouldTrade && analysis.aiDecision.direction && (
-        <line
-          x1={padLeft} y1={pxY(analysis.aiDecision.entryPrice)}
-          x2={padLeft + chartW} y2={pxY(analysis.aiDecision.entryPrice)}
-          stroke={analysis.aiDecision.direction === "Buy" ? "#22c55e" : "#ef4444"}
-          strokeWidth={1.5} strokeDasharray="8,3"
-        />
-      )}
-
-      {/* Time labels */}
-      {visible.filter((_, i) => i % Math.ceil(visibleCount / 6) === 0).map((c, i) => {
-        const idx = visible.indexOf(c);
-        const x = pxX(idx);
-        const d = new Date(c.time);
-        const label = `${d.getUTCHours().toString().padStart(2,"0")}:${d.getUTCMinutes().toString().padStart(2,"0")}`;
-        return (
-          <text key={i} x={x} y={chartH + padTop + 14} fill="#475569" fontSize={8} textAnchor="middle" fontFamily="monospace">
-            {label}
-          </text>
-        );
-      })}
-
-      {/* Volume bars */}
-      {showVolume && visible.map((c, i) => {
-        const x = pxX(i);
-        const vh = (c.volume / maxVol) * volH * 0.9;
-        const vy = chartH + padTop + padBottom + volH - vh;
-        const isGreen = c.close >= c.open;
-        return (
-          <rect key={c.time} x={x - candleW / 2} y={vy} width={candleW} height={vh}
-            fill={isGreen ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)"} />
-        );
-      })}
-
-      {/* EMA Legend */}
-      <g>
-        <rect x={padLeft + 4} y={padTop + 2} width={6} height={2} fill="#22c55e" />
-        <text x={padLeft + 13} y={padTop + 8} fill="#64748b" fontSize={8}>EMA9</text>
-        <rect x={padLeft + 44} y={padTop + 2} width={6} height={2} fill="#3b82f6" />
-        <text x={padLeft + 53} y={padTop + 8} fill="#64748b" fontSize={8}>EMA21</text>
-        <rect x={padLeft + 88} y={padTop + 2} width={6} height={2} fill="#a78bfa" />
-        <text x={padLeft + 97} y={padTop + 8} fill="#64748b" fontSize={8}>EMA50</text>
-      </g>
-    </svg>
-  );
+  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 };
 
 // ─── Order Book Simulasi ───────────────────────────────────────────────────────
@@ -317,8 +200,6 @@ const OrderBookPanel: React.FC<{ currentPrice: number; spread: number }> = ({ cu
 
 export default function ForexPro() {
   const { toast } = useToast();
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [chartWidth, setChartWidth] = useState(700);
 
   const [selectedPair, setSelectedPair] = useState("EURUSD");
   const [selectedTF, setSelectedTF] = useState("H1");
@@ -338,15 +219,6 @@ export default function ForexPro() {
   const [orderLot, setOrderLot] = useState(0.01);
   const [showMTF, setShowMTF] = useState(true);
   const [activityFeed, setActivityFeed] = useState<string[]>([]);
-
-  // Resize observer
-  useEffect(() => {
-    const ro = new ResizeObserver(entries => {
-      for (const e of entries) setChartWidth(e.contentRect.width - 4);
-    });
-    if (chartContainerRef.current) ro.observe(chartContainerRef.current);
-    return () => ro.disconnect();
-  }, []);
 
   const addActivity = useCallback((msg: string) => {
     setActivityFeed(prev => [`[${new Date().toLocaleTimeString("id-ID")}] ${msg}`, ...prev.slice(0, 29)]);
@@ -556,22 +428,9 @@ export default function ForexPro() {
 
           {activeTab === "chart" && (
             <div>
-              {/* Candlestick Chart */}
-              <div ref={chartContainerRef} className="w-full bg-[#0a0f1a]">
-                {candles.length > 0 && (
-                  <CandlestickChart
-                    candles={candles}
-                    analysis={analysis}
-                    width={chartWidth}
-                    height={380}
-                    showVolume
-                  />
-                )}
-                {candles.length === 0 && (
-                  <div className="h-80 flex items-center justify-center text-muted-foreground">
-                    <RefreshCw className="h-6 w-6 animate-spin mr-2" /> Memuat grafik...
-                  </div>
-                )}
+              {/* TradingView Professional Chart */}
+              <div className="w-full bg-[#0d1117]" style={{ height: "520px" }}>
+                <TradingViewWidget symbol={selectedPair} timeframe={selectedTF} />
               </div>
 
               {/* Indicator Row */}
