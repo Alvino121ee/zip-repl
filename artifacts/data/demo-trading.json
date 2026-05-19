@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 36.897343391275825,
       "entryPrice": 0.12196,
-      "markPrice": 0.12068,
+      "markPrice": 0.12084,
       "leverage": 1,
       "margin": 4.5,
       "stopLoss": 0.11751571428571429,
       "takeProfit": 0.13307071428571426,
-      "unrealisedPnl": -0.04722859954083318,
-      "unrealisedPnlPct": -1.0495244342407375,
+      "unrealisedPnl": -0.041325024598228774,
+      "unrealisedPnlPct": -0.9183338799606396,
       "openedAt": 1779194286066,
       "source": "auto",
       "confidence": 99,
@@ -33,17 +33,17 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.12202,
       "humanInstinct": {
-        "lastEvalAt": 1779194830031,
-        "momentumScore": 75,
-        "continuationProb": 36,
+        "lastEvalAt": 1779195118090,
+        "momentumScore": 63,
+        "continuationProb": 29,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume sedikit turun 21%",
+          "Volume menurun 42% — tanda pelemahan",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (36%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 2,
+        "reason": "⚡ Probabilitas kelanjutan rendah (29%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 8,
         "urgency": 15
       }
     },
@@ -54,13 +54,13 @@
       "side": "Buy",
       "size": 116.70556852284095,
       "entryPrice": 0.044985,
-      "markPrice": 0.045084,
+      "markPrice": 0.04438,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.04406657142857143,
       "takeProfit": 0.04728107142857142,
-      "unrealisedPnl": 0.011553851283761471,
-      "unrealisedPnlPct": 0.2200733577859328,
+      "unrealisedPnl": -0.07060686895631813,
+      "unrealisedPnlPct": -1.3448927420251071,
       "openedAt": 1779194816179,
       "source": "auto",
       "confidence": 99,
@@ -73,7 +73,22 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.045105
+      "trailPeakPrice": 0.045105,
+      "humanInstinct": {
+        "lastEvalAt": 1779195086164,
+        "momentumScore": 0,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 4,
+        "urgency": 15
+      }
     },
     {
       "id": "0ee1eed3-ce66-4167-aca0-334871e5d7ef",
@@ -82,13 +97,13 @@
       "side": "Buy",
       "size": 75.1503006012024,
       "entryPrice": 0.06986,
-      "markPrice": 0.06985,
+      "markPrice": 0.06987,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.06916140000000001,
       "takeProfit": 0.0716065,
-      "unrealisedPnl": -0.0007515030060127756,
-      "unrealisedPnlPct": -0.014314342971671917,
+      "unrealisedPnl": 0.0007515030060117327,
+      "unrealisedPnlPct": 0.014314342971652051,
       "openedAt": 1779194816663,
       "source": "auto",
       "confidence": 99,
@@ -101,7 +116,22 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.06989
+      "trailPeakPrice": 0.06993,
+      "humanInstinct": {
+        "lastEvalAt": 1779195086300,
+        "momentumScore": 0,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 4,
+        "urgency": 15
+      }
     }
   ],
   "log": [
