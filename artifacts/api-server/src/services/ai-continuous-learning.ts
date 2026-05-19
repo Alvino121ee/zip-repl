@@ -11,7 +11,8 @@ import { logger } from "../lib/logger.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR   = join(__dirname, "../../data");
-const BRAIN_FILE = join(DATA_DIR, "ai-brain-stats.json");
+const BRAIN_FILE     = join(DATA_DIR, "ai-brain-stats.json");
+const CORE_DNA_FILE  = join(DATA_DIR, "ai-core-dna.json");
 
 const BYBIT_BASE   = "https://api.bybit.com";
 const BINANCE_BASE = "https://api.binance.com";
@@ -117,6 +118,105 @@ export interface AiBrainStats {
   lastSnapshotAt: number | null;
 }
 
+// ─── Core DNA (Prinsip Permanen) ───────────────────────────────────────────────
+
+export interface CoreDnaSkillBoost {
+  emotionalDiscipline: number;
+  riskManagement: number;
+  patience: number;
+  selectivity: number;
+  trendAnalysis: number;
+  volumeAnalysis: number;
+  candlePsychology: number;
+  patternRecognition: number;
+  smartMoneyConceptSkill: number;
+  momentumReading: number;
+  adaptiveIntelligence: number;
+  orderflowReading: number;
+}
+
+export interface CoreDna {
+  version: number;
+  installedAt: number;
+  title: string;
+  philosophy: string;
+  principles: string[];
+  forbiddenActions: string[];
+  skillBoosts: CoreDnaSkillBoost;
+  xpBonus: number;
+  fullContent: string;
+}
+
+const GOLD_SCALPING_DNA_TEMPLATE: Omit<CoreDna, "installedAt"> = {
+  version: 1,
+  title: "Prinsip Inti AI Trading Gold Scalping (XAUUSD)",
+  philosophy: "Protect capital first, profit second. AI hebat bukan AI yang selalu profit, tetapi AI yang mampu bertahan dan tetap disiplin dalam semua kondisi market.",
+  principles: [
+    "Disiplin absolut — tidak FOMO, tidak revenge trading",
+    "Fokus probabilitas, bukan ego — lebih baik kehilangan peluang daripada kehilangan modal",
+    "Hanya entry saat kondisi valid: trend + momentum + volume + structure konfirmasi",
+    "Risk Management adalah nyawa — risiko maksimal 1-2% per trade",
+    "2x loss beruntun = mode defensif; 3x loss beruntun = berhenti trading sementara",
+    "Multi-timeframe: M1 entry cepat, M5 struktur scalping, M15 arah utama, H1 trend besar",
+    "EMA 200 = arah utama, EMA 50 = momentum menengah, EMA 20 = entry cepat",
+    "Gold sangat manipulatif — sering fake breakout, sensitif news, volatilitas tinggi",
+    "Trending: follow trend + trailing stop. Sideways: tunggu breakout valid, jangan paksa",
+    "Profit +5 poin = SL ke BEP, Profit +10 poin = trailing aktif",
+    "Sedikit entry berkualitas lebih baik daripada banyak entry acak",
+    "Hindari entry saat news besar: NFP, CPI, FOMC, Interest Rate, Data USD",
+  ],
+  forbiddenActions: [
+    "Entry karena feeling (tanpa konfirmasi teknikal)",
+    "Open posisi beruntun karena kalah — revenge trading",
+    "Melawan trend kuat",
+    "Entry saat spread melebar atau slippage abnormal",
+    "Entry saat market ranging sempit",
+    "Trading saat news besar tanpa konfirmasi setelah market stabil",
+    "Overtrade — terlalu banyak posisi terbuka",
+  ],
+  skillBoosts: {
+    emotionalDiscipline:    25,
+    riskManagement:         22,
+    patience:               20,
+    selectivity:            20,
+    trendAnalysis:          15,
+    volumeAnalysis:         12,
+    candlePsychology:       12,
+    patternRecognition:     12,
+    smartMoneyConceptSkill: 12,
+    momentumReading:        10,
+    adaptiveIntelligence:   10,
+    orderflowReading:        8,
+  },
+  xpBonus: 3000,
+  fullContent: `## PRINSIP INTI AI TRADING GOLD SCALPING (XAUUSD)
+
+SIFAT DASAR AI: Disiplin absolut, tidak FOMO, tidak revenge trading, fokus probabilitas bukan ego, lebih baik kehilangan peluang daripada kehilangan modal, hanya entry saat kondisi valid, mengutamakan survival daripada profit besar, adaptif terhadap volatilitas gold.
+
+FILOSOFI UTAMA: "Protect capital first, profit second." Tujuan: bertahan lama, konsisten profit kecil, menghindari drawdown besar, memanfaatkan momentum cepat emas.
+
+KARAKTERISTIK GOLD: Sangat manipulatif, volatilitas tinggi, sering fake breakout, sensitif news, bergerak agresif saat sesi London & New York, memiliki spike mendadak.
+
+ATURAN MENTAL AI TIDAK BOLEH: Entry karena feeling, open posisi beruntun karena kalah, melawan trend kuat, entry saat spread melebar, entry saat market ranging sempit, trading saat news besar tanpa konfirmasi, overtrade.
+
+PRINSIP SCALPING GOLD: (1) Fokus Momentum — volume naik + candle impulsif + break struktur + konfirmasi arah. (2) Trend Adalah Raja — EMA 200 arah utama, EMA 50 momentum menengah, EMA 20 entry cepat. (3) Entry Harus Presisi — breakout valid + retest + volume + candle confirmation. (4) Risk Management Adalah Nyawa — risiko maksimal 1-2% per trade; 2x loss = defensif; 3x loss = berhenti sementara.
+
+SISTEM PERLAKUAN MARKET: TRENDING = follow trend + trailing stop. SIDEWAYS = kurangi entry + tunggu breakout valid. NEWS BESAR = kurangi lot + tunggu market stabil.
+
+MULTI TIMEFRAME: M1 entry cepat, M5 struktur scalping, M15 arah utama, H1 trend besar. Jangan entry melawan arah timeframe besar.
+
+SISTEM KEAMANAN: Anti Margin Call — hitung free margin, batasi total posisi. Spread Filter — jangan entry jika spread terlalu tinggi. Volatility Filter — hindari candle abnormal.
+
+TAKE PROFIT: Risk Reward minimal 1:1.5 (SL 10 poin, TP 15-20 poin).
+TRAILING STOP: Profit +5 poin = SL ke BEP; Profit +10 poin = trailing aktif; momentum melemah = close parsial.
+
+FORMULA INTI: Trend + Momentum + Volume + Structure + Risk Management = High Probability Entry.
+
+MODE AI: AMAN = entry sedikit, risiko kecil, fokus konsistensi. AGRESIF = scalping cepat, hanya saat market sangat jelas. DEFENSIF = aktif saat volatilitas kacau/loss beruntun/news besar — hanya observasi.
+
+PRINSIP TERAKHIR: "AI hebat bukan AI yang selalu profit, tetapi AI yang mampu bertahan dan tetap disiplin dalam semua kondisi market."`,
+};
+
 // ─── State Awal ────────────────────────────────────────────────────────────────
 
 const DEFAULT_STATS: AiBrainStats = {
@@ -177,6 +277,7 @@ const DEFAULT_STATS: AiBrainStats = {
 
 let brainStats: AiBrainStats = { ...DEFAULT_STATS };
 let activityIdCounter = Date.now();
+let coreDna: CoreDna | null = null;
 
 // ─── Persistence ───────────────────────────────────────────────────────────────
 
@@ -218,6 +319,65 @@ export function loadBrainStats() {
 }
 
 loadBrainStats();
+
+// ─── Core DNA: Load / Save / Apply ────────────────────────────────────────────
+
+function applyCoreDnaBoosts() {
+  if (!coreDna) return;
+  const b = coreDna.skillBoosts;
+  const D = DEFAULT_STATS;
+  // DNA boosts = FLOOR values — AI bisa tumbuh lebih tinggi, tapi TIDAK PERNAH turun di bawah baseline DNA
+  brainStats.emotionalDiscipline    = Math.max(brainStats.emotionalDiscipline,    Math.min(100, D.emotionalDiscipline    + b.emotionalDiscipline));
+  brainStats.riskManagement         = Math.max(brainStats.riskManagement,         Math.min(100, D.riskManagement         + b.riskManagement));
+  brainStats.patience               = Math.max(brainStats.patience,               Math.min(100, D.patience               + b.patience));
+  brainStats.selectivity            = Math.max(brainStats.selectivity,            Math.min(100, D.selectivity            + b.selectivity));
+  brainStats.trendAnalysis          = Math.max(brainStats.trendAnalysis,          Math.min(100, D.trendAnalysis          + b.trendAnalysis));
+  brainStats.volumeAnalysis         = Math.max(brainStats.volumeAnalysis,         Math.min(100, D.volumeAnalysis         + b.volumeAnalysis));
+  brainStats.candlePsychology       = Math.max(brainStats.candlePsychology,       Math.min(100, D.candlePsychology       + b.candlePsychology));
+  brainStats.patternRecognition     = Math.max(brainStats.patternRecognition,     Math.min(100, D.patternRecognition     + b.patternRecognition));
+  brainStats.smartMoneyConceptSkill = Math.max(brainStats.smartMoneyConceptSkill, Math.min(100, D.smartMoneyConceptSkill + b.smartMoneyConceptSkill));
+  brainStats.momentumReading        = Math.max(brainStats.momentumReading,        Math.min(100, D.momentumReading        + b.momentumReading));
+  brainStats.adaptiveIntelligence   = Math.max(brainStats.adaptiveIntelligence,   Math.min(100, D.adaptiveIntelligence   + b.adaptiveIntelligence));
+  brainStats.orderflowReading       = Math.max(brainStats.orderflowReading,       Math.min(100, D.orderflowReading       + b.orderflowReading));
+  // XP floor — setelah reset pun AI mulai dari XP bonus DNA (bukan 0)
+  if (brainStats.experiencePoints < coreDna.xpBonus) {
+    brainStats.experiencePoints = coreDna.xpBonus;
+    brainStats.level = computeLevel(brainStats.experiencePoints);
+    brainStats.iq    = computeIq(brainStats);
+  }
+}
+
+function saveCoreDna() {
+  try {
+    ensureDataDir();
+    if (coreDna) writeFileSync(CORE_DNA_FILE, JSON.stringify(coreDna, null, 2), "utf-8");
+  } catch (err) {
+    logger.warn({ err }, "Gagal menyimpan Core DNA");
+  }
+}
+
+function loadCoreDna() {
+  try {
+    ensureDataDir();
+    if (existsSync(CORE_DNA_FILE)) {
+      coreDna = JSON.parse(readFileSync(CORE_DNA_FILE, "utf-8")) as CoreDna;
+      logger.info({ title: coreDna.title, version: coreDna.version }, "AI Core DNA loaded");
+    } else {
+      // Pertama kali: instal DNA Gold Scalping sebagai default
+      coreDna = { ...GOLD_SCALPING_DNA_TEMPLATE, installedAt: Date.now() };
+      saveCoreDna();
+      logger.info({ title: coreDna.title }, "AI Core DNA installed (default Gold Scalping)");
+    }
+    applyCoreDnaBoosts();
+    saveBrainStats();
+  } catch (err) {
+    logger.warn({ err }, "Gagal memuat Core DNA");
+  }
+}
+
+export function getCoreDna(): CoreDna | null { return coreDna; }
+
+loadCoreDna();
 
 // ─── Log Aktivitas ─────────────────────────────────────────────────────────────
 
@@ -908,8 +1068,10 @@ export function resetBrainStats(): void {
     activityLog: [],
     evolutionHistory: [],
   };
+  // Setelah reset, DNA Inti TETAP aktif — prinsip permanen tidak bisa dihapus
+  applyCoreDnaBoosts();
   saveBrainStats();
-  addActivity("🔄 AI Brain direset ke kondisi awal — memulai perjalanan belajar baru.", "info", null);
+  addActivity("🔄 AI Brain direset — DNA Inti tetap aktif, prinsip permanen terjaga.", "info", null);
 }
 
 // ─── Manual Training (Input dari User) ────────────────────────────────────────

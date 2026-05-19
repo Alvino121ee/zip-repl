@@ -7,7 +7,7 @@ import {
 import {
   getBrainStats, getMemoryBank, startContinuousLearning,
   stopContinuousLearning, isLearningActive, resetBrainStats,
-  manualTrain,
+  manualTrain, getCoreDna,
 } from "../services/ai-continuous-learning.js";
 
 const STRATEGY_LABELS: Record<StrategyName, string> = {
@@ -33,6 +33,8 @@ router.get("/training-lab/strategies", (_req, res) => res.json({
 }));
 // Konfigurasi adaptif AI saat ini (parameter yang akan dipakai backtest)
 router.get("/training-lab/ai-config",  (_req, res) => res.json(getCurrentAiConfig()));
+// DNA Inti AI — prinsip permanen (tidak bisa dihapus oleh reset)
+router.get("/training-lab/core-dna",   (_req, res) => res.json(getCoreDna() ?? { error: "DNA belum diinstal" }));
 
 router.post("/training-lab/start", async (req, res) => {
   const { pairs, strategies, aiAuto } = (req.body ?? {}) as {

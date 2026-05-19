@@ -7,6 +7,7 @@ import {
   Lightbulb, Swords, Trophy, Database, AlertTriangle, Layers,
   BarChart, Repeat, BookMarked, BrainCircuit, Gauge,
   ChevronRight, Wifi, WifiOff, Upload, FileText, X, CheckCircle,
+  Lock, ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -265,6 +266,18 @@ export default function TrainingLab() {
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
   const [manualHistory, setManualHistory] = useState<string[]>([]);
 
+  // ── DNA Inti AI (Prinsip Permanen) ──
+  const [coreDna, setCoreDna] = useState<{
+    title: string;
+    philosophy: string;
+    principles: string[];
+    forbiddenActions: string[];
+    skillBoosts: Record<string, number>;
+    xpBonus: number;
+    installedAt: number;
+    version: number;
+  } | null>(null);
+
   // ── TXT File Upload Training ──
   const [txtLessons, setTxtLessons]         = useState<string[]>([]);
   const [txtFileName, setTxtFileName]       = useState("");
@@ -298,10 +311,13 @@ export default function TrainingLab() {
   const fetchAiConfig = useCallback(async () => {
     try { const r = await fetch(`${API}/api/training-lab/ai-config`); if (r.ok) setAiConfig(await r.json()); } catch {}
   }, []);
+  const fetchCoreDna = useCallback(async () => {
+    try { const r = await fetch(`${API}/api/training-lab/core-dna`); if (r.ok) setCoreDna(await r.json()); } catch {}
+  }, []);
 
   useEffect(() => {
-    fetchBrain(); fetchMemory(); fetchLab(); fetchComp(); fetchAiConfig();
-  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, fetchAiConfig]);
+    fetchBrain(); fetchMemory(); fetchLab(); fetchComp(); fetchAiConfig(); fetchCoreDna();
+  }, [fetchBrain, fetchMemory, fetchLab, fetchComp, fetchAiConfig, fetchCoreDna]);
 
   useEffect(() => {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -1151,6 +1167,100 @@ export default function TrainingLab() {
               </div>
             </CardContent>
           </Card>
+
+          {/* ── DNA INTI AI (Prinsip Permanen) ─────────────────────────────── */}
+          {coreDna && (
+            <Card className="border-amber-500/40 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Lock className="w-4 h-4 text-amber-400" />
+                    <span className="text-amber-300">DNA Inti AI</span>
+                    <span className="text-amber-400">— Prinsip Permanen</span>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full px-2 py-0.5 font-medium">
+                      🔒 Tidak Bisa Dihapus
+                    </span>
+                    <span className="text-xs text-amber-400 font-bold">+{coreDna.xpBonus?.toLocaleString()} XP</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {/* Filosofi */}
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+                  <p className="text-xs font-semibold text-amber-300 mb-1 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />Filosofi Utama
+                  </p>
+                  <p className="text-sm text-amber-100/80 italic leading-relaxed">"{coreDna.philosophy}"</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-3">
+                  {/* Prinsip */}
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-400 mb-2 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5" />Prinsip Aktif ({coreDna.principles?.length})
+                    </p>
+                    <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                      {coreDna.principles?.map((p: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/20 rounded-lg px-2.5 py-1.5">
+                          <span className="text-emerald-400 font-bold shrink-0 mt-px">✓</span>
+                          <span className="leading-relaxed">{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Larangan + Skill Boosts */}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-red-400 mb-2 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5" />Dilarang Keras ({coreDna.forbiddenActions?.length})
+                      </p>
+                      <div className="space-y-1 max-h-24 overflow-y-auto pr-1">
+                        {coreDna.forbiddenActions?.map((f: string, i: number) => (
+                          <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground bg-red-500/5 rounded-lg px-2.5 py-1">
+                            <span className="text-red-400 shrink-0 mt-px">✗</span>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Skill Boost Permanen */}
+                    <div>
+                      <p className="text-xs font-semibold text-violet-400 mb-2 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5" />Boost Skill Permanen
+                      </p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {coreDna.skillBoosts && Object.entries(coreDna.skillBoosts).map(([key, val]) => {
+                          const labels: Record<string, string> = {
+                            emotionalDiscipline: "Disiplin", riskManagement: "Risk Mgmt",
+                            patience: "Kesabaran", selectivity: "Selektivitas",
+                            trendAnalysis: "Trend Analysis", volumeAnalysis: "Volume",
+                            candlePsychology: "Candle", patternRecognition: "Pattern",
+                            smartMoneyConceptSkill: "Smart Money", momentumReading: "Momentum",
+                            adaptiveIntelligence: "Adaptif", orderflowReading: "Order Flow",
+                          };
+                          return (
+                            <div key={key} className="flex items-center justify-between bg-violet-500/5 rounded-lg px-2 py-1 text-xs">
+                              <span className="text-muted-foreground truncate">{labels[key] ?? key}</span>
+                              <span className="text-violet-400 font-bold ml-1 shrink-0">+{val as number}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Installed at */}
+                <p className="text-[11px] text-muted-foreground/50 text-right">
+                  Diinstal: {coreDna.installedAt ? new Date(coreDna.installedAt).toLocaleString("id-ID") : "–"} · v{coreDna.version}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid md:grid-cols-5 gap-4">
             {/* Input Panel */}
