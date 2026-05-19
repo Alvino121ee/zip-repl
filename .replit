@@ -2,7 +2,9 @@ modules = ["nodejs-24"]
 
 [deployment]
 router = "application"
-deploymentTarget = "autoscale"
+deploymentTarget = "vm"
+run = ["bash", "start-prod.sh"]
+build = ["bash", "-c", "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/crypto-saham run build"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
