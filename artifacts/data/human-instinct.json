@@ -1,15 +1,75 @@
 {
-  "totalDecisions": 77,
-  "correctEarlyExits": 77,
+  "totalDecisions": 80,
+  "correctEarlyExits": 80,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 45.38961038961039,
-  "avgContinuationProbAtExit": 12.38961038961039,
+  "avgMomentumAtEarlyExit": 44.375,
+  "avgContinuationProbAtExit": 11.9875,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "0dcb5975-511d-4653-ad2c-2afbe4988eea",
+      "tradeId": "df3d3c9f-5465-4fed-a03f-2a5273a803c6",
+      "symbol": "ONTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8483405268641183,
+      "momentumScore": 35,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 63% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779189944061,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8483405268641183,
+      "profitDelta": 0
+    },
+    {
+      "id": "8a81e802-0969-4509-8884-81d5bef7ed79",
+      "tradeId": "167cce74-20e9-4577-b351-bf266b6b3c72",
+      "symbol": "ONTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 64% — momentum sangat lemah. Profit $0.49% diamankan.",
+      "profitPctAtDecision": 0.492316873041917,
+      "momentumScore": 10,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 64% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779189808183,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.492316873041917,
+      "profitDelta": 0
+    },
+    {
+      "id": "757a741a-0ba6-46d8-a6f0-83b87ea9a11a",
+      "tradeId": "df19fa05-4a49-4c95-bd80-e3872d846953",
+      "symbol": "ONTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 67% — momentum sangat lemah. Profit $0.31% diamankan.",
+      "profitPctAtDecision": 0.314042171377302,
+      "momentumScore": 10,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 67% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779189679897,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.314042171377302,
+      "profitDelta": 0
+    },
     {
       "id": "b0a7dae8-df1d-4363-a476-1fa8b20204e1",
       "tradeId": "dcb1c4c4-a817-43b9-85bf-1e6d4dcb6f75",
@@ -1565,5 +1625,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779188719954
+  "lastUpdated": 1779189944065
 }
