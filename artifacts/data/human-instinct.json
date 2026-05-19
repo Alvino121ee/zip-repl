@@ -1,15 +1,57 @@
 {
-  "totalDecisions": 97,
-  "correctEarlyExits": 97,
+  "totalDecisions": 99,
+  "correctEarlyExits": 99,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 43.30927835051546,
-  "avgContinuationProbAtExit": 11.29896907216495,
+  "avgMomentumAtEarlyExit": 42.96969696969697,
+  "avgContinuationProbAtExit": 11.090909090909092,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "8d23671a-a39d-44e0-a8ff-8055e071d5b5",
+      "tradeId": "33ea1d37-a95e-4a6d-b87d-b3f0964b777b",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (2%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5949851253718709,
+      "momentumScore": 39,
+      "continuationProb": 2,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat",
+        "RSI proxy overbought (77) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779208589375,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5949851253718709,
+      "profitDelta": 0
+    },
+    {
+      "id": "93bfad03-dd0e-48ba-ad0f-69ec282f29d7",
+      "tradeId": "a0ced8d1-f40e-4862-9714-be5c08f1b59f",
+      "symbol": "ENJUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 55% — momentum sangat lemah. Profit $0.40% diamankan.",
+      "profitPctAtDecision": 0.39689350381875405,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 55% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779208458212,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.39689350381875405,
+      "profitDelta": 0
+    },
     {
       "id": "88b74f5d-8d29-4f93-846d-6a190e904a32",
       "tradeId": "db3e7b5e-af53-4367-bf27-f997e401ee31",
@@ -1971,5 +2013,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779207931400
+  "lastUpdated": 1779208589380
 }

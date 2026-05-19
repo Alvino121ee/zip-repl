@@ -1674,6 +1674,7 @@ export async function connectMT5(
   else if (serverLower.includes("pepperstone")) broker = "Pepperstone";
   else if (serverLower.includes("axiory")) broker = "Axiory";
   else if (serverLower.includes("hotforex") || serverLower.includes("hfm")) broker = "HFM";
+  else if (serverLower.includes("roboforex") || serverLower.includes("robo")) broker = "RoboForex";
   else broker = server.split("-")[0] ?? server.split(".")[0] ?? "Broker";
 
   const currency = isCent ? "USC" : "USD";

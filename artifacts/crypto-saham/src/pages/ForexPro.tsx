@@ -304,7 +304,7 @@ const MT5SettingsPanel: React.FC<{
                   title: "Isi 4 variabel konfigurasi di script",
                   body: <>Buka <strong>mt5_bridge.py</strong> di PC, cari bagian <em>KONFIGURASI WAJIB</em>, isi:<br/>
                     <div className="bg-black/40 border border-zinc-700 rounded px-2 py-1.5 text-[10px] font-mono mt-1.5 space-y-0.5">
-                      <div><span className="text-zinc-500">MT5_SERVER</span>   = <span className="text-yellow-300">"NamaServerBroker"</span></div>
+                      <div><span className="text-zinc-500">MT5_SERVER</span>   = <span className="text-yellow-300">"RoboForex-ECN"</span> <span className="text-zinc-600"># atau RoboForex-Demo untuk demo</span></div>
                       <div><span className="text-zinc-500">MT5_LOGIN</span>    = <span className="text-yellow-300">12345678</span></div>
                       <div><span className="text-zinc-500">MT5_PASSWORD</span> = <span className="text-yellow-300">"PasswordMT5Anda"</span></div>
                       <div><span className="text-zinc-500">REPLIT_URL</span>   = <span className="text-green-300">"{replitUrl}"</span></div>
@@ -315,7 +315,7 @@ const MT5SettingsPanel: React.FC<{
                 {
                   no: "5", color: "bg-cyan-700",
                   title: "Pastikan MetaTrader 5 terinstall",
-                  body: "MT5 harus terinstall di PC Windows yang sama. Script akan login OTOMATIS — tidak perlu dibuka dulu. Download MT5 gratis dari website broker Anda (IC Markets, Exness, XM, FBS, dll).",
+                  body: "MT5 harus terinstall di PC Windows yang sama. Script akan login OTOMATIS — tidak perlu dibuka dulu. Download MT5 gratis dari website broker Anda (RoboForex, IC Markets, Exness, XM, FBS, dll).",
                 },
                 {
                   no: "6", color: "bg-green-600",
@@ -401,7 +401,7 @@ const MT5SettingsPanel: React.FC<{
                 </div>
                 <div className="space-y-2.5">
                   {[
-                    { label: "Server Broker", key: "server" as const, placeholder: "ICMarketsGlobal-Demo01", hint: "Cek di MT5 → Settings → Servers", type: "text" },
+                    { label: "Server Broker", key: "server" as const, placeholder: "RoboForex-ECN atau RoboForex-Demo", hint: "RoboForex: RoboForex-ECN (real) / RoboForex-Demo (demo). Cek di MT5 → Tools → Options → Server.", type: "text" },
                     { label: "Nomor Akun", key: "login" as const, placeholder: "12345678", type: "text" },
                     { label: "Password", key: "password" as const, placeholder: "Password akun MT5", type: "password" },
                   ].map(f => (
