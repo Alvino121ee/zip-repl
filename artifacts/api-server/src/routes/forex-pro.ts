@@ -17,6 +17,9 @@ import {
   resetForexPro,
   startForexProAutoEngine,
   stopForexProAutoEngine,
+  connectMT5,
+  disconnectMT5,
+  getMT5Status,
 } from "../services/forex-pro.js";
 
 const router = Router();
@@ -192,6 +195,26 @@ router.post("/forex-pro/engine/stop", (_req, res) => {
 router.post("/forex-pro/reset", (_req, res) => {
   resetForexPro();
   res.json({ ok: true, message: "Forex Pro direset ke saldo awal $1000" });
+});
+
+// ─── MetaTrader 5 Koneksi ─────────────────────────────────────────────────────
+
+router.post("/forex-pro/mt5/connect", (req, res) => {
+  const { server, login, password } = req.body as { server: string; login: string; password: string };
+  if (!server || !login || !password) {
+    return res.status(400).json({ error: "server, login, dan password wajib diisi" });
+  }
+  const result = connectMT5(server, login, password);
+  res.json(result);
+});
+
+router.post("/forex-pro/mt5/disconnect", (_req, res) => {
+  disconnectMT5();
+  res.json({ ok: true, message: "MT5 diputuskan" });
+});
+
+router.get("/forex-pro/mt5/status", (_req, res) => {
+  res.json(getMT5Status());
 });
 
 export default router;

@@ -1444,3 +1444,120 @@ export function resetForexPro(): void {
   state = defaultState();
   saveState();
 }
+
+// ─── MetaTrader 5 Koneksi (Simulasi Bridge) ───────────────────────────────────
+
+interface MT5ConnectionState {
+  connected: boolean;
+  server: string;
+  login: string;
+  accountName: string;
+  balance: number;
+  currency: string;
+  broker: string;
+  leverage: number;
+  connectedAt: number | null;
+}
+
+const MT5_CONFIG_FILE = join(DATA_DIR, "mt5-connection.json");
+
+let mt5State: MT5ConnectionState = {
+  connected: false, server: "", login: "",
+  accountName: "", balance: 0, currency: "USD",
+  broker: "", leverage: 100, connectedAt: null,
+};
+
+// Load MT5 state from disk on startup
+(function loadMT5State() {
+  try {
+    if (existsSync(MT5_CONFIG_FILE)) {
+      const loaded = JSON.parse(readFileSync(MT5_CONFIG_FILE, "utf-8"));
+      mt5State = { ...mt5State, ...loaded, connected: false }; // selalu mulai disconnected
+    }
+  } catch { /* ignore */ }
+})();
+
+function saveMT5State(): void {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(MT5_CONFIG_FILE, JSON.stringify(mt5State, null, 2));
+  } catch { /* ignore */ }
+}
+
+/**
+ * Simulasi koneksi MT5.
+ * Di lingkungan produksi, ini bisa diganti dengan:
+ * - MetaTrader 5 Web API (broker yang mendukung)
+ * - REST bridge seperti mt5-server atau custom EA HTTP server
+ */
+export function connectMT5(server: string, login: string, password: string): {
+  connected: boolean; accountName?: string; balance?: number; currency?: string;
+  broker?: string; leverage?: number; error?: string;
+} {
+  // Validasi format dasar
+  if (login.length < 4) {
+    return { connected: false, error: "Nomor akun tidak valid (min 4 digit)" };
+  }
+  if (password.length < 4) {
+    return { connected: false, error: "Password terlalu pendek" };
+  }
+  if (!server.includes(".") && !server.includes("-")) {
+    return { connected: false, error: "Format server tidak valid (contoh: ICMarketsGlobal-Demo01)" };
+  }
+
+  // Deteksi tipe akun dari nama server
+  const serverLower = server.toLowerCase();
+  const isDemo = serverLower.includes("demo");
+  const isCent = serverLower.includes("cent");
+
+  // Tentukan broker dari nama server
+  let broker = "Unknown Broker";
+  if (serverLower.includes("icmarket") || serverLower.includes("ic-")) broker = "IC Markets";
+  else if (serverLower.includes("xm")) broker = "XM Global";
+  else if (serverLower.includes("fbs")) broker = "FBS";
+  else if (serverLower.includes("exness")) broker = "Exness";
+  else if (serverLower.includes("fxpro")) broker = "FxPro";
+  else if (serverLower.includes("pepperstone")) broker = "Pepperstone";
+  else if (serverLower.includes("axiory")) broker = "Axiory";
+  else if (serverLower.includes("hotforex") || serverLower.includes("hfm")) broker = "HFM";
+  else broker = server.split("-")[0] ?? server.split(".")[0] ?? "Broker";
+
+  const currency = isCent ? "USC" : "USD"; // USC = US Cent
+  const leverage = isCent ? 200 : 100;
+  const baseBalance = isCent ? 100000 : 1000; // cent account punya 100000 cent = $1000
+  const accountName = `${isDemo ? "Demo" : "Live"} #${login}`;
+
+  mt5State = {
+    connected: true,
+    server,
+    login,
+    accountName,
+    balance: baseBalance,
+    currency,
+    broker,
+    leverage,
+    connectedAt: Date.now(),
+  };
+
+  saveMT5State();
+  logger.info({ server, login: login.slice(0, 4) + "****", broker, currency }, "MT5 terhubung (simulasi)");
+
+  return {
+    connected: true,
+    accountName,
+    balance: baseBalance,
+    currency,
+    broker,
+    leverage,
+  };
+}
+
+export function disconnectMT5(): void {
+  mt5State = { ...mt5State, connected: false, connectedAt: null };
+  saveMT5State();
+  logger.info("MT5 diputuskan");
+}
+
+export function getMT5Status(): MT5ConnectionState {
+  return { ...mt5State };
+}

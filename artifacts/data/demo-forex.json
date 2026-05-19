@@ -1,11 +1,72 @@
 {
-  "balance": 50,
+  "balance": 49.9835,
   "realizedPnl": 0,
-  "totalFees": 0,
+  "totalFees": 0.0165,
   "winCount": 0,
   "lossCount": 0,
-  "positions": [],
-  "log": [],
+  "positions": [
+    {
+      "id": "0e20fc73-4d38-449f-b203-9e71d653c9b5",
+      "symbol": "BNBUSDT",
+      "displayName": "BNB / USDT",
+      "category": "Crypto Macro",
+      "emoji": "🔶",
+      "side": "Sell",
+      "size": 0.04686767692548039,
+      "entryPrice": 640.1,
+      "markPrice": 640.52,
+      "leverage": 3,
+      "margin": 10,
+      "stopLoss": 646.501,
+      "takeProfit": 624.0975,
+      "unrealisedPnl": -0.059053272926099534,
+      "unrealisedPnlPct": -0.1968442430869985,
+      "openedAt": 1779192462663,
+      "source": "auto",
+      "confidence": 98,
+      "signal": "institutional_short",
+      "openReason": "🧠 Brain 98% | Tren Turun ↓ | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($640.6928) — momentum bearish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_down_normal",
+      "entryFee": 0.0165,
+      "opportunityScore": 100
+    }
+  ],
+  "log": [
+    {
+      "id": "d79908af-5b13-4bd7-b135-23373e6e589b",
+      "timestamp": 1779192462663,
+      "openedAt": 1779192462663,
+      "symbol": "BNBUSDT",
+      "displayName": "BNB / USDT",
+      "category": "Crypto Macro",
+      "emoji": "🔶",
+      "side": "Sell",
+      "qty": 0.04686767692548039,
+      "entryPrice": 640.1,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 3,
+      "margin": 10,
+      "confidence": 98,
+      "signal": "institutional_short",
+      "status": "opened",
+      "reason": "🔶 SHORT BNB / USDT @ $640.10 | Fee: -$0.0165",
+      "openReason": "🧠 Brain 98% | Tren Turun ↓ | EMA 20<50<200 — tren bearish jangka panjang; Harga di bawah EMA20 ($640.6928) — momentum bearish",
+      "entryFee": 0.0165,
+      "fee": 0.0165,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_down_normal"
+    }
+  ],
   "equityHistory": [
     {
       "timestamp": 1779184255189,
