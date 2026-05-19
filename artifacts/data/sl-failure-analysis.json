@@ -1,6 +1,37 @@
 {
   "records": [
     {
+      "id": "b60bcc97-ba62-4be0-96c5-91de14bb65d5",
+      "timestamp": 1779188800020,
+      "tradeId": "1446206e-b2e2-48d7-a09d-5ec93da05cb1",
+      "symbol": "TAUSDT",
+      "side": "long",
+      "entryPrice": 0.07018,
+      "slPrice": 0.0694782,
+      "exitPrice": 0.06933,
+      "pnlPct": -1.211,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_normal",
+      "holdTimeMs": 66998,
+      "primaryCause": "market_manipulation",
+      "secondaryCauses": [
+        "fake_breakout",
+        "early_entry",
+        "overconfidence"
+      ],
+      "conclusion": "Stop hunt terdeteksi — harga diarahkan untuk menyentuh SL sebelum melanjutkan tren asli.",
+      "recommendations": [
+        "Hindari entry di dekat level harga yang banyak terdapat cluster SL (obvious stop zones).",
+        "Waspadai pergerakan mendadak tanpa berita fundamental — bisa jadi stop hunt.",
+        "Gunakan SL yang 'tersembunyi' di bawah/atas level yang tidak obvious.",
+        "Tunggu candle close di atas/bawah level breakout sebelum entry."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 1,
+      "improvementApplied": false
+    },
+    {
       "id": "7f762aa1-7854-4e65-902b-ca23d9f2c8c3",
       "timestamp": 1779187271228,
       "tradeId": "e87b33b6-e526-42c8-87b3-6fea873d6385",
@@ -1214,7 +1245,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779187271229
+      "lastSeen": 1779188800020
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1234,7 +1265,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779187271229
+      "lastSeen": 1779188800020
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1253,7 +1284,7 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "high",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779187271229
+      "lastSeen": 1779188800020
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
@@ -1273,10 +1304,10 @@
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779187271229
+      "lastSeen": 1779188800020
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 42,
-  "improvementScore": 63
+  "totalAnalyzed": 43,
+  "improvementScore": 64
 }
