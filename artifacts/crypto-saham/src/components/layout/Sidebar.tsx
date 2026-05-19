@@ -15,6 +15,7 @@ import {
   TrendingDown,
   GraduationCap,
   Crosshair,
+  Globe,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -45,7 +46,8 @@ export function Sidebar() {
           <div className="px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1">Trading</div>
           <NavItem href="/trading" icon={Bot}>Auto Trading</NavItem>
           <NavItem href="/scalping5m" icon={Timer}>Scalping 5M</NavItem>
-          <NavItem href="/demo-trading" icon={FlaskConical}>Demo Trading</NavItem>
+          <NavItem href="/demo-trading" icon={FlaskConical}>Demo Crypto</NavItem>
+          <NavItem href="/demo-forex" icon={Globe}>Demo Forex & Gold</NavItem>
           <NavItem href="/full-margin-precision" icon={Crosshair} highlight>Full Margin Precision</NavItem>
           <NavItem href="/sl-analysis" icon={TrendingDown}>SL Analysis</NavItem>
         </nav>

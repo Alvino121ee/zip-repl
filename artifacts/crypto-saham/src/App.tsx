@@ -21,6 +21,7 @@ import Scalping5M from "@/pages/Scalping5M";
 import AI from "@/pages/AI";
 import PredictionLocks from "@/pages/PredictionLocks";
 import DemoTrading from "@/pages/DemoTrading";
+import DemoForex from "@/pages/DemoForex";
 import TrainingLab from "@/pages/TrainingLab";
 import KnowledgeLearning from "@/pages/KnowledgeLearning";
 import StopLossAnalysis from "@/pages/StopLossAnalysis";
@@ -50,6 +51,7 @@ function Router() {
         <Route path="/ai" component={AI} />
         <Route path="/prediction-locks" component={PredictionLocks} />
         <Route path="/demo-trading" component={DemoTrading} />
+        <Route path="/demo-forex" component={DemoForex} />
         <Route path="/training-lab" component={TrainingLab} />
         <Route path="/knowledge-learning" component={KnowledgeLearning} />
         <Route path="/sl-analysis" component={StopLossAnalysis} />
