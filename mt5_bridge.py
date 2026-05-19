@@ -20,6 +20,7 @@ Biarkan jendela Command Prompt tetap terbuka selama trading.
 
 import MetaTrader5 as mt5
 import requests
+import threading
 import time
 import sys
 from datetime import datetime
@@ -76,35 +77,56 @@ def log(level: str, msg: str) -> None:
     print(f"[{ts}] {icon}  {msg}")
 
 
+def _spinner(stop_event: "threading.Event", label: str) -> None:
+    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    i = 0
+    start = time.time()
+    while not stop_event.is_set():
+        elapsed = int(time.time() - start)
+        print(f"\r  {frames[i % len(frames)]}  {label}  ({elapsed}s)   ", end="", flush=True)
+        i += 1
+        time.sleep(0.1)
+    print("\r" + " " * 60 + "\r", end="", flush=True)
+
+
 def init_mt5(attempt: int = 1) -> bool:
     global _initialized
+    if attempt == 1:
+        print(f"  ⏳  MT5 pertama kali start butuh 20–60 detik. Mohon tunggu...")
+        print()
+
     log("INFO", f"Menghubungkan ke MetaTrader 5... (percobaan #{attempt})")
 
-    kwargs: dict = {}
+    # ── Gabungkan initialize + login dalam 1 panggilan (lebih cepat) ─────────
+    stop_evt = threading.Event()
+    spinner_thread = threading.Thread(
+        target=_spinner,
+        args=(stop_evt, f"Memulai MT5 & login ke {MT5_SERVER}..."),
+        daemon=True,
+    )
+    spinner_thread.start()
+
+    kwargs: dict = {
+        "login":    int(MT5_LOGIN),
+        "password": str(MT5_PASSWORD),
+        "server":   str(MT5_SERVER),
+    }
     if MT5_PATH:
         kwargs["path"] = MT5_PATH
 
-    if not mt5.initialize(**kwargs):
-        log("ERR", f"Gagal inisialisasi MT5: {mt5.last_error()}")
-        log("WARN", "Pastikan MetaTrader 5 sudah terinstall di PC ini.")
-        return False
+    ok = mt5.initialize(**kwargs)
+    stop_evt.set()
+    spinner_thread.join()
 
-    log("INFO", f"Login ke akun #{MT5_LOGIN} di server {MT5_SERVER} ...")
-    authorized = mt5.login(
-        login=int(MT5_LOGIN),
-        password=str(MT5_PASSWORD),
-        server=str(MT5_SERVER),
-    )
-
-    if not authorized:
+    if not ok:
         err = mt5.last_error()
-        mt5.shutdown()
-        log("ERR", f"Login gagal: {err}")
+        log("ERR", f"Gagal login MT5: {err}")
         print()
         print("  Kemungkinan penyebab:")
         print("  • Nomor akun / password salah")
-        print("  • Nama server salah — cek kembali di MT5 → Tools → Options → Server")
+        print("  • Nama server salah — cek di MT5 → Tools → Options → Server")
         print("  • Akun sudah expired (akun demo biasanya 30 hari)")
+        print("  • MetaTrader 5 belum terinstall di PC ini")
         print("  • Tidak ada koneksi internet")
         print()
         return False
