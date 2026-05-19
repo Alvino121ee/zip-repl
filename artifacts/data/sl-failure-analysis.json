@@ -1,6 +1,64 @@
 {
   "records": [
     {
+      "id": "fc83d705-0c63-41f5-a9ed-5bd12db65015",
+      "timestamp": 1779199696988,
+      "tradeId": "9053a89b-414e-4a8d-91f1-4050ba7a2279",
+      "symbol": "FIGHTUSDT",
+      "side": "long",
+      "entryPrice": 0.004566,
+      "slPrice": 0.004569652799999999,
+      "exitPrice": 0.004567,
+      "pnlPct": 0.022,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 346906,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Penempatan SL tidak mempertimbangkan ATR atau level support/resistance terdekat.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.08,
+      "improvementApplied": false
+    },
+    {
+      "id": "55ffb094-1073-444f-8012-af2ad5a34c97",
+      "timestamp": 1779199345037,
+      "tradeId": "8a1525ab-3b5a-4e8e-aa94-5ed9881e2cfc",
+      "symbol": "FIGHTUSDT",
+      "side": "long",
+      "entryPrice": 0.004549,
+      "slPrice": 0.0045659648999999995,
+      "exitPrice": 0.004561,
+      "pnlPct": 0.264,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 773978,
+      "primaryCause": "incorrect_sl_placement",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "SL berada di dalam jangkauan volatilitas normal, menyebabkan tersentuh tanpa alasan teknikal.",
+      "recommendations": [
+        "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+        "SL minimum harus di luar swing high/low terdekat, bukan di dalam range volatilitas normal.",
+        "Pertimbangkan level support/resistance dan liquidity zones saat menetapkan SL.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "moderate",
+      "slTightnessPct": 0.373,
+      "improvementApplied": false
+    },
+    {
       "id": "fcfc90ea-8dac-4fae-b15c-9846677df9bd",
       "timestamp": 1779194813952,
       "tradeId": "ae3e7c69-74c4-4d64-b48f-e7e5f5accd4c",
@@ -1386,7 +1444,27 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779194813952
+      "lastSeen": 1779199696988
+    },
+    {
+      "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
+      "pattern": "Penempatan SL Tidak Tepat",
+      "description": "Pola berulang: Penempatan SL Tidak Tepat terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 11,
+      "primaryCause": "incorrect_sl_placement",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "trending_up_strong",
+        "trending_up_normal",
+        "ranging"
+      ],
+      "avgPnlPct": 0.01,
+      "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
+      "severity": "critical",
+      "firstSeen": 1779026469846,
+      "lastSeen": 1779199696988
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1406,27 +1484,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779194813952
-    },
-    {
-      "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
-      "pattern": "Penempatan SL Tidak Tepat",
-      "description": "Pola berulang: Penempatan SL Tidak Tepat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 9,
-      "primaryCause": "incorrect_sl_placement",
-      "associatedStrategies": [
-        "auto_institutional"
-      ],
-      "associatedConditions": [
-        "trending_up_normal",
-        "trending_up_strong",
-        "ranging"
-      ],
-      "avgPnlPct": -0.02,
-      "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
-      "severity": "high",
-      "firstSeen": 1779026469846,
-      "lastSeen": 1779194813952
+      "lastSeen": 1779199696988
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
@@ -1446,7 +1504,7 @@
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "high",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779194813952
+      "lastSeen": 1779199696988
     },
     {
       "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
@@ -1466,10 +1524,10 @@
       "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
       "severity": "medium",
       "firstSeen": 1779194275810,
-      "lastSeen": 1779194813952
+      "lastSeen": 1779199696988
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 48,
-  "improvementScore": 67
+  "totalAnalyzed": 50,
+  "improvementScore": 69
 }

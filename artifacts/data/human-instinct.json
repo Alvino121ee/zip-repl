@@ -1,15 +1,95 @@
 {
-  "totalDecisions": 84,
-  "correctEarlyExits": 84,
+  "totalDecisions": 88,
+  "correctEarlyExits": 88,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 44.75,
-  "avgContinuationProbAtExit": 12.178571428571429,
+  "avgMomentumAtEarlyExit": 44.55681818181818,
+  "avgContinuationProbAtExit": 12.079545454545455,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "8caabbb6-4295-4152-81e4-90e5ea724036",
+      "tradeId": "83bda37e-7e8c-4192-ad37-aa60e77b580e",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5262003946502898,
+      "momentumScore": 44,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 20%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779200073146,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5262003946502898,
+      "profitDelta": 0
+    },
+    {
+      "id": "58506cc0-4faf-4238-9921-b576e3478d53",
+      "tradeId": "b9008675-8b7a-4cde-9913-333b8d42b7d8",
+      "symbol": "ZECUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (8%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5906349769421854,
+      "momentumScore": 54,
+      "continuationProb": 8,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779199497110,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5906349769421854,
+      "profitDelta": 0
+    },
+    {
+      "id": "4cafb53a-eb59-4851-a5f5-ee0e9bd9ad60",
+      "tradeId": "746ac998-bdcf-4f1d-baba-90bfc90c7e91",
+      "symbol": "ENJUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (27%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5201733911303881,
+      "momentumScore": 60,
+      "continuationProb": 27,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 55% — momentum sangat lemah"
+      ],
+      "timestamp": 1779199369235,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5201733911303881,
+      "profitDelta": 0
+    },
+    {
+      "id": "3bf6ec03-0544-4615-9ccc-52f94a881193",
+      "tradeId": "0ee1eed3-ce66-4167-aca0-334871e5d7ef",
+      "symbol": "TAUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.36% diamankan.",
+      "profitPctAtDecision": 0.3578585742914403,
+      "momentumScore": 4,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779198553105,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.3578585742914403,
+      "profitDelta": 0
+    },
     {
       "id": "7fb3180f-fda8-453e-9e1a-d32664e2d8c8",
       "tradeId": "636dbd13-fea6-442f-88af-913a0899f768",
@@ -1704,5 +1784,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779192876366
+  "lastUpdated": 1779200073151
 }

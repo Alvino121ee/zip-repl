@@ -31,7 +31,7 @@ from datetime import datetime
 MT5_SERVER   = "Exness-MT5Real37"
 MT5_LOGIN    = 263423277
 MT5_PASSWORD = "Alvino121#"
-REPLIT_URL   = "https://d1760316-25e2-4974-8986-dbc9ff931067-00-3tk6ugqemqgqv.sisko.replit.dev"
+REPLIT_URL   = "https://zip-repl--mavib51948.replit.app"
 SECRET       = "vinzpredict2024"
 
 # ══════════════════════════════════════════════════════════════════════════════
