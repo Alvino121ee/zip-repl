@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 80,
-  "correctEarlyExits": 80,
+  "totalDecisions": 81,
+  "correctEarlyExits": 81,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 44.375,
-  "avgContinuationProbAtExit": 11.9875,
+  "avgMomentumAtEarlyExit": 44.25925925925926,
+  "avgContinuationProbAtExit": 11.987654320987655,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "2a366ba7-6790-4f9b-ad78-7e2ccfd4ac31",
+      "tradeId": "4e0ee961-64d2-4859-a71b-29a7157c9f29",
+      "symbol": "ONTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8576075706047777,
+      "momentumScore": 35,
+      "continuationProb": 12,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 56% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779190136231,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8576075706047777,
+      "profitDelta": 0
+    },
     {
       "id": "0dcb5975-511d-4653-ad2c-2afbe4988eea",
       "tradeId": "df3d3c9f-5465-4fed-a03f-2a5273a803c6",
@@ -1625,5 +1645,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779189944065
+  "lastUpdated": 1779190136234
 }
