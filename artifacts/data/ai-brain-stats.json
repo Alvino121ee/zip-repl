@@ -1,10 +1,10 @@
 {
   "iq": 200,
   "level": "Institusional",
-  "experiencePoints": 42493,
-  "learningCycles": 2797,
-  "chartsAnalyzed": 2794,
-  "marketHoursStudied": 953216.2199999979,
+  "experiencePoints": 42506,
+  "learningCycles": 2798,
+  "chartsAnalyzed": 2795,
+  "marketHoursStudied": 953616.2199999979,
   "patternsRecognized": 7425,
   "predictionsValidated": 0,
   "mistakesCorrected": 504,
@@ -14,7 +14,7 @@
   "breakoutsStudied": 41,
   "fakeBreakoutsDetected": 14,
   "reversalsStudied": 12,
-  "replaySessionsCompleted": 651,
+  "replaySessionsCompleted": 652,
   "smartMoneyPatternsFound": 82,
   "marketReading": 96.22,
   "patternRecognition": 96.97,
@@ -27,16 +27,19 @@
   "candlePsychology": 97.48,
   "orderflowReading": 91.51,
   "smartMoneyConceptSkill": 88.79,
-  "replayTrainingScore": 83.85,
+  "replayTrainingScore": 83.89,
   "patience": 93.24,
   "selectivity": 92.24,
   "confidenceAccuracy": 89.21,
   "predictionAccuracy": 93.25,
   "isLearning": false,
-  "currentActivity": "✅ BTCUSDT selesai — dipelajari: 3 pola | +12 XP",
-  "currentSymbol": "BTCUSDT",
-  "lastLearningAt": 1779274230342,
+  "currentActivity": "✅ Replay selesai — crash/rally DOGEUSDT dipelajari | +13 XP",
+  "currentSymbol": "DOGEUSDT",
+  "lastLearningAt": 1779274252345,
   "activityLog": [
+    "[10.50.52] ✅ Replay selesai — crash/rally DOGEUSDT dipelajari | +13 XP",
+    "[10.50.52] 📉 Replay CRASH/RALLY: DOGEUSDT bergerak 18.2% — mempelajari volatilitas ekstrem...",
+    "[10.50.52] 🔁 Memulai sesi REPLAY TRAINING — DOGEUSDT (240M)...",
     "[10.50.30] ✅ BTCUSDT selesai — dipelajari: 3 pola | +12 XP",
     "[10.50.30] ✅ Prediksi berhasil pada BTCUSDT — memperbarui model kepercayaan diri...",
     "[10.50.30] 📍 BTCUSDT mendekati level S/R kuat di 76900.00 — berlatih deteksi area kritis...",
@@ -533,12 +536,33 @@
     "[10.22.33] 📊 Mempelajari struktur chart SOLUSDT (240M)...",
     "[10.22.11] ✅ BNBUSDT selesai — dipelajari: 6 pola | +24 XP",
     "[10.22.11] ✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
-    "[10.22.11] 📍 BNBUSDT mendekati level S/R kuat di 641.80 — berlatih deteksi area kritis...",
-    "[10.22.11] ⚡ BNBUSDT di dekat VWAP (+0.13%) — zona keputusan kritis",
-    "[10.22.11] 🕯️ Pola candle 'Bullish Engulfing' terdeteksi di BNBUSDT — menganalisis psikologi pasar...",
-    "[10.22.11] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak"
+    "[10.22.11] 📍 BNBUSDT mendekati level S/R kuat di 641.80 — berlatih deteksi area kritis..."
   ],
   "liveActivities": [
+    {
+      "id": "act_1779273917339",
+      "timestamp": 1779274252346,
+      "message": "✅ Replay selesai — crash/rally DOGEUSDT dipelajari | +13 XP",
+      "symbol": "DOGEUSDT",
+      "type": "success",
+      "xpGained": 13
+    },
+    {
+      "id": "act_1779273917338",
+      "timestamp": 1779274252345,
+      "message": "📉 Replay CRASH/RALLY: DOGEUSDT bergerak 18.2% — mempelajari volatilitas ekstrem...",
+      "symbol": "DOGEUSDT",
+      "type": "replay",
+      "xpGained": 10
+    },
+    {
+      "id": "act_1779273917337",
+      "timestamp": 1779274252267,
+      "message": "🔁 Memulai sesi REPLAY TRAINING — DOGEUSDT (240M)...",
+      "symbol": "DOGEUSDT",
+      "type": "replay",
+      "xpGained": 0
+    },
     {
       "id": "act_1779273917336",
       "timestamp": 1779274230342,
@@ -1314,30 +1338,6 @@
       "symbol": "FTMUSDT",
       "type": "liquidity",
       "xpGained": 4
-    },
-    {
-      "id": "act_1779273844662",
-      "timestamp": 1779273871896,
-      "message": "📊 MACD crossover bullish terdeteksi di FTMUSDT",
-      "symbol": "FTMUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779273844661",
-      "timestamp": 1779273871896,
-      "message": "📉 Tren turun dikonfirmasi pada FTMUSDT — EMA9<EMA21<EMA50",
-      "symbol": "FTMUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779273844660",
-      "timestamp": 1779273871657,
-      "message": "📊 Mempelajari struktur chart FTMUSDT (15M)...",
-      "symbol": "FTMUSDT",
-      "type": "analysis",
-      "xpGained": 0
     }
   ],
   "memoryBank": {
@@ -2984,6 +2984,22 @@
     ],
     "learnedPatterns": [
       {
+        "symbol": "DOGEUSDT",
+        "interval": "240",
+        "type": "replay",
+        "title": "Replay Crash/Rally DOGEUSDT 18.2%",
+        "description": "Pergerakan ekstrem 18.2% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "DOGEUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779274252345_el5t",
+        "timestamp": 1779274252345
+      },
+      {
         "symbol": "XRPUSDT",
         "interval": "60",
         "type": "manipulation",
@@ -3606,22 +3622,6 @@
         "xpValue": 13,
         "id": "mem_1779269317035_qvf1",
         "timestamp": 1779269317035
-      },
-      {
-        "symbol": "DOTUSDT",
-        "interval": "60",
-        "type": "replay",
-        "title": "Replay Crash/Rally DOTUSDT 8.7%",
-        "description": "Pergerakan ekstrem 8.7% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "DOTUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779269251032_xf30",
-        "timestamp": 1779269251032
       }
     ]
   },
