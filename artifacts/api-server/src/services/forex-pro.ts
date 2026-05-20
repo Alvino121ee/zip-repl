@@ -471,6 +471,75 @@ function getSessionVolatilityMultiplier(): number {
 
 const candleCache: Record<string, Candle[]> = {};
 
+// Interval Bybit untuk setiap timeframe
+const TF_TO_BYBIT: Record<Timeframe, string> = {
+  M1: "1", M5: "5", M15: "15", M30: "30", H1: "60", H4: "240", D1: "D",
+};
+
+// Simbol Bybit untuk setiap simbol Forex Pro (hanya yang tersedia di Bybit linear)
+const BYBIT_SYMBOL_MAP: Record<string, string> = {
+  XAUUSD: "XAUUSDT",
+};
+
+async function fetchBybitCandles(symbol: string, timeframe: Timeframe, count = 200): Promise<Candle[] | null> {
+  const bybitSym = BYBIT_SYMBOL_MAP[symbol];
+  if (!bybitSym) return null;
+  const interval = TF_TO_BYBIT[timeframe];
+  try {
+    const url = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${bybitSym}&interval=${interval}&limit=${count}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const json = await res.json() as { retCode: number; result: { list: string[][] } };
+    if (json.retCode !== 0 || !Array.isArray(json.result?.list)) return null;
+    // list: descending [startTime, open, high, low, close, volume, turnover]
+    const candles: Candle[] = json.result.list.slice().reverse().map((row, i, arr) => ({
+      time: parseInt(row[0]!),
+      open: parseFloat(row[1]!),
+      high: parseFloat(row[2]!),
+      low: parseFloat(row[3]!),
+      close: parseFloat(row[4]!),
+      volume: parseFloat(row[5]!),
+      isComplete: i < arr.length - 1,
+    }));
+    return candles;
+  } catch {
+    return null;
+  }
+}
+
+// Update basePrice XAUUSD dari harga live Bybit
+async function syncXauBasePrice(): Promise<void> {
+  try {
+    const res = await fetch("https://api.bybit.com/v5/market/tickers?category=linear&symbol=XAUUSDT");
+    if (!res.ok) return;
+    const json = await res.json() as { retCode: number; result: { list: { lastPrice: string }[] } };
+    if (json.retCode === 0 && json.result?.list?.[0]) {
+      const price = parseFloat(json.result.list[0]!.lastPrice);
+      if (!isNaN(price) && price > 0) {
+        const xauPair = FOREX_PAIRS_PRO.find(p => p.symbol === "XAUUSD");
+        if (xauPair) xauPair.basePrice = price;
+        // Sync priceState juga
+        if (priceState["XAUUSD"]) priceState["XAUUSD"]!.price = price;
+      }
+    }
+  } catch { /* non-critical */ }
+}
+
+// Prefetch semua timeframe XAUUSD yang dipakai engine
+async function prefetchXauCandles(): Promise<void> {
+  await syncXauBasePrice();
+  for (const tf of ["M1", "M5", "M15", "H1"] as Timeframe[]) {
+    const candles = await fetchBybitCandles("XAUUSD", tf, 200);
+    if (candles && candles.length > 10) {
+      candleCache[`XAUUSD_${tf}`] = candles;
+    }
+  }
+}
+
+// Jalankan prefetch saat modul dimuat, lalu refresh setiap 60 detik
+prefetchXauCandles().catch(() => {});
+setInterval(() => { prefetchXauCandles().catch(() => {}); }, 60_000);
+
 export function getCandles(symbol: string, timeframe: Timeframe, count = 100): Candle[] {
   const key = `${symbol}_${timeframe}`;
   const pair = getPairInfo(symbol);
@@ -479,7 +548,7 @@ export function getCandles(symbol: string, timeframe: Timeframe, count = 100): C
   const msPerCandle = tfMin * 60 * 1000;
 
   if (!candleCache[key] || candleCache[key]!.length === 0) {
-    // Generate initial candles
+    // Generate initial candles (akan diganti data nyata saat prefetch selesai)
     candleCache[key] = generateInitialCandles(symbol, timeframe, count);
   }
 
@@ -1074,7 +1143,7 @@ function makeAiDecision(
     const reason = direction === null
       ? "Konflik sinyal — tidak ada arah dominan"
       : `Confidence ${confidence}% di bawah minimum ${config.minConfidence}% atau quality score ${qualityScore} < ${config.minQualityScore}`;
-    return noTrade(reason, cp, smc, fibonacci, qualityScore);
+    return noTrade(reason, cp, smc, fibonacci, qualityScore, confidence);
   }
 
   // ─── ATR-based Dynamic SL + Structure ────────────────────────────────────
@@ -1095,36 +1164,44 @@ function makeAiDecision(
   let tp2: number;
   let slMethod = "ATR";
 
+  // Batas maksimum SL agar R/R tidak collapsed: SL max = ATR × (atrMult × 1.5)
+  const maxSLDistance = atr * atrMult * 1.5;
+
   if (direction === "Buy") {
     entryPrice = cp + spread; // ask
     const atrBasedSL    = entryPrice - atr * atrMult;
     const structureSL   = swingLow - pair.pipSize * 3;
     // Gunakan SL yang lebih jauh dari entry (lebih konservatif = lebih safe)
-    stopLoss = (config.atrSLUseStructure && structureSL < atrBasedSL)
-      ? structureSL
-      : atrBasedSL;
+    let rawSL = (config.atrSLUseStructure && structureSL < atrBasedSL) ? structureSL : atrBasedSL;
     if (config.atrSLUseStructure && structureSL < atrBasedSL) slMethod = "Struktur (Swing Low)";
+    // Cap SL agar tidak terlalu jauh (jaga R/R tetap layak)
+    rawSL = Math.max(rawSL, entryPrice - maxSLDistance);
     // Snap ke demand zone jika ada dan lebih baik
-    if (smc.demandZone && smc.demandZone.low < entryPrice && smc.demandZone.low - pair.pipSize * 3 < stopLoss) {
-      stopLoss = smc.demandZone.low - pair.pipSize * 3;
+    if (smc.demandZone && smc.demandZone.low < entryPrice && smc.demandZone.low - pair.pipSize * 3 < rawSL) {
+      rawSL = Math.max(smc.demandZone.low - pair.pipSize * 3, entryPrice - maxSLDistance);
       slMethod = "Demand Zone";
     }
-    takeProfit = entryPrice + atr * atrMult * 2;
-    tp2        = entryPrice + atr * atrMult * 3.5;
+    stopLoss   = rawSL;
+    // TP skala dari SL yang sudah di-cap sehingga R/R selalu terjaga
+    const slDist = entryPrice - stopLoss;
+    takeProfit = entryPrice + slDist * config.minRR * 1.1;
+    tp2        = entryPrice + slDist * config.minRR * 2.0;
   } else {
     entryPrice = cp - spread; // bid
     const atrBasedSL    = entryPrice + atr * atrMult;
     const structureSL   = swingHigh + pair.pipSize * 3;
-    stopLoss = (config.atrSLUseStructure && structureSL > atrBasedSL)
-      ? structureSL
-      : atrBasedSL;
+    let rawSL = (config.atrSLUseStructure && structureSL > atrBasedSL) ? structureSL : atrBasedSL;
     if (config.atrSLUseStructure && structureSL > atrBasedSL) slMethod = "Struktur (Swing High)";
-    if (smc.supplyZone && smc.supplyZone.high > entryPrice && smc.supplyZone.high + pair.pipSize * 3 > stopLoss) {
-      stopLoss = smc.supplyZone.high + pair.pipSize * 3;
+    // Cap SL
+    rawSL = Math.min(rawSL, entryPrice + maxSLDistance);
+    if (smc.supplyZone && smc.supplyZone.high > entryPrice && smc.supplyZone.high + pair.pipSize * 3 > rawSL) {
+      rawSL = Math.min(smc.supplyZone.high + pair.pipSize * 3, entryPrice + maxSLDistance);
       slMethod = "Supply Zone";
     }
-    takeProfit = entryPrice - atr * atrMult * 2;
-    tp2        = entryPrice - atr * atrMult * 3.5;
+    stopLoss   = rawSL;
+    const slDist = stopLoss - entryPrice;
+    takeProfit = entryPrice - slDist * config.minRR * 1.1;
+    tp2        = entryPrice - slDist * config.minRR * 2.0;
   }
 
   reasoning.push(`📐 SL Dinamis: ${slMethod} | ATR×${atrMult} | Swing ${direction === "Buy" ? "Low" : "High"}: ${(direction === "Buy" ? swingLow : swingHigh).toFixed(2)}`);
@@ -1135,7 +1212,7 @@ function makeAiDecision(
 
   // Tolak jika RR tidak memenuhi minimum
   if (riskReward < config.minRR) {
-    return noTrade(`Risk/Reward ${riskReward.toFixed(2)} di bawah minimum ${config.minRR} — tidak worth it`, cp, smc, fibonacci, qualityScore);
+    return noTrade(`Risk/Reward ${riskReward.toFixed(2)} di bawah minimum ${config.minRR} — tidak worth it`, cp, smc, fibonacci, qualityScore, confidence);
   }
 
   // Hitung lot size berdasarkan risk management
@@ -1246,11 +1323,14 @@ function makeAiDecision(
   };
 }
 
-function noTrade(reason: string, price: number, smc: SmcLayers, fibonacci: ReturnType<typeof calcFibonacci>, qs: number): AiDecision {
+function noTrade(reason: string, price: number, smc: SmcLayers, fibonacci: ReturnType<typeof calcFibonacci>, qs: number, realConfidence?: number): AiDecision {
+  // Tampilkan confidence nyata agar UI tidak selalu 0% saat "TUNGGU"
+  // Gunakan realConfidence jika ada, otherwise pakai 60% dari qualityScore (maks 60)
+  const displayConfidence = realConfidence !== undefined ? realConfidence : Math.min(Math.round(qs * 0.6), 60);
   return {
     shouldTrade: false,
     direction: null,
-    confidence: 0,
+    confidence: displayConfidence,
     strategy: "No Trade",
     entryPrice: price,
     stopLoss: price,

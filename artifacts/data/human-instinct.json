@@ -1,15 +1,77 @@
 {
-  "totalDecisions": 129,
-  "correctEarlyExits": 129,
+  "totalDecisions": 132,
+  "correctEarlyExits": 132,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 41.732283464566926,
-  "avgContinuationProbAtExit": 10.724409448818898,
+  "avgMomentumAtEarlyExit": 41.676923076923075,
+  "avgContinuationProbAtExit": 10.653846153846153,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "e2b96635-55b4-45da-b426-727f33d82ac8",
+      "tradeId": "b9c5c765-34fd-4fd3-95d8-c81fec818994",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 43% — tanda pelemahan",
+      "profitPctAtDecision": 0.7632060370454947,
+      "momentumScore": 32,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 43% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779273102783,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7632060370454947,
+      "profitDelta": 0
+    },
+    {
+      "id": "373faca2-8229-443a-a7fb-f70e997c7557",
+      "tradeId": "9e7c0289-2282-4211-a1ee-eb5a7d45c8c4",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 32) — probabilitas kelanjutan rendah. Volume menurun 33% — tanda pelemahan",
+      "profitPctAtDecision": 0.5837621497998862,
+      "momentumScore": 32,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume menurun 33% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779272921678,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5837621497998862,
+      "profitDelta": 0
+    },
+    {
+      "id": "ecef98eb-2244-4e7d-9426-99081fa3eeab",
+      "tradeId": "f3b63c13-81f2-45aa-a790-4a56efaada66",
+      "symbol": "BANANAS31USDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.8302507192766164,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779272748630,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.8302507192766164,
+      "profitDelta": 0
+    },
     {
       "id": "a77715f7-3310-44cb-9a5b-6122bb4e672a",
       "tradeId": "f31a6df9-bb81-4a57-9ac2-da61401693b5",
@@ -2619,5 +2681,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779272428521
+  "lastUpdated": 1779273102791
 }
