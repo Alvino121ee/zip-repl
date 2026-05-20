@@ -1,6 +1,35 @@
 {
   "records": [
     {
+      "id": "725d7f67-d228-4fda-918c-e9b3b0590db1",
+      "timestamp": 1779273374638,
+      "tradeId": "35e56117-c1d9-4958-954a-3e97e7786f78",
+      "symbol": "FIGHTUSDT",
+      "side": "long",
+      "entryPrice": 0.005211,
+      "slPrice": 0.005093892857142858,
+      "exitPrice": 0.005078,
+      "pnlPct": -2.552,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 3763692,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Entry terlambat — momentum sudah habis saat posisi dibuka, reversal terjadi segera setelah.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 2.247,
+      "improvementApplied": false
+    },
+    {
       "id": "d7373fd8-9ab9-45da-9fe0-d8c21b757760",
       "timestamp": 1779272253272,
       "tradeId": "396a36ea-ba51-4613-93f1-66ada5848178",
@@ -1954,7 +1983,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779272253273
+      "lastSeen": 1779273374639
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1975,13 +2004,13 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "critical",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779272253273
+      "lastSeen": 1779273374639
     },
     {
       "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
       "pattern": "Entry Terlambat",
       "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 11,
+      "occurrences": 12,
       "primaryCause": "late_entry",
       "associatedStrategies": [
         "auto_institutional"
@@ -1991,11 +2020,11 @@
         "trending_up_normal",
         "breakout"
       ],
-      "avgPnlPct": -3.34,
+      "avgPnlPct": -3.28,
       "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
       "severity": "critical",
       "firstSeen": 1779066635898,
-      "lastSeen": 1779272253273
+      "lastSeen": 1779273374639
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -2015,7 +2044,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779272253273
+      "lastSeen": 1779273374639
     },
     {
       "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
@@ -2035,10 +2064,10 @@
       "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
       "severity": "high",
       "firstSeen": 1779194275810,
-      "lastSeen": 1779272253273
+      "lastSeen": 1779273374639
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 68,
-  "improvementScore": 82
+  "totalAnalyzed": 69,
+  "improvementScore": 83
 }

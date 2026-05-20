@@ -1,7 +1,7 @@
 {
   "autoEnabled": true,
   "maxPositions": 10,
-  "riskPerTradePct": 90,
+  "riskPerTradePct": 2,
   "minConfidence": 55,
   "minQualityScore": 50,
   "minRR": 1.2,
@@ -10,7 +10,7 @@
   "breakevenEnabled": true,
   "newsFilterEnabled": false,
   "spreadLimitPips": 15,
-  "defaultLeverage": 10,
+  "defaultLeverage": 100,
   "preferredTimeframe": "M5",
   "preferredStrategies": ["EMA20/50 Crossover","Trend Following","Order Block Retest","Liquidity Sweep Reversal"],
   "intervalMs": 10000,

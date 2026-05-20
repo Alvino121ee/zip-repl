@@ -34,18 +34,19 @@ export const SPREAD_COST = 0.00015; // rata-rata spread dalam lot
 // ─── Pasangan Forex & Komoditas ───────────────────────────────────────────────
 
 export const FOREX_PAIRS_PRO = [
-  { symbol: "EURUSD", name: "Euro / US Dollar",          category: "Major",    emoji: "🇪🇺", basePrice: 1.0872, volatility: 0.00045, pipSize: 0.0001, pipValue: 10 },
-  { symbol: "GBPUSD", name: "British Pound / US Dollar", category: "Major",    emoji: "🇬🇧", basePrice: 1.2715, volatility: 0.00065, pipSize: 0.0001, pipValue: 10 },
-  { symbol: "USDJPY", name: "US Dollar / Japanese Yen",  category: "Major",    emoji: "🇯🇵", basePrice: 153.42, volatility: 0.075,   pipSize: 0.01,   pipValue: 6.5 },
-  { symbol: "USDCHF", name: "US Dollar / Swiss Franc",   category: "Major",    emoji: "🇨🇭", basePrice: 0.9042, volatility: 0.00040, pipSize: 0.0001, pipValue: 11 },
-  { symbol: "AUDUSD", name: "Australian Dollar / USD",   category: "Major",    emoji: "🇦🇺", basePrice: 0.6558, volatility: 0.00042, pipSize: 0.0001, pipValue: 10 },
-  { symbol: "USDCAD", name: "US Dollar / Canadian Dollar",category: "Major",   emoji: "🇨🇦", basePrice: 1.3628, volatility: 0.00038, pipSize: 0.0001, pipValue: 7.3 },
-  { symbol: "NZDUSD", name: "New Zealand Dollar / USD",  category: "Major",    emoji: "🇳🇿", basePrice: 0.6102, volatility: 0.00040, pipSize: 0.0001, pipValue: 10 },
-  { symbol: "EURJPY", name: "Euro / Japanese Yen",       category: "Cross",    emoji: "🔀",  basePrice: 166.68, volatility: 0.090,   pipSize: 0.01,   pipValue: 6.5 },
-  { symbol: "GBPJPY", name: "British Pound / Yen",       category: "Cross",    emoji: "🔀",  basePrice: 194.85, volatility: 0.110,   pipSize: 0.01,   pipValue: 6.5 },
-  { symbol: "XAUUSD", name: "Gold / US Dollar",          category: "Emas",     emoji: "🥇",  basePrice: 2325.0, volatility: 2.50,    pipSize: 0.01,   pipValue: 1   },
-  { symbol: "XAGUSD", name: "Silver / US Dollar",        category: "Perak",    emoji: "⚪",  basePrice: 27.45,  volatility: 0.30,    pipSize: 0.001,  pipValue: 5   },
-  { symbol: "USOIL",  name: "US Crude Oil (WTI)",        category: "Komoditas",emoji: "🛢️",  basePrice: 78.60,  volatility: 0.55,    pipSize: 0.01,   pipValue: 1   },
+  // contractSize: unit per 1 lot. Forex = 1000 (simplified), Komoditas = 100
+  { symbol: "EURUSD", name: "Euro / US Dollar",          category: "Major",    emoji: "🇪🇺", basePrice: 1.0872, volatility: 0.00045, pipSize: 0.0001, pipValue: 10, contractSize: 1000 },
+  { symbol: "GBPUSD", name: "British Pound / US Dollar", category: "Major",    emoji: "🇬🇧", basePrice: 1.2715, volatility: 0.00065, pipSize: 0.0001, pipValue: 10, contractSize: 1000 },
+  { symbol: "USDJPY", name: "US Dollar / Japanese Yen",  category: "Major",    emoji: "🇯🇵", basePrice: 153.42, volatility: 0.075,   pipSize: 0.01,   pipValue: 6.5, contractSize: 1000 },
+  { symbol: "USDCHF", name: "US Dollar / Swiss Franc",   category: "Major",    emoji: "🇨🇭", basePrice: 0.9042, volatility: 0.00040, pipSize: 0.0001, pipValue: 11, contractSize: 1000 },
+  { symbol: "AUDUSD", name: "Australian Dollar / USD",   category: "Major",    emoji: "🇦🇺", basePrice: 0.6558, volatility: 0.00042, pipSize: 0.0001, pipValue: 10, contractSize: 1000 },
+  { symbol: "USDCAD", name: "US Dollar / Canadian Dollar",category: "Major",   emoji: "🇨🇦", basePrice: 1.3628, volatility: 0.00038, pipSize: 0.0001, pipValue: 7.3, contractSize: 1000 },
+  { symbol: "NZDUSD", name: "New Zealand Dollar / USD",  category: "Major",    emoji: "🇳🇿", basePrice: 0.6102, volatility: 0.00040, pipSize: 0.0001, pipValue: 10, contractSize: 1000 },
+  { symbol: "EURJPY", name: "Euro / Japanese Yen",       category: "Cross",    emoji: "🔀",  basePrice: 166.68, volatility: 0.090,   pipSize: 0.01,   pipValue: 6.5, contractSize: 1000 },
+  { symbol: "GBPJPY", name: "British Pound / Yen",       category: "Cross",    emoji: "🔀",  basePrice: 194.85, volatility: 0.110,   pipSize: 0.01,   pipValue: 6.5, contractSize: 1000 },
+  { symbol: "XAUUSD", name: "Gold / US Dollar",          category: "Emas",     emoji: "🥇",  basePrice: 2325.0, volatility: 2.50,    pipSize: 0.01,   pipValue: 1,   contractSize: 100  },
+  { symbol: "XAGUSD", name: "Silver / US Dollar",        category: "Perak",    emoji: "⚪",  basePrice: 27.45,  volatility: 0.30,    pipSize: 0.001,  pipValue: 5,   contractSize: 100  },
+  { symbol: "USOIL",  name: "US Crude Oil (WTI)",        category: "Komoditas",emoji: "🛢️",  basePrice: 78.60,  volatility: 0.55,    pipSize: 0.01,   pipValue: 1,   contractSize: 100  },
 ];
 
 export const TIMEFRAMES = ["M1","M5","M15","M30","H1","H4","D1"] as const;
@@ -1479,7 +1480,7 @@ function defaultConfig(): ForexProConfig {
   return {
     autoEnabled: false,
     maxPositions: 10,
-    riskPerTradePct: 90,
+    riskPerTradePct: 2,
     minConfidence: 55,
     minQualityScore: 50,
     minRR: 1.2,
@@ -1488,7 +1489,7 @@ function defaultConfig(): ForexProConfig {
     breakevenEnabled: true,
     newsFilterEnabled: false,
     spreadLimitPips: 15,
-    defaultLeverage: 10,
+    defaultLeverage: 100,
     preferredTimeframe: "M5",
     preferredStrategies: ["EMA20/50 Crossover","Trend Following","Order Block Retest","Liquidity Sweep Reversal"],
     intervalMs: 10000,
@@ -1579,10 +1580,15 @@ export function openForexProPosition(
 
   const lotSize = customLot ?? dec.lotSize;
   const entryPrice = direction === "Buy" ? analysis.ask : analysis.bid;
-  const margin = lotSize * pair.basePrice * 1000 / config.defaultLeverage;
+  const margin = lotSize * pair.basePrice * pair.contractSize / config.defaultLeverage;
 
-  if (margin > state.balance * 0.95) {
-    return { ok: false, error: "Margin tidak cukup (>95% balance)" };
+  // Cek margin: gunakan total equity (balance + semua margin terpakai) sebagai referensi
+  // Ini penting karena balance berkurang setiap kali posisi dibuka (margin di-lock)
+  const usedMargin = state.positions.reduce((s, p) => s + p.margin, 0);
+  const totalEquity = state.balance + usedMargin; // estimasi equity awal
+  const availableMargin = totalEquity * 0.95 - usedMargin;
+  if (margin > availableMargin) {
+    return { ok: false, error: "Margin tidak cukup (>95% equity)" };
   }
 
   if (state.positions.length >= config.maxPositions) {
@@ -2039,7 +2045,7 @@ async function runForexProCycle(): Promise<void> {
     } else if (!config.pyramidEnabled && !config.spamEntryEnabled && currentXauPositions === 0) {
       // ── Fallback: single posisi full margin ──────────────────────────────────
       const fullLot = parseFloat(
-        Math.max(0.01, (state.balance * 0.90 * config.defaultLeverage) / (GOLD.basePrice * 1000))
+        Math.max(0.01, (state.balance * 0.90 * config.defaultLeverage) / (GOLD.basePrice * GOLD.contractSize))
           .toFixed(2)
       );
       const result = openForexProPosition("XAUUSD", newDir, config.preferredTimeframe, false, fullLot);
