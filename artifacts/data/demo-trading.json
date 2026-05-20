@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 0.29836326437826777,
       "entryPrice": 17.596,
-      "markPrice": 17.5892,
+      "markPrice": 17.5295,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 17.280571428571427,
       "takeProfit": 18.38457142857143,
-      "unrealisedPnl": -0.0020288701977717325,
-      "unrealisedPnlPct": -0.03864514662422348,
+      "unrealisedPnl": -0.019841157081155206,
+      "unrealisedPnlPct": -0.37792680154581343,
       "openedAt": 1779273107872,
       "source": "auto",
       "confidence": 99,
@@ -33,20 +33,18 @@
       "opportunityScore": 100,
       "trailPeakPrice": 17.7039,
       "humanInstinct": {
-        "lastEvalAt": 1779273957419,
-        "momentumScore": 0,
+        "lastEvalAt": 1779274197457,
+        "momentumScore": 14,
         "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume sedikit turun 21%",
           "Candle doji terdeteksi — ragu-ragu pasar",
           "Candle rejection atas — tekanan jual kuat",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan",
-          "RSI proxy overbought (76) — risiko reversal meningkat"
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 16,
+        "evalCount": 21,
         "urgency": 15
       }
     },
@@ -57,13 +55,13 @@
       "side": "Buy",
       "size": 33.358749523446434,
       "entryPrice": 0.15738,
-      "markPrice": 0.15674,
+      "markPrice": 0.15642,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.1506107142857143,
       "takeProfit": 0.17430321428571427,
-      "unrealisedPnl": -0.021349599695005776,
-      "unrealisedPnlPct": -0.4066590418096338,
+      "unrealisedPnl": -0.0320243995425082,
+      "unrealisedPnlPct": -0.6099885627144419,
       "openedAt": 1779273387550,
       "source": "auto",
       "confidence": 99,
@@ -78,17 +76,19 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.15844,
       "humanInstinct": {
-        "lastEvalAt": 1779273997490,
-        "momentumScore": 75,
-        "continuationProb": 36,
+        "lastEvalAt": 1779274237521,
+        "momentumScore": 0,
+        "continuationProb": 0,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume sedikit turun 19%",
+          "Volume sedikit turun 26%",
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (36%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 11,
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 16,
         "urgency": 15
       }
     },
@@ -99,13 +99,13 @@
       "side": "Buy",
       "size": 64.09473812721279,
       "entryPrice": 0.08191,
-      "markPrice": 0.08149,
+      "markPrice": 0.08111,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.07809464285714285,
       "takeProfit": 0.09144839285714285,
-      "unrealisedPnl": -0.026919790013428722,
-      "unrealisedPnlPct": -0.5127579050176899,
+      "unrealisedPnl": -0.051275790501769926,
+      "unrealisedPnlPct": -0.9766817238432366,
       "openedAt": 1779273886372,
       "source": "auto",
       "confidence": 99,
@@ -118,7 +118,20 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.08189
+      "trailPeakPrice": 0.08189,
+      "humanInstinct": {
+        "lastEvalAt": 1779274205596,
+        "momentumScore": 85,
+        "continuationProb": 54,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
+        "evalCount": 5,
+        "urgency": 15
+      }
     }
   ],
   "log": [
