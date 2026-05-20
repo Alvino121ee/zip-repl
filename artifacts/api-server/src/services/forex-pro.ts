@@ -1181,9 +1181,9 @@ function defaultConfig(): ForexProConfig {
     newsFilterEnabled: true,
     spreadLimitPips: 10,
     defaultLeverage: 10,
-    preferredTimeframe: "H1",
+    preferredTimeframe: "M15",
     preferredStrategies: ["Order Block Retest","Liquidity Sweep Reversal","Trend Following"],
-    intervalMs: 30000,
+    intervalMs: 10000,
   };
 }
 
@@ -1528,7 +1528,12 @@ async function runForexProCycle(): Promise<void> {
   try {
     updateOpenPositions();
 
-    for (const pair of FOREX_PAIRS_PRO.slice(0, 6)) { // Scan 6 pair utama
+    // XAUUSD diutamakan — taruh di depan, baru pair lainnya
+    const scanOrder = [
+      ...FOREX_PAIRS_PRO.filter(p => p.symbol === "XAUUSD"),
+      ...FOREX_PAIRS_PRO.filter(p => p.symbol !== "XAUUSD"),
+    ];
+    for (const pair of scanOrder.slice(0, 8)) { // Scan 8 pair, XAUUSD selalu pertama
       if (state.positions.length >= config.maxPositions) break;
       const analysis = analyzeForexPro(pair.symbol, config.preferredTimeframe, state, config);
       if (analysis.aiDecision.shouldTrade && analysis.aiDecision.direction) {
