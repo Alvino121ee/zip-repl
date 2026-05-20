@@ -79,6 +79,7 @@ export interface SessionInfo {
 export interface TechnicalLayers {
   // Trend
   ema9: number;
+  ema20: number;
   ema21: number;
   ema50: number;
   ema200: number;
@@ -153,6 +154,19 @@ export interface AiDecision {
   fibonacci: { level: number; price: number; label: string }[];
   supportLevels: number[];
   resistanceLevels: number[];
+  spamEntry: { count: number; lotEach: number; totalLot: number; maxFloatLossPct: number } | null;
+  xauSignal: {
+    pair: string;
+    signal: "BUY" | "SELL" | "WAIT";
+    entry: number;
+    stopLoss: number;
+    takeProfit: number;
+    trend: string;
+    confidence: number;
+    spamEntry: string;
+    reasons: string[];
+    psychology: string[];
+  } | null;
 }
 
 export interface ForexProAnalysis {
@@ -266,6 +280,15 @@ export interface ForexProConfig {
   preferredTimeframe: Timeframe;
   preferredStrategies: string[];
   intervalMs: number;
+  // XAUUSD Scalping Pro
+  focusXAUUSD: boolean;
+  spamEntryEnabled: boolean;
+  spamEntryCount: number;       // jumlah posisi spam (default 10)
+  spamEntryLotEach: number;     // lot per posisi (default 0.01)
+  spamMinConfidence: number;    // minimum confidence untuk spam (default 75)
+  maxFloatingLossPct: number;   // max floating loss % (default 5)
+  entryTimeframe: Timeframe;    // M1 atau M5 untuk entry
+  trendTimeframe: Timeframe;    // M15 untuk arah trend
 }
 
 // ─── Live Rates dari Frankfurter API (ECB) & Gold-API ────────────────────────
@@ -810,50 +833,100 @@ function makeAiDecision(
   const sessions = getSessions();
   const activeSessions = sessions.filter(s => s.active);
   const isDead = activeSessions.length === 0;
-  const hasOpenPositions = state.positions.filter(p => p.symbol === symbol).length;
+  const openXauPositions = state.positions.filter(p => p.symbol === symbol).length;
 
   if (isDead) {
     return noTrade("Sesi dead zone (00:00-06:00 UTC tanpa sesi aktif) — tidak ada trade", cp, smc, fibonacci, qualityScore);
   }
 
   if (fundamental.newsImpact === "Tinggi" && config.newsFilterEnabled) {
-    return noTrade(`Event berdampak tinggi: ${fundamental.upcomingEvent ?? "Berita Penting"} — hindari entry saat volatilitas ekstrem`, cp, smc, fibonacci, qualityScore);
+    return noTrade(`🔴 NEWS FILTER: ${fundamental.upcomingEvent ?? "High Impact News"} — hindari entry saat volatilitas ekstrem`, cp, smc, fibonacci, qualityScore);
   }
 
-  // Spread simulasi: 1-3 pips untuk major, lebih tinggi untuk cross & komoditas
-  const currentSpreadPips = pair.category === "Major" ? 1.5 : pair.category === "Cross" ? 2.5 : pair.category === "Emas" ? 4.0 : 3.0;
+  // ─── FILTER MARKET (XAUUSD Scalping Pro) ─────────────────────────────────
+  const currentSpreadPips = pair.category === "Major" ? 1.5 : pair.category === "Cross" ? 2.5 : pair.category === "Emas" ? 5.0 : 3.0;
   if (currentSpreadPips > config.spreadLimitPips) {
-    return noTrade("Spread terlalu lebar — risiko tidak sepadan", cp, smc, fibonacci, qualityScore);
+    return noTrade("🔴 Spread terlalu lebar — risiko tidak sepadan, tunggu spread normal", cp, smc, fibonacci, qualityScore);
   }
 
-  if (hasOpenPositions >= 1) {
-    return noTrade(`Sudah ada posisi ${symbol} terbuka — tidak tambah posisi`, cp, smc, fibonacci, qualityScore);
+  // Filter: market sideways (XAUUSD)
+  if (symbol === "XAUUSD" && technical.trendBias === "Sideways" && technical.trendStrength < 20) {
+    return noTrade("🔴 Market sideways — tidak ada tren jelas, tunggu breakout konfirmasi", cp, smc, fibonacci, qualityScore);
+  }
+
+  // Filter: volume rendah
+  if (technical.volumeRatio < 0.5) {
+    return noTrade("🔴 Volume terlalu rendah — kurang partisipasi pasar, hindari entry", cp, smc, fibonacci, qualityScore);
+  }
+
+  // Filter: candle tidak jelas (Doji saat kondisi tidak mendukung)
+  if (technical.candleSignal === "Netral" && technical.candlePattern?.includes("Doji") && technical.trendStrength < 30) {
+    return noTrade("🔴 Candle Doji + tren lemah — sinyal tidak jelas, tunggu konfirmasi", cp, smc, fibonacci, qualityScore);
+  }
+
+  // Spam entry: cek jumlah posisi aktif (jika spam mode aktif, izinkan hingga spamEntryCount)
+  const maxAllowedPositions = config.spamEntryEnabled ? config.spamEntryCount : 1;
+  if (openXauPositions >= maxAllowedPositions) {
+    return noTrade(`Posisi ${symbol} sudah penuh (${openXauPositions}/${maxAllowedPositions})`, cp, smc, fibonacci, qualityScore);
   }
 
   // ─── Kalkulasi Skor Bullish/Bearish ───────────────────────────────────────
 
-  // 1. Trend EMA
-  if (technical.ema9 > technical.ema21 && technical.ema21 > technical.ema50) {
-    bullishScore += 15;
-    reasoning.push("✅ EMA 9/21/50 aligned bullish — tren naik terkonfirmasi");
-  } else if (technical.ema9 < technical.ema21 && technical.ema21 < technical.ema50) {
-    bearishScore += 15;
-    reasoning.push("✅ EMA 9/21/50 aligned bearish — tren turun terkonfirmasi");
+  // 1. EMA 20/50 Crossover (utama untuk XAUUSD) — EMA 9/21/50 untuk pair lain
+  if (symbol === "XAUUSD") {
+    // Logika EMA 20/50 khusus Gold
+    if (technical.ema20 > technical.ema50) {
+      bullishScore += 20;
+      reasoning.push(`✅ EMA20 (${technical.ema20.toFixed(2)}) > EMA50 (${technical.ema50.toFixed(2)}) — tren naik XAUUSD terkonfirmasi`);
+    } else if (technical.ema20 < technical.ema50) {
+      bearishScore += 20;
+      reasoning.push(`✅ EMA20 (${technical.ema20.toFixed(2)}) < EMA50 (${technical.ema50.toFixed(2)}) — tren turun XAUUSD terkonfirmasi`);
+    }
+  } else {
+    // Logika EMA 9/21/50 untuk pair lain
+    if (technical.ema9 > technical.ema21 && technical.ema21 > technical.ema50) {
+      bullishScore += 15;
+      reasoning.push("✅ EMA 9/21/50 aligned bullish — tren naik terkonfirmasi");
+    } else if (technical.ema9 < technical.ema21 && technical.ema21 < technical.ema50) {
+      bearishScore += 15;
+      reasoning.push("✅ EMA 9/21/50 aligned bearish — tren turun terkonfirmasi");
+    }
   }
 
-  // 2. RSI
-  if (technical.rsi > 55 && technical.rsi < 70) {
-    bullishScore += 10;
-    reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} — zona momentum bullish tanpa overbought`);
-  } else if (technical.rsi < 45 && technical.rsi > 30) {
-    bearishScore += 10;
-    reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} — zona momentum bearish tanpa oversold`);
-  } else if (technical.rsi > 75) {
-    bearishScore += 8; // Potensi reversal
-    reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} overbought — waspada distribusi`);
-  } else if (technical.rsi < 25) {
-    bullishScore += 8;
-    reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} oversold — potensi bounce`);
+  // 2. RSI 14 — threshold ketat untuk XAUUSD scalping
+  if (symbol === "XAUUSD") {
+    if (technical.rsi > 55) {
+      bullishScore += 12;
+      reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} > 55 — zona momentum bullish Gold`);
+    } else if (technical.rsi < 45) {
+      bearishScore += 12;
+      reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} < 45 — zona momentum bearish Gold`);
+    } else {
+      // RSI netral 45-55 → kurangi quality score (hindari entry)
+      qualityScore -= 10;
+      reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} zona netral (45-55) — momentum belum kuat, tunggu`);
+    }
+    if (technical.rsi > 75) {
+      bearishScore += 8;
+      reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} overbought — waspada reversal Gold`);
+    } else if (technical.rsi < 25) {
+      bullishScore += 8;
+      reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} oversold — potensi bounce kuat`);
+    }
+  } else {
+    if (technical.rsi > 55 && technical.rsi < 70) {
+      bullishScore += 10;
+      reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} — zona momentum bullish tanpa overbought`);
+    } else if (technical.rsi < 45 && technical.rsi > 30) {
+      bearishScore += 10;
+      reasoning.push(`✅ RSI ${technical.rsi.toFixed(1)} — zona momentum bearish tanpa oversold`);
+    } else if (technical.rsi > 75) {
+      bearishScore += 8;
+      reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} overbought — waspada distribusi`);
+    } else if (technical.rsi < 25) {
+      bullishScore += 8;
+      reasoning.push(`⚠️ RSI ${technical.rsi.toFixed(1)} oversold — potensi bounce`);
+    }
   }
 
   // 3. MACD
@@ -883,13 +956,26 @@ function makeAiDecision(
     reasoning.push(`✅ Break of Structure Bearish di ${smc.lastBOS.price.toFixed(pair.basePrice > 100 ? 2 : 4)}`);
   }
 
-  // 6. Pola Candle
-  if (technical.candleSignal === "Bullish") {
-    bullishScore += 8;
-    reasoning.push(`✅ Pola candle: ${technical.candlePattern} — sinyal bullish`);
-  } else if (technical.candleSignal === "Bearish") {
-    bearishScore += 8;
-    reasoning.push(`✅ Pola candle: ${technical.candlePattern} — sinyal bearish`);
+  // 6. Pola Candle (Price Action konfirmasi wajib untuk XAUUSD)
+  if (symbol === "XAUUSD") {
+    if (technical.candleSignal === "Bullish") {
+      bullishScore += 12;
+      reasoning.push(`✅ Price Action: ${technical.candlePattern ?? "Bullish candle kuat"} — momentum naik Gold terkonfirmasi`);
+    } else if (technical.candleSignal === "Bearish") {
+      bearishScore += 12;
+      reasoning.push(`✅ Price Action: ${technical.candlePattern ?? "Bearish candle kuat"} — momentum turun Gold terkonfirmasi`);
+    } else {
+      qualityScore -= 8;
+      reasoning.push("⚠️ Candle netral — price action belum konfirmasi, tunggu candle close");
+    }
+  } else {
+    if (technical.candleSignal === "Bullish") {
+      bullishScore += 8;
+      reasoning.push(`✅ Pola candle: ${technical.candlePattern} — sinyal bullish`);
+    } else if (technical.candleSignal === "Bearish") {
+      bearishScore += 8;
+      reasoning.push(`✅ Pola candle: ${technical.candlePattern} — sinyal bearish`);
+    }
   }
 
   // 7. Liquidity Sweep
@@ -901,15 +987,29 @@ function makeAiDecision(
     reasoning.push(`✅ Likuiditas high disapu di ${smc.liquiditySweep.price.toFixed(4)} — smart money jual`);
   }
 
-  // 8. Volume
-  if (technical.volumeRatio > 1.5) {
-    const dominant = bullishScore > bearishScore ? "bullish" : "bearish";
-    bullishScore += dominant === "bullish" ? 5 : 0;
-    bearishScore += dominant === "bearish" ? 5 : 0;
-    reasoning.push(`✅ Volume tinggi (${technical.volumeRatio.toFixed(1)}x) — konfirmasi pergerakan institusional`);
-  } else if (technical.volumeRatio < 0.6) {
-    qualityScore -= 15;
-    reasoning.push("⚠️ Volume lemah — kurang keyakinan pergerakan");
+  // 8. Volume (wajib naik untuk XAUUSD entry)
+  if (symbol === "XAUUSD") {
+    if (technical.volumeRatio > 1.3) {
+      const dominant = bullishScore > bearishScore ? "bullish" : "bearish";
+      bullishScore += dominant === "bullish" ? 10 : 0;
+      bearishScore += dominant === "bearish" ? 10 : 0;
+      reasoning.push(`✅ Volume naik (${technical.volumeRatio.toFixed(1)}x) — partisipasi pasar tinggi, konfirmasi entry Gold`);
+    } else if (technical.volumeRatio >= 0.8) {
+      reasoning.push(`📊 Volume normal (${technical.volumeRatio.toFixed(1)}x) — cukup untuk entry`);
+    } else {
+      qualityScore -= 20;
+      reasoning.push(`⚠️ Volume rendah (${technical.volumeRatio.toFixed(1)}x) — hindari entry tanpa volume, tunggu konfirmasi`);
+    }
+  } else {
+    if (technical.volumeRatio > 1.5) {
+      const dominant = bullishScore > bearishScore ? "bullish" : "bearish";
+      bullishScore += dominant === "bullish" ? 5 : 0;
+      bearishScore += dominant === "bearish" ? 5 : 0;
+      reasoning.push(`✅ Volume tinggi (${technical.volumeRatio.toFixed(1)}x) — konfirmasi pergerakan institusional`);
+    } else if (technical.volumeRatio < 0.6) {
+      qualityScore -= 15;
+      reasoning.push("⚠️ Volume lemah — kurang keyakinan pergerakan");
+    }
   }
 
   // 9. Sesi Trading
@@ -1009,6 +1109,45 @@ function makeAiDecision(
     fibonacci.find(f => f.level === 100)?.price ?? cp * 1.006,
   ].sort((a, b) => a - b);
 
+  // ─── Spam Entry Info (XAUUSD Aggressive Scalping) ────────────────────────
+  const isSpamEligible = symbol === "XAUUSD" && config.spamEntryEnabled && confidence >= config.spamMinConfidence;
+  const spamEntry = isSpamEligible ? {
+    count: config.spamEntryCount,
+    lotEach: config.spamEntryLotEach,
+    totalLot: parseFloat((config.spamEntryCount * config.spamEntryLotEach).toFixed(2)),
+    maxFloatLossPct: config.maxFloatingLossPct,
+  } : null;
+
+  if (isSpamEligible) {
+    reasoning.push(`🔥 SPAM ENTRY AKTIF: ${config.spamEntryCount} posisi × ${config.spamEntryLotEach} lot = total ${(config.spamEntryCount * config.spamEntryLotEach).toFixed(2)} lot`);
+  }
+
+  // ─── Psikologi & Mindset Rules ────────────────────────────────────────────
+  const psychologyRules = [
+    "🧠 Jangan revenge trade setelah loss — tunggu setup valid berikutnya",
+    "📏 Patuhi SL tanpa pengecualian — modal adalah senjata utama",
+    "⏳ Jangan FOMO — setup bagus selalu datang kembali, bersabar",
+    "🎯 Konsisten dengan aturan entry — 1 trade valid > 10 trade acak",
+    "🔒 Saat profit floating, aktifkan trailing stop untuk protect keuntungan",
+    "📊 Ikuti tren M15 — jangan lawan tren utama hanya karena bounce kecil",
+  ];
+
+  // ─── XAUUSD Signal Card Output ────────────────────────────────────────────
+  const xauSignal = symbol === "XAUUSD" ? {
+    pair: "XAUUSD (Gold / US Dollar)",
+    signal: direction === "Buy" ? "BUY" as const : "SELL" as const,
+    entry: entryPrice,
+    stopLoss,
+    takeProfit,
+    trend: technical.ema20 > technical.ema50 ? "BULLISH (EMA20 > EMA50)" : "BEARISH (EMA20 < EMA50)",
+    confidence,
+    spamEntry: isSpamEligible
+      ? `${config.spamEntryCount} × ${config.spamEntryLotEach} LOT = TOTAL ${(config.spamEntryCount * config.spamEntryLotEach).toFixed(2)} LOT`
+      : "Spam entry belum memenuhi threshold confidence",
+    reasons: reasoning.filter(r => r.startsWith("✅")).slice(0, 6),
+    psychology: psychologyRules.slice(0, 4),
+  } : null;
+
   return {
     shouldTrade: true,
     direction,
@@ -1027,6 +1166,8 @@ function makeAiDecision(
     fibonacci,
     supportLevels,
     resistanceLevels,
+    spamEntry,
+    xauSignal,
   };
 }
 
@@ -1049,6 +1190,8 @@ function noTrade(reason: string, price: number, smc: SmcLayers, fibonacci: Retur
     fibonacci,
     supportLevels: [smc.demandZone?.low ?? price * 0.995],
     resistanceLevels: [smc.supplyZone?.high ?? price * 1.005],
+    spamEntry: null,
+    xauSignal: null,
   };
 }
 
@@ -1096,8 +1239,10 @@ export function analyzeForexPro(symbol: string, timeframe: Timeframe, state: For
     ema9 < ema21 && ema21 < ema50 ? "Bearish" : "Sideways";
   const trendStrength = Math.min(100, Math.abs(ema9 - ema50) / pair.volatility * 20);
 
+  const ema20 = calcEMA(closes, 20);
+
   const technical: TechnicalLayers = {
-    ema9, ema21, ema50, ema200, trendBias, trendStrength,
+    ema9, ema20, ema21, ema50, ema200, trendBias, trendStrength,
     rsi, rsiZone: rsi > 70 ? "Overbought" : rsi < 30 ? "Oversold" : "Netral",
     macd, macdSignal: signal, macdHistogram: histogram,
     macdBias: histogram > 0 ? "Bullish" : histogram < 0 ? "Bearish" : "Netral",
@@ -1114,17 +1259,20 @@ export function analyzeForexPro(symbol: string, timeframe: Timeframe, state: For
   const sessions = getSessions();
   const aiDecision = makeAiDecision(symbol, candles, technical, smc, fundamental, config, state);
 
-  // Multi-timeframe summary
+  // Multi-timeframe summary — M1/M5 entry, M15 trend utama
   const multiTimeframe: Record<string, { trend: string; bias: string; note: string }> = {};
-  const tfOrder: Timeframe[] = ["M15","H1","H4","D1"];
+  const tfOrder: Timeframe[] = symbol === "XAUUSD" ? ["M1","M5","M15","H1"] : ["M15","H1","H4","D1"];
   for (const tf of tfOrder) {
     if (tf === timeframe) continue;
     const tfc = getCandles(symbol, tf, 50);
     const tfCloses = tfc.map(c => c.close);
     const tfEma9 = calcEMA(tfCloses, 9);
-    const tfEma21 = calcEMA(tfCloses, 21);
+    const tfEma20 = calcEMA(tfCloses, 20);
+    const tfEma50 = calcEMA(tfCloses, 50);
     const tfRsi = calcRSI(tfCloses);
-    const bias = tfEma9 > tfEma21 ? "Bullish" : tfEma9 < tfEma21 ? "Bearish" : "Sideways";
+    const bias = tf === "M15" && symbol === "XAUUSD"
+      ? (tfEma20 > tfEma50 ? "Bullish" : tfEma20 < tfEma50 ? "Bearish" : "Sideways")
+      : (tfEma9 > tfEma20 ? "Bullish" : tfEma9 < tfEma20 ? "Bearish" : "Sideways");
     multiTimeframe[tf] = {
       trend: bias,
       bias,
@@ -1170,20 +1318,29 @@ function defaultState(): ForexProState {
 function defaultConfig(): ForexProConfig {
   return {
     autoEnabled: false,
-    maxPositions: 1,          // 1 posisi sekaligus — XAUUSD mode
-    riskPerTradePct: 90,      // Full margin ~90% balance
+    maxPositions: 10,          // Spam mode: max 10 posisi XAUUSD
+    riskPerTradePct: 90,
     minConfidence: 55,
     minQualityScore: 50,
     minRR: 1.2,
     maxDailyLossUSDT: 50,
     trailingEnabled: true,
     breakevenEnabled: true,
-    newsFilterEnabled: false,  // Nonaktif agar tidak block sinyal Gold
+    newsFilterEnabled: false,
     spreadLimitPips: 15,
     defaultLeverage: 10,
-    preferredTimeframe: "M15",
-    preferredStrategies: ["Trend Following","Order Block Retest","Liquidity Sweep Reversal"],
+    preferredTimeframe: "M5",
+    preferredStrategies: ["EMA20/50 Crossover","Trend Following","Order Block Retest","Liquidity Sweep Reversal"],
     intervalMs: 10000,
+    // XAUUSD Scalping Pro
+    focusXAUUSD: true,
+    spamEntryEnabled: true,
+    spamEntryCount: 10,
+    spamEntryLotEach: 0.01,
+    spamMinConfidence: 75,
+    maxFloatingLossPct: 5,
+    entryTimeframe: "M5",
+    trendTimeframe: "M15",
   };
 }
 
@@ -1528,24 +1685,94 @@ async function runForexProCycle(): Promise<void> {
   try {
     updateOpenPositions();
 
-    // ── Mode: XAUUSD Eksklusif, 1 posisi, full margin ────────────────────────
+    // ── XAUUSD Eksklusif — Aggressive Scalping Mode ───────────────────────────
     const GOLD = FOREX_PAIRS_PRO.find(p => p.symbol === "XAUUSD")!;
-    const analysis = analyzeForexPro("XAUUSD", config.preferredTimeframe, state, config);
-    const newDir = analysis.aiDecision.direction; // "Buy" | "Sell" | null
-    const currentPos = state.positions.find(p => p.symbol === "XAUUSD");
 
-    // Tutup posisi jika arah AI berbalik (reversal)
-    if (currentPos && newDir && currentPos.side !== newDir) {
-      closeForexProPosition(currentPos.id, "Manual");
+    // Analisis tren M15 sebagai filter utama
+    const trendAnalysis = analyzeForexPro("XAUUSD", config.trendTimeframe ?? "M15", state, config);
+    const trendDir = trendAnalysis.technical.ema20 > trendAnalysis.technical.ema50 ? "Buy" : "Sell";
+
+    // Analisis entry M5 (atau M1)
+    const entryAnalysis = analyzeForexPro("XAUUSD", config.entryTimeframe ?? "M5", state, config);
+    const dec = entryAnalysis.aiDecision;
+    const newDir = dec.direction;
+
+    // ── Cek Floating Loss Limit (psychology: stop trading jika loss berlebihan)
+    const totalFloating = state.positions.reduce((s, p) => s + p.unrealisedPnl, 0);
+    const floatingLossPct = state.balance > 0 ? Math.abs(Math.min(0, totalFloating)) / state.balance * 100 : 0;
+    if (floatingLossPct > (config.maxFloatingLossPct ?? 5)) {
+      // Tutup semua posisi jika floating loss melebihi batas
+      const allIds = state.positions.map(p => p.id);
+      for (const id of allIds) {
+        closeForexProPosition(id, "Manual");
+      }
+      logger.warn(
+        { floatingLossPct: floatingLossPct.toFixed(2), positions: allIds.length },
+        "Forex Pro XAUUSD: floating loss limit tercapai — semua posisi ditutup (psikologi: proteksi modal)"
+      );
+      return;
+    }
+
+    // ── Tutup posisi jika arah AI berbalik (reversal)
+    const openPositions = state.positions.filter(p => p.symbol === "XAUUSD");
+    if (openPositions.length > 0 && newDir && openPositions[0]!.side !== newDir) {
+      const toClose = openPositions.map(p => p.id);
+      for (const id of toClose) {
+        closeForexProPosition(id, "Manual");
+      }
       logger.info(
-        { from: currentPos.side, to: newDir, pnl: currentPos.unrealisedPnl },
-        "Forex Pro XAUUSD: arah berbalik — posisi ditutup, siap buka kebalikan"
+        { from: openPositions[0]!.side, to: newDir, posCount: toClose.length },
+        "Forex Pro XAUUSD: arah berbalik — semua posisi ditutup (reversal)"
       );
     }
 
-    // Buka posisi baru jika tidak ada posisi aktif dan AI memberi sinyal
-    if (state.positions.length === 0 && newDir && analysis.aiDecision.shouldTrade) {
-      // Full margin: gunakan 90% balance dengan leverage
+    // ── Buka posisi baru hanya jika: sinyal valid + tren M15 sejalan
+    if (!dec.shouldTrade || !newDir) return;
+    if (newDir !== trendDir) {
+      logger.info(
+        { entryDir: newDir, trendDir, confidence: dec.confidence },
+        "Forex Pro XAUUSD: entry bertentangan dengan tren M15 — skip"
+      );
+      return;
+    }
+
+    const currentXauPositions = state.positions.filter(p => p.symbol === "XAUUSD").length;
+
+    // ── Mode Spam Entry: 10 posisi × 0.01 lot ────────────────────────────────
+    if (config.spamEntryEnabled && dec.confidence >= (config.spamMinConfidence ?? 75)) {
+      const needed = config.spamEntryCount - currentXauPositions;
+      if (needed <= 0) return;
+
+      let opened = 0;
+      for (let i = 0; i < needed; i++) {
+        // Cek daily loss limit sebelum setiap posisi
+        const today = new Date().toDateString();
+        if (state.dailyStats.date === today && state.dailyStats.pnl < -config.maxDailyLossUSDT) break;
+
+        const result = openForexProPosition("XAUUSD", newDir, config.entryTimeframe ?? "M5", true, config.spamEntryLotEach);
+        if (result.ok) {
+          opened++;
+        } else {
+          logger.warn({ reason: result.error, i }, "Forex Pro XAUUSD spam entry: gagal buka posisi");
+          break;
+        }
+      }
+
+      if (opened > 0) {
+        logger.info(
+          {
+            direction: newDir,
+            spamCount: opened,
+            lotEach: config.spamEntryLotEach,
+            totalLot: (opened * config.spamEntryLotEach).toFixed(2),
+            confidence: dec.confidence,
+            trendM15: trendDir,
+          },
+          `Forex Pro XAUUSD: SPAM ENTRY — ${opened} posisi × ${config.spamEntryLotEach} lot dibuka`
+        );
+      }
+    } else if (!config.spamEntryEnabled && currentXauPositions === 0) {
+      // ── Mode single posisi (full margin) — fallback jika spam dimatikan ────
       const fullLot = parseFloat(
         Math.max(0.01, (state.balance * 0.90 * config.defaultLeverage) / (GOLD.basePrice * 1000))
           .toFixed(2)
@@ -1553,11 +1780,11 @@ async function runForexProCycle(): Promise<void> {
       const result = openForexProPosition("XAUUSD", newDir, config.preferredTimeframe, false, fullLot);
       if (result.ok) {
         logger.info(
-          { direction: newDir, lot: fullLot, balance: state.balance, confidence: analysis.aiDecision.confidence },
-          "Forex Pro XAUUSD: posisi dibuka (full margin)"
+          { direction: newDir, lot: fullLot, confidence: dec.confidence },
+          "Forex Pro XAUUSD: posisi single dibuka (full margin)"
         );
       } else {
-        logger.warn({ reason: result.error }, "Forex Pro XAUUSD: gagal buka posisi");
+        logger.warn({ reason: result.error }, "Forex Pro XAUUSD: gagal buka posisi single");
       }
     }
   } finally {

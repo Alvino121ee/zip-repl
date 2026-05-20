@@ -33,7 +33,8 @@ interface Analysis {
   symbol: string; timeframe: string; currentPrice: number; bid: number; ask: number; spread: number;
   sessions: Session[]; activeSession: string;
   technical: {
-    ema9: number; ema21: number; ema50: number; trendBias: string; trendStrength: number;
+    ema9: number; ema20: number; ema21: number; ema50: number; ema200: number;
+    trendBias: string; trendStrength: number;
     rsi: number; rsiZone: string; macd: number; macdHistogram: number; macdBias: string;
     atr: number; atrPct: number; bbUpper: number; bbLower: number;
     volumeRatio: number; volumeBias: string; candlePattern: string | null; candleSignal: string;
@@ -55,6 +56,13 @@ interface Analysis {
     marketCondition: string; qualityScore: number;
     fibonacci: { level: number; price: number; label: string }[];
     supportLevels: number[]; resistanceLevels: number[];
+    spamEntry: { count: number; lotEach: number; totalLot: number; maxFloatLossPct: number } | null;
+    xauSignal: {
+      pair: string; signal: "BUY" | "SELL" | "WAIT";
+      entry: number; stopLoss: number; takeProfit: number;
+      trend: string; confidence: number; spamEntry: string;
+      reasons: string[]; psychology: string[];
+    } | null;
   };
   multiTimeframe: Record<string, { trend: string; bias: string; note: string }>;
 }
@@ -1009,48 +1017,116 @@ export default function ForexPro() {
           {/* AI Analysis Panel */}
           {rightTab === "ai" && (
             <div className="p-3 space-y-3">
-              <div className="rounded-lg border border-border p-3 bg-card">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold">AI Confidence</span>
-                  <span className="font-mono font-bold text-2xl" style={{ color: confidenceColor }}>{dec?.confidence ?? 0}%</span>
-                </div>
-                <div className="w-full bg-zinc-800 rounded-full h-2 mb-2">
-                  <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${dec?.confidence ?? 0}%`, background: confidenceColor }} />
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Quality Score</span>
-                  <span className="font-mono" style={{ color: confidenceColor }}>{dec?.qualityScore ?? 0}/100</span>
-                </div>
-                <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-1">
-                  <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${dec?.qualityScore ?? 0}%`, background: confidenceColor }} />
-                </div>
-              </div>
 
-              <div className={`rounded-lg border p-3 text-center ${dec?.shouldTrade && dec.direction === "Buy" ? "bg-green-500/10 border-green-500/40" : dec?.shouldTrade && dec.direction === "Sell" ? "bg-red-500/10 border-red-500/40" : "bg-zinc-800/50 border-border"}`}>
-                <div className="text-xs text-muted-foreground mb-1">Rekomendasi AI</div>
-                {dec?.shouldTrade ? (
-                  <>
-                    <div className={`text-3xl font-black ${dec.direction === "Buy" ? "text-green-400" : "text-red-400"}`}>{dec.direction === "Buy" ? "▲ BUY" : "▼ SELL"}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{dec.strategy}</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-2xl font-black text-zinc-500">⏸ TUNGGU</div>
-                    <div className="text-[10px] text-muted-foreground mt-1 px-2">{dec?.waitReason ?? "Tidak ada sinyal"}</div>
-                  </>
-                )}
-              </div>
+              {/* ── XAUUSD Signal Card (output utama) ─── */}
+              {selectedPair === "XAUUSD" && dec?.xauSignal ? (
+                <div className={`rounded-lg border-2 p-3 ${dec.xauSignal.signal === "BUY" ? "border-green-500/60 bg-green-500/8" : "border-red-500/60 bg-red-500/8"}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">🥇 XAUUSD · AI SIGNAL</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${dec.xauSignal.signal === "BUY" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                      SCALP MODE
+                    </span>
+                  </div>
+                  <div className={`text-4xl font-black text-center mb-2 ${dec.xauSignal.signal === "BUY" ? "text-green-400" : "text-red-400"}`}>
+                    {dec.xauSignal.signal === "BUY" ? "▲ BUY" : "▼ SELL"}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 text-[11px] mb-2">
+                    <div className="flex justify-between"><span className="text-muted-foreground">PAIR</span><span className="font-mono text-white">XAUUSD</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">SIGNAL</span><span className={`font-bold ${dec.xauSignal.signal === "BUY" ? "text-green-400" : "text-red-400"}`}>{dec.xauSignal.signal}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">ENTRY</span><span className="font-mono text-white">{dec.xauSignal.entry.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">SL</span><span className="font-mono text-red-400">{dec.xauSignal.stopLoss.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">TP</span><span className="font-mono text-green-400">{dec.xauSignal.takeProfit.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">CONF</span><span className="font-mono" style={{ color: confidenceColor }}>{dec.xauSignal.confidence}%</span></div>
+                  </div>
+                  <div className={`text-[10px] font-semibold text-center py-1 rounded mb-2 ${dec.xauSignal.trend.startsWith("BULLISH") ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"}`}>
+                    📈 TREN: {dec.xauSignal.trend}
+                  </div>
+                  {/* Spam Entry Box */}
+                  {dec.spamEntry ? (
+                    <div className="rounded border border-orange-500/40 bg-orange-500/10 p-2 text-center">
+                      <div className="text-orange-400 font-bold text-[11px] mb-0.5">🔥 SPAM ENTRY AKTIF</div>
+                      <div className="text-orange-300 font-mono font-black text-sm">{dec.spamEntry.count} × {dec.spamEntry.lotEach} LOT</div>
+                      <div className="text-[10px] text-orange-400/70">Total {dec.spamEntry.totalLot} lot | Max float loss {dec.spamEntry.maxFloatLossPct}%</div>
+                    </div>
+                  ) : (
+                    <div className="rounded border border-zinc-700 bg-zinc-800/50 p-1.5 text-center text-[10px] text-zinc-500">
+                      Spam entry belum aktif (confidence &lt; threshold)
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="rounded-lg border border-border p-3 bg-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold">AI Confidence</span>
+                      <span className="font-mono font-bold text-2xl" style={{ color: confidenceColor }}>{dec?.confidence ?? 0}%</span>
+                    </div>
+                    <div className="w-full bg-zinc-800 rounded-full h-2 mb-2">
+                      <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${dec?.confidence ?? 0}%`, background: confidenceColor }} />
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Quality Score</span>
+                      <span className="font-mono" style={{ color: confidenceColor }}>{dec?.qualityScore ?? 0}/100</span>
+                    </div>
+                    <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-1">
+                      <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${dec?.qualityScore ?? 0}%`, background: confidenceColor }} />
+                    </div>
+                  </div>
+                  <div className={`rounded-lg border p-3 text-center ${dec?.shouldTrade && dec.direction === "Buy" ? "bg-green-500/10 border-green-500/40" : dec?.shouldTrade && dec.direction === "Sell" ? "bg-red-500/10 border-red-500/40" : "bg-zinc-800/50 border-border"}`}>
+                    <div className="text-xs text-muted-foreground mb-1">Rekomendasi AI</div>
+                    {dec?.shouldTrade ? (
+                      <>
+                        <div className={`text-3xl font-black ${dec.direction === "Buy" ? "text-green-400" : "text-red-400"}`}>{dec.direction === "Buy" ? "▲ BUY" : "▼ SELL"}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{dec.strategy}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-2xl font-black text-zinc-500">⏸ TUNGGU</div>
+                        <div className="text-[10px] text-muted-foreground mt-1 px-2">{dec?.waitReason ?? "Tidak ada sinyal"}</div>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
 
+              {/* Confidence bar (untuk XAUUSD juga tampil) */}
+              {selectedPair === "XAUUSD" && dec?.xauSignal && (
+                <div className="rounded-lg border border-border p-2.5 bg-card">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Confidence</span>
+                    <span className="font-mono font-bold" style={{ color: confidenceColor }}>{dec.confidence}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                    <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${dec.confidence}%`, background: confidenceColor }} />
+                  </div>
+                  <div className="flex items-center justify-between text-xs mt-1">
+                    <span className="text-muted-foreground">Quality</span>
+                    <span className="font-mono" style={{ color: confidenceColor }}>{dec.qualityScore}/100</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-1 mt-1">
+                    <div className="h-1 rounded-full transition-all duration-500" style={{ width: `${dec.qualityScore}%`, background: confidenceColor }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Detail Entry */}
               {dec?.shouldTrade && (
                 <div className="rounded-lg border border-border p-3 space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase">Detail Entry</div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase">
+                    {selectedPair === "XAUUSD" ? "📊 Detail Entry XAUUSD" : "Detail Entry"}
+                  </div>
                   {[
                     { label: "Entry", value: dec.entryPrice.toFixed(dec.entryPrice > 50 ? 2 : 4), color: "text-white" },
-                    { label: "Stop Loss", value: dec.stopLoss.toFixed(dec.stopLoss > 50 ? 2 : 4), color: "text-red-400" },
+                    { label: "Stop Loss (Struktur)", value: dec.stopLoss.toFixed(dec.stopLoss > 50 ? 2 : 4), color: "text-red-400" },
                     { label: "Take Profit 1", value: dec.takeProfit.toFixed(dec.takeProfit > 50 ? 2 : 4), color: "text-green-400" },
                     { label: "Take Profit 2", value: dec.tp2.toFixed(dec.tp2 > 50 ? 2 : 4), color: "text-emerald-300" },
                     { label: "Risk/Reward", value: `1 : ${dec.riskReward.toFixed(2)}`, color: "text-yellow-400" },
-                    { label: "Lot AI (cent)", value: fmtCent(stdToCent(dec.lotSize)), color: "text-blue-400" },
+                    ...(selectedPair === "XAUUSD" && dec.spamEntry ? [
+                      { label: "Spam Entry", value: `${dec.spamEntry.count}× ${dec.spamEntry.lotEach} lot`, color: "text-orange-400" },
+                      { label: "Total Lot", value: `${dec.spamEntry.totalLot} lot`, color: "text-orange-300" },
+                    ] : [
+                      { label: "Lot AI (cent)", value: fmtCent(stdToCent(dec.lotSize)), color: "text-blue-400" },
+                    ]),
                   ].map((item, i) => (
                     <div key={i} className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">{item.label}</span>
@@ -1060,27 +1136,88 @@ export default function ForexPro() {
                 </div>
               )}
 
+              {/* Multi-timeframe priority (XAUUSD) */}
+              {selectedPair === "XAUUSD" && (
+                <div className="rounded border border-border p-2.5">
+                  <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-2">🕐 Multi-Timeframe Priority</div>
+                  <div className="grid grid-cols-3 gap-1 text-center text-[10px]">
+                    {[
+                      { tf: "M1", role: "Trigger", color: "text-blue-400", border: "border-blue-500/30 bg-blue-500/5" },
+                      { tf: "M5", role: "Entry", color: "text-green-400", border: "border-green-500/30 bg-green-500/5" },
+                      { tf: "M15", role: "Tren Utama", color: "text-yellow-400", border: "border-yellow-500/30 bg-yellow-500/5" },
+                    ].map(item => (
+                      <div key={item.tf} className={`rounded border p-1.5 ${item.border}`}>
+                        <div className={`font-bold ${item.color}`}>{item.tf}</div>
+                        <div className="text-muted-foreground text-[9px]">{item.role}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EMA 20/50 indicator (XAUUSD) */}
+              {selectedPair === "XAUUSD" && tech && (
+                <div className="rounded border border-border p-2.5">
+                  <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-2">📐 EMA Crossover</div>
+                  <div className="grid grid-cols-2 gap-1 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">EMA20</span>
+                      <span className="font-mono text-blue-300">{tech.ema20?.toFixed(2) ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">EMA50</span>
+                      <span className="font-mono text-purple-300">{tech.ema50?.toFixed(2) ?? "—"}</span>
+                    </div>
+                  </div>
+                  <div className={`mt-1 text-center text-[11px] font-bold py-1 rounded ${tech.ema20 > tech.ema50 ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"}`}>
+                    {tech.ema20 > tech.ema50 ? "EMA20 > EMA50 → BULLISH 📈" : "EMA20 < EMA50 → BEARISH 📉"}
+                  </div>
+                </div>
+              )}
+
+              {/* Wait reason */}
+              {!dec?.shouldTrade && dec?.waitReason && (
+                <div className="rounded border border-orange-500/30 bg-orange-500/5 p-2.5">
+                  <div className="text-[10px] text-orange-400 uppercase mb-1">⏸ Alasan Tunggu</div>
+                  <div className="text-xs text-orange-300/80">{dec.waitReason}</div>
+                </div>
+              )}
+
               <div className="rounded border border-border p-2.5 bg-zinc-900/50">
                 <div className="text-[10px] text-muted-foreground uppercase mb-1">Kondisi Market</div>
                 <div className="text-xs text-foreground">{dec?.marketCondition ?? "—"}</div>
               </div>
 
+              {/* Reasoning Breakdown */}
               <div className="rounded border border-border p-2.5">
                 <div className="text-[10px] text-muted-foreground uppercase mb-2 flex items-center gap-1">
-                  <Brain className="h-3 w-3" /> Reasoning AI
+                  <Brain className="h-3 w-3" />
+                  {selectedPair === "XAUUSD" ? "Reasoning XAUUSD (EMA20/50)" : "Reasoning AI"}
                 </div>
                 <div className="space-y-1 max-h-48 overflow-y-auto">
                   {dec?.reasoning.map((r, i) => (
-                    <div key={i} className="text-[11px] text-foreground/80 leading-relaxed">{r}</div>
+                    <div key={i} className={`text-[11px] leading-relaxed ${r.startsWith("✅") ? "text-green-400/90" : r.startsWith("⚠️") ? "text-yellow-400/80" : r.startsWith("🔥") ? "text-orange-400" : r.startsWith("❌") ? "text-red-400/80" : "text-foreground/70"}`}>{r}</div>
                   ))}
                 </div>
               </div>
+
+              {/* Psikologi & Mindset Rules (XAUUSD) */}
+              {selectedPair === "XAUUSD" && dec?.xauSignal?.psychology && (
+                <div className="rounded border border-violet-500/30 bg-violet-500/5 p-2.5">
+                  <div className="text-[10px] font-bold text-violet-400 uppercase mb-2">🧠 Psikologi Trading</div>
+                  <div className="space-y-1">
+                    {dec.xauSignal.psychology.map((rule, i) => (
+                      <div key={i} className="text-[11px] text-violet-300/80 leading-relaxed">{rule}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-1 text-center">
                 {[
                   { label: "Trend", value: tech?.trendBias ?? "—", color: trendColor },
                   { label: "RSI", value: tech?.rsiZone ?? "—", color: tech?.rsiZone === "Oversold" ? "text-green-400" : tech?.rsiZone === "Overbought" ? "text-red-400" : "text-yellow-400" },
-                  { label: "MACD", value: tech?.macdBias ?? "—", color: tech?.macdBias === "Bullish" ? "text-green-400" : tech?.macdBias === "Bearish" ? "text-red-400" : "text-yellow-400" },
+                  { label: "Volume", value: tech?.volumeBias ?? "—", color: tech?.volumeBias === "Tinggi" ? "text-green-400" : tech?.volumeBias === "Rendah" ? "text-red-400" : "text-yellow-400" },
                 ].map((item, i) => (
                   <div key={i} className="rounded border border-border p-1.5">
                     <div className="text-[9px] text-muted-foreground">{item.label}</div>

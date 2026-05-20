@@ -1,15 +1,95 @@
 {
-  "totalDecisions": 120,
-  "correctEarlyExits": 120,
+  "totalDecisions": 124,
+  "correctEarlyExits": 124,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 41.97457627118644,
-  "avgContinuationProbAtExit": 10.796610169491526,
+  "avgMomentumAtEarlyExit": 42.26229508196721,
+  "avgContinuationProbAtExit": 10.967213114754099,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "43542bf2-9f6c-48fe-858e-79058a22692d",
+      "tradeId": "5021df66-ff86-4f83-b4af-0f102f44ca99",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (20%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5185327443825641,
+      "momentumScore": 60,
+      "continuationProb": 20,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (76) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779269006282,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5185327443825641,
+      "profitDelta": 0
+    },
+    {
+      "id": "9bde9d50-fb8a-417a-9164-0110196925fc",
+      "tradeId": "4e31843e-08d6-4b3a-a97a-30bd0e7b9b75",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 29) — probabilitas kelanjutan rendah. Candle doji terdeteksi — ragu-ragu pasar",
+      "profitPctAtDecision": 0.5409582689335442,
+      "momentumScore": 29,
+      "continuationProb": 1,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779268822250,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5409582689335442,
+      "profitDelta": 0
+    },
+    {
+      "id": "bd65c29f-81fd-4ddf-bf6f-fd2a7d6b84a5",
+      "tradeId": "5dfa7664-1d9e-4701-bc30-acf40e5a0707",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (20%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5029013539651834,
+      "momentumScore": 60,
+      "continuationProb": 20,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy overbought (77) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779268541175,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5029013539651834,
+      "profitDelta": 0
+    },
+    {
+      "id": "99571132-6b51-4be9-84d0-82c49af50df0",
+      "tradeId": "cb7cfef6-86e8-4cef-88e8-b4a1f48a6a2b",
+      "symbol": "PLAYSOUTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.731022779191947,
+      "momentumScore": 54,
+      "continuationProb": 23,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779268501245,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.731022779191947,
+      "profitDelta": 0
+    },
     {
       "id": "0d17a469-4560-4d7a-ae34-b14c5a97b568",
       "tradeId": "2307709f-654d-4edb-9c7f-05375ab5f45e",
@@ -2437,5 +2517,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779268112069
+  "lastUpdated": 1779269006287
 }
