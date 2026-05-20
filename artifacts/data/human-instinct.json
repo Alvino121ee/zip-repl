@@ -1,15 +1,117 @@
 {
-  "totalDecisions": 104,
-  "correctEarlyExits": 104,
+  "totalDecisions": 109,
+  "correctEarlyExits": 109,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.38461538461539,
-  "avgContinuationProbAtExit": 11.086538461538462,
+  "avgMomentumAtEarlyExit": 42.074074074074076,
+  "avgContinuationProbAtExit": 10.87962962962963,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "8c95c866-963e-4691-a23f-9705685e913c",
+      "tradeId": "1e7986ca-bfa0-4566-aebe-dad42f989fe1",
+      "symbol": "ZECUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume menurun 37% — tanda pelemahan. Profit $3.05% diamankan.",
+      "profitPctAtDecision": 3.0489299849392264,
+      "momentumScore": 0,
+      "continuationProb": 0,
+      "greedIndex": 100,
+      "decaySignals": [
+        "Volume menurun 37% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779250005806,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 3.0489299849392264,
+      "profitDelta": 0
+    },
+    {
+      "id": "b9ad4fa6-bcf3-4b2d-a660-74077f44dd19",
+      "tradeId": "52fb7ca5-40c3-4ab6-b722-2f997c1d8f69",
+      "symbol": "MLNUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (8%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.9523809523809481,
+      "momentumScore": 73,
+      "continuationProb": 8,
+      "greedIndex": 25,
+      "decaySignals": [
+        "RSI proxy oversold (24) — risiko reversal meningkat",
+        "Lonjakan volatilitas tiba-tiba — pasar tidak stabil"
+      ],
+      "timestamp": 1779250005663,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.9523809523809481,
+      "profitDelta": 0
+    },
+    {
+      "id": "189361d2-62b0-4265-b6d8-d090e350a87a",
+      "tradeId": "ec9039ea-5678-4b5f-98c5-a09d30b58559",
+      "symbol": "COMPUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 61% — momentum sangat lemah. Profit $0.31% diamankan.",
+      "profitPctAtDecision": 0.3064742689311826,
+      "momentumScore": 10,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Volume turun 61% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779212763011,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.3064742689311826,
+      "profitDelta": 0
+    },
+    {
+      "id": "a0050319-f49a-4511-b4ca-cd370985adeb",
+      "tradeId": "b2d19e56-a8ea-41ab-b32f-e6d53bae3dc0",
+      "symbol": "PLAYSOUTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (14%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5527012299548624,
+      "momentumScore": 39,
+      "continuationProb": 14,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 53% — momentum sangat lemah",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779212290931,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5527012299548624,
+      "profitDelta": 0
+    },
+    {
+      "id": "0e06bb12-4208-4e48-a268-039809b05dee",
+      "tradeId": "6b411d9c-ed65-41b1-8085-e7fab34c6512",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Volume turun 62% — momentum sangat lemah. Profit $0.53% diamankan.",
+      "profitPctAtDecision": 0.5294366793731622,
+      "momentumScore": 14,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 62% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779212202845,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5294366793731622,
+      "profitDelta": 0
+    },
     {
       "id": "742e3902-fc94-4949-b0ff-769dbee9ce26",
       "tradeId": "799bcd07-a340-490e-b2c4-1f2fd43bae17",
@@ -2115,5 +2217,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779211530962
+  "lastUpdated": 1779250005810
 }

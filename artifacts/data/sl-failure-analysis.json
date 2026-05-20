@@ -1,6 +1,35 @@
 {
   "records": [
     {
+      "id": "a6f49637-e2d9-44ff-a999-2a858372d749",
+      "timestamp": 1779250005524,
+      "tradeId": "b5d234d5-3b07-41cf-97fd-aec282ffb521",
+      "symbol": "SAHARAUSDT",
+      "side": "long",
+      "entryPrice": 0.036794,
+      "slPrice": 0.035803357142857144,
+      "exitPrice": 0.03515,
+      "pnlPct": -4.468,
+      "confidence": 99,
+      "strategy": "auto_institutional",
+      "marketCondition": "trending_up_strong",
+      "holdTimeMs": 39830249,
+      "primaryCause": "late_entry",
+      "secondaryCauses": [
+        "overconfidence"
+      ],
+      "conclusion": "Setup valid namun eksekusi terlambat, posisi masuk dekat titik balik.",
+      "recommendations": [
+        "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+        "Jika sudah melewati 50% dari pergerakan momentum, skip entry tersebut.",
+        "Set batas maksimal: harga tidak boleh sudah bergerak > 0.8% dari zona entry ideal.",
+        "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi."
+      ],
+      "severity": "minor",
+      "slTightnessPct": 2.692,
+      "improvementApplied": false
+    },
+    {
       "id": "1d484b6e-b862-4bf8-9cff-29a12e991809",
       "timestamp": 1779209149437,
       "tradeId": "f77c51a4-3c88-40c7-90ad-ac253f1d50b0",
@@ -1705,7 +1734,7 @@
       "recommendation": "Kalibrasi ulang threshold confidence — confidence tinggi tidak selalu berarti probabilitas tinggi.",
       "severity": "critical",
       "firstSeen": 1779013081545,
-      "lastSeen": 1779209149437
+      "lastSeen": 1779250005524
     },
     {
       "id": "9bcfb814-6cb4-48b2-baa0-25008371a693",
@@ -1726,7 +1755,27 @@
       "recommendation": "Gunakan ATR (Average True Range) × 1.5 sebagai dasar penempatan SL.",
       "severity": "critical",
       "firstSeen": 1779026469846,
-      "lastSeen": 1779209149437
+      "lastSeen": 1779250005524
+    },
+    {
+      "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
+      "pattern": "Entry Terlambat",
+      "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
+      "occurrences": 10,
+      "primaryCause": "late_entry",
+      "associatedStrategies": [
+        "auto_institutional"
+      ],
+      "associatedConditions": [
+        "trending_up_strong",
+        "trending_up_normal",
+        "breakout"
+      ],
+      "avgPnlPct": -3.17,
+      "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
+      "severity": "critical",
+      "firstSeen": 1779066635898,
+      "lastSeen": 1779250005524
     },
     {
       "id": "94add7ae-7693-4a88-8c02-a6edecdb3191",
@@ -1746,27 +1795,7 @@
       "recommendation": "Gunakan filter market condition — hanya trade saat trending, bukan sideways.",
       "severity": "high",
       "firstSeen": 1779011249278,
-      "lastSeen": 1779209149437
-    },
-    {
-      "id": "ff191437-9f8c-4a7c-8059-a2399716bf11",
-      "pattern": "Entry Terlambat",
-      "description": "Pola berulang: Entry Terlambat terdeteksi 3× dalam 7 hari terakhir",
-      "occurrences": 9,
-      "primaryCause": "late_entry",
-      "associatedStrategies": [
-        "auto_institutional"
-      ],
-      "associatedConditions": [
-        "trending_up_strong",
-        "trending_up_normal",
-        "breakout"
-      ],
-      "avgPnlPct": -3.02,
-      "recommendation": "Atur alert/notifikasi lebih awal agar tidak melewatkan momentum awal.",
-      "severity": "high",
-      "firstSeen": 1779066635898,
-      "lastSeen": 1779209149437
+      "lastSeen": 1779250005524
     },
     {
       "id": "f86776fe-12ac-40ff-a4f6-d7edbf74322d",
@@ -1786,10 +1815,10 @@
       "recommendation": "Tunggu minimal 2 candle konfirmasi sebelum entry setelah sinyal terdeteksi.",
       "severity": "high",
       "firstSeen": 1779194275810,
-      "lastSeen": 1779209149437
+      "lastSeen": 1779250005524
     }
   ],
   "avoidanceRules": [],
-  "totalAnalyzed": 59,
-  "improvementScore": 77
+  "totalAnalyzed": 60,
+  "improvementScore": 78
 }

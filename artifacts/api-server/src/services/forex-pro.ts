@@ -14,6 +14,12 @@ import {
   fetchAccountInformation,
   hasMetaApiToken,
 } from "./metaapi-mt5.js";
+import {
+  isPythonBridgeConnected,
+  queueOrder,
+  getOrderResult,
+  removeOrderResult,
+} from "./mt5-python-bridge.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, "../../data");
@@ -192,6 +198,7 @@ export interface ForexProPosition {
   riskReward: number;
   timeframe: Timeframe;
   aiNote: string;
+  mt5Ticket?: number;   // Ticket MT5 nyata (dari bridge) — ada jika bridge aktif
 }
 
 export interface ForexProTrade {
@@ -1290,6 +1297,21 @@ export function openForexProPosition(
   state.balance -= margin;
   saveState();
   logger.info({ symbol, direction, lotSize, entryPrice }, "Forex Pro: posisi dibuka");
+
+  // ── Kirim order nyata ke MT5 via Python Bridge (jika bridge aktif) ──────────
+  if (isPythonBridgeConnected()) {
+    queueOrder({
+      id: pos.id,
+      symbol,
+      type: direction === "Buy" ? "buy" : "sell",
+      volume: lotSize,
+      sl: pos.stopLoss,
+      tp: pos.takeProfit,
+      comment: `VINZ-${symbol.slice(0, 8)}`,
+    });
+    logger.info({ symbol, direction, lotSize }, "Forex Pro: order dikirim ke MT5 bridge (akun real)");
+  }
+
   return { ok: true, position: pos };
 }
 
@@ -1331,6 +1353,18 @@ export function closeForexProPosition(id: string, reason: ForexProTrade["closeRe
     lessonLearned: pnl < 0 ? generateLesson(pos, reason) : null,
     timeframe: pos.timeframe,
   };
+
+  // ── Kirim close order ke MT5 bridge (jika bridge aktif dan ada ticket nyata) ──
+  if (isPythonBridgeConnected() && pos.mt5Ticket) {
+    queueOrder({
+      id: `close_${pos.id}_${Date.now()}`,
+      symbol: "CLOSE",
+      type: "sell",     // dummy — bridge gunakan field comment untuk close
+      volume: pos.lotSize,
+      comment: `CLOSE:${pos.mt5Ticket}`,
+    });
+    logger.info({ ticket: pos.mt5Ticket, symbol: pos.symbol }, "Forex Pro: close order dikirim ke MT5 bridge");
+  }
 
   // Update state
   state.balance += pos.margin + pnl;
@@ -1457,6 +1491,22 @@ let autoTimer: ReturnType<typeof setInterval> | null = null;
 let isScanning = false;
 let lastCycleAt: number | null = null;
 let cycleCount = 0;
+
+// ─── Cek Hasil Order dari MT5 Bridge ─────────────────────────────────────────
+// Setiap 4 detik cek apakah ada hasil order dari bridge (ticket nyata)
+// dan update ForexProPosition.mt5Ticket supaya close position bisa dikirim ke MT5
+setInterval(() => {
+  for (const pos of state.positions) {
+    if (!pos.mt5Ticket) {
+      const result = getOrderResult(pos.id);
+      if (result?.ok && result.ticket) {
+        pos.mt5Ticket = result.ticket;
+        removeOrderResult(pos.id);
+        logger.info({ symbol: pos.symbol, ticket: result.ticket }, "Forex Pro: posisi terhubung ke MT5 ticket nyata");
+      }
+    }
+  }
+}, 4_000);
 
 export function startForexProAutoEngine(): void {
   if (autoTimer) return;
