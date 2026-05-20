@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 109,
-  "correctEarlyExits": 109,
+  "totalDecisions": 110,
+  "correctEarlyExits": 110,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.074074074074076,
-  "avgContinuationProbAtExit": 10.87962962962963,
+  "avgMomentumAtEarlyExit": 42.23853211009175,
+  "avgContinuationProbAtExit": 10.963302752293577,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "89a2c604-dd49-435e-8cc6-86a047a6cf2d",
+      "tradeId": "bddc387d-336c-4517-9376-3a1198299e87",
+      "symbol": "CGPTUSDT",
+      "side": "Sell",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (20%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.5313658779005322,
+      "momentumScore": 60,
+      "continuationProb": 20,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "RSI proxy oversold (23) — risiko reversal meningkat"
+      ],
+      "timestamp": 1779250442643,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.5313658779005322,
+      "profitDelta": 0
+    },
     {
       "id": "8c95c866-963e-4691-a23f-9705685e913c",
       "tradeId": "1e7986ca-bfa0-4566-aebe-dad42f989fe1",
@@ -2217,5 +2237,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779250005810
+  "lastUpdated": 1779250442650
 }
