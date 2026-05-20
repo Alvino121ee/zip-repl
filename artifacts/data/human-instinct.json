@@ -1,15 +1,116 @@
 {
-  "totalDecisions": 114,
-  "correctEarlyExits": 114,
+  "totalDecisions": 119,
+  "correctEarlyExits": 119,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.11504424778761,
-  "avgContinuationProbAtExit": 11.123893805309734,
+  "avgMomentumAtEarlyExit": 42.26495726495727,
+  "avgContinuationProbAtExit": 10.88888888888889,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "111d7f3b-0247-4284-b7a8-290c584045f5",
+      "tradeId": "57682337-6b92-485f-9d04-869abd6babfc",
+      "symbol": "PLAYSOUTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $0.40% diamankan.",
+      "profitPctAtDecision": 0.4007884362680679,
+      "momentumScore": 0,
+      "continuationProb": 0,
+      "greedIndex": 0,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779267412788,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.4007884362680679,
+      "profitDelta": 0
+    },
+    {
+      "id": "abc42563-9a41-4315-8d21-19c81a95b126",
+      "tradeId": "2e5a829e-88b3-4f13-87af-fc114b3dcd4e",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.2086387953239435,
+      "momentumScore": 54,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779267037031,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.2086387953239435,
+      "profitDelta": 0
+    },
+    {
+      "id": "faf6d6da-6ece-4f8c-914b-1fd96196448b",
+      "tradeId": "5e60f8e7-038d-46cc-99f5-b39371a32dbc",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 1.772593030124043,
+      "momentumScore": 53,
+      "continuationProb": 0,
+      "greedIndex": 40,
+      "decaySignals": [
+        "Volume menurun 32% — tanda pelemahan",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779267036721,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.772593030124043,
+      "profitDelta": 0
+    },
+    {
+      "id": "1517e77a-6776-428b-8ee2-41039a1bb503",
+      "tradeId": "20f4ded2-02b9-48bd-a55f-a2884e078d0d",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.578842315369269,
+      "momentumScore": 35,
+      "continuationProb": 12,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume turun 56% — momentum sangat lemah",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779256559420,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.578842315369269,
+      "profitDelta": 0
+    },
+    {
+      "id": "41fdf960-ff67-4dd9-90bc-0636a952658a",
+      "tradeId": "e4cbfd9f-837e-4014-99df-2f17e23d18fc",
+      "symbol": "NILUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "📉 Probabilitas kelanjutan rendah (5%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "profitPctAtDecision": 0.662129851020782,
+      "momentumScore": 44,
+      "continuationProb": 5,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Volume sedikit turun 20%",
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779255171860,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.662129851020782,
+      "profitDelta": 0
+    },
     {
       "id": "32ea70b4-f1b8-4fb1-b02a-57f26e9b4d51",
       "tradeId": "8050a62a-ffa2-4f06-a3bd-91e1911860a0",
@@ -2316,5 +2417,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779254110316
+  "lastUpdated": 1779267412794
 }
