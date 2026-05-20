@@ -1170,19 +1170,19 @@ function defaultState(): ForexProState {
 function defaultConfig(): ForexProConfig {
   return {
     autoEnabled: false,
-    maxPositions: 3,
-    riskPerTradePct: 1,
-    minConfidence: 58,
-    minQualityScore: 55,
-    minRR: 1.5,
-    maxDailyLossUSDT: 30,
+    maxPositions: 1,          // 1 posisi sekaligus — XAUUSD mode
+    riskPerTradePct: 90,      // Full margin ~90% balance
+    minConfidence: 55,
+    minQualityScore: 50,
+    minRR: 1.2,
+    maxDailyLossUSDT: 50,
     trailingEnabled: true,
     breakevenEnabled: true,
-    newsFilterEnabled: true,
-    spreadLimitPips: 10,
+    newsFilterEnabled: false,  // Nonaktif agar tidak block sinyal Gold
+    spreadLimitPips: 15,
     defaultLeverage: 10,
     preferredTimeframe: "M15",
-    preferredStrategies: ["Order Block Retest","Liquidity Sweep Reversal","Trend Following"],
+    preferredStrategies: ["Trend Following","Order Block Retest","Liquidity Sweep Reversal"],
     intervalMs: 10000,
   };
 }
@@ -1251,8 +1251,8 @@ export function openForexProPosition(
   const entryPrice = direction === "Buy" ? analysis.ask : analysis.bid;
   const margin = lotSize * pair.basePrice * 1000 / config.defaultLeverage;
 
-  if (margin > state.balance * 0.8) {
-    return { ok: false, error: "Margin tidak cukup (>80% balance)" };
+  if (margin > state.balance * 0.95) {
+    return { ok: false, error: "Margin tidak cukup (>95% balance)" };
   }
 
   if (state.positions.length >= config.maxPositions) {
@@ -1528,19 +1528,36 @@ async function runForexProCycle(): Promise<void> {
   try {
     updateOpenPositions();
 
-    // XAUUSD diutamakan — taruh di depan, baru pair lainnya
-    const scanOrder = [
-      ...FOREX_PAIRS_PRO.filter(p => p.symbol === "XAUUSD"),
-      ...FOREX_PAIRS_PRO.filter(p => p.symbol !== "XAUUSD"),
-    ];
-    for (const pair of scanOrder.slice(0, 8)) { // Scan 8 pair, XAUUSD selalu pertama
-      if (state.positions.length >= config.maxPositions) break;
-      const analysis = analyzeForexPro(pair.symbol, config.preferredTimeframe, state, config);
-      if (analysis.aiDecision.shouldTrade && analysis.aiDecision.direction) {
-        const result = openForexProPosition(pair.symbol, analysis.aiDecision.direction, config.preferredTimeframe);
-        if (result.ok) {
-          logger.info({ symbol: pair.symbol, direction: analysis.aiDecision.direction }, "Forex Pro: auto trade dibuka");
-        }
+    // ── Mode: XAUUSD Eksklusif, 1 posisi, full margin ────────────────────────
+    const GOLD = FOREX_PAIRS_PRO.find(p => p.symbol === "XAUUSD")!;
+    const analysis = analyzeForexPro("XAUUSD", config.preferredTimeframe, state, config);
+    const newDir = analysis.aiDecision.direction; // "Buy" | "Sell" | null
+    const currentPos = state.positions.find(p => p.symbol === "XAUUSD");
+
+    // Tutup posisi jika arah AI berbalik (reversal)
+    if (currentPos && newDir && currentPos.side !== newDir) {
+      closeForexProPosition(currentPos.id, "Manual");
+      logger.info(
+        { from: currentPos.side, to: newDir, pnl: currentPos.unrealisedPnl },
+        "Forex Pro XAUUSD: arah berbalik — posisi ditutup, siap buka kebalikan"
+      );
+    }
+
+    // Buka posisi baru jika tidak ada posisi aktif dan AI memberi sinyal
+    if (state.positions.length === 0 && newDir && analysis.aiDecision.shouldTrade) {
+      // Full margin: gunakan 90% balance dengan leverage
+      const fullLot = parseFloat(
+        Math.max(0.01, (state.balance * 0.90 * config.defaultLeverage) / (GOLD.basePrice * 1000))
+          .toFixed(2)
+      );
+      const result = openForexProPosition("XAUUSD", newDir, config.preferredTimeframe, false, fullLot);
+      if (result.ok) {
+        logger.info(
+          { direction: newDir, lot: fullLot, balance: state.balance, confidence: analysis.aiDecision.confidence },
+          "Forex Pro XAUUSD: posisi dibuka (full margin)"
+        );
+      } else {
+        logger.warn({ reason: result.error }, "Forex Pro XAUUSD: gagal buka posisi");
       }
     }
   } finally {
