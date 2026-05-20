@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 127,
-  "correctEarlyExits": 127,
+  "totalDecisions": 128,
+  "correctEarlyExits": 128,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.024,
-  "avgContinuationProbAtExit": 10.896,
+  "avgMomentumAtEarlyExit": 41.95238095238095,
+  "avgContinuationProbAtExit": 10.80952380952381,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "40ddf34c-02d9-4f4e-a091-54ccaf10cb9c",
+      "tradeId": "62cce24c-2bee-4214-b330-087a60d3c40d",
+      "symbol": "VVVUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle rejection atas — tekanan jual kuat. Profit $0.76% diamankan.",
+      "profitPctAtDecision": 0.7643791227867215,
+      "momentumScore": 33,
+      "continuationProb": 0,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle rejection atas — tekanan jual kuat",
+        "Candle doji terdeteksi — ragu-ragu pasar"
+      ],
+      "timestamp": 1779270671248,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.7643791227867215,
+      "profitDelta": 0
+    },
     {
       "id": "61da7a25-04b5-4372-ab0b-f1cfa23561ec",
       "tradeId": "634f0e2c-f05a-413f-88a8-ae347768841d",
@@ -2578,5 +2598,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779270271264
+  "lastUpdated": 1779270671254
 }

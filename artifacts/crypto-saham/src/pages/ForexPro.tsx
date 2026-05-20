@@ -557,14 +557,14 @@ export default function ForexPro() {
           broker: data.broker,
           leverage: data.leverage,
         }));
-        toast({ title: "MT5 Terhubung!", description: `Akun: ${data.accountName} | ${data.broker}` });
+        toast({ title: `MT5 terhubung — ${data.broker}`, description: `${data.accountName}` });
         addActivity(`🔗 MT5 Real terhubung: ${data.accountName} @ ${data.broker}`);
         setShowMT5Settings(false);
       } else {
-        toast({ title: "Gagal terhubung", description: data.error ?? "Periksa kredensial MT5 Anda", variant: "destructive" });
+        toast({ title: "Gagal", description: data.error ?? "Periksa kredensial MT5", variant: "destructive" });
       }
     } catch {
-      toast({ title: "Error koneksi", description: "Tidak dapat terhubung ke server MT5", variant: "destructive" });
+      toast({ title: "Error koneksi MT5", variant: "destructive" });
     } finally {
       setMT5Connecting(false);
     }
@@ -575,7 +575,7 @@ export default function ForexPro() {
     setMT5(prev => ({ ...prev, connected: false, accountName: "", accountBalance: 0, broker: "" }));
     setAccountMode("demo");
     addActivity("⛔ MT5 Real diputuskan — beralih ke Demo");
-    toast({ title: "MT5 diputuskan", description: "Kembali ke mode Demo" });
+    toast({ title: "MT5 diputuskan" });
     setShowMT5Settings(false);
   };
 

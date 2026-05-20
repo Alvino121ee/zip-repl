@@ -113,6 +113,7 @@ async function waitForConnected(
   timeoutMs = 120000
 ): Promise<boolean> {
   const start = Date.now();
+  let lastState = "";
   while (Date.now() - start < timeoutMs) {
     try {
       const r = await fetch(
@@ -121,14 +122,12 @@ async function waitForConnected(
       );
       if (r.ok) {
         const acc = (await r.json()) as any;
-        logger.info(
-          { state: acc.state, connectionStatus: acc.connectionStatus },
-          "MetaApi: status akun"
-        );
-        if (
-          acc.state === "DEPLOYED" &&
-          acc.connectionStatus === "CONNECTED"
-        ) {
+        const key = `${acc.state}:${acc.connectionStatus}`;
+        if (key !== lastState) {
+          logger.info({ state: acc.state, connectionStatus: acc.connectionStatus }, "MetaApi: status");
+          lastState = key;
+        }
+        if (acc.state === "DEPLOYED" && acc.connectionStatus === "CONNECTED") {
           return true;
         }
         if (acc.state === "DEPLOY_FAILED") {

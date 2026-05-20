@@ -1,5 +1,1064 @@
 [
   {
+    "id": "813e83d7-4c92-4d74-9123-7a0a5cc30ec5",
+    "timestamp": 1779270965096,
+    "source": "demo",
+    "level": "info",
+    "message": "C3 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "6f430a77-66c1-4827-9881-08dfdaad6a63",
+    "timestamp": 1779270965096,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "26b1be43-3ecc-4f07-8d60-0a5594c90516",
+    "timestamp": 1779270963983,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "32862a90-dec3-450b-abca-ced430220716",
+    "timestamp": 1779270954738,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C2 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "a357a2c8-3039-4674-a48d-0594ff42370f",
+    "timestamp": 1779270953972,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "5585b42d-677b-48e1-98df-6f0f4f0042a7",
+    "timestamp": 1779270944283,
+    "source": "demo",
+    "level": "info",
+    "message": "C2 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "0e94dcb7-d6da-45c4-8780-d8c3bed6641b",
+    "timestamp": 1779270944283,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "cdb142b7-6f8a-4790-9018-0dc4e2347f3b",
+    "timestamp": 1779270943981,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "36b51952-20e2-4c10-ac75-48e421b5a1b2",
+    "timestamp": 1779270925792,
+    "source": "demo",
+    "level": "info",
+    "message": "C1 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "119a69b7-0c38-4a3e-94f6-50dd1ae6c1ba",
+    "timestamp": 1779270925792,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "2f779b7a-b528-4465-9980-14048fb2dc97",
+    "timestamp": 1779270924979,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C1 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "5de4d1e8-9985-463f-b98e-9ddc05f390e4",
+    "timestamp": 1779270924122,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "75c11580-0f2f-4f5d-9270-505bbeaf7d86",
+    "timestamp": 1779270923970,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "7e6de0d7-0503-4565-b046-4a76d6df96bc",
+    "timestamp": 1779270896026,
+    "source": "demo",
+    "level": "info",
+    "message": "C35 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "f4f23257-25b0-4811-96c3-5759f1548da3",
+    "timestamp": 1779270896026,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "6dd35c32-4400-45ce-9fe3-d2a59b7ddf81",
+    "timestamp": 1779270895043,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "ad51ccf8-4029-498f-afa8-d426805a6328",
+    "timestamp": 1779270875962,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C23 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "497a4bd1-cfa2-48f1-97b7-5ef0ebeb40d5",
+    "timestamp": 1779270875529,
+    "source": "demo",
+    "level": "info",
+    "message": "C34 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "e76c0158-dc53-4883-bd37-cc75dfa82d1e",
+    "timestamp": 1779270875529,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "1d5d888f-cec8-4281-a1b3-e4bfd682a0d1",
+    "timestamp": 1779270875140,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "6d6f497c-3177-4ddc-aca1-cc332f48a8c3",
+    "timestamp": 1779270875034,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "fa6ce2e8-f8a4-4bf9-b91e-0eace8bbe526",
+    "timestamp": 1779270856314,
+    "source": "demo",
+    "level": "info",
+    "message": "C33 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "7891d678-7cec-470f-ae47-e82a4d2222a1",
+    "timestamp": 1779270856313,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "000d2447-78ab-4d6f-8fb9-959a80e58487",
+    "timestamp": 1779270855042,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "068fe551-9cb8-4cc8-98d9-8722019baa1c",
+    "timestamp": 1779270845794,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C22 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "9378c9e5-9a25-44a6-ad9e-c176a74bbd71",
+    "timestamp": 1779270845033,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "5f570906-1cfd-40ff-8da6-47018c1dd7f7",
+    "timestamp": 1779270835345,
+    "source": "demo",
+    "level": "info",
+    "message": "C32 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "b4369cb1-d41e-4b94-9685-babb5e5aaeb1",
+    "timestamp": 1779270835345,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "6396e87a-53c4-48c1-b262-c45bb3a40aea",
+    "timestamp": 1779270835044,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "1ef671b0-9df3-402c-87df-deaa5b95fff8",
+    "timestamp": 1779270816875,
+    "source": "demo",
+    "level": "info",
+    "message": "C31 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "4ef14bd7-a74e-4350-9050-234a0ca5ba7f",
+    "timestamp": 1779270816875,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "faf09588-4d67-4cad-8480-65f407c311f5",
+    "timestamp": 1779270816145,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C21 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "9fdbbeca-1f43-4ed3-945b-2f710c8b0e04",
+    "timestamp": 1779270815321,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "363adafd-e282-4a31-b2f6-89b39a0d434c",
+    "timestamp": 1779270815033,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "93a68fd2-6d6b-4a76-b5b6-9d6b178a561f",
+    "timestamp": 1779270795435,
+    "source": "demo",
+    "level": "info",
+    "message": "C30 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "82ef5236-2266-4c0d-b6fc-8f6981d8be01",
+    "timestamp": 1779270795435,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "b189c093-5d71-4d64-a4f3-32284d05aeeb",
+    "timestamp": 1779270795044,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "aeaea4b2-8927-4f2c-9291-999ec912edca",
+    "timestamp": 1779270785820,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C20 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "233c6854-0d16-4acb-9f43-d11d53b7a551",
+    "timestamp": 1779270785033,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "16635991-ad9a-4654-a502-8963270e4bb1",
+    "timestamp": 1779270775981,
+    "source": "demo",
+    "level": "info",
+    "message": "C29 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "bcdb7640-908e-4bb0-ad1a-24038c6a6849",
+    "timestamp": 1779270775981,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "954b68db-8140-43e7-b98c-86b1a2b482e8",
+    "timestamp": 1779270775043,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "b3c5bb52-7872-403a-bcaa-16691bbf01c9",
+    "timestamp": 1779270756007,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C19 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "72d6d1c1-993c-45dd-b2bb-a08b1c4ae3fd",
+    "timestamp": 1779270755878,
+    "source": "demo",
+    "level": "info",
+    "message": "C28 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a95b5190-9acf-44e6-b913-99ecc4b1154e",
+    "timestamp": 1779270755878,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "9561d58b-5d17-47e7-965d-34ddc6498a3b",
+    "timestamp": 1779270755430,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "f2f4c119-a6ac-4889-8544-bfdae3d6a4a3",
+    "timestamp": 1779270755032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "ad195829-9197-4bf1-8358-a51ff044dd17",
+    "timestamp": 1779270735870,
+    "source": "demo",
+    "level": "info",
+    "message": "C27 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "52fabc24-0f8a-4334-8b78-832559871695",
+    "timestamp": 1779270735870,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "7859da85-0f6a-49cc-b798-401afb45f2cf",
+    "timestamp": 1779270735041,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "a3afb2df-d33f-47a4-a7f1-a2ced7e24ff9",
+    "timestamp": 1779270725809,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C18 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "950ab809-a47b-4014-8f03-5246756b84f4",
+    "timestamp": 1779270725031,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "d70176d9-c270-454a-a524-e876106751fe",
+    "timestamp": 1779270715434,
+    "source": "demo",
+    "level": "info",
+    "message": "C26 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "11434fdf-9bc1-4fd0-93af-ee4649e568d5",
+    "timestamp": 1779270715434,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "a1cf0e55-1dd4-47e4-84cf-b7f46ec89d72",
+    "timestamp": 1779270715042,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "93f75f3a-9065-46e6-b0f3-d80c6b26d3fb",
+    "timestamp": 1779270696409,
+    "source": "demo",
+    "level": "info",
+    "message": "C25 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "bbd83776-6b9f-4bab-937a-64ba80be93c1",
+    "timestamp": 1779270696409,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "271f6619-5f4f-4bd9-854f-3f6c1d8031c7",
+    "timestamp": 1779270696122,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C17 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "4dbdaeeb-ae13-42ee-a3c8-9315bb92bb98",
+    "timestamp": 1779270695218,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "e5dd4814-96a2-49c2-b4bf-d2bf6ce91347",
+    "timestamp": 1779270695032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "da186adb-b3f5-4fed-96b1-87ab1b2cfb25",
+    "timestamp": 1779270675737,
+    "source": "demo",
+    "level": "success",
+    "message": "C24 · pindai:20 · kandidat:19 · BUKA:1 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "c33f9a2c-9425-436f-bf05-9f704a6549fe",
+    "timestamp": 1779270675737,
+    "source": "demo",
+    "level": "success",
+    "message": "✅ BUKA LONG PLAYSOUTUSDT @ $0.1561 | 99% | Tren Naik Kuat ↑↑ | TP:$0.1726 SL:$0.1495 | RR:2.5x",
+    "symbol": "PLAYSOUTUSDT",
+    "confidence": 99
+  },
+  {
+    "id": "e29f828a-b7b9-4dc5-9e8c-a41b96dc7236",
+    "timestamp": 1779270675042,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "50c4c3bf-0e5d-4c34-b541-61f41502474c",
+    "timestamp": 1779270671260,
+    "source": "demo",
+    "level": "info",
+    "message": "↩ EXIT LONG VVVUSDT @ $17.4141 | PnL: $+0.04 (+0.76%) | [Instinct Exit] 🚨 Momentum kritis — Candle rejection atas — tekanan jual kuat. Profit $0.76% diamankan.",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "4eaeeb1d-188e-4c4b-83cb-db0ea091ac58",
+    "timestamp": 1779270671249,
+    "source": "demo",
+    "level": "success",
+    "message": "🧠 INSTINCT EXIT LONG VVVUSDT @ $17.4141 | Profit: +0.76% | 🚨 Momentum kritis — Candle rejection atas — tekanan jual kuat. Profit $0.76% diamankan.",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "5a455c2b-4b77-4cc9-907e-53926387ce5f",
+    "timestamp": 1779270665581,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C16 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "2b86e04f-ebb7-418f-8b7b-ec422855df08",
+    "timestamp": 1779270665032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "70accf25-f5af-4f65-838d-ce71e130d7e2",
+    "timestamp": 1779270655932,
+    "source": "demo",
+    "level": "info",
+    "message": "C23 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "c6a3045b-d557-44eb-a45b-ff9766aa6a27",
+    "timestamp": 1779270655932,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "937adb3f-48b5-4dec-8159-f56455b5c9bd",
+    "timestamp": 1779270655041,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "6cbc8288-24b4-436f-a663-f592b4ea7c95",
+    "timestamp": 1779270635704,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C15 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "3b1f01dd-f0b7-4b38-b431-d64d78da9e82",
+    "timestamp": 1779270635520,
+    "source": "demo",
+    "level": "info",
+    "message": "C22 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "7cd62184-2c31-44ec-848f-37275cecc782",
+    "timestamp": 1779270635520,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "a67cd3f2-106a-49ce-b92e-97833b230565",
+    "timestamp": 1779270635139,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "c810d506-227a-4028-9580-08b1a2edfd1b",
+    "timestamp": 1779270635032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "2a7aa0c0-ca15-4426-a5ab-e5934633e7d3",
+    "timestamp": 1779270616090,
+    "source": "demo",
+    "level": "info",
+    "message": "C21 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "061bf9ea-1376-4cee-a9a4-d683ea5d3dcb",
+    "timestamp": 1779270616090,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "6b09311d-1d33-4689-ad30-1619a393a074",
+    "timestamp": 1779270615045,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "497a2fdd-f9cd-4f83-8158-dbf290e07a15",
+    "timestamp": 1779270605883,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C14 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "cd0cf9e3-a3cd-4d03-b25e-28eeefead6c9",
+    "timestamp": 1779270605031,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "ea6ea717-c44f-430c-9ced-922c9de6e5df",
+    "timestamp": 1779270595345,
+    "source": "demo",
+    "level": "info",
+    "message": "C20 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ee4b52c2-ce96-477f-a18a-7fdc57707a87",
+    "timestamp": 1779270595345,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "d7fdc361-8dcf-4a09-b4ba-b9473aa88814",
+    "timestamp": 1779270595044,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "18960449-6ef1-49b0-a09c-c6033928393e",
+    "timestamp": 1779270576137,
+    "source": "demo",
+    "level": "info",
+    "message": "C19 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ae0016f7-7f02-4694-a1ba-808a814e9e3d",
+    "timestamp": 1779270576137,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "98af532c-b560-4af1-a6c1-b915245d8b2c",
+    "timestamp": 1779270575661,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C13 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "0639e8df-67ac-40b6-a683-71b0e1d888a2",
+    "timestamp": 1779270575244,
+    "source": "demo",
+    "level": "signal",
+    "message": "🚀 EXTEND TARGET VVVUSDT: TP $18.5476 → $19.0142 | Momentum kuat: 100",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "94eec688-f2d0-4ee4-9cb5-94b5f0f9970c",
+    "timestamp": 1779270575160,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "e69b7d60-15ed-4b88-97e2-bc0dfa2f1525",
+    "timestamp": 1779270575032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "5d5f7d36-0133-463c-bde1-06b81a728596",
+    "timestamp": 1779270555342,
+    "source": "demo",
+    "level": "info",
+    "message": "C18 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "80adc592-ff58-4084-b52b-3b1ce72a0288",
+    "timestamp": 1779270555342,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "d34e7846-0eb2-410e-8d05-230985aed1c8",
+    "timestamp": 1779270555041,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "347c277e-3627-4f0a-885b-57725c9a04e2",
+    "timestamp": 1779270545799,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C12 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "3bf762b0-ab33-4060-bc44-a8783f14b1b2",
+    "timestamp": 1779270545032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "f541ee8c-cebd-48a7-aac9-913cdc7941f4",
+    "timestamp": 1779270536123,
+    "source": "demo",
+    "level": "info",
+    "message": "C17 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "86a7c6ca-b91b-47cc-a059-a7ef6d779c25",
+    "timestamp": 1779270536123,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "bd376f76-f863-4411-b9ce-3e1b4f7a2e81",
+    "timestamp": 1779270535159,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL VVVUSDT (profit 1.4%): Trail bergerak → SL ke $17.3577 (profit 1.4%)",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "390b0704-a9c9-4229-9f5b-83da8d33febe",
+    "timestamp": 1779270535040,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "cb44317a-91d0-4b68-a19f-af27fcc6674b",
+    "timestamp": 1779270527228,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL VVVUSDT (profit 1.1%): Trail bergerak → SL ke $17.2998 (profit 1.1%)",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "bb329c42-825d-4e5d-aefc-4ddefc7afd83",
+    "timestamp": 1779270527228,
+    "source": "demo",
+    "level": "signal",
+    "message": "🚀 EXTEND TARGET VVVUSDT: TP $18.0810 → $18.5476 | Momentum kuat: 100",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "bfc7f554-361c-4315-afca-8cd3e544244a",
+    "timestamp": 1779270519146,
+    "source": "demo",
+    "level": "info",
+    "message": "🛡 TRAIL AKTIF LONG VVVUSDT: Trailing aktif — SL dipindah ke breakeven $17.2958",
+    "symbol": "VVVUSDT"
+  },
+  {
+    "id": "f2f7d030-d3e0-477a-8837-4096e7b1ef90",
+    "timestamp": 1779270515958,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C11 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "a8304301-4a4a-49d8-9a1a-2e9c234daceb",
+    "timestamp": 1779270515458,
+    "source": "demo",
+    "level": "info",
+    "message": "C16 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "e0209ff8-b00a-41d4-9371-4aac40eafd99",
+    "timestamp": 1779270515458,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "867086a5-28a1-4ced-8d5c-df99bc3e3611",
+    "timestamp": 1779270515156,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "0bac757f-bdb2-4354-a216-68a7bbbaae41",
+    "timestamp": 1779270515032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "55ebdec5-3c33-4016-9e0f-b17aa36293b2",
+    "timestamp": 1779270495960,
+    "source": "demo",
+    "level": "info",
+    "message": "C15 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "6c036a5c-02c1-41c6-9a38-caf9f762f471",
+    "timestamp": 1779270495960,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "62611f46-2f06-4d82-94ad-dd050c5a8953",
+    "timestamp": 1779270495039,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "e82402b9-6358-49d1-9249-65441905d8bd",
+    "timestamp": 1779270485778,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C10 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "6d4a48f4-97e3-4c50-9254-522406c0ddf2",
+    "timestamp": 1779270485032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "c14405ba-897e-4260-abb3-b938570b0009",
+    "timestamp": 1779270475344,
+    "source": "demo",
+    "level": "info",
+    "message": "C14 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "43110981-3e91-46ca-a089-708e2659f050",
+    "timestamp": 1779270475344,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "dbd1cd1b-7325-4da3-9c16-5dd952fc7d96",
+    "timestamp": 1779270475042,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "720dbcd2-a4d6-4339-a2c9-72fa39c56d5b",
+    "timestamp": 1779270456135,
+    "source": "demo",
+    "level": "info",
+    "message": "C13 · pindai:20 · kandidat:18 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "7366a0fd-7022-4daf-aabd-f3e46e32ea41",
+    "timestamp": 1779270456135,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "9952f796-ef2f-4e66-b5aa-c503dff0b9fa",
+    "timestamp": 1779270455939,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C9 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "579e054a-90b7-4239-bf7f-cef82f4bf984",
+    "timestamp": 1779270455217,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "517b386d-ac67-4656-85d2-d3c4e50df12b",
+    "timestamp": 1779270455032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "d72edf52-8346-4bf6-85e9-cae8d2d96f79",
+    "timestamp": 1779270435341,
+    "source": "demo",
+    "level": "info",
+    "message": "C12 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "f3d888b5-9bd7-4ee5-a178-d35bb5eb105b",
+    "timestamp": 1779270435341,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "b3b0464e-32d3-4a68-bd93-fb9559f57a4f",
+    "timestamp": 1779270435040,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "ee987c2c-4d32-447a-aae7-12186fe48a52",
+    "timestamp": 1779270425864,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C8 · pindai:2 · kandidat:2 · pos:0/3"
+  },
+  {
+    "id": "085be3f3-067f-424f-83fc-84f89ad95fc4",
+    "timestamp": 1779270425032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "ad93f8e8-fe84-4d5e-ba40-16b29dd7c049",
+    "timestamp": 1779270416686,
+    "source": "demo",
+    "level": "info",
+    "message": "C11 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "249d0fac-8314-4cbe-b267-b57624c04063",
+    "timestamp": 1779270416686,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "c07d30aa-2673-431d-938e-6afd9e97a904",
+    "timestamp": 1779270415039,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "915772ba-b325-4bdd-b857-9d33a7dd1b5f",
+    "timestamp": 1779270395677,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C7 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "47d2376c-349a-458c-a32b-060f97a71e7a",
+    "timestamp": 1779270395448,
+    "source": "demo",
+    "level": "info",
+    "message": "C10 · pindai:20 · kandidat:19 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "d7a2bd4d-729f-46af-bb6e-86a68c4542f1",
+    "timestamp": 1779270395448,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "ed82c830-2794-4c8d-9290-3209d8d87a95",
+    "timestamp": 1779270395144,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "ce82af6c-e9ba-48f1-b057-b90e7caa5195",
+    "timestamp": 1779270395032,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "24cb699a-0a25-4281-9a9f-d4f1208dcdaa",
+    "timestamp": 1779270375958,
+    "source": "demo",
+    "level": "info",
+    "message": "C9 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "30e1aee3-cfb8-4621-a8b3-b8f8c17ffe8f",
+    "timestamp": 1779270375958,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "4d5bf8dc-0a13-4f75-a0a8-748c24004be1",
+    "timestamp": 1779270375039,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "d42e68a3-0802-46a0-b56e-cbff83163ae5",
+    "timestamp": 1779270365605,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C6 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "03c8ad4a-3072-4b6e-8c10-9358fe03ad7e",
+    "timestamp": 1779270365031,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "a554e2cd-8a32-4a56-be22-79e27226914e",
+    "timestamp": 1779270355344,
+    "source": "demo",
+    "level": "info",
+    "message": "C8 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "a4b3e440-f963-49e5-9cc0-98326b458913",
+    "timestamp": 1779270355344,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "8a0e274e-cf0c-4a3f-80a8-da01ae2dce59",
+    "timestamp": 1779270355041,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "21e94cd5-4f95-4807-87cc-7be541108fb5",
+    "timestamp": 1779270336201,
+    "source": "demo",
+    "level": "info",
+    "message": "C7 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ae1490dc-3f4f-437f-9cb9-358537d156fb",
+    "timestamp": 1779270336201,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "ffc0f19c-f90e-49d7-bab8-3080dfa29250",
+    "timestamp": 1779270335680,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C5 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "6d6e0e7c-197b-4343-9a27-695cca697736",
+    "timestamp": 1779270335168,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "5896d00b-54cb-43b8-b02b-fc574ea43267",
+    "timestamp": 1779270335029,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
+    "id": "ac6576d6-c085-41c1-93bd-44c75cbbc580",
+    "timestamp": 1779270315341,
+    "source": "demo",
+    "level": "info",
+    "message": "C6 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
+  },
+  {
+    "id": "ff0779c8-8b81-4a94-84d5-20d352e5725e",
+    "timestamp": 1779270315341,
+    "source": "demo",
+    "level": "info",
+    "message": "Slot penuh (3/3) — memantau posisi aktif"
+  },
+  {
+    "id": "a1d3993d-145c-4925-983a-8d7f6f63d024",
+    "timestamp": 1779270315038,
+    "source": "demo",
+    "level": "warning",
+    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
+  },
+  {
+    "id": "19d9982c-b8ef-4b75-84bf-ca37a55c8647",
+    "timestamp": 1779270305582,
+    "source": "demo",
+    "level": "info",
+    "message": "🧠 [Forex+Brain] C4 · pindai:2 · kandidat:1 · pos:0/3"
+  },
+  {
+    "id": "afc1fc59-5bae-4fd6-8328-14448afe269e",
+    "timestamp": 1779270305029,
+    "source": "demo",
+    "level": "scan",
+    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
+  },
+  {
     "id": "fdf6ec48-4041-4b7d-a846-53d88d8635a8",
     "timestamp": 1779270296084,
     "source": "demo",
@@ -3208,1071 +4267,5 @@
     "source": "demo",
     "level": "info",
     "message": "C11 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "bc5bc273-f143-4ac2-af5f-6e91fd853b8d",
-    "timestamp": 1779267230143,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "8fd0eb5f-0ab9-4702-81cf-78c1647a436e",
-    "timestamp": 1779267228643,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "47b66133-90d9-4f5f-b65f-e6442477d30e",
-    "timestamp": 1779267209471,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C7 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "92f44979-59f1-4c2a-9354-0fd450fce2b8",
-    "timestamp": 1779267209099,
-    "source": "demo",
-    "level": "info",
-    "message": "C10 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "d9a9500a-1a70-45e4-a403-780aa810b142",
-    "timestamp": 1779267209099,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "b03de560-93e4-46ac-92c1-ba0901610c84",
-    "timestamp": 1779267208798,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "43305fc5-ebaf-4cc3-a217-d7b9274a5392",
-    "timestamp": 1779267208634,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "918d486d-9a2f-4733-9565-8811ad1b4443",
-    "timestamp": 1779267189683,
-    "source": "demo",
-    "level": "info",
-    "message": "C9 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "31746282-0332-4702-8714-e862cfd51c9d",
-    "timestamp": 1779267189683,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "996ed358-4be5-4634-bbaf-5d4adaac1783",
-    "timestamp": 1779267188642,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "ab593899-2aa5-4079-aa6d-72504e15ba7c",
-    "timestamp": 1779267179203,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C6 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "8853c526-5e82-44f9-9264-990f3f7d583c",
-    "timestamp": 1779267178633,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "ccba7c76-d974-42be-9a2b-1805977d0a48",
-    "timestamp": 1779267168943,
-    "source": "demo",
-    "level": "info",
-    "message": "C8 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "2ccf186f-13d9-4fbc-aa55-025093a85132",
-    "timestamp": 1779267168943,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "c7b6ddb2-5783-4f6d-a95a-c73c3b825f56",
-    "timestamp": 1779267168642,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "29efc450-469c-4c35-8b3c-65449ed5c92b",
-    "timestamp": 1779267150282,
-    "source": "demo",
-    "level": "info",
-    "message": "C7 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "0c620f17-be9a-45e7-bee6-81a192c7fc3f",
-    "timestamp": 1779267150282,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "023c044f-53c1-4a41-9970-fe98407861da",
-    "timestamp": 1779267149294,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C5 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "8cccfd67-e0bb-4df5-8808-5b8f6d60c803",
-    "timestamp": 1779267149058,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "e93fd844-051b-44ea-bbe8-8135fe3a5ae8",
-    "timestamp": 1779267148633,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "c819b2b2-84d8-4e41-9b97-9a122ee69b0d",
-    "timestamp": 1779267128943,
-    "source": "demo",
-    "level": "info",
-    "message": "C6 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "a22f1e46-aff2-47f3-b091-084a6ac7446e",
-    "timestamp": 1779267128943,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "221c07d1-2030-4e79-9597-adc567b35002",
-    "timestamp": 1779267128642,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "9c329d45-0c1a-4930-9333-2f6b6a886ac4",
-    "timestamp": 1779267119179,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C4 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "41d924fc-7784-4b08-9986-76f5226568a7",
-    "timestamp": 1779267118634,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "b678283b-98a2-44f6-a419-4d8a870b9c5e",
-    "timestamp": 1779267109829,
-    "source": "demo",
-    "level": "info",
-    "message": "C5 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "d255a53f-bdf0-4531-9361-4d5c6e8b26fe",
-    "timestamp": 1779267109829,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "f0f934b9-c011-42f1-9166-541a2e929efd",
-    "timestamp": 1779267108646,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "2e109239-6a82-4eca-8c4a-a5b1e9afd400",
-    "timestamp": 1779267089312,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C3 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "2471f1d2-c35b-4c71-a3c6-e0bd2217269f",
-    "timestamp": 1779267089041,
-    "source": "demo",
-    "level": "info",
-    "message": "C4 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "dc8b1d50-ca8f-4d15-ab0c-71db54477411",
-    "timestamp": 1779267089041,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "ba5bbe2a-b035-43b8-8c22-dbe8e508ec6d",
-    "timestamp": 1779267088740,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "f4ba9cfc-f08c-45ce-bd18-c6766eff73d3",
-    "timestamp": 1779267088633,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "180dc60e-b3b8-44cd-9b8d-ffcf723a379d",
-    "timestamp": 1779267069806,
-    "source": "demo",
-    "level": "info",
-    "message": "C3 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "ed394ae4-f21d-4a82-8462-7d520f4c4bcd",
-    "timestamp": 1779267069806,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "6a3eb8ed-b4e4-4080-9140-a3dff8818899",
-    "timestamp": 1779267068652,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "5c4f6a12-8190-4740-b3ee-6f6f941e6f0c",
-    "timestamp": 1779267059192,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C2 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "460e7b9c-097b-48f3-8798-8c6897310791",
-    "timestamp": 1779267058633,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "d336b476-f281-4a8a-9a37-4916965ea4d5",
-    "timestamp": 1779267050102,
-    "source": "demo",
-    "level": "success",
-    "message": "C2 · pindai:20 · kandidat:20 · skip:1 · BUKA:3 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "b9398e50-9d15-4992-aa0c-b30880e40a6e",
-    "timestamp": 1779267050102,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG BANANAS31USDT @ $0.0121 | 99% | Tren Naik Kuat ↑↑ | TP:$0.0128 SL:$0.0118 | RR:2.5x",
-    "symbol": "BANANAS31USDT",
-    "confidence": 99
-  },
-  {
-    "id": "a791fa80-a092-4d48-9436-8e27f9d643e9",
-    "timestamp": 1779267049856,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG FIGHTUSDT @ $0.0051 | 99% | Tren Naik Kuat ↑↑ | TP:$0.0054 SL:$0.0050 | RR:2.5x",
-    "symbol": "FIGHTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "b5396650-d6c2-4e09-8842-121b1df6091d",
-    "timestamp": 1779267049371,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG PLAYSOUTUSDT @ $0.1522 | 99% | Tren Naik Kuat ↑↑ | TP:$0.1688 SL:$0.1456 | RR:2.5x",
-    "symbol": "PLAYSOUTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "9acc84a1-fbe4-4f99-911a-62029886b047",
-    "timestamp": 1779267048641,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "2c3b2336-297a-4958-ba31-3a7df1dd3c69",
-    "timestamp": 1779267037037,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG FIGHTUSDT @ $0.0051 | PnL: $+0.06 (+1.21%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "FIGHTUSDT"
-  },
-  {
-    "id": "a33bb39f-71f3-4ff4-8830-1b756dc90678",
-    "timestamp": 1779267037032,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG FIGHTUSDT @ $0.0051 | Profit: +1.21% | 📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "FIGHTUSDT"
-  },
-  {
-    "id": "9453fdc1-cfae-49be-a173-9eab07061571",
-    "timestamp": 1779267036887,
-    "source": "demo",
-    "level": "warning",
-    "message": "❌ SL LONG NILUSDT @ $0.0526 | PnL: $-0.27 (-5.07%) | Stop Loss @ $0.0526",
-    "symbol": "NILUSDT"
-  },
-  {
-    "id": "065eb195-cd64-49ff-8edf-7edd395ec9f4",
-    "timestamp": 1779267036728,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG VVVUSDT @ $17.2301 | PnL: $+0.09 (+1.77%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "VVVUSDT"
-  },
-  {
-    "id": "976c1ed5-db21-432c-9cb7-5e16a3b955d0",
-    "timestamp": 1779267036722,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG VVVUSDT @ $17.2301 | Profit: +1.77% | 📉 Probabilitas kelanjutan rendah (0%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "VVVUSDT"
-  },
-  {
-    "id": "48d6b608-2a3c-49b7-af38-6a539ea3c58d",
-    "timestamp": 1779267029906,
-    "source": "demo",
-    "level": "info",
-    "message": "C1 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "b115df47-4319-462a-ba0f-68db836d9553",
-    "timestamp": 1779267029905,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "07ef08fc-935b-440b-b203-19d538cd40b0",
-    "timestamp": 1779267029328,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C1 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "87044414-27f3-4419-b52f-771199f85949",
-    "timestamp": 1779267028818,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "0f524011-1ca7-4bf3-a9c6-d9ceaed28505",
-    "timestamp": 1779267028631,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "280c7224-2aac-4840-9825-93ef48996227",
-    "timestamp": 1779256803444,
-    "source": "demo",
-    "level": "info",
-    "message": "C42 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "f0e17066-6617-4af3-8313-40fe9ceecd38",
-    "timestamp": 1779256803444,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "b04ebe71-7a42-4c77-9678-43743ff9a3a1",
-    "timestamp": 1779256803056,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "81df1400-e531-4d01-b4f2-d5623f2fba9b",
-    "timestamp": 1779256793679,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C28 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "c88a7126-1036-4bf5-95d2-b524f9ddf92b",
-    "timestamp": 1779256793048,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "266a079b-7239-4db1-a386-ed4747db8902",
-    "timestamp": 1779256784721,
-    "source": "demo",
-    "level": "info",
-    "message": "C41 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "7b2988c5-15cc-4cb0-857a-21c0ae9dbe66",
-    "timestamp": 1779256784721,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "0fdeb523-4927-4abb-8033-aa91d7a57868",
-    "timestamp": 1779256783058,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "26d81033-013c-4570-9616-ab02a40d4830",
-    "timestamp": 1779256763622,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C27 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "9efc8a7e-1932-4e67-b724-1a8953832448",
-    "timestamp": 1779256763536,
-    "source": "demo",
-    "level": "info",
-    "message": "C40 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "1d889a4b-7a76-4781-b7ae-37cdf8b20824",
-    "timestamp": 1779256763536,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "6616e80c-fb9b-4dee-b1d1-3a948659f469",
-    "timestamp": 1779256763158,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "58f9ce3d-12e2-4117-8b8d-a4e776ae54ee",
-    "timestamp": 1779256763048,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "7c7ddf08-9678-484d-a58f-31aca8e04a7f",
-    "timestamp": 1779256744340,
-    "source": "demo",
-    "level": "info",
-    "message": "C39 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "4e3041d4-015d-4747-bbf5-b19bdb24da57",
-    "timestamp": 1779256744340,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "2fab1bd3-19bf-4d76-a215-512424d9c395",
-    "timestamp": 1779256743061,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "dd1d07bf-1ffc-4aa2-9c4a-d21fd2e8a209",
-    "timestamp": 1779256733698,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C26 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "7e004cb5-5d6b-4f0c-95d7-c9fa41116784",
-    "timestamp": 1779256733047,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "15521cb6-89cd-48f5-87e3-1b9f32b12e7f",
-    "timestamp": 1779256723447,
-    "source": "demo",
-    "level": "info",
-    "message": "C38 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "42cc23c5-5d66-46e9-8b5e-c06c8f014501",
-    "timestamp": 1779256723447,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "559c85e3-7c84-4935-be90-c292aec4d69a",
-    "timestamp": 1779256723058,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "2881e375-5fe9-41df-87d7-7372948351af",
-    "timestamp": 1779256704237,
-    "source": "demo",
-    "level": "info",
-    "message": "C37 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "d52a7123-b83d-46ab-b557-4fd7546953e9",
-    "timestamp": 1779256704237,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "cda2f588-2472-4f9e-b693-f481d6284baa",
-    "timestamp": 1779256703607,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C25 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "e1c992f8-8aa9-4df5-8e14-9f7c8aabc478",
-    "timestamp": 1779256703176,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "f40b01ba-bcab-47ce-ae65-d4d8525be733",
-    "timestamp": 1779256703047,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "81090a1b-7c58-49f1-af81-0755341e9d6f",
-    "timestamp": 1779256683446,
-    "source": "demo",
-    "level": "info",
-    "message": "C36 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "5646804c-efcb-4415-9c47-8089c2e05728",
-    "timestamp": 1779256683446,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "4eb5277e-1121-4c5f-ab91-05f52ca28666",
-    "timestamp": 1779256683056,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "8bc08482-945a-4d42-bb29-f7d3d2a6822d",
-    "timestamp": 1779256673732,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C24 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "8a0b01cf-d819-4e9b-8594-553c35fcbb3d",
-    "timestamp": 1779256673048,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "90fcdf13-be66-4fd4-8e5b-da0793fdfe8b",
-    "timestamp": 1779256663901,
-    "source": "demo",
-    "level": "info",
-    "message": "C35 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "16b434b9-5249-444e-9132-99c8ae9207d2",
-    "timestamp": 1779256663901,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "7f4f31f1-1314-4642-8a36-8b24ecfd240b",
-    "timestamp": 1779256663057,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "713ea75e-c4b8-4a89-a4aa-f5ac7051cb37",
-    "timestamp": 1779256643609,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C23 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "eaa05331-99a5-445e-9558-6118fcc819ac",
-    "timestamp": 1779256643560,
-    "source": "demo",
-    "level": "info",
-    "message": "C34 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "64a54a96-d747-493d-be21-458d4aa0b587",
-    "timestamp": 1779256643560,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "4f97c610-cd8f-4d61-b538-525e169e5f6f",
-    "timestamp": 1779256643172,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "69a35cc4-e72d-4362-8df0-41ded8a533ec",
-    "timestamp": 1779256643047,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "820d937e-101b-4b41-84b7-bcfc9519553f",
-    "timestamp": 1779256624076,
-    "source": "demo",
-    "level": "info",
-    "message": "C33 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "72c492ac-39f6-4351-a998-23e3a3b7b798",
-    "timestamp": 1779256624076,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "ed4b825f-6cf1-4e63-a74b-18412b6ac88d",
-    "timestamp": 1779256623056,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "66ae70dc-aa9e-4beb-a1c4-88af15ff9b9e",
-    "timestamp": 1779256613689,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C22 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "e4f3034f-a7b8-4ae6-b745-5310ec7a4cb7",
-    "timestamp": 1779256613046,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "7c1ca8da-173e-4ac7-948f-b500262c7f2b",
-    "timestamp": 1779256603443,
-    "source": "demo",
-    "level": "info",
-    "message": "C32 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "e1c81e23-f1f4-4caa-895b-953b4790ed16",
-    "timestamp": 1779256603443,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "76f17b4f-dc59-4a9f-9fae-d0e3a6d8e87a",
-    "timestamp": 1779256603055,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "09e82b11-97fa-4424-9638-5bded4c8dec0",
-    "timestamp": 1779256583998,
-    "source": "demo",
-    "level": "info",
-    "message": "C31 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "5fec035f-5c7e-4f3b-b7e7-d261d4ebf42c",
-    "timestamp": 1779256583998,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "068ccfba-f234-48f5-b3df-e6e3858cbaeb",
-    "timestamp": 1779256583629,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C21 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "dc651002-1a95-4384-9969-95ba5d28d427",
-    "timestamp": 1779256583150,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "9004621e-8daf-489f-9998-b0c5393a0a12",
-    "timestamp": 1779256583046,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "bfd46e6e-7fed-4156-8155-c74ca5bc06e1",
-    "timestamp": 1779256564346,
-    "source": "demo",
-    "level": "success",
-    "message": "C30 · pindai:20 · kandidat:20 · skip:2 · BUKA:1 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "c78a7f45-da96-4d72-b0da-12b7c076d6c0",
-    "timestamp": 1779256564346,
-    "source": "demo",
-    "level": "success",
-    "message": "✅ BUKA LONG FIGHTUSDT @ $0.0050 | 99% | Tren Naik Kuat ↑↑ | TP:$0.0054 SL:$0.0049 | RR:2.5x",
-    "symbol": "FIGHTUSDT",
-    "confidence": 99
-  },
-  {
-    "id": "02d306a6-1c5e-4110-9bd2-85dbee4ed2b5",
-    "timestamp": 1779256563059,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 1x loss — sedikit kurangi risiko (-20%)"
-  },
-  {
-    "id": "b433f32a-ca7a-4d5a-9985-fe6382d6ce7d",
-    "timestamp": 1779256559426,
-    "source": "demo",
-    "level": "info",
-    "message": "↩ EXIT LONG FIGHTUSDT @ $0.0050 | PnL: $+0.03 (+0.58%) | [Instinct Exit] 📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "FIGHTUSDT"
-  },
-  {
-    "id": "e093d7fb-0a3d-4212-9f69-dab7a758c9dd",
-    "timestamp": 1779256559421,
-    "source": "demo",
-    "level": "success",
-    "message": "🧠 INSTINCT EXIT LONG FIGHTUSDT @ $0.0050 | Profit: +0.58% | 📉 Probabilitas kelanjutan rendah (12%) — risiko reversal lebih besar dari potensi profit tersisa.",
-    "symbol": "FIGHTUSDT"
-  },
-  {
-    "id": "5e939237-2eaf-4134-8a30-2e0d47b3d7ce",
-    "timestamp": 1779256553814,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C20 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "57065d4c-abc8-4f6d-803e-ca7b35e7a85c",
-    "timestamp": 1779256553047,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "47f763f0-2ce7-4bbf-932b-33c21dd9a800",
-    "timestamp": 1779256543917,
-    "source": "demo",
-    "level": "info",
-    "message": "C29 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "2f029c0d-c271-431e-ba48-9fe27b987b25",
-    "timestamp": 1779256543917,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "2f51031c-e094-4506-b145-aa1c3d782dc6",
-    "timestamp": 1779256543236,
-    "source": "demo",
-    "level": "info",
-    "message": "🛡 TRAIL AKTIF LONG FIGHTUSDT: Trailing aktif — SL dipindah ke breakeven $0.0050",
-    "symbol": "FIGHTUSDT"
-  },
-  {
-    "id": "1445260b-4202-43ed-8894-cfec42569a4f",
-    "timestamp": 1779256543055,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "8130de9a-7176-420b-b5f1-f3f7eebf9445",
-    "timestamp": 1779256523695,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C19 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "7bfe145a-9e2f-40a8-9e81-27751644cb26",
-    "timestamp": 1779256523542,
-    "source": "demo",
-    "level": "info",
-    "message": "C28 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "49d42c04-073e-4b6d-a313-7ef9da7d3437",
-    "timestamp": 1779256523542,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "5b14c953-6cfc-45ab-8539-7ac8f81cf4e1",
-    "timestamp": 1779256523159,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "8178cb39-0827-4a9b-a76a-96eeb7521ad9",
-    "timestamp": 1779256523046,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "e229fa30-3977-46d7-8a6f-b38eca45ad5a",
-    "timestamp": 1779256504247,
-    "source": "demo",
-    "level": "info",
-    "message": "C27 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "487bc323-4349-407e-b16a-f1ae15ced644",
-    "timestamp": 1779256504247,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "0c3c20a2-3f33-45e3-855f-4cd558bab41d",
-    "timestamp": 1779256503059,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "8a42a0f9-0e7b-4c47-bbc9-9ea663762cf3",
-    "timestamp": 1779256493615,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C18 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "cfb0aac3-48de-49f4-bfa5-26cff354b044",
-    "timestamp": 1779256493045,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "c245c8ad-96d6-4fca-bcc4-5fc8d9ac32c8",
-    "timestamp": 1779256483435,
-    "source": "demo",
-    "level": "info",
-    "message": "C26 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "802521ee-c7c5-4431-924d-c4b30ae996b1",
-    "timestamp": 1779256483435,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "946db0ee-757d-45d2-b0f2-db67885b3aa0",
-    "timestamp": 1779256483053,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "582a9b43-0449-48b2-9b96-caec2fe3a402",
-    "timestamp": 1779256464300,
-    "source": "demo",
-    "level": "info",
-    "message": "C25 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "4fc55aa1-20ab-477b-a656-a6eb38dc339d",
-    "timestamp": 1779256464300,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "e93db9b8-1790-416e-9ee3-333959a11ee6",
-    "timestamp": 1779256463755,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C17 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "22caecd5-1a66-427d-87ba-2323ab601e79",
-    "timestamp": 1779256463232,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "96e5212f-d40a-4e39-a9a3-61f14dadb90b",
-    "timestamp": 1779256463044,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "ff3bc64f-945f-44d6-9def-69f1a2e11ece",
-    "timestamp": 1779256443438,
-    "source": "demo",
-    "level": "info",
-    "message": "C24 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "3d222361-e40b-4768-b6b2-c979d1517cdd",
-    "timestamp": 1779256443438,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "8541e4d5-1e8e-4780-9a28-0ea2aa6ef556",
-    "timestamp": 1779256443055,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "3db16f2e-9648-4eb6-9a1c-2ac281bd244f",
-    "timestamp": 1779256433582,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C16 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "a819f44c-cbb0-4bf4-8ed5-b3b2208ab7d3",
-    "timestamp": 1779256433043,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "be3fb93e-a749-421d-a273-0c9eab976159",
-    "timestamp": 1779256423915,
-    "source": "demo",
-    "level": "info",
-    "message": "C23 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "f774857e-8011-4538-b0eb-3763e0c09443",
-    "timestamp": 1779256423915,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "5860b9e2-ba5e-4dcb-a13f-a81cbe188af8",
-    "timestamp": 1779256423058,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "9205b76a-1acf-451a-8c4c-82a703f182fc",
-    "timestamp": 1779256403811,
-    "source": "demo",
-    "level": "info",
-    "message": "C22 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "0e1dc9e4-c1eb-42de-901c-72221ba11465",
-    "timestamp": 1779256403811,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "9b325dc2-7018-488c-be97-783fd7ae0155",
-    "timestamp": 1779256403749,
-    "source": "demo",
-    "level": "info",
-    "message": "🧠 [Forex+Brain] C15 · pindai:2 · kandidat:1 · pos:0/3"
-  },
-  {
-    "id": "ce1a99f0-f9e3-4166-8c83-aaad7fa37e67",
-    "timestamp": 1779256403380,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
-  },
-  {
-    "id": "c21f86e3-5059-4ad9-b296-860086146584",
-    "timestamp": 1779256403042,
-    "source": "demo",
-    "level": "scan",
-    "message": "🔍 [Forex] Memindai 5 pair forex/komoditas..."
-  },
-  {
-    "id": "99e6975d-5814-4493-aa9a-c1391cab67c7",
-    "timestamp": 1779256384102,
-    "source": "demo",
-    "level": "info",
-    "message": "C21 · pindai:20 · kandidat:20 · ⚠caution · pos:3/3"
-  },
-  {
-    "id": "7b765db8-54ed-4a4c-b2a4-1d1dabfe4004",
-    "timestamp": 1779256384102,
-    "source": "demo",
-    "level": "info",
-    "message": "Slot penuh (3/3) — memantau posisi aktif"
-  },
-  {
-    "id": "6dd4f674-c3f3-4bea-a026-5247dfcadad2",
-    "timestamp": 1779256383055,
-    "source": "demo",
-    "level": "warning",
-    "message": "⚠ Manajemen risiko dinamis: 2x loss berturut — posisi dikecilkan 45%"
   }
 ]

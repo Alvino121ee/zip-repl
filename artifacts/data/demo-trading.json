@@ -1,8 +1,8 @@
 {
-  "balance": 40.77872882959593,
-  "realizedPnl": -8.737821170404125,
-  "totalFees": 0.9664347011664753,
-  "winCount": 140,
+  "balance": 40.81306166209506,
+  "realizedPnl": -8.700600837904993,
+  "totalFees": 0.9722317726136458,
+  "winCount": 141,
   "lossCount": 67,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 1007.4841681059297,
       "entryPrice": 0.005211,
-      "markPrice": 0.005128,
+      "markPrice": 0.005172,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.005093892857142858,
       "takeProfit": 0.005503767857142857,
-      "unrealisedPnl": -0.08362118595279278,
-      "unrealisedPnlPct": -1.59278449433891,
+      "unrealisedPnl": -0.03929188255613123,
+      "unrealisedPnlPct": -0.7484168105929758,
       "openedAt": 1779269610942,
       "source": "auto",
       "confidence": 99,
@@ -33,46 +33,20 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.005216,
       "humanInstinct": {
-        "lastEvalAt": 1779270319130,
-        "momentumScore": 85,
-        "continuationProb": 54,
+        "lastEvalAt": 1779270996076,
+        "momentumScore": 39,
+        "continuationProb": 2,
         "greedIndex": 0,
         "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan moderat (54%) — pantau ketat, pertahankan dengan waspada",
-        "evalCount": 4,
+        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 18,
         "urgency": 15
       }
-    },
-    {
-      "id": "62cce24c-2bee-4214-b330-087a60d3c40d",
-      "symbol": "VVVUSDT",
-      "displayName": "VVV/USDT",
-      "side": "Buy",
-      "size": 0.30378428422636267,
-      "entryPrice": 17.282,
-      "markPrice": 17.3096,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 16.962392857142856,
-      "takeProfit": 18.081017857142857,
-      "unrealisedPnl": 0.008384446244647495,
-      "unrealisedPnlPct": 0.15970373799328563,
-      "openedAt": 1779270257174,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($17.0603) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 17.3102
     },
     {
       "id": "f31a6df9-bb81-4a57-9ac2-da61401693b5",
@@ -81,13 +55,13 @@
       "side": "Buy",
       "size": 433.6692549149182,
       "entryPrice": 0.012106,
-      "markPrice": 0.012101,
+      "markPrice": 0.012031,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.011804178571428571,
       "takeProfit": 0.012860553571428571,
-      "unrealisedPnl": -0.0021683462745745027,
-      "unrealisedPnlPct": -0.0413018338014191,
+      "unrealisedPnl": -0.032525194118619045,
+      "unrealisedPnlPct": -0.6195275070213151,
       "openedAt": 1779270276226,
       "source": "auto",
       "confidence": 99,
@@ -100,10 +74,128 @@
       "marketCondition": "trending_up_strong",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.012143
+      "trailPeakPrice": 0.012143,
+      "humanInstinct": {
+        "lastEvalAt": 1779270980164,
+        "momentumScore": 50,
+        "continuationProb": 9,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Volume sedikit turun 16%",
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (9%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 13,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "396a36ea-ba51-4613-93f1-66ada5848178",
+      "symbol": "PLAYSOUTUSDT",
+      "displayName": "PLAYSOUT/USDT",
+      "side": "Buy",
+      "size": 33.63013259880853,
+      "entryPrice": 0.15611,
+      "markPrice": 0.15527,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.1495025,
+      "takeProfit": 0.17262874999999997,
+      "unrealisedPnl": -0.028249311382999413,
+      "unrealisedPnlPct": -0.5380821215809413,
+      "openedAt": 1779270675732,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1504) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.15709,
+      "humanInstinct": {
+        "lastEvalAt": 1779270996284,
+        "momentumScore": 17,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Volume menurun 37% — tanda pelemahan",
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 5,
+        "urgency": 15
+      }
     }
   ],
   "log": [
+    {
+      "id": "f249f68e-9500-4579-a04a-f99cc2779aa0",
+      "timestamp": 1779270675732,
+      "openedAt": 1779270675732,
+      "symbol": "PLAYSOUTUSDT",
+      "side": "Buy",
+      "qty": 33.63013259880853,
+      "entryPrice": 0.15611,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.1561 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1504) — momentum bullish",
+      "entryFee": 0.0028875,
+      "fee": 0.0028875,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "c0bfea85-f471-4db0-b11b-cc0ecc1f24d2",
+      "timestamp": 1779270671250,
+      "openedAt": 1779270257174,
+      "closedAt": 1779270671250,
+      "duration": 414076,
+      "symbol": "VVVUSDT",
+      "side": "Sell",
+      "qty": 0.30378428422636267,
+      "entryPrice": 17.282,
+      "closePrice": 17.4141,
+      "realizedPnl": 0.03722033249913241,
+      "realizedPnlPct": 0.7643791227867215,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 🚨 Momentum kritis — Candle rejection atas — tekanan jual kuat. Profit $0.76% diamankan.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($17.0603) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Scalping",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.0057970714471704664,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002909571447170466
+    },
     {
       "id": "ecad6fcf-e8bf-4b3b-b95a-9555c97a9c03",
       "timestamp": 1779270276226,
@@ -13020,6 +13112,10 @@
     {
       "timestamp": 1779270271259,
       "balance": 40.69120117223172
+    },
+    {
+      "timestamp": 1779270671250,
+      "balance": 40.713513587962474
     }
   ]
 }
