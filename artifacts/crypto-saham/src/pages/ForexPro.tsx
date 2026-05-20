@@ -62,6 +62,9 @@ interface Analysis {
       entry: number; stopLoss: number; takeProfit: number;
       trend: string; confidence: number; spamEntry: string;
       reasons: string[]; psychology: string[];
+      slMethod: string; atrMultiplier: number;
+      pyramidWaves: number[]; pyramidPhase: number; pyramidWaveLabel: string;
+      isConservativeMode: boolean; effectiveMinConf: number; consecutiveLosses: number;
     } | null;
   };
   multiTimeframe: Record<string, { trend: string; bias: string; note: string }>;
@@ -1020,39 +1023,93 @@ export default function ForexPro() {
 
               {/* ── XAUUSD Signal Card (output utama) ─── */}
               {selectedPair === "XAUUSD" && dec?.xauSignal ? (
-                <div className={`rounded-lg border-2 p-3 ${dec.xauSignal.signal === "BUY" ? "border-green-500/60 bg-green-500/8" : "border-red-500/60 bg-red-500/8"}`}>
-                  <div className="flex items-center justify-between mb-2">
+                <div className={`rounded-lg border-2 p-3 space-y-2 ${dec.xauSignal.signal === "BUY" ? "border-green-500/60 bg-green-500/8" : "border-red-500/60 bg-red-500/8"}`}>
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">🥇 XAUUSD · AI SIGNAL</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${dec.xauSignal.signal === "BUY" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-                      SCALP MODE
-                    </span>
+                    <div className="flex gap-1">
+                      {dec.xauSignal.isConservativeMode && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400">⚠ KONSERVATIF</span>
+                      )}
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${dec.xauSignal.signal === "BUY" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                        PYRAMID
+                      </span>
+                    </div>
                   </div>
-                  <div className={`text-4xl font-black text-center mb-2 ${dec.xauSignal.signal === "BUY" ? "text-green-400" : "text-red-400"}`}>
+                  {/* Sinyal Besar */}
+                  <div className={`text-4xl font-black text-center ${dec.xauSignal.signal === "BUY" ? "text-green-400" : "text-red-400"}`}>
                     {dec.xauSignal.signal === "BUY" ? "▲ BUY" : "▼ SELL"}
                   </div>
-                  <div className="grid grid-cols-2 gap-1 text-[11px] mb-2">
-                    <div className="flex justify-between"><span className="text-muted-foreground">PAIR</span><span className="font-mono text-white">XAUUSD</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">SIGNAL</span><span className={`font-bold ${dec.xauSignal.signal === "BUY" ? "text-green-400" : "text-red-400"}`}>{dec.xauSignal.signal}</span></div>
+                  {/* Grid Harga */}
+                  <div className="grid grid-cols-2 gap-1 text-[11px]">
                     <div className="flex justify-between"><span className="text-muted-foreground">ENTRY</span><span className="font-mono text-white">{dec.xauSignal.entry.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">SL</span><span className="font-mono text-red-400">{dec.xauSignal.stopLoss.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">TP</span><span className="font-mono text-green-400">{dec.xauSignal.takeProfit.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">CONF</span><span className="font-mono" style={{ color: confidenceColor }}>{dec.xauSignal.confidence}%</span></div>
                   </div>
-                  <div className={`text-[10px] font-semibold text-center py-1 rounded mb-2 ${dec.xauSignal.trend.startsWith("BULLISH") ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"}`}>
+                  {/* Tren */}
+                  <div className={`text-[10px] font-semibold text-center py-1 rounded ${dec.xauSignal.trend.startsWith("BULLISH") ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"}`}>
                     📈 TREN: {dec.xauSignal.trend}
                   </div>
-                  {/* Spam Entry Box */}
-                  {dec.spamEntry ? (
-                    <div className="rounded border border-orange-500/40 bg-orange-500/10 p-2 text-center">
-                      <div className="text-orange-400 font-bold text-[11px] mb-0.5">🔥 SPAM ENTRY AKTIF</div>
-                      <div className="text-orange-300 font-mono font-black text-sm">{dec.spamEntry.count} × {dec.spamEntry.lotEach} LOT</div>
-                      <div className="text-[10px] text-orange-400/70">Total {dec.spamEntry.totalLot} lot | Max float loss {dec.spamEntry.maxFloatLossPct}%</div>
+
+                  {/* ── ATR Dynamic SL ── */}
+                  <div className="rounded border border-blue-500/30 bg-blue-500/8 px-2.5 py-1.5">
+                    <div className="text-[10px] font-bold text-blue-400 mb-1">📐 ATR DYNAMIC SL</div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-zinc-400">Metode SL</span>
+                      <span className="font-semibold text-blue-300">{dec.xauSignal.slMethod}</span>
                     </div>
-                  ) : (
-                    <div className="rounded border border-zinc-700 bg-zinc-800/50 p-1.5 text-center text-[10px] text-zinc-500">
-                      Spam entry belum aktif (confidence &lt; threshold)
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-zinc-400">ATR Multiplier</span>
+                      <span className="font-mono text-blue-300">×{dec.xauSignal.atrMultiplier.toFixed(1)}</span>
                     </div>
-                  )}
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-zinc-400">SL Price</span>
+                      <span className="font-mono text-red-400">{dec.xauSignal.stopLoss.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* ── Pyramid Entry Cerdas ── */}
+                  <div className="rounded border border-purple-500/30 bg-purple-500/8 px-2.5 py-1.5">
+                    <div className="text-[10px] font-bold text-purple-400 mb-1">🔺 PYRAMID ENTRY CERDAS</div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span className="text-zinc-400">Fase Aktif</span>
+                      <span className="font-semibold text-purple-300">{dec.xauSignal.pyramidWaveLabel}</span>
+                    </div>
+                    {/* Progress bar wave */}
+                    <div className="flex gap-1">
+                      {dec.xauSignal.pyramidWaves.map((w, i) => (
+                        <div key={i} className="flex-1 text-center">
+                          <div className={`h-1.5 rounded-full mb-0.5 ${i < dec.xauSignal!.pyramidPhase ? "bg-purple-500" : i === dec.xauSignal!.pyramidPhase ? "bg-purple-400 animate-pulse" : "bg-zinc-700"}`} />
+                          <span className="text-[9px] text-zinc-500">{w}pos</span>
+                        </div>
+                      ))}
+                    </div>
+                    {dec.spamEntry && (
+                      <div className="text-[10px] text-purple-300/70 mt-1">
+                        {dec.spamEntry.lotEach} lot/posisi · Total max {dec.spamEntry.totalLot} lot
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Adaptive Confidence Threshold ── */}
+                  <div className={`rounded border px-2.5 py-1.5 ${dec.xauSignal.isConservativeMode ? "border-yellow-500/40 bg-yellow-500/8" : "border-zinc-700 bg-zinc-800/40"}`}>
+                    <div className={`text-[10px] font-bold mb-1 ${dec.xauSignal.isConservativeMode ? "text-yellow-400" : "text-zinc-400"}`}>
+                      {dec.xauSignal.isConservativeMode ? "⚠️ ADAPTIVE: MODE KONSERVATIF" : "✅ ADAPTIVE: MODE NORMAL"}
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-zinc-400">Loss Beruntun</span>
+                      <span className={`font-mono font-bold ${dec.xauSignal.consecutiveLosses >= 2 ? "text-red-400" : "text-zinc-300"}`}>
+                        {dec.xauSignal.consecutiveLosses}× / {dec.xauSignal.consecutiveLosses >= 3 ? "🔴" : dec.xauSignal.consecutiveLosses >= 2 ? "🟡" : "🟢"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-zinc-400">Threshold Conf</span>
+                      <span className={`font-mono font-bold ${dec.xauSignal.isConservativeMode ? "text-yellow-400" : "text-green-400"}`}>
+                        {dec.xauSignal.effectiveMinConf}%{dec.xauSignal.isConservativeMode ? " (+10% boost)" : ""}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>

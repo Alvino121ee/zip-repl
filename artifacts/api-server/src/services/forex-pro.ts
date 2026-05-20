@@ -166,6 +166,15 @@ export interface AiDecision {
     spamEntry: string;
     reasons: string[];
     psychology: string[];
+    // Fitur baru
+    slMethod: string;                  // ATR | Struktur (Swing Low/High) | Demand Zone | Supply Zone
+    atrMultiplier: number;             // multiplier ATR yang digunakan
+    pyramidWaves: number[];            // [3,3,4]
+    pyramidPhase: number;              // fase aktif (0-3)
+    pyramidWaveLabel: string;          // "Wave 1/3 (3 pos)" | "Semua Wave Selesai"
+    isConservativeMode: boolean;       // adaptive threshold aktif?
+    effectiveMinConf: number;          // threshold confidence aktual
+    consecutiveLosses: number;         // berapa loss berturut
   } | null;
 }
 
@@ -262,6 +271,13 @@ export interface ForexProState {
   dailyStats: { date: string; pnl: number; trades: number; wins: number };
   totalSessionsRun: number;
   lastAnalysis: Record<string, number>;
+  // Adaptive Confidence Threshold
+  consecutiveLosses: number;
+  consecutiveWins: number;
+  // Pyramid Entry tracking
+  pyramidPhase: number;          // 0=siap, 1=wave1 selesai, 2=wave2 selesai, 3=lengkap
+  pyramidDir: "Buy" | "Sell" | null;
+  pyramidAt: number | null;      // timestamp wave terakhir
 }
 
 export interface ForexProConfig {
@@ -289,6 +305,19 @@ export interface ForexProConfig {
   maxFloatingLossPct: number;   // max floating loss % (default 5)
   entryTimeframe: Timeframe;    // M1 atau M5 untuk entry
   trendTimeframe: Timeframe;    // M15 untuk arah trend
+  // Pyramid Entry Cerdas
+  pyramidEnabled: boolean;
+  pyramidWaves: number[];           // [3, 3, 4] — posisi per wave
+  pyramidWaveIntervalMs: number;    // jarak antar wave (default 30 detik)
+  // ATR-based Dynamic SL
+  atrSLMultiplier: number;          // default 2.0 (lebih konservatif dari 1.5)
+  atrSLUseStructure: boolean;       // snap ke swing high/low jika lebih jauh
+  atrSLLookback: number;            // candle lookback untuk swing (default 20)
+  // Adaptive Confidence Threshold
+  adaptiveThresholdEnabled: boolean;
+  adaptiveLossStreak: number;       // berapa loss beruntun sebelum boost (default 3)
+  adaptiveThresholdBoost: number;   // tambah berapa % ke minConfidence (default 10)
+  adaptiveRecoveryStreak: number;   // berapa win untuk kembali normal (default 2)
 }
 
 // ─── Live Rates dari Frankfurter API (ECB) & Gold-API ────────────────────────
@@ -1047,35 +1076,57 @@ function makeAiDecision(
     return noTrade(reason, cp, smc, fibonacci, qualityScore);
   }
 
-  // ─── Kalkulasi Entry / SL / TP ────────────────────────────────────────────
-
+  // ─── ATR-based Dynamic SL + Structure ────────────────────────────────────
+  // Multiplier ATR disesuaikan volatilitas: ATR tinggi → multiplier lebih kecil
   const atr = technical.atr;
   const spread = pair.pipSize * 2;
+  const atrMult = config.atrSLMultiplier ?? 2.0;
+
+  // Cari swing high/low dari lookback candle (struktur market)
+  const slLookback = Math.min(candles.length, config.atrSLLookback ?? 20);
+  const recentCandles = candles.slice(-slLookback);
+  const swingLow  = Math.min(...recentCandles.map(c => c.low));
+  const swingHigh = Math.max(...recentCandles.map(c => c.high));
 
   let entryPrice: number;
   let stopLoss: number;
   let takeProfit: number;
   let tp2: number;
+  let slMethod = "ATR";
 
   if (direction === "Buy") {
     entryPrice = cp + spread; // ask
-    stopLoss = entryPrice - atr * 1.5;
-    takeProfit = entryPrice + atr * 3;
-    tp2 = entryPrice + atr * 5;
-    // Snap SL ke demand zone atau discount zone jika ada
-    if (smc.demandZone && smc.demandZone.low < entryPrice && smc.demandZone.low > stopLoss) {
+    const atrBasedSL    = entryPrice - atr * atrMult;
+    const structureSL   = swingLow - pair.pipSize * 3;
+    // Gunakan SL yang lebih jauh dari entry (lebih konservatif = lebih safe)
+    stopLoss = (config.atrSLUseStructure && structureSL < atrBasedSL)
+      ? structureSL
+      : atrBasedSL;
+    if (config.atrSLUseStructure && structureSL < atrBasedSL) slMethod = "Struktur (Swing Low)";
+    // Snap ke demand zone jika ada dan lebih baik
+    if (smc.demandZone && smc.demandZone.low < entryPrice && smc.demandZone.low - pair.pipSize * 3 < stopLoss) {
       stopLoss = smc.demandZone.low - pair.pipSize * 3;
+      slMethod = "Demand Zone";
     }
+    takeProfit = entryPrice + atr * atrMult * 2;
+    tp2        = entryPrice + atr * atrMult * 3.5;
   } else {
     entryPrice = cp - spread; // bid
-    stopLoss = entryPrice + atr * 1.5;
-    takeProfit = entryPrice - atr * 3;
-    tp2 = entryPrice - atr * 5;
-    // Snap SL ke supply zone jika ada
-    if (smc.supplyZone && smc.supplyZone.high > entryPrice && smc.supplyZone.high < stopLoss) {
+    const atrBasedSL    = entryPrice + atr * atrMult;
+    const structureSL   = swingHigh + pair.pipSize * 3;
+    stopLoss = (config.atrSLUseStructure && structureSL > atrBasedSL)
+      ? structureSL
+      : atrBasedSL;
+    if (config.atrSLUseStructure && structureSL > atrBasedSL) slMethod = "Struktur (Swing High)";
+    if (smc.supplyZone && smc.supplyZone.high > entryPrice && smc.supplyZone.high + pair.pipSize * 3 > stopLoss) {
       stopLoss = smc.supplyZone.high + pair.pipSize * 3;
+      slMethod = "Supply Zone";
     }
+    takeProfit = entryPrice - atr * atrMult * 2;
+    tp2        = entryPrice - atr * atrMult * 3.5;
   }
+
+  reasoning.push(`📐 SL Dinamis: ${slMethod} | ATR×${atrMult} | Swing ${direction === "Buy" ? "Low" : "High"}: ${(direction === "Buy" ? swingLow : swingHigh).toFixed(2)}`);
 
   const riskPips = Math.abs(entryPrice - stopLoss) / pair.pipSize;
   const rewardPips = Math.abs(takeProfit - entryPrice) / pair.pipSize;
@@ -1132,6 +1183,21 @@ function makeAiDecision(
     "📊 Ikuti tren M15 — jangan lawan tren utama hanya karena bounce kecil",
   ];
 
+  // ─── Hitung adaptive threshold & pyramid info untuk xauSignal ────────────
+  const consLosses = state.consecutiveLosses ?? 0;
+  const isConservativeMode = config.adaptiveThresholdEnabled
+    && consLosses >= (config.adaptiveLossStreak ?? 3);
+  const effectiveMinConf = isConservativeMode
+    ? (config.spamMinConfidence ?? 75) + (config.adaptiveThresholdBoost ?? 10)
+    : (config.spamMinConfidence ?? 75);
+
+  const pyramidWaves = config.pyramidWaves ?? [3, 3, 4];
+  const curPhase = state.pyramidPhase ?? 0;
+  const curWaveSize = pyramidWaves[curPhase] ?? 0;
+  const pyramidWaveLabel = curPhase >= pyramidWaves.length
+    ? "Semua Wave Selesai ✅"
+    : `Wave ${curPhase + 1}/${pyramidWaves.length} (${curWaveSize} posisi)`;
+
   // ─── XAUUSD Signal Card Output ────────────────────────────────────────────
   const xauSignal = symbol === "XAUUSD" ? {
     pair: "XAUUSD (Gold / US Dollar)",
@@ -1146,6 +1212,14 @@ function makeAiDecision(
       : "Spam entry belum memenuhi threshold confidence",
     reasons: reasoning.filter(r => r.startsWith("✅")).slice(0, 6),
     psychology: psychologyRules.slice(0, 4),
+    slMethod,
+    atrMultiplier: atrMult,
+    pyramidWaves,
+    pyramidPhase: curPhase,
+    pyramidWaveLabel,
+    isConservativeMode,
+    effectiveMinConf,
+    consecutiveLosses: consLosses,
   } : null;
 
   return {
@@ -1312,13 +1386,18 @@ function defaultState(): ForexProState {
     dailyStats: { date: new Date().toDateString(), pnl: 0, trades: 0, wins: 0 },
     totalSessionsRun: 0,
     lastAnalysis: {},
+    consecutiveLosses: 0,
+    consecutiveWins: 0,
+    pyramidPhase: 0,
+    pyramidDir: null,
+    pyramidAt: null,
   };
 }
 
 function defaultConfig(): ForexProConfig {
   return {
     autoEnabled: false,
-    maxPositions: 10,          // Spam mode: max 10 posisi XAUUSD
+    maxPositions: 10,
     riskPerTradePct: 90,
     minConfidence: 55,
     minQualityScore: 50,
@@ -1341,6 +1420,19 @@ function defaultConfig(): ForexProConfig {
     maxFloatingLossPct: 5,
     entryTimeframe: "M5",
     trendTimeframe: "M15",
+    // Pyramid Entry Cerdas
+    pyramidEnabled: true,
+    pyramidWaves: [3, 3, 4],
+    pyramidWaveIntervalMs: 30000,
+    // ATR-based Dynamic SL
+    atrSLMultiplier: 2.0,
+    atrSLUseStructure: true,
+    atrSLLookback: 20,
+    // Adaptive Confidence Threshold
+    adaptiveThresholdEnabled: true,
+    adaptiveLossStreak: 3,
+    adaptiveThresholdBoost: 10,
+    adaptiveRecoveryStreak: 2,
   };
 }
 
@@ -1550,6 +1642,39 @@ export function closeForexProPosition(id: string, reason: ForexProTrade["closeRe
   ss.avgRR = (ss.avgRR + pos.riskReward) / 2;
   state.strategyStats[pos.strategy] = ss;
 
+  // ── Adaptive Confidence Threshold: track consecutive losses & wins ─────────
+  if (pnl > 0) {
+    state.consecutiveLosses = 0;
+    state.consecutiveWins = (state.consecutiveWins ?? 0) + 1;
+    // Jika sudah recovery streak, reset pyramid phase agar siap spray ulang
+    if (config.adaptiveThresholdEnabled && state.consecutiveWins >= (config.adaptiveRecoveryStreak ?? 2)) {
+      logger.info(
+        { wins: state.consecutiveWins, recoveryStreak: config.adaptiveRecoveryStreak },
+        "Forex Pro XAUUSD: recovery streak tercapai — threshold kembali normal, pyramid siap"
+      );
+    }
+  } else {
+    state.consecutiveWins = 0;
+    state.consecutiveLosses = (state.consecutiveLosses ?? 0) + 1;
+    if (config.adaptiveThresholdEnabled) {
+      const effectiveMinConf = config.spamMinConfidence + (
+        state.consecutiveLosses >= (config.adaptiveLossStreak ?? 3)
+          ? (config.adaptiveThresholdBoost ?? 10)
+          : 0
+      );
+      const modeLabel = state.consecutiveLosses >= (config.adaptiveLossStreak ?? 3)
+        ? `MODE KONSERVATIF (threshold naik ke ${effectiveMinConf}%)`
+        : `Loss ke-${state.consecutiveLosses}/${config.adaptiveLossStreak}`;
+      logger.warn(
+        { consecutiveLosses: state.consecutiveLosses, effectiveMinConf },
+        `Forex Pro XAUUSD: ${modeLabel}`
+      );
+      // Reset pyramid setelah loss — mulai dari awal lagi
+      state.pyramidPhase = 0;
+      state.pyramidAt = null;
+    }
+  }
+
   // Catat kesalahan jika loss
   if (pnl < 0 && reason === "SL") {
     recordMistake(pos, trade);
@@ -1738,53 +1863,124 @@ async function runForexProCycle(): Promise<void> {
 
     const currentXauPositions = state.positions.filter(p => p.symbol === "XAUUSD").length;
 
-    // ── Mode Spam Entry: 10 posisi × 0.01 lot ────────────────────────────────
-    if (config.spamEntryEnabled && dec.confidence >= (config.spamMinConfidence ?? 75)) {
-      const needed = config.spamEntryCount - currentXauPositions;
-      if (needed <= 0) return;
+    // ── Hitung Adaptive Confidence Threshold ──────────────────────────────────
+    const consecutiveLosses = state.consecutiveLosses ?? 0;
+    const isConservativeMode = config.adaptiveThresholdEnabled
+      && consecutiveLosses >= (config.adaptiveLossStreak ?? 3);
+    const effectiveMinConf = isConservativeMode
+      ? (config.spamMinConfidence ?? 75) + (config.adaptiveThresholdBoost ?? 10)
+      : (config.spamMinConfidence ?? 75);
+
+    if (dec.confidence < effectiveMinConf) {
+      logger.info(
+        { confidence: dec.confidence, required: effectiveMinConf, conservativeMode: isConservativeMode, consecutiveLosses },
+        "Forex Pro XAUUSD: confidence di bawah threshold — skip entry"
+      );
+      return;
+    }
+
+    // ── Mode Pyramid Entry Cerdas ─────────────────────────────────────────────
+    if (config.pyramidEnabled && config.spamEntryEnabled) {
+      const waves = config.pyramidWaves ?? [3, 3, 4];
+      const totalPositions = waves.reduce((a, b) => a + b, 0);
+
+      // Reset pyramid jika arah berubah atau sudah semua wave selesai
+      if (state.pyramidDir !== newDir || state.pyramidPhase >= waves.length) {
+        state.pyramidPhase = 0;
+        state.pyramidDir = newDir;
+        state.pyramidAt = null;
+      }
+
+      const phase       = state.pyramidPhase;
+      const waveSize    = waves[phase] ?? 0;
+      const timeSince   = state.pyramidAt ? Date.now() - state.pyramidAt : Infinity;
+      const waveInterval = config.pyramidWaveIntervalMs ?? 30000;
+      const totalExisting = currentXauPositions;
+
+      // Boleh buka wave baru jika: phase 0 (fresh) ATAU cukup waktu sejak wave sebelumnya
+      const canOpenWave = phase === 0 || timeSince >= waveInterval;
+      // Juga jangan buka jika sudah penuh
+      const hasRoom = totalExisting + waveSize <= totalPositions;
+
+      if (!canOpenWave) {
+        const waitSec = Math.ceil((waveInterval - timeSince) / 1000);
+        logger.info(
+          { phase: phase + 1, waves: waves.length, waitSec, currentXauPositions },
+          `Forex Pro XAUUSD: Pyramid Wave ${phase + 1}/${waves.length} — tunggu ${waitSec}s`
+        );
+        return;
+      }
+
+      if (!hasRoom || waveSize === 0) {
+        logger.info({ phase, totalExisting, totalPositions }, "Forex Pro XAUUSD: Pyramid sudah penuh");
+        return;
+      }
 
       let opened = 0;
-      for (let i = 0; i < needed; i++) {
-        // Cek daily loss limit sebelum setiap posisi
+      for (let i = 0; i < waveSize; i++) {
         const today = new Date().toDateString();
-        if (state.dailyStats.date === today && state.dailyStats.pnl < -config.maxDailyLossUSDT) break;
-
+        if (state.dailyStats.date === today && state.dailyStats.pnl < -config.maxDailyLossUSDT) {
+          logger.warn("Forex Pro XAUUSD: daily loss limit — pyramid dihentikan");
+          break;
+        }
         const result = openForexProPosition("XAUUSD", newDir, config.entryTimeframe ?? "M5", true, config.spamEntryLotEach);
         if (result.ok) {
           opened++;
         } else {
-          logger.warn({ reason: result.error, i }, "Forex Pro XAUUSD spam entry: gagal buka posisi");
+          logger.warn({ reason: result.error, wave: phase + 1, i }, "Forex Pro XAUUSD pyramid: gagal buka posisi");
           break;
         }
       }
 
       if (opened > 0) {
+        state.pyramidPhase = phase + 1;
+        state.pyramidAt = Date.now();
+        const allWavesDone = state.pyramidPhase >= waves.length;
         logger.info(
           {
-            direction: newDir,
-            spamCount: opened,
+            wave: phase + 1,
+            totalWaves: waves.length,
+            opened,
             lotEach: config.spamEntryLotEach,
             totalLot: (opened * config.spamEntryLotEach).toFixed(2),
+            direction: newDir,
             confidence: dec.confidence,
+            effectiveMinConf,
+            conservativeMode: isConservativeMode,
+            allWavesDone,
             trendM15: trendDir,
           },
-          `Forex Pro XAUUSD: SPAM ENTRY — ${opened} posisi × ${config.spamEntryLotEach} lot dibuka`
+          `Forex Pro XAUUSD: 🔺 PYRAMID Wave ${phase + 1}/${waves.length} — ${opened} posisi × ${config.spamEntryLotEach} lot${allWavesDone ? " (LENGKAP)" : ""}`
         );
       }
-    } else if (!config.spamEntryEnabled && currentXauPositions === 0) {
-      // ── Mode single posisi (full margin) — fallback jika spam dimatikan ────
+
+    } else if (!config.pyramidEnabled && !config.spamEntryEnabled && currentXauPositions === 0) {
+      // ── Fallback: single posisi full margin ──────────────────────────────────
       const fullLot = parseFloat(
         Math.max(0.01, (state.balance * 0.90 * config.defaultLeverage) / (GOLD.basePrice * 1000))
           .toFixed(2)
       );
       const result = openForexProPosition("XAUUSD", newDir, config.preferredTimeframe, false, fullLot);
       if (result.ok) {
-        logger.info(
-          { direction: newDir, lot: fullLot, confidence: dec.confidence },
-          "Forex Pro XAUUSD: posisi single dibuka (full margin)"
-        );
+        logger.info({ direction: newDir, lot: fullLot, confidence: dec.confidence }, "Forex Pro XAUUSD: single posisi dibuka");
       } else {
         logger.warn({ reason: result.error }, "Forex Pro XAUUSD: gagal buka posisi single");
+      }
+    } else if (!config.pyramidEnabled && config.spamEntryEnabled && dec.confidence >= effectiveMinConf) {
+      // ── Spam langsung tanpa pyramid (jika pyramid dimatikan) ─────────────────
+      const needed = config.spamEntryCount - currentXauPositions;
+      if (needed <= 0) return;
+      let opened = 0;
+      for (let i = 0; i < needed; i++) {
+        const today = new Date().toDateString();
+        if (state.dailyStats.date === today && state.dailyStats.pnl < -config.maxDailyLossUSDT) break;
+        const result = openForexProPosition("XAUUSD", newDir, config.entryTimeframe ?? "M5", true, config.spamEntryLotEach);
+        if (result.ok) opened++;
+        else break;
+      }
+      if (opened > 0) {
+        logger.info({ direction: newDir, opened, lotEach: config.spamEntryLotEach, confidence: dec.confidence },
+          `Forex Pro XAUUSD: SPAM LANGSUNG — ${opened} posisi dibuka`);
       }
     }
   } finally {
@@ -1793,6 +1989,14 @@ async function runForexProCycle(): Promise<void> {
 }
 
 export function getForexProEngineStatus() {
+  const consLosses = state.consecutiveLosses ?? 0;
+  const isConservativeMode = config.adaptiveThresholdEnabled
+    && consLosses >= (config.adaptiveLossStreak ?? 3);
+  const effectiveMinConf = isConservativeMode
+    ? (config.spamMinConfidence ?? 75) + (config.adaptiveThresholdBoost ?? 10)
+    : (config.spamMinConfidence ?? 75);
+  const waves = config.pyramidWaves ?? [3, 3, 4];
+  const phase = state.pyramidPhase ?? 0;
   return {
     autoEnabled: config.autoEnabled,
     isRunning: autoTimer !== null,
@@ -1800,6 +2004,20 @@ export function getForexProEngineStatus() {
     lastCycleAt,
     cycleCount,
     intervalMs: config.intervalMs,
+    // Pyramid
+    pyramidEnabled: config.pyramidEnabled,
+    pyramidWaves: waves,
+    pyramidPhase: phase,
+    pyramidDir: state.pyramidDir,
+    pyramidWaveLabel: phase >= waves.length
+      ? "Semua Wave Selesai ✅"
+      : `Wave ${phase + 1}/${waves.length} (${waves[phase] ?? 0} posisi)`,
+    // Adaptive Threshold
+    consecutiveLosses: consLosses,
+    consecutiveWins: state.consecutiveWins ?? 0,
+    isConservativeMode,
+    effectiveMinConf,
+    adaptiveLossStreak: config.adaptiveLossStreak ?? 3,
   };
 }
 
