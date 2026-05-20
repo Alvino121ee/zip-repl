@@ -864,7 +864,8 @@ function makeAiDecision(
   const isDead = activeSessions.length === 0;
   const openXauPositions = state.positions.filter(p => p.symbol === symbol).length;
 
-  if (isDead) {
+  // XAUUSD (Gold) trading 24/5 — dead zone hanya berlaku untuk pair non-Gold
+  if (isDead && symbol !== "XAUUSD") {
     return noTrade("Sesi dead zone (00:00-06:00 UTC tanpa sesi aktif) — tidak ada trade", cp, smc, fibonacci, qualityScore);
   }
 
@@ -1851,12 +1852,13 @@ async function runForexProCycle(): Promise<void> {
       );
     }
 
-    // ── Buka posisi baru hanya jika: sinyal valid + tren M15 sejalan
+    // ── Buka posisi baru hanya jika sinyal valid
     if (!dec.shouldTrade || !newDir) return;
-    if (newDir !== trendDir) {
+    // Tren M15 vs entry: log warning tapi tetap lanjut jika confidence sangat tinggi (≥85%)
+    if (newDir !== trendDir && dec.confidence < 85) {
       logger.info(
         { entryDir: newDir, trendDir, confidence: dec.confidence },
-        "Forex Pro XAUUSD: entry bertentangan dengan tren M15 — skip"
+        "Forex Pro XAUUSD: entry bertentangan dengan tren M15 — skip (confidence < 85%)"
       );
       return;
     }
