@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 126,
-  "correctEarlyExits": 126,
+  "totalDecisions": 127,
+  "correctEarlyExits": 127,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.12903225806452,
-  "avgContinuationProbAtExit": 10.975806451612904,
+  "avgMomentumAtEarlyExit": 42.024,
+  "avgContinuationProbAtExit": 10.896,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "61da7a25-04b5-4372-ab0b-f1cfa23561ec",
+      "tradeId": "634f0e2c-f05a-413f-88a8-ae347768841d",
+      "symbol": "BANANAS31USDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "⚠️ Momentum sangat lemah (skor: 29) — probabilitas kelanjutan rendah. Candle doji terdeteksi — ragu-ragu pasar",
+      "profitPctAtDecision": 0.588332780908186,
+      "momentumScore": 29,
+      "continuationProb": 1,
+      "greedIndex": 25,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779270271257,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 0.588332780908186,
+      "profitDelta": 0
+    },
     {
       "id": "7c1869f7-19fb-4fd8-a602-2c90a8a493c0",
       "tradeId": "b2b9c474-574d-4e81-ac5c-ecb61622cd1c",
@@ -2558,5 +2578,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779269598304
+  "lastUpdated": 1779270271264
 }
