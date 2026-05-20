@@ -1,15 +1,35 @@
 {
-  "totalDecisions": 119,
-  "correctEarlyExits": 119,
+  "totalDecisions": 120,
+  "correctEarlyExits": 120,
   "prematureExits": 0,
   "heldCorrectly": 0,
   "shouldHaveExited": 0,
-  "avgMomentumAtEarlyExit": 42.26495726495727,
-  "avgContinuationProbAtExit": 10.88888888888889,
+  "avgMomentumAtEarlyExit": 41.97457627118644,
+  "avgContinuationProbAtExit": 10.796610169491526,
   "momentumExitThreshold": 35,
   "continuationExitThreshold": 40,
   "greedExitThreshold": 65,
   "records": [
+    {
+      "id": "0d17a469-4560-4d7a-ae34-b14c5a97b568",
+      "tradeId": "2307709f-654d-4edb-9c7f-05375ab5f45e",
+      "symbol": "FIGHTUSDT",
+      "side": "Buy",
+      "action": "early_exit",
+      "reason": "🚨 Momentum kritis — Candle doji terdeteksi — ragu-ragu pasar. Profit $1.19% diamankan.",
+      "profitPctAtDecision": 1.1944390052868497,
+      "momentumScore": 8,
+      "continuationProb": 0,
+      "greedIndex": 50,
+      "decaySignals": [
+        "Candle doji terdeteksi — ragu-ragu pasar",
+        "Candle rejection atas — tekanan jual kuat"
+      ],
+      "timestamp": 1779268112062,
+      "outcome": "correct_early_exit",
+      "finalProfitPct": 1.1944390052868497,
+      "profitDelta": 0
+    },
     {
       "id": "111d7f3b-0247-4284-b7a8-290c584045f5",
       "tradeId": "57682337-6b92-485f-9d04-869abd6babfc",
@@ -2417,5 +2437,5 @@
       "profitDelta": 0
     }
   ],
-  "lastUpdated": 1779267412794
+  "lastUpdated": 1779268112069
 }
