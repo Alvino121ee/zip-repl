@@ -1,42 +1,235 @@
 {
   "iq": 200,
   "level": "Institusional",
-  "experiencePoints": 40143,
-  "learningCycles": 2650,
-  "chartsAnalyzed": 2647,
-  "marketHoursStudied": 905924.5799999982,
-  "patternsRecognized": 7013,
+  "experiencePoints": 40636,
+  "learningCycles": 2680,
+  "chartsAnalyzed": 2677,
+  "marketHoursStudied": 914632.9099999982,
+  "patternsRecognized": 7097,
   "predictionsValidated": 0,
-  "mistakesCorrected": 481,
-  "successfulAnalyses": 1552,
+  "mistakesCorrected": 486,
+  "successfulAnalyses": 1570,
   "totalTradesLearned": 0,
-  "liquiditySweepsDetected": 278,
+  "liquiditySweepsDetected": 282,
   "breakoutsStudied": 40,
   "fakeBreakoutsDetected": 14,
   "reversalsStudied": 12,
-  "replaySessionsCompleted": 614,
-  "smartMoneyPatternsFound": 80,
+  "replaySessionsCompleted": 621,
+  "smartMoneyPatternsFound": 81,
   "marketReading": 96.22,
   "patternRecognition": 96.97,
-  "adaptiveIntelligence": 95.86,
-  "emotionalDiscipline": 92.72,
-  "riskManagement": 95.16,
+  "adaptiveIntelligence": 95.87,
+  "emotionalDiscipline": 92.95,
+  "riskManagement": 95.39,
   "trendAnalysis": 97.16,
-  "volumeAnalysis": 92.39,
-  "momentumReading": 96.1,
+  "volumeAnalysis": 92.62,
+  "momentumReading": 96.2,
   "candlePsychology": 97.48,
-  "orderflowReading": 90.29,
-  "smartMoneyConceptSkill": 87.43,
-  "replayTrainingScore": 82.37,
-  "patience": 92.14,
-  "selectivity": 91.14,
-  "confidenceAccuracy": 88.11,
-  "predictionAccuracy": 92.38,
+  "orderflowReading": 90.54,
+  "smartMoneyConceptSkill": 87.72,
+  "replayTrainingScore": 82.65,
+  "patience": 92.37,
+  "selectivity": 91.37,
+  "confidenceAccuracy": 88.34,
+  "predictionAccuracy": 92.56,
   "isLearning": false,
-  "currentActivity": "✅ ARBUSDT selesai — dipelajari: 6 pola, 1 breakout | +24 XP",
-  "currentSymbol": "ARBUSDT",
-  "lastLearningAt": 1779271009904,
+  "currentActivity": "✅ Replay selesai — manipulation ETHUSDT dipelajari | +13 XP",
+  "currentSymbol": "ETHUSDT",
+  "lastLearningAt": 1779271669923,
   "activityLog": [
+    "[10.07.49] ✅ Replay selesai — manipulation ETHUSDT dipelajari | +13 XP",
+    "[10.07.49] 🎭 Replay MANIPULASI: Volume spike 4.8x di ETHUSDT — mempelajari pola institusional...",
+    "[10.07.49] 🔁 Memulai sesi REPLAY TRAINING — ETHUSDT (15M)...",
+    "[10.07.28] ✅ FTMUSDT selesai — dipelajari: 4 pola, 2 likuiditas, 1 SMC | +24 XP",
+    "[10.07.28] 📚 Prediksi meleset di FTMUSDT — menganalisis kesalahan dan memperbaiki model...",
+    "[10.07.28] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
+    "[10.07.28] 🕯️ Pola candle 'Hammer' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
+    "[10.07.28] 🎯 LIQUIDITY SWEEP di FTMUSDT! Harga grab lows lalu reversal — Smart Money bergerak!",
+    "[10.07.28] 🔊 Volume SPIKE besar di FTMUSDT (2.9x normal) — mempelajari orderflow institusional...",
+    "[10.07.28] 📊 MACD crossover bullish terdeteksi di FTMUSDT",
+    "[10.07.28] 📉 Tren turun dikonfirmasi pada FTMUSDT — EMA9<EMA21<EMA50",
+    "[10.07.27] 📊 Mempelajari struktur chart FTMUSDT (15M)...",
+    "[10.07.05] ✅ ARBUSDT selesai — dipelajari: 3 pola | +14 XP",
+    "[10.07.05] ✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
+    "[10.07.05] 📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
+    "[10.07.05] 🔇 Volume sangat rendah di ARBUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.07.05] 📊 MACD crossover bullish terdeteksi di ARBUSDT",
+    "[10.07.05] 📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
+    "[10.07.05] 📊 Mempelajari struktur chart ARBUSDT (60M)...",
+    "[10.06.43] ✅ ARBUSDT selesai — dipelajari: 3 pola | +16 XP",
+    "[10.06.43] ✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
+    "[10.06.43] 📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
+    "[10.06.43] 🔇 Volume sangat rendah di ARBUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.06.43] ⚡ SQUEEZE terdeteksi di ARBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.06.43] 📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
+    "[10.06.43] 📊 Mempelajari struktur chart ARBUSDT (5M)...",
+    "[10.06.21] ✅ SOLUSDT selesai — dipelajari: 4 pola | +19 XP",
+    "[10.06.21] 📚 Prediksi meleset di SOLUSDT — menganalisis kesalahan dan memperbaiki model...",
+    "[10.06.21] 📍 SOLUSDT mendekati level S/R kuat di 85.44 — berlatih deteksi area kritis...",
+    "[10.06.21] 🔇 Volume sangat rendah di SOLUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.06.21] ⚡ SQUEEZE terdeteksi di SOLUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.06.21] 📈 SOLUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+    "[10.06.21] 📊 MACD crossover bullish terdeteksi di SOLUSDT",
+    "[10.06.21] 📊 Mempelajari struktur chart SOLUSDT (60M)...",
+    "[10.05.59] ✅ BTCUSDT selesai — dipelajari: 3 pola | +12 XP",
+    "[10.05.59] ✅ Prediksi berhasil pada BTCUSDT — memperbarui model kepercayaan diri...",
+    "[10.05.59] 📍 BTCUSDT mendekati level S/R kuat di 76900.00 — berlatih deteksi area kritis...",
+    "[10.05.59] 📊 MACD crossover bullish terdeteksi di BTCUSDT",
+    "[10.05.59] 📉 Tren turun dikonfirmasi pada BTCUSDT — EMA9<EMA21<EMA50",
+    "[10.05.59] 📊 Mempelajari struktur chart BTCUSDT (240M)...",
+    "[10.05.37] ✅ DOTUSDT selesai — dipelajari: 3 pola | +17 XP",
+    "[10.05.37] ✅ Prediksi berhasil pada DOTUSDT — memperbarui model kepercayaan diri...",
+    "[10.05.37] 📍 DOTUSDT mendekati level S/R kuat di 1.24 — berlatih deteksi area kritis...",
+    "[10.05.37] 🕯️ Pola candle 'Doji' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
+    "[10.05.37] 🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.05.37] ⚡ SQUEEZE terdeteksi di DOTUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.05.37] 📊 Mempelajari struktur chart DOTUSDT (5M)...",
+    "[10.05.15] ✅ LINKUSDT selesai — dipelajari: 2 pola | +12 XP",
+    "[10.05.15] ✅ Prediksi berhasil pada LINKUSDT — memperbarui model kepercayaan diri...",
+    "[10.05.15] 📍 LINKUSDT mendekati level S/R kuat di 9.61 — berlatih deteksi area kritis...",
+    "[10.05.15] 🔇 Volume sangat rendah di LINKUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.05.15] 📊 MACD crossover bullish terdeteksi di LINKUSDT",
+    "[10.05.15] 📊 Mempelajari struktur chart LINKUSDT (60M)...",
+    "[10.04.53] ✅ Replay selesai — crash/rally ARBUSDT dipelajari | +13 XP",
+    "[10.04.53] 📉 Replay CRASH/RALLY: ARBUSDT bergerak 21.4% — mempelajari volatilitas ekstrem...",
+    "[10.04.53] 🔁 Memulai sesi REPLAY TRAINING — ARBUSDT (240M)...",
+    "[10.04.31] ✅ XRPUSDT selesai — dipelajari: 2 pola | +10 XP",
+    "[10.04.31] 📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
+    "[10.04.31] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
+    "[10.04.31] 🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.04.31] 📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
+    "[10.04.31] 📊 Mempelajari struktur chart XRPUSDT (240M)...",
+    "[10.04.09] ✅ DOTUSDT selesai — dipelajari: 5 pola | +20 XP",
+    "[10.04.09] 📚 Prediksi meleset di DOTUSDT — menganalisis kesalahan dan memperbaiki model...",
+    "[10.04.09] 📍 DOTUSDT mendekati level S/R kuat di 1.24 — berlatih deteksi area kritis...",
+    "[10.04.09] ⚡ DOTUSDT di dekat VWAP (-0.04%) — zona keputusan kritis",
+    "[10.04.09] 🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.04.09] ⚡ SQUEEZE terdeteksi di DOTUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.04.09] 📉 DOTUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
+    "[10.04.09] 📈 Tren naik dikonfirmasi pada DOTUSDT — EMA9>EMA21>EMA50",
+    "[10.04.09] 📊 Mempelajari struktur chart DOTUSDT (15M)...",
+    "[10.03.47] ✅ ADAUSDT selesai — dipelajari: 4 pola | +17 XP",
+    "[10.03.47] ✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
+    "[10.03.47] 📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
+    "[10.03.47] 🕯️ Pola candle 'Shooting Star' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
+    "[10.03.47] 🔇 Volume sangat rendah di ADAUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.03.47] 📊 MACD crossover bullish terdeteksi di ADAUSDT",
+    "[10.03.47] 📉 Tren turun dikonfirmasi pada ADAUSDT — EMA9<EMA21<EMA50",
+    "[10.03.47] 📊 Mempelajari struktur chart ADAUSDT (240M)...",
+    "[10.03.25] ✅ BNBUSDT selesai — dipelajari: 5 pola | +21 XP",
+    "[10.03.25] ✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
+    "[10.03.25] 📍 BNBUSDT mendekati level S/R kuat di 641.80 — berlatih deteksi area kritis...",
+    "[10.03.25] ⚡ BNBUSDT di dekat VWAP (+0.14%) — zona keputusan kritis",
+    "[10.03.25] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.03.25] ⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.03.25] 📈 BNBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+    "[10.03.25] 📈 Tren naik dikonfirmasi pada BNBUSDT — EMA9>EMA21>EMA50",
+    "[10.03.25] 📊 Mempelajari struktur chart BNBUSDT (15M)...",
+    "[10.03.03] ✅ ADAUSDT selesai — dipelajari: 3 pola | +15 XP",
+    "[10.03.03] ✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
+    "[10.03.03] 📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
+    "[10.03.03] 🕯️ Pola candle 'Morning Star' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
+    "[10.03.03] ⚡ SQUEEZE terdeteksi di ADAUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.03.03] 📊 Mempelajari struktur chart ADAUSDT (5M)...",
+    "[10.02.41] ✅ OPUSDT selesai — dipelajari: 4 pola | +17 XP",
+    "[10.02.41] ✅ Prediksi berhasil pada OPUSDT — memperbarui model kepercayaan diri...",
+    "[10.02.41] 📍 OPUSDT mendekati level S/R kuat di 0.13 — berlatih deteksi area kritis...",
+    "[10.02.41] ⚡ OPUSDT di dekat VWAP (+0.12%) — zona keputusan kritis",
+    "[10.02.41] 🕯️ Pola candle 'Bullish Marubozu' terdeteksi di OPUSDT — menganalisis psikologi pasar...",
+    "[10.02.41] ⚡ SQUEEZE terdeteksi di OPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.02.41] 📊 Mempelajari struktur chart OPUSDT (5M)...",
+    "[10.02.19] ✅ ETHUSDT selesai — dipelajari: 5 pola | +22 XP",
+    "[10.02.19] ✅ Prediksi berhasil pada ETHUSDT — memperbarui model kepercayaan diri...",
+    "[10.02.19] 📍 ETHUSDT mendekati level S/R kuat di 2123.33 — berlatih deteksi area kritis...",
+    "[10.02.19] 🕯️ Pola candle 'Bullish Marubozu' terdeteksi di ETHUSDT — menganalisis psikologi pasar...",
+    "[10.02.19] 🔇 Volume sangat rendah di ETHUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.02.19] ⚡ SQUEEZE terdeteksi di ETHUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.02.19] 📈 ETHUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+    "[10.02.19] 📈 Tren naik dikonfirmasi pada ETHUSDT — EMA9>EMA21>EMA50",
+    "[10.02.19] 📊 Mempelajari struktur chart ETHUSDT (15M)...",
+    "[10.01.57] ✅ XRPUSDT selesai — dipelajari: 2 pola | +10 XP",
+    "[10.01.57] 📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
+    "[10.01.57] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
+    "[10.01.57] 🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.01.57] 📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
+    "[10.01.57] 📊 Mempelajari struktur chart XRPUSDT (240M)...",
+    "[10.01.35] ✅ Replay selesai — manipulation ETHUSDT dipelajari | +13 XP",
+    "[10.01.35] 🎭 Replay MANIPULASI: Volume spike 4.9x di ETHUSDT — mempelajari pola institusional...",
+    "[10.01.35] 🔁 Memulai sesi REPLAY TRAINING — ETHUSDT (5M)...",
+    "[10.01.13] ✅ ADAUSDT selesai — dipelajari: 3 pola | +17 XP",
+    "[10.01.13] ✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
+    "[10.01.13] 📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
+    "[10.01.13] 🔇 Volume sangat rendah di ADAUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.01.13] ⚡ SQUEEZE terdeteksi di ADAUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.01.13] 📊 MACD crossover bullish terdeteksi di ADAUSDT",
+    "[10.01.13] 📊 Mempelajari struktur chart ADAUSDT (60M)...",
+    "[10.00.51] ✅ Replay selesai — crash/rally ADAUSDT dipelajari | +13 XP",
+    "[10.00.51] 📉 Replay CRASH/RALLY: ADAUSDT bergerak 10.2% — mempelajari volatilitas ekstrem...",
+    "[10.00.51] 🔁 Memulai sesi REPLAY TRAINING — ADAUSDT (60M)...",
+    "[10.00.29] ✅ Replay selesai — manipulation DOGEUSDT dipelajari | +13 XP",
+    "[10.00.29] 🎭 Replay MANIPULASI: Volume spike 4.7x di DOGEUSDT — mempelajari pola institusional...",
+    "[10.00.29] 🔁 Memulai sesi REPLAY TRAINING — DOGEUSDT (60M)...",
+    "[10.00.07] ✅ ETHUSDT selesai — dipelajari: 4 pola | +20 XP",
+    "[10.00.07] ✅ Prediksi berhasil pada ETHUSDT — memperbarui model kepercayaan diri...",
+    "[10.00.07] 📍 ETHUSDT mendekati level S/R kuat di 2143.93 — berlatih deteksi area kritis...",
+    "[10.00.07] 🕯️ Pola candle 'Shooting Star' terdeteksi di ETHUSDT — menganalisis psikologi pasar...",
+    "[10.00.07] 🔇 Volume sangat rendah di ETHUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[10.00.07] ⚡ SQUEEZE terdeteksi di ETHUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[10.00.07] 📊 MACD crossover bullish terdeteksi di ETHUSDT",
+    "[10.00.07] 📊 Mempelajari struktur chart ETHUSDT (60M)...",
+    "[09.59.45] ✅ DOGEUSDT selesai — dipelajari: 4 pola | +18 XP",
+    "[09.59.45] ✅ Prediksi berhasil pada DOGEUSDT — memperbarui model kepercayaan diri...",
+    "[09.59.45] 📍 DOGEUSDT mendekati level S/R kuat di 0.10 — berlatih deteksi area kritis...",
+    "[09.59.45] 🕯️ Pola candle 'Bullish Engulfing' terdeteksi di DOGEUSDT — menganalisis psikologi pasar...",
+    "[09.59.45] ⚡ SQUEEZE terdeteksi di DOGEUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[09.59.45] 📉 DOGEUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
+    "[09.59.45] 📊 Mempelajari struktur chart DOGEUSDT (5M)...",
+    "[09.59.23] ✅ Replay selesai — crash/rally ETHUSDT dipelajari | +13 XP",
+    "[09.59.23] 📉 Replay CRASH/RALLY: ETHUSDT bergerak 9.3% — mempelajari volatilitas ekstrem...",
+    "[09.59.23] 🔁 Memulai sesi REPLAY TRAINING — ETHUSDT (240M)...",
+    "[09.59.01] ✅ XRPUSDT selesai — dipelajari: 5 pola, 1 SMC | +22 XP",
+    "[09.59.01] ✅ Prediksi berhasil pada XRPUSDT — memperbarui model kepercayaan diri...",
+    "[09.59.01] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
+    "[09.59.01] 🕯️ Pola candle 'Bearish Engulfing' terdeteksi di XRPUSDT — menganalisis psikologi pasar...",
+    "[09.59.01] 💎 Break of Structure (BOS) terdeteksi di XRPUSDT — CHOCH — mempelajari SMC...",
+    "[09.59.01] ⚡ SQUEEZE terdeteksi di XRPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[09.59.01] 📈 Tren naik dikonfirmasi pada XRPUSDT — EMA9>EMA21>EMA50",
+    "[09.59.01] 📊 Mempelajari struktur chart XRPUSDT (15M)...",
+    "[09.58.39] ✅ Replay selesai — crash/rally ETHUSDT dipelajari | +13 XP",
+    "[09.58.39] 📉 Replay CRASH/RALLY: ETHUSDT bergerak 19.9% — mempelajari volatilitas ekstrem...",
+    "[09.58.39] 🔁 Memulai sesi REPLAY TRAINING — ETHUSDT (240M)...",
+    "[09.58.17] ✅ BNBUSDT selesai — dipelajari: 5 pola | +22 XP",
+    "[09.58.17] ✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
+    "[09.58.17] 📍 BNBUSDT mendekati level S/R kuat di 639.30 — berlatih deteksi area kritis...",
+    "[09.58.17] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[09.58.17] ⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[09.58.17] 📈 BNBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+    "[09.58.17] 📉 BNBUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
+    "[09.58.17] 📈 Tren naik dikonfirmasi pada BNBUSDT — EMA9>EMA21>EMA50",
+    "[09.58.17] 📊 Mempelajari struktur chart BNBUSDT (5M)...",
+    "[09.57.56] ✅ FTMUSDT selesai — dipelajari: 4 pola, 2 likuiditas, 1 SMC | +25 XP",
+    "[09.57.56] ✅ Prediksi berhasil pada FTMUSDT — memperbarui model kepercayaan diri...",
+    "[09.57.56] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
+    "[09.57.56] 🕯️ Pola candle 'Hammer' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
+    "[09.57.56] 🎯 LIQUIDITY SWEEP di FTMUSDT! Harga grab lows lalu reversal — Smart Money bergerak!",
+    "[09.57.56] 🔊 Volume SPIKE besar di FTMUSDT (2.9x normal) — mempelajari orderflow institusional...",
+    "[09.57.56] 📊 MACD crossover bullish terdeteksi di FTMUSDT",
+    "[09.57.56] 📉 Tren turun dikonfirmasi pada FTMUSDT — EMA9<EMA21<EMA50",
+    "[09.57.55] 📊 Mempelajari struktur chart FTMUSDT (15M)...",
+    "[09.57.33] ✅ NEARUSDT selesai — dipelajari: 2 pola | +11 XP",
+    "[09.57.33] ✅ Prediksi berhasil pada NEARUSDT — memperbarui model kepercayaan diri...",
+    "[09.57.33] 📍 NEARUSDT mendekati level S/R kuat di 1.64 — berlatih deteksi area kritis...",
+    "[09.57.33] 🔇 Volume sangat rendah di NEARUSDT — zona konsolidasi, waspada breakout mendadak",
+    "[09.57.33] 📈 Tren naik dikonfirmasi pada NEARUSDT — EMA9>EMA21>EMA50",
+    "[09.57.33] 📊 Mempelajari struktur chart NEARUSDT (15M)...",
+    "[09.57.11] ✅ BTCUSDT selesai — dipelajari: 5 pola | +21 XP",
+    "[09.57.11] ✅ Prediksi berhasil pada BTCUSDT — memperbarui model kepercayaan diri...",
+    "[09.57.11] 📍 BTCUSDT mendekati level S/R kuat di 77601.00 — berlatih deteksi area kritis...",
+    "[09.57.11] 🕯️ Pola candle 'Doji' terdeteksi di BTCUSDT — menganalisis psikologi pasar...",
+    "[09.57.11] ⚡ SQUEEZE terdeteksi di BTCUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+    "[09.57.11] 📈 BTCUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+    "[09.57.11] 📊 MACD crossover bullish terdeteksi di BTCUSDT",
+    "[09.57.11] 📊 Mempelajari struktur chart BTCUSDT (60M)...",
     "[09.56.49] ✅ ARBUSDT selesai — dipelajari: 6 pola, 1 breakout | +24 XP",
     "[09.56.49] ✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
     "[09.56.49] 📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
@@ -343,1001 +536,808 @@
     "[09.32.39] 📍 BNBUSDT mendekati level S/R kuat di 648.50 — berlatih deteksi area kritis...",
     "[09.32.39] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
     "[09.32.39] 📊 MACD crossover bullish terdeteksi di BNBUSDT",
-    "[09.32.39] 📉 Tren turun dikonfirmasi pada BNBUSDT — EMA9<EMA21<EMA50",
-    "[09.32.38] 📊 Mempelajari struktur chart BNBUSDT (240M)...",
-    "[09.32.17] ✅ Replay selesai — crash/rally ADAUSDT dipelajari | +13 XP",
-    "[09.32.17] 📉 Replay CRASH/RALLY: ADAUSDT bergerak 10.7% — mempelajari volatilitas ekstrem...",
-    "[09.32.16] 🔁 Memulai sesi REPLAY TRAINING — ADAUSDT (240M)...",
-    "[09.31.55] ✅ ADAUSDT selesai — dipelajari: 3 pola | +15 XP",
-    "[09.31.55] ✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
-    "[09.31.55] 🕯️ Pola candle 'Hammer' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
-    "[09.31.55] ⚡ SQUEEZE terdeteksi di ADAUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.31.55] 📊 MACD crossover bullish terdeteksi di ADAUSDT",
-    "[09.31.54] 📊 Mempelajari struktur chart ADAUSDT (60M)...",
-    "[09.31.33] ✅ BNBUSDT selesai — dipelajari: 5 pola | +22 XP",
-    "[09.31.33] ✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
-    "[09.31.33] 📍 BNBUSDT mendekati level S/R kuat di 649.70 — berlatih deteksi area kritis...",
-    "[09.31.33] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.31.33] ⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.31.33] 📈 BNBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-    "[09.31.33] 📊 MACD crossover bullish terdeteksi di BNBUSDT",
-    "[09.31.33] 📈 Tren naik dikonfirmasi pada BNBUSDT — EMA9>EMA21>EMA50",
-    "[09.31.32] 📊 Mempelajari struktur chart BNBUSDT (15M)...",
-    "[09.31.11] ✅ DOTUSDT selesai — dipelajari: 4 pola, 1 likuiditas, 1 SMC | +23 XP",
-    "[09.31.11] ✅ Prediksi berhasil pada DOTUSDT — memperbarui model kepercayaan diri...",
-    "[09.31.11] 📍 DOTUSDT mendekati level S/R kuat di 1.23 — berlatih deteksi area kritis...",
-    "[09.31.11] 🕯️ Pola candle 'Shooting Star' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
-    "[09.31.11] 🎯 LIQUIDITY SWEEP di DOTUSDT! Harga grab highs lalu turun — institusional distribusi!",
-    "[09.31.11] 🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.31.11] 📊 MACD crossover bullish terdeteksi di DOTUSDT",
-    "[09.31.11] 📉 Tren turun dikonfirmasi pada DOTUSDT — EMA9<EMA21<EMA50",
-    "[09.31.10] 📊 Mempelajari struktur chart DOTUSDT (240M)...",
-    "[09.30.49] ✅ BNBUSDT selesai — dipelajari: 4 pola | +20 XP",
-    "[09.30.49] 📊 Snapshot evolusi #101 disimpan — IQ: 200, Level: Institusional",
-    "[09.30.49] ✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
-    "[09.30.49] 📍 BNBUSDT mendekati level S/R kuat di 640.80 — berlatih deteksi area kritis...",
-    "[09.30.49] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.30.49] ⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.30.49] 📈 BNBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-    "[09.30.49] 📊 MACD crossover bullish terdeteksi di BNBUSDT",
-    "[09.30.48] 📊 Mempelajari struktur chart BNBUSDT (60M)...",
-    "[09.30.27] ✅ MATICUSDT selesai — dipelajari: 6 pola | +23 XP",
-    "[09.30.27] ✅ Prediksi berhasil pada MATICUSDT — memperbarui model kepercayaan diri...",
-    "[09.30.27] 📍 MATICUSDT mendekati level S/R kuat di 0.38 — berlatih deteksi area kritis...",
-    "[09.30.27] 🕯️ Pola candle 'Doji' terdeteksi di MATICUSDT — menganalisis psikologi pasar...",
-    "[09.30.27] ⚡ SQUEEZE terdeteksi di MATICUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.30.27] 📈 MATICUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-    "[09.30.27] 📊 MACD crossover bullish terdeteksi di MATICUSDT",
-    "[09.30.27] 📉 Tren turun dikonfirmasi pada MATICUSDT — EMA9<EMA21<EMA50",
-    "[09.30.26] 📊 Mempelajari struktur chart MATICUSDT (5M)...",
-    "[09.30.05] ✅ XRPUSDT selesai — dipelajari: 6 pola | +25 XP",
-    "[09.30.05] ✅ Prediksi berhasil pada XRPUSDT — memperbarui model kepercayaan diri...",
-    "[09.30.05] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
-    "[09.30.05] 🕯️ Pola candle 'Bullish Marubozu' terdeteksi di XRPUSDT — menganalisis psikologi pasar...",
-    "[09.30.05] 🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.30.05] ⚡ SQUEEZE terdeteksi di XRPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.30.05] 📈 XRPUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-    "[09.30.05] 📊 MACD crossover bullish terdeteksi di XRPUSDT",
-    "[09.30.05] 📈 Tren naik dikonfirmasi pada XRPUSDT — EMA9>EMA21>EMA50",
-    "[09.30.04] 📊 Mempelajari struktur chart XRPUSDT (5M)...",
-    "[09.29.43] ✅ Replay selesai — normal XRPUSDT dipelajari | +8 XP",
-    "[09.29.43] 🔁 Replay normal XRPUSDT — berlatih membaca 100 candle historis...",
-    "[09.29.42] 🔁 Memulai sesi REPLAY TRAINING — XRPUSDT (60M)...",
-    "[09.29.21] ✅ FTMUSDT selesai — dipelajari: 3 pola | +15 XP",
-    "[09.29.21] 📚 Prediksi meleset di FTMUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.29.21] ⚡ Volatilitas TINGGI di FTMUSDT — ATR 3.1% — zona berbahaya, melatih manajemen risiko",
-    "[09.29.21] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
-    "[09.29.21] 🕯️ Pola candle 'Doji' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
-    "[09.29.21] 📊 MACD crossover bullish terdeteksi di FTMUSDT",
-    "[09.29.20] 📊 Mempelajari struktur chart FTMUSDT (240M)...",
-    "[09.28.59] ✅ BNBUSDT selesai — dipelajari: 5 pola | +21 XP",
-    "[09.28.59] 📚 Prediksi meleset di BNBUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.28.59] 📍 BNBUSDT mendekati level S/R kuat di 649.60 — berlatih deteksi area kritis...",
-    "[09.28.59] 🕯️ Pola candle 'Bullish Engulfing' terdeteksi di BNBUSDT — menganalisis psikologi pasar...",
-    "[09.28.59] 🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.28.59] ⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.28.59] 📊 MACD crossover bullish terdeteksi di BNBUSDT",
-    "[09.28.59] 📈 Tren naik dikonfirmasi pada BNBUSDT — EMA9>EMA21>EMA50",
-    "[09.28.58] 📊 Mempelajari struktur chart BNBUSDT (15M)...",
-    "[09.28.37] ✅ Replay selesai — crash/rally SOLUSDT dipelajari | +13 XP",
-    "[09.28.37] 📉 Replay CRASH/RALLY: SOLUSDT bergerak 10.6% — mempelajari volatilitas ekstrem...",
-    "[09.28.36] 🔁 Memulai sesi REPLAY TRAINING — SOLUSDT (60M)...",
-    "[09.28.15] ✅ ADAUSDT selesai — dipelajari: 3 pola | +16 XP",
-    "[09.28.15] 📚 Prediksi meleset di ADAUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.28.15] 📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
-    "[09.28.15] 🕯️ Pola candle 'Bullish Engulfing' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
-    "[09.28.15] 🔇 Volume sangat rendah di ADAUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.28.15] ⚡ SQUEEZE terdeteksi di ADAUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.28.14] 📊 Mempelajari struktur chart ADAUSDT (5M)...",
-    "[09.27.53] ✅ AVAXUSDT selesai — dipelajari: 2 pola | +10 XP",
-    "[09.27.53] ✅ Prediksi berhasil pada AVAXUSDT — memperbarui model kepercayaan diri...",
-    "[09.27.53] 📍 AVAXUSDT mendekati level S/R kuat di 9.18 — berlatih deteksi area kritis...",
-    "[09.27.53] 📊 MACD crossover bullish terdeteksi di AVAXUSDT",
-    "[09.27.52] 📊 Mempelajari struktur chart AVAXUSDT (60M)...",
-    "[09.27.31] ✅ Replay selesai — crash/rally DOTUSDT dipelajari | +13 XP",
-    "[09.27.31] 📉 Replay CRASH/RALLY: DOTUSDT bergerak 8.7% — mempelajari volatilitas ekstrem...",
-    "[09.27.30] 🔁 Memulai sesi REPLAY TRAINING — DOTUSDT (60M)...",
-    "[09.27.09] ✅ DOGEUSDT selesai — dipelajari: 4 pola | +20 XP",
-    "[09.27.09] ✅ Prediksi berhasil pada DOGEUSDT — memperbarui model kepercayaan diri...",
-    "[09.27.09] 📍 DOGEUSDT mendekati level S/R kuat di 0.10 — berlatih deteksi area kritis...",
-    "[09.27.09] 🕯️ Pola candle 'Doji' terdeteksi di DOGEUSDT — menganalisis psikologi pasar...",
-    "[09.27.09] 🔇 Volume sangat rendah di DOGEUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.27.09] ⚡ SQUEEZE terdeteksi di DOGEUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.27.09] 📉 DOGEUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
-    "[09.27.08] 📊 Mempelajari struktur chart DOGEUSDT (5M)...",
-    "[09.26.47] ✅ ARBUSDT selesai — dipelajari: 3 pola | +12 XP",
-    "[09.26.47] ✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
-    "[09.26.47] 📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
-    "[09.26.47] 📊 MACD crossover bullish terdeteksi di ARBUSDT",
-    "[09.26.47] 📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
-    "[09.26.46] 📊 Mempelajari struktur chart ARBUSDT (240M)...",
-    "[09.26.25] ✅ OPUSDT selesai — dipelajari: 3 pola, 1 likuiditas, 1 SMC | +17 XP",
-    "[09.26.25] 📚 Prediksi meleset di OPUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.26.25] 📍 OPUSDT mendekati level S/R kuat di 0.13 — berlatih deteksi area kritis...",
-    "[09.26.25] 🎯 LIQUIDITY SWEEP di OPUSDT! Harga grab highs lalu turun — institusional distribusi!",
-    "[09.26.25] 📊 MACD crossover bullish terdeteksi di OPUSDT",
-    "[09.26.25] 📉 Tren turun dikonfirmasi pada OPUSDT — EMA9<EMA21<EMA50",
-    "[09.26.24] 📊 Mempelajari struktur chart OPUSDT (240M)...",
-    "[09.26.03] ✅ SOLUSDT selesai — dipelajari: 5 pola | +21 XP",
-    "[09.26.03] 📚 Prediksi meleset di SOLUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.26.03] 📍 SOLUSDT mendekati level S/R kuat di 84.41 — berlatih deteksi area kritis...",
-    "[09.26.03] 🕯️ Pola candle 'Bullish Marubozu' terdeteksi di SOLUSDT — menganalisis psikologi pasar...",
-    "[09.26.03] 🔇 Volume sangat rendah di SOLUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.26.03] ⚡ SQUEEZE terdeteksi di SOLUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.26.03] 📈 SOLUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-    "[09.26.03] 📈 Tren naik dikonfirmasi pada SOLUSDT — EMA9>EMA21>EMA50",
-    "[09.26.02] 📊 Mempelajari struktur chart SOLUSDT (5M)...",
-    "[09.25.41] ✅ DOTUSDT selesai — dipelajari: 4 pola, 1 likuiditas, 1 SMC | +23 XP",
-    "[09.25.41] ✅ Prediksi berhasil pada DOTUSDT — memperbarui model kepercayaan diri...",
-    "[09.25.41] 📍 DOTUSDT mendekati level S/R kuat di 1.23 — berlatih deteksi area kritis...",
-    "[09.25.41] 🕯️ Pola candle 'Doji' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
-    "[09.25.41] 🎯 LIQUIDITY SWEEP di DOTUSDT! Harga grab highs lalu turun — institusional distribusi!",
-    "[09.25.41] 🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.25.41] 📊 MACD crossover bullish terdeteksi di DOTUSDT",
-    "[09.25.41] 📉 Tren turun dikonfirmasi pada DOTUSDT — EMA9<EMA21<EMA50",
-    "[09.25.40] 📊 Mempelajari struktur chart DOTUSDT (240M)...",
-    "[09.25.19] ✅ XRPUSDT selesai — dipelajari: 4 pola | +16 XP",
-    "[09.25.19] 📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.25.19] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
-    "[09.25.19] 🕯️ Pola candle 'Doji' terdeteksi di XRPUSDT — menganalisis psikologi pasar...",
-    "[09.25.19] ⚡ SQUEEZE terdeteksi di XRPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.25.19] 📈 Tren naik dikonfirmasi pada XRPUSDT — EMA9>EMA21>EMA50",
-    "[09.25.18] 📊 Mempelajari struktur chart XRPUSDT (15M)...",
-    "[09.24.57] ✅ FTMUSDT selesai — dipelajari: 3 pola | +15 XP",
-    "[09.24.57] 📚 Prediksi meleset di FTMUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.24.57] ⚡ Volatilitas TINGGI di FTMUSDT — ATR 3.1% — zona berbahaya, melatih manajemen risiko",
-    "[09.24.57] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
-    "[09.24.57] 🕯️ Pola candle 'Doji' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
-    "[09.24.57] 📊 MACD crossover bullish terdeteksi di FTMUSDT",
-    "[09.24.56] 📊 Mempelajari struktur chart FTMUSDT (240M)...",
-    "[09.24.35] ✅ ARBUSDT selesai — dipelajari: 3 pola | +15 XP",
-    "[09.24.35] ✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
-    "[09.24.35] 📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
-    "[09.24.35] 🕯️ Pola candle 'Hammer' terdeteksi di ARBUSDT — menganalisis psikologi pasar...",
-    "[09.24.35] ⚡ SQUEEZE terdeteksi di ARBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.24.34] 📊 Mempelajari struktur chart ARBUSDT (15M)...",
-    "[09.24.13] ✅ FTMUSDT selesai — dipelajari: 3 pola | +15 XP",
-    "[09.24.13] 📚 Prediksi meleset di FTMUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.24.13] ⚡ Volatilitas TINGGI di FTMUSDT — ATR 3.1% — zona berbahaya, melatih manajemen risiko",
-    "[09.24.13] 📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
-    "[09.24.13] 🕯️ Pola candle 'Doji' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
-    "[09.24.13] 📊 MACD crossover bullish terdeteksi di FTMUSDT",
-    "[09.24.12] 📊 Mempelajari struktur chart FTMUSDT (240M)...",
-    "[09.23.51] ✅ DOGEUSDT selesai — dipelajari: 4 pola | +19 XP",
-    "[09.23.51] ✅ Prediksi berhasil pada DOGEUSDT — memperbarui model kepercayaan diri...",
-    "[09.23.51] 📍 DOGEUSDT mendekati level S/R kuat di 0.10 — berlatih deteksi area kritis...",
-    "[09.23.51] 🕯️ Pola candle 'Doji' terdeteksi di DOGEUSDT — menganalisis psikologi pasar...",
-    "[09.23.51] 🔇 Volume sangat rendah di DOGEUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.23.51] ⚡ SQUEEZE terdeteksi di DOGEUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.23.51] 📈 Tren naik dikonfirmasi pada DOGEUSDT — EMA9>EMA21>EMA50",
-    "[09.23.50] 📊 Mempelajari struktur chart DOGEUSDT (15M)...",
-    "[09.23.29] ✅ XRPUSDT selesai — dipelajari: 5 pola | +21 XP",
-    "[09.23.29] 📊 Snapshot evolusi #100 disimpan — IQ: 200, Level: Institusional",
-    "[09.23.29] 📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.23.29] 📍 XRPUSDT mendekati level S/R kuat di 1.38 — berlatih deteksi area kritis...",
-    "[09.23.29] 🕯️ Pola candle 'Hammer' terdeteksi di XRPUSDT — menganalisis psikologi pasar...",
-    "[09.23.29] 🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.23.29] ⚡ SQUEEZE terdeteksi di XRPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.23.29] 📊 MACD crossover bullish terdeteksi di XRPUSDT",
-    "[09.23.29] 📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
-    "[09.23.28] 📊 Mempelajari struktur chart XRPUSDT (60M)...",
-    "[09.23.07] ✅ Replay selesai — crash/rally BNBUSDT dipelajari | +13 XP",
-    "[09.23.07] 📉 Replay CRASH/RALLY: BNBUSDT bergerak 9.8% — mempelajari volatilitas ekstrem...",
-    "[09.23.06] 🔁 Memulai sesi REPLAY TRAINING — BNBUSDT (240M)...",
-    "[09.22.45] ✅ XRPUSDT selesai — dipelajari: 2 pola | +10 XP",
-    "[09.22.45] 📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
-    "[09.22.45] 📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
-    "[09.22.45] 🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.22.45] 📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
-    "[09.22.44] 📊 Mempelajari struktur chart XRPUSDT (240M)...",
-    "[09.22.23] ✅ DOTUSDT selesai — dipelajari: 4 pola | +20 XP",
-    "[09.22.23] ✅ Prediksi berhasil pada DOTUSDT — memperbarui model kepercayaan diri...",
-    "[09.22.23] 📍 DOTUSDT mendekati level S/R kuat di 1.23 — berlatih deteksi area kritis...",
-    "[09.22.23] 🕯️ Pola candle 'Bullish Marubozu' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
-    "[09.22.23] 🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
-    "[09.22.23] ⚡ SQUEEZE terdeteksi di DOTUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-    "[09.22.23] 📉 DOTUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan"
+    "[09.32.39] 📉 Tren turun dikonfirmasi pada BNBUSDT — EMA9<EMA21<EMA50"
   ],
   "liveActivities": [
     {
-      "id": "act_1779271004833",
-      "timestamp": 1779271009904,
-      "message": "✅ ARBUSDT selesai — dipelajari: 6 pola, 1 breakout | +24 XP",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 24
-    },
-    {
-      "id": "act_1779271004832",
-      "timestamp": 1779271009904,
-      "message": "✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779271004831",
-      "timestamp": 1779271009904,
-      "message": "📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779271004830",
-      "timestamp": 1779271009903,
-      "message": "🕯️ Pola candle 'Bearish Marubozu' terdeteksi di ARBUSDT — menganalisis psikologi pasar...",
-      "symbol": "ARBUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779271004829",
-      "timestamp": 1779271009903,
-      "message": "⚡ SQUEEZE terdeteksi di ARBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "ARBUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779271004828",
-      "timestamp": 1779271009903,
-      "message": "📉 ARBUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779271004827",
-      "timestamp": 1779271009903,
-      "message": "🚀 BREAKOUT terdeteksi di ARBUSDT! Menembus level 0.11",
-      "symbol": "ARBUSDT",
-      "type": "breakout",
-      "xpGained": 4
-    },
-    {
-      "id": "act_1779271004826",
-      "timestamp": 1779271009903,
-      "message": "📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779271004825",
-      "timestamp": 1779271009828,
-      "message": "📊 Mempelajari struktur chart ARBUSDT (15M)...",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779271004824",
-      "timestamp": 1779271009828,
-      "message": "🧠 Sistem pembelajaran berkelanjutan v2 dimulai — AI siap belajar 24/7!",
-      "symbol": "ARBUSDT",
-      "type": "info",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270923942",
-      "timestamp": 1779270995006,
-      "message": "✅ ARBUSDT selesai — dipelajari: 4 pola, 1 SMC | +17 XP",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 17
-    },
-    {
-      "id": "act_1779270923941",
-      "timestamp": 1779270995006,
-      "message": "✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "ARBUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923940",
-      "timestamp": 1779270995006,
-      "message": "📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923939",
-      "timestamp": 1779270995006,
-      "message": "💎 Break of Structure (BOS) terdeteksi di ARBUSDT — BOS Bearish — mempelajari SMC...",
-      "symbol": "ARBUSDT",
-      "type": "pattern",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779270923938",
-      "timestamp": 1779270995006,
-      "message": "📊 MACD crossover bullish terdeteksi di ARBUSDT",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923937",
-      "timestamp": 1779270995006,
-      "message": "📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923936",
-      "timestamp": 1779270994926,
-      "message": "📊 Mempelajari struktur chart ARBUSDT (60M)...",
-      "symbol": "ARBUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270923935",
-      "timestamp": 1779270973000,
-      "message": "✅ OPUSDT selesai — dipelajari: 2 pola | +9 XP",
-      "symbol": "OPUSDT",
-      "type": "success",
-      "xpGained": 9
-    },
-    {
-      "id": "act_1779270923934",
-      "timestamp": 1779270973000,
-      "message": "✅ Prediksi berhasil pada OPUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "OPUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923933",
-      "timestamp": 1779270973000,
-      "message": "📊 MACD crossover bullish terdeteksi di OPUSDT",
-      "symbol": "OPUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923932",
-      "timestamp": 1779270973000,
-      "message": "📉 Tren turun dikonfirmasi pada OPUSDT — EMA9<EMA21<EMA50",
-      "symbol": "OPUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923931",
-      "timestamp": 1779270972926,
-      "message": "📊 Mempelajari struktur chart OPUSDT (60M)...",
-      "symbol": "OPUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270923930",
-      "timestamp": 1779270950997,
-      "message": "✅ XRPUSDT selesai — dipelajari: 2 pola | +11 XP",
-      "symbol": "XRPUSDT",
-      "type": "success",
-      "xpGained": 11
-    },
-    {
-      "id": "act_1779270923929",
-      "timestamp": 1779270950997,
-      "message": "✅ Prediksi berhasil pada XRPUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "XRPUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923928",
-      "timestamp": 1779270950997,
-      "message": "📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
-      "symbol": "XRPUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923927",
-      "timestamp": 1779270950996,
-      "message": "🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
-      "symbol": "XRPUSDT",
-      "type": "warning",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923926",
-      "timestamp": 1779270950996,
-      "message": "📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
-      "symbol": "XRPUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923925",
-      "timestamp": 1779270950925,
-      "message": "📊 Mempelajari struktur chart XRPUSDT (240M)...",
-      "symbol": "XRPUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270923924",
-      "timestamp": 1779270929239,
-      "message": "✅ MATICUSDT selesai — dipelajari: 6 pola | +22 XP",
-      "symbol": "MATICUSDT",
-      "type": "success",
-      "xpGained": 22
-    },
-    {
-      "id": "act_1779270923923",
-      "timestamp": 1779270929239,
-      "message": "📚 Prediksi meleset di MATICUSDT — menganalisis kesalahan dan memperbaiki model...",
-      "symbol": "MATICUSDT",
-      "type": "info",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923922",
-      "timestamp": 1779270929239,
-      "message": "📍 MATICUSDT mendekati level S/R kuat di 0.38 — berlatih deteksi area kritis...",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923921",
-      "timestamp": 1779270929238,
-      "message": "🕯️ Pola candle 'Doji' terdeteksi di MATICUSDT — menganalisis psikologi pasar...",
-      "symbol": "MATICUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923920",
-      "timestamp": 1779270929237,
-      "message": "⚡ SQUEEZE terdeteksi di MATICUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "MATICUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779270923919",
-      "timestamp": 1779270929237,
-      "message": "📈 MATICUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923918",
-      "timestamp": 1779270929237,
-      "message": "📊 MACD crossover bullish terdeteksi di MATICUSDT",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270923917",
-      "timestamp": 1779270929237,
-      "message": "📉 Tren turun dikonfirmasi pada MATICUSDT — EMA9<EMA21<EMA50",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270923916",
-      "timestamp": 1779270928921,
-      "message": "📊 Mempelajari struktur chart MATICUSDT (5M)...",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270923915",
-      "timestamp": 1779270928920,
-      "message": "🧠 Sistem pembelajaran berkelanjutan v2 dimulai — AI siap belajar 24/7!",
-      "symbol": "LINKUSDT",
-      "type": "info",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215172",
-      "timestamp": 1779270902084,
-      "message": "✅ LINKUSDT selesai — dipelajari: 4 pola, 1 likuiditas, 1 SMC | +22 XP",
-      "symbol": "LINKUSDT",
-      "type": "success",
-      "xpGained": 22
-    },
-    {
-      "id": "act_1779270215171",
-      "timestamp": 1779270902084,
-      "message": "📚 Prediksi meleset di LINKUSDT — menganalisis kesalahan dan memperbaiki model...",
-      "symbol": "LINKUSDT",
-      "type": "info",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215170",
-      "timestamp": 1779270902084,
-      "message": "📍 LINKUSDT mendekati level S/R kuat di 9.55 — berlatih deteksi area kritis...",
-      "symbol": "LINKUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215169",
-      "timestamp": 1779270902084,
-      "message": "🕯️ Pola candle 'Shooting Star' terdeteksi di LINKUSDT — menganalisis psikologi pasar...",
-      "symbol": "LINKUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215168",
-      "timestamp": 1779270902084,
-      "message": "🎯 LIQUIDITY SWEEP di LINKUSDT! Harga grab highs lalu turun — institusional distribusi!",
-      "symbol": "LINKUSDT",
-      "type": "liquidity",
-      "xpGained": 6
-    },
-    {
-      "id": "act_1779270215167",
-      "timestamp": 1779270902084,
-      "message": "🔇 Volume sangat rendah di LINKUSDT — zona konsolidasi, waspada breakout mendadak",
-      "symbol": "LINKUSDT",
-      "type": "warning",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215166",
-      "timestamp": 1779270902083,
-      "message": "📊 MACD crossover bullish terdeteksi di LINKUSDT",
-      "symbol": "LINKUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215165",
-      "timestamp": 1779270902083,
-      "message": "📉 Tren turun dikonfirmasi pada LINKUSDT — EMA9<EMA21<EMA50",
-      "symbol": "LINKUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215164",
-      "timestamp": 1779270902000,
-      "message": "📊 Mempelajari struktur chart LINKUSDT (240M)...",
-      "symbol": "LINKUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215163",
-      "timestamp": 1779270880067,
-      "message": "✅ Replay selesai — crash/rally LINKUSDT dipelajari | +13 XP",
-      "symbol": "LINKUSDT",
+      "id": "act_1779271005026",
+      "timestamp": 1779271669923,
+      "message": "✅ Replay selesai — manipulation ETHUSDT dipelajari | +13 XP",
+      "symbol": "ETHUSDT",
       "type": "success",
       "xpGained": 13
     },
     {
-      "id": "act_1779270215162",
-      "timestamp": 1779270880067,
-      "message": "📉 Replay CRASH/RALLY: LINKUSDT bergerak 13.9% — mempelajari volatilitas ekstrem...",
-      "symbol": "LINKUSDT",
+      "id": "act_1779271005025",
+      "timestamp": 1779271669923,
+      "message": "🎭 Replay MANIPULASI: Volume spike 4.8x di ETHUSDT — mempelajari pola institusional...",
+      "symbol": "ETHUSDT",
       "type": "replay",
       "xpGained": 10
     },
     {
-      "id": "act_1779270215161",
-      "timestamp": 1779270879998,
-      "message": "🔁 Memulai sesi REPLAY TRAINING — LINKUSDT (60M)...",
-      "symbol": "LINKUSDT",
+      "id": "act_1779271005024",
+      "timestamp": 1779271669852,
+      "message": "🔁 Memulai sesi REPLAY TRAINING — ETHUSDT (15M)...",
+      "symbol": "ETHUSDT",
       "type": "replay",
       "xpGained": 0
     },
     {
-      "id": "act_1779270215160",
-      "timestamp": 1779270858232,
-      "message": "✅ MATICUSDT selesai — dipelajari: 6 pola | +23 XP",
-      "symbol": "MATICUSDT",
+      "id": "act_1779271005023",
+      "timestamp": 1779271648080,
+      "message": "✅ FTMUSDT selesai — dipelajari: 4 pola, 2 likuiditas, 1 SMC | +24 XP",
+      "symbol": "FTMUSDT",
       "type": "success",
-      "xpGained": 23
+      "xpGained": 24
     },
     {
-      "id": "act_1779270215159",
-      "timestamp": 1779270858232,
-      "message": "✅ Prediksi berhasil pada MATICUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "MATICUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215158",
-      "timestamp": 1779270858232,
-      "message": "📍 MATICUSDT mendekati level S/R kuat di 0.38 — berlatih deteksi area kritis...",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215157",
-      "timestamp": 1779270858231,
-      "message": "🕯️ Pola candle 'Doji' terdeteksi di MATICUSDT — menganalisis psikologi pasar...",
-      "symbol": "MATICUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215156",
-      "timestamp": 1779270858231,
-      "message": "⚡ SQUEEZE terdeteksi di MATICUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "MATICUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779270215155",
-      "timestamp": 1779270858231,
-      "message": "📈 MATICUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215154",
-      "timestamp": 1779270858231,
-      "message": "📊 MACD crossover bullish terdeteksi di MATICUSDT",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215153",
-      "timestamp": 1779270858231,
-      "message": "📉 Tren turun dikonfirmasi pada MATICUSDT — EMA9<EMA21<EMA50",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215152",
-      "timestamp": 1779270857998,
-      "message": "📊 Mempelajari struktur chart MATICUSDT (5M)...",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215151",
-      "timestamp": 1779270836081,
-      "message": "✅ BTCUSDT selesai — dipelajari: 5 pola | +21 XP",
-      "symbol": "BTCUSDT",
-      "type": "success",
-      "xpGained": 21
-    },
-    {
-      "id": "act_1779270215150",
-      "timestamp": 1779270836081,
-      "message": "📚 Prediksi meleset di BTCUSDT — menganalisis kesalahan dan memperbaiki model...",
-      "symbol": "BTCUSDT",
+      "id": "act_1779271005022",
+      "timestamp": 1779271648080,
+      "message": "📚 Prediksi meleset di FTMUSDT — menganalisis kesalahan dan memperbaiki model...",
+      "symbol": "FTMUSDT",
       "type": "info",
       "xpGained": 2
     },
     {
-      "id": "act_1779270215149",
-      "timestamp": 1779270836081,
-      "message": "📍 BTCUSDT mendekati level S/R kuat di 77075.60 — berlatih deteksi area kritis...",
-      "symbol": "BTCUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215148",
-      "timestamp": 1779270836081,
-      "message": "🕯️ Pola candle 'Hammer' terdeteksi di BTCUSDT — menganalisis psikologi pasar...",
-      "symbol": "BTCUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215147",
-      "timestamp": 1779270836081,
-      "message": "🔇 Volume sangat rendah di BTCUSDT — zona konsolidasi, waspada breakout mendadak",
-      "symbol": "BTCUSDT",
-      "type": "warning",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215146",
-      "timestamp": 1779270836080,
-      "message": "⚡ SQUEEZE terdeteksi di BTCUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "BTCUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779270215145",
-      "timestamp": 1779270836080,
-      "message": "📈 BTCUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-      "symbol": "BTCUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215144",
-      "timestamp": 1779270836080,
-      "message": "📈 Tren naik dikonfirmasi pada BTCUSDT — EMA9>EMA21>EMA50",
-      "symbol": "BTCUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215143",
-      "timestamp": 1779270835996,
-      "message": "📊 Mempelajari struktur chart BTCUSDT (5M)...",
-      "symbol": "BTCUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215142",
-      "timestamp": 1779270814080,
-      "message": "✅ DOGEUSDT selesai — dipelajari: 2 pola | +11 XP",
-      "symbol": "DOGEUSDT",
-      "type": "success",
-      "xpGained": 11
-    },
-    {
-      "id": "act_1779270215141",
-      "timestamp": 1779270814080,
-      "message": "✅ Prediksi berhasil pada DOGEUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "DOGEUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215140",
-      "timestamp": 1779270814079,
-      "message": "🕯️ Pola candle 'Shooting Star' terdeteksi di DOGEUSDT — menganalisis psikologi pasar...",
-      "symbol": "DOGEUSDT",
-      "type": "pattern",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215139",
-      "timestamp": 1779270814079,
-      "message": "🔇 Volume sangat rendah di DOGEUSDT — zona konsolidasi, waspada breakout mendadak",
-      "symbol": "DOGEUSDT",
-      "type": "warning",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215138",
-      "timestamp": 1779270814079,
-      "message": "📉 Tren turun dikonfirmasi pada DOGEUSDT — EMA9<EMA21<EMA50",
-      "symbol": "DOGEUSDT",
-      "type": "analysis",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215137",
-      "timestamp": 1779270813995,
-      "message": "📊 Mempelajari struktur chart DOGEUSDT (240M)...",
-      "symbol": "DOGEUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215136",
-      "timestamp": 1779270792225,
-      "message": "✅ FTMUSDT selesai — dipelajari: 3 pola | +16 XP",
-      "symbol": "FTMUSDT",
-      "type": "success",
-      "xpGained": 16
-    },
-    {
-      "id": "act_1779270215135",
-      "timestamp": 1779270792225,
-      "message": "📊 Snapshot evolusi #103 disimpan — IQ: 200, Level: Institusional",
-      "symbol": "FTMUSDT",
-      "type": "success",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215134",
-      "timestamp": 1779270792224,
-      "message": "✅ Prediksi berhasil pada FTMUSDT — memperbarui model kepercayaan diri...",
-      "symbol": "FTMUSDT",
-      "type": "success",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215133",
-      "timestamp": 1779270792224,
-      "message": "⚡ Volatilitas TINGGI di FTMUSDT — ATR 3.1% — zona berbahaya, melatih manajemen risiko",
-      "symbol": "FTMUSDT",
-      "type": "warning",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215132",
-      "timestamp": 1779270792224,
+      "id": "act_1779271005021",
+      "timestamp": 1779271648080,
       "message": "📍 FTMUSDT mendekati level S/R kuat di 0.70 — berlatih deteksi area kritis...",
       "symbol": "FTMUSDT",
       "type": "analysis",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215131",
-      "timestamp": 1779270792224,
-      "message": "🕯️ Pola candle 'Doji' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
+      "id": "act_1779271005020",
+      "timestamp": 1779271648080,
+      "message": "🕯️ Pola candle 'Hammer' terdeteksi di FTMUSDT — menganalisis psikologi pasar...",
       "symbol": "FTMUSDT",
       "type": "pattern",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215130",
-      "timestamp": 1779270792224,
+      "id": "act_1779271005019",
+      "timestamp": 1779271648080,
+      "message": "🎯 LIQUIDITY SWEEP di FTMUSDT! Harga grab lows lalu reversal — Smart Money bergerak!",
+      "symbol": "FTMUSDT",
+      "type": "liquidity",
+      "xpGained": 6
+    },
+    {
+      "id": "act_1779271005018",
+      "timestamp": 1779271648080,
+      "message": "🔊 Volume SPIKE besar di FTMUSDT (2.9x normal) — mempelajari orderflow institusional...",
+      "symbol": "FTMUSDT",
+      "type": "liquidity",
+      "xpGained": 4
+    },
+    {
+      "id": "act_1779271005017",
+      "timestamp": 1779271648079,
       "message": "📊 MACD crossover bullish terdeteksi di FTMUSDT",
       "symbol": "FTMUSDT",
       "type": "analysis",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215129",
-      "timestamp": 1779270791991,
-      "message": "📊 Mempelajari struktur chart FTMUSDT (240M)...",
+      "id": "act_1779271005016",
+      "timestamp": 1779271648079,
+      "message": "📉 Tren turun dikonfirmasi pada FTMUSDT — EMA9<EMA21<EMA50",
+      "symbol": "FTMUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271005015",
+      "timestamp": 1779271647850,
+      "message": "📊 Mempelajari struktur chart FTMUSDT (15M)...",
       "symbol": "FTMUSDT",
       "type": "analysis",
       "xpGained": 0
     },
     {
-      "id": "act_1779270215128",
-      "timestamp": 1779270770062,
-      "message": "✅ OPUSDT selesai — dipelajari: 3 pola | +16 XP",
-      "symbol": "OPUSDT",
+      "id": "act_1779271005014",
+      "timestamp": 1779271625920,
+      "message": "✅ ARBUSDT selesai — dipelajari: 3 pola | +14 XP",
+      "symbol": "ARBUSDT",
+      "type": "success",
+      "xpGained": 14
+    },
+    {
+      "id": "act_1779271005013",
+      "timestamp": 1779271625920,
+      "message": "✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "ARBUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271005012",
+      "timestamp": 1779271625920,
+      "message": "📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271005011",
+      "timestamp": 1779271625920,
+      "message": "🔇 Volume sangat rendah di ARBUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "ARBUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271005010",
+      "timestamp": 1779271625920,
+      "message": "📊 MACD crossover bullish terdeteksi di ARBUSDT",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271005009",
+      "timestamp": 1779271625920,
+      "message": "📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271005008",
+      "timestamp": 1779271625849,
+      "message": "📊 Mempelajari struktur chart ARBUSDT (60M)...",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271005007",
+      "timestamp": 1779271603930,
+      "message": "✅ ARBUSDT selesai — dipelajari: 3 pola | +16 XP",
+      "symbol": "ARBUSDT",
       "type": "success",
       "xpGained": 16
     },
     {
-      "id": "act_1779270215127",
-      "timestamp": 1779270770062,
+      "id": "act_1779271005006",
+      "timestamp": 1779271603930,
+      "message": "✅ Prediksi berhasil pada ARBUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "ARBUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271005005",
+      "timestamp": 1779271603929,
+      "message": "📍 ARBUSDT mendekati level S/R kuat di 0.11 — berlatih deteksi area kritis...",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271005004",
+      "timestamp": 1779271603929,
+      "message": "🔇 Volume sangat rendah di ARBUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "ARBUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271005003",
+      "timestamp": 1779271603929,
+      "message": "⚡ SQUEEZE terdeteksi di ARBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "ARBUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271005002",
+      "timestamp": 1779271603929,
+      "message": "📉 Tren turun dikonfirmasi pada ARBUSDT — EMA9<EMA21<EMA50",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271005001",
+      "timestamp": 1779271603849,
+      "message": "📊 Mempelajari struktur chart ARBUSDT (5M)...",
+      "symbol": "ARBUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271005000",
+      "timestamp": 1779271581918,
+      "message": "✅ SOLUSDT selesai — dipelajari: 4 pola | +19 XP",
+      "symbol": "SOLUSDT",
+      "type": "success",
+      "xpGained": 19
+    },
+    {
+      "id": "act_1779271004999",
+      "timestamp": 1779271581918,
+      "message": "📚 Prediksi meleset di SOLUSDT — menganalisis kesalahan dan memperbaiki model...",
+      "symbol": "SOLUSDT",
+      "type": "info",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004998",
+      "timestamp": 1779271581918,
+      "message": "📍 SOLUSDT mendekati level S/R kuat di 85.44 — berlatih deteksi area kritis...",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004997",
+      "timestamp": 1779271581918,
+      "message": "🔇 Volume sangat rendah di SOLUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "SOLUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004996",
+      "timestamp": 1779271581918,
+      "message": "⚡ SQUEEZE terdeteksi di SOLUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "SOLUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271004995",
+      "timestamp": 1779271581918,
+      "message": "📈 SOLUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004994",
+      "timestamp": 1779271581918,
+      "message": "📊 MACD crossover bullish terdeteksi di SOLUSDT",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004993",
+      "timestamp": 1779271581847,
+      "message": "📊 Mempelajari struktur chart SOLUSDT (60M)...",
+      "symbol": "SOLUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004992",
+      "timestamp": 1779271559917,
+      "message": "✅ BTCUSDT selesai — dipelajari: 3 pola | +12 XP",
+      "symbol": "BTCUSDT",
+      "type": "success",
+      "xpGained": 12
+    },
+    {
+      "id": "act_1779271004991",
+      "timestamp": 1779271559917,
+      "message": "✅ Prediksi berhasil pada BTCUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "BTCUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004990",
+      "timestamp": 1779271559917,
+      "message": "📍 BTCUSDT mendekati level S/R kuat di 76900.00 — berlatih deteksi area kritis...",
+      "symbol": "BTCUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004989",
+      "timestamp": 1779271559917,
+      "message": "📊 MACD crossover bullish terdeteksi di BTCUSDT",
+      "symbol": "BTCUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004988",
+      "timestamp": 1779271559917,
+      "message": "📉 Tren turun dikonfirmasi pada BTCUSDT — EMA9<EMA21<EMA50",
+      "symbol": "BTCUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004987",
+      "timestamp": 1779271559847,
+      "message": "📊 Mempelajari struktur chart BTCUSDT (240M)...",
+      "symbol": "BTCUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004986",
+      "timestamp": 1779271537926,
+      "message": "✅ DOTUSDT selesai — dipelajari: 3 pola | +17 XP",
+      "symbol": "DOTUSDT",
+      "type": "success",
+      "xpGained": 17
+    },
+    {
+      "id": "act_1779271004985",
+      "timestamp": 1779271537926,
+      "message": "✅ Prediksi berhasil pada DOTUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "DOTUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004984",
+      "timestamp": 1779271537926,
+      "message": "📍 DOTUSDT mendekati level S/R kuat di 1.24 — berlatih deteksi area kritis...",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004983",
+      "timestamp": 1779271537926,
+      "message": "🕯️ Pola candle 'Doji' terdeteksi di DOTUSDT — menganalisis psikologi pasar...",
+      "symbol": "DOTUSDT",
+      "type": "pattern",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004982",
+      "timestamp": 1779271537926,
+      "message": "🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "DOTUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004981",
+      "timestamp": 1779271537926,
+      "message": "⚡ SQUEEZE terdeteksi di DOTUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "DOTUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271004980",
+      "timestamp": 1779271537845,
+      "message": "📊 Mempelajari struktur chart DOTUSDT (5M)...",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004979",
+      "timestamp": 1779271515919,
+      "message": "✅ LINKUSDT selesai — dipelajari: 2 pola | +12 XP",
+      "symbol": "LINKUSDT",
+      "type": "success",
+      "xpGained": 12
+    },
+    {
+      "id": "act_1779271004978",
+      "timestamp": 1779271515919,
+      "message": "✅ Prediksi berhasil pada LINKUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "LINKUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004977",
+      "timestamp": 1779271515919,
+      "message": "📍 LINKUSDT mendekati level S/R kuat di 9.61 — berlatih deteksi area kritis...",
+      "symbol": "LINKUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004976",
+      "timestamp": 1779271515919,
+      "message": "🔇 Volume sangat rendah di LINKUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "LINKUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004975",
+      "timestamp": 1779271515919,
+      "message": "📊 MACD crossover bullish terdeteksi di LINKUSDT",
+      "symbol": "LINKUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004974",
+      "timestamp": 1779271515845,
+      "message": "📊 Mempelajari struktur chart LINKUSDT (60M)...",
+      "symbol": "LINKUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004973",
+      "timestamp": 1779271493916,
+      "message": "✅ Replay selesai — crash/rally ARBUSDT dipelajari | +13 XP",
+      "symbol": "ARBUSDT",
+      "type": "success",
+      "xpGained": 13
+    },
+    {
+      "id": "act_1779271004972",
+      "timestamp": 1779271493916,
+      "message": "📉 Replay CRASH/RALLY: ARBUSDT bergerak 21.4% — mempelajari volatilitas ekstrem...",
+      "symbol": "ARBUSDT",
+      "type": "replay",
+      "xpGained": 10
+    },
+    {
+      "id": "act_1779271004971",
+      "timestamp": 1779271493844,
+      "message": "🔁 Memulai sesi REPLAY TRAINING — ARBUSDT (240M)...",
+      "symbol": "ARBUSDT",
+      "type": "replay",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004970",
+      "timestamp": 1779271471915,
+      "message": "✅ XRPUSDT selesai — dipelajari: 2 pola | +10 XP",
+      "symbol": "XRPUSDT",
+      "type": "success",
+      "xpGained": 10
+    },
+    {
+      "id": "act_1779271004969",
+      "timestamp": 1779271471915,
+      "message": "📚 Prediksi meleset di XRPUSDT — menganalisis kesalahan dan memperbaiki model...",
+      "symbol": "XRPUSDT",
+      "type": "info",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004968",
+      "timestamp": 1779271471915,
+      "message": "📍 XRPUSDT mendekati level S/R kuat di 1.37 — berlatih deteksi area kritis...",
+      "symbol": "XRPUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004967",
+      "timestamp": 1779271471914,
+      "message": "🔇 Volume sangat rendah di XRPUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "XRPUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004966",
+      "timestamp": 1779271471914,
+      "message": "📉 Tren turun dikonfirmasi pada XRPUSDT — EMA9<EMA21<EMA50",
+      "symbol": "XRPUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004965",
+      "timestamp": 1779271471844,
+      "message": "📊 Mempelajari struktur chart XRPUSDT (240M)...",
+      "symbol": "XRPUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004964",
+      "timestamp": 1779271449916,
+      "message": "✅ DOTUSDT selesai — dipelajari: 5 pola | +20 XP",
+      "symbol": "DOTUSDT",
+      "type": "success",
+      "xpGained": 20
+    },
+    {
+      "id": "act_1779271004963",
+      "timestamp": 1779271449916,
+      "message": "📚 Prediksi meleset di DOTUSDT — menganalisis kesalahan dan memperbaiki model...",
+      "symbol": "DOTUSDT",
+      "type": "info",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004962",
+      "timestamp": 1779271449916,
+      "message": "📍 DOTUSDT mendekati level S/R kuat di 1.24 — berlatih deteksi area kritis...",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004961",
+      "timestamp": 1779271449915,
+      "message": "⚡ DOTUSDT di dekat VWAP (-0.04%) — zona keputusan kritis",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004960",
+      "timestamp": 1779271449915,
+      "message": "🔇 Volume sangat rendah di DOTUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "DOTUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004959",
+      "timestamp": 1779271449915,
+      "message": "⚡ SQUEEZE terdeteksi di DOTUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "DOTUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271004958",
+      "timestamp": 1779271449915,
+      "message": "📉 DOTUSDT menyentuh BB bawah — potensi bounce atau breakdown lanjutan",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004957",
+      "timestamp": 1779271449915,
+      "message": "📈 Tren naik dikonfirmasi pada DOTUSDT — EMA9>EMA21>EMA50",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004956",
+      "timestamp": 1779271449844,
+      "message": "📊 Mempelajari struktur chart DOTUSDT (15M)...",
+      "symbol": "DOTUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004955",
+      "timestamp": 1779271427916,
+      "message": "✅ ADAUSDT selesai — dipelajari: 4 pola | +17 XP",
+      "symbol": "ADAUSDT",
+      "type": "success",
+      "xpGained": 17
+    },
+    {
+      "id": "act_1779271004954",
+      "timestamp": 1779271427916,
+      "message": "✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "ADAUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004953",
+      "timestamp": 1779271427915,
+      "message": "📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004952",
+      "timestamp": 1779271427915,
+      "message": "🕯️ Pola candle 'Shooting Star' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
+      "symbol": "ADAUSDT",
+      "type": "pattern",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004951",
+      "timestamp": 1779271427915,
+      "message": "🔇 Volume sangat rendah di ADAUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "ADAUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004950",
+      "timestamp": 1779271427915,
+      "message": "📊 MACD crossover bullish terdeteksi di ADAUSDT",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004949",
+      "timestamp": 1779271427915,
+      "message": "📉 Tren turun dikonfirmasi pada ADAUSDT — EMA9<EMA21<EMA50",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004948",
+      "timestamp": 1779271427844,
+      "message": "📊 Mempelajari struktur chart ADAUSDT (240M)...",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004947",
+      "timestamp": 1779271405919,
+      "message": "✅ BNBUSDT selesai — dipelajari: 5 pola | +21 XP",
+      "symbol": "BNBUSDT",
+      "type": "success",
+      "xpGained": 21
+    },
+    {
+      "id": "act_1779271004946",
+      "timestamp": 1779271405919,
+      "message": "✅ Prediksi berhasil pada BNBUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "BNBUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004945",
+      "timestamp": 1779271405919,
+      "message": "📍 BNBUSDT mendekati level S/R kuat di 641.80 — berlatih deteksi area kritis...",
+      "symbol": "BNBUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004944",
+      "timestamp": 1779271405918,
+      "message": "⚡ BNBUSDT di dekat VWAP (+0.14%) — zona keputusan kritis",
+      "symbol": "BNBUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004943",
+      "timestamp": 1779271405918,
+      "message": "🔇 Volume sangat rendah di BNBUSDT — zona konsolidasi, waspada breakout mendadak",
+      "symbol": "BNBUSDT",
+      "type": "warning",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004942",
+      "timestamp": 1779271405918,
+      "message": "⚡ SQUEEZE terdeteksi di BNBUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "BNBUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271004941",
+      "timestamp": 1779271405918,
+      "message": "📈 BNBUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
+      "symbol": "BNBUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004940",
+      "timestamp": 1779271405918,
+      "message": "📈 Tren naik dikonfirmasi pada BNBUSDT — EMA9>EMA21>EMA50",
+      "symbol": "BNBUSDT",
+      "type": "analysis",
+      "xpGained": 2
+    },
+    {
+      "id": "act_1779271004939",
+      "timestamp": 1779271405844,
+      "message": "📊 Mempelajari struktur chart BNBUSDT (15M)...",
+      "symbol": "BNBUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004938",
+      "timestamp": 1779271383915,
+      "message": "✅ ADAUSDT selesai — dipelajari: 3 pola | +15 XP",
+      "symbol": "ADAUSDT",
+      "type": "success",
+      "xpGained": 15
+    },
+    {
+      "id": "act_1779271004937",
+      "timestamp": 1779271383915,
+      "message": "✅ Prediksi berhasil pada ADAUSDT — memperbarui model kepercayaan diri...",
+      "symbol": "ADAUSDT",
+      "type": "success",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004936",
+      "timestamp": 1779271383915,
+      "message": "📍 ADAUSDT mendekati level S/R kuat di 0.25 — berlatih deteksi area kritis...",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004935",
+      "timestamp": 1779271383915,
+      "message": "🕯️ Pola candle 'Morning Star' terdeteksi di ADAUSDT — menganalisis psikologi pasar...",
+      "symbol": "ADAUSDT",
+      "type": "pattern",
+      "xpGained": 3
+    },
+    {
+      "id": "act_1779271004934",
+      "timestamp": 1779271383915,
+      "message": "⚡ SQUEEZE terdeteksi di ADAUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "ADAUSDT",
+      "type": "warning",
+      "xpGained": 5
+    },
+    {
+      "id": "act_1779271004933",
+      "timestamp": 1779271383844,
+      "message": "📊 Mempelajari struktur chart ADAUSDT (5M)...",
+      "symbol": "ADAUSDT",
+      "type": "analysis",
+      "xpGained": 0
+    },
+    {
+      "id": "act_1779271004932",
+      "timestamp": 1779271361917,
+      "message": "✅ OPUSDT selesai — dipelajari: 4 pola | +17 XP",
+      "symbol": "OPUSDT",
+      "type": "success",
+      "xpGained": 17
+    },
+    {
+      "id": "act_1779271004931",
+      "timestamp": 1779271361917,
       "message": "✅ Prediksi berhasil pada OPUSDT — memperbarui model kepercayaan diri...",
       "symbol": "OPUSDT",
       "type": "success",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215126",
-      "timestamp": 1779270770062,
+      "id": "act_1779271004930",
+      "timestamp": 1779271361917,
       "message": "📍 OPUSDT mendekati level S/R kuat di 0.13 — berlatih deteksi area kritis...",
       "symbol": "OPUSDT",
       "type": "analysis",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215125",
-      "timestamp": 1779270770061,
-      "message": "⚡ OPUSDT di dekat VWAP (-0.01%) — zona keputusan kritis",
+      "id": "act_1779271004929",
+      "timestamp": 1779271361917,
+      "message": "⚡ OPUSDT di dekat VWAP (+0.12%) — zona keputusan kritis",
       "symbol": "OPUSDT",
       "type": "analysis",
       "xpGained": 2
     },
     {
-      "id": "act_1779270215124",
-      "timestamp": 1779270770061,
-      "message": "🔇 Volume sangat rendah di OPUSDT — zona konsolidasi, waspada breakout mendadak",
+      "id": "act_1779271004928",
+      "timestamp": 1779271361917,
+      "message": "🕯️ Pola candle 'Bullish Marubozu' terdeteksi di OPUSDT — menganalisis psikologi pasar...",
       "symbol": "OPUSDT",
-      "type": "warning",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215123",
-      "timestamp": 1779270770061,
-      "message": "⚡ SQUEEZE terdeteksi di OPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "OPUSDT",
-      "type": "warning",
-      "xpGained": 5
-    },
-    {
-      "id": "act_1779270215122",
-      "timestamp": 1779270769990,
-      "message": "📊 Mempelajari struktur chart OPUSDT (5M)...",
-      "symbol": "OPUSDT",
-      "type": "analysis",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215121",
-      "timestamp": 1779270748127,
-      "message": "✅ Replay selesai — crash/rally DOTUSDT dipelajari | +13 XP",
-      "symbol": "DOTUSDT",
-      "type": "success",
-      "xpGained": 13
-    },
-    {
-      "id": "act_1779270215120",
-      "timestamp": 1779270748127,
-      "message": "📉 Replay CRASH/RALLY: DOTUSDT bergerak 9.6% — mempelajari volatilitas ekstrem...",
-      "symbol": "DOTUSDT",
-      "type": "replay",
-      "xpGained": 10
-    },
-    {
-      "id": "act_1779270215119",
-      "timestamp": 1779270747988,
-      "message": "🔁 Memulai sesi REPLAY TRAINING — DOTUSDT (60M)...",
-      "symbol": "DOTUSDT",
-      "type": "replay",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779270215118",
-      "timestamp": 1779270726215,
-      "message": "✅ MATICUSDT selesai — dipelajari: 6 pola | +22 XP",
-      "symbol": "MATICUSDT",
-      "type": "success",
-      "xpGained": 22
-    },
-    {
-      "id": "act_1779270215117",
-      "timestamp": 1779270726215,
-      "message": "📚 Prediksi meleset di MATICUSDT — menganalisis kesalahan dan memperbaiki model...",
-      "symbol": "MATICUSDT",
-      "type": "info",
-      "xpGained": 2
-    },
-    {
-      "id": "act_1779270215116",
-      "timestamp": 1779270726215,
-      "message": "📍 MATICUSDT mendekati level S/R kuat di 0.38 — berlatih deteksi area kritis...",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215115",
-      "timestamp": 1779270726214,
-      "message": "🕯️ Pola candle 'Doji' terdeteksi di MATICUSDT — menganalisis psikologi pasar...",
-      "symbol": "MATICUSDT",
       "type": "pattern",
       "xpGained": 3
     },
     {
-      "id": "act_1779270215114",
-      "timestamp": 1779270726214,
-      "message": "⚡ SQUEEZE terdeteksi di MATICUSDT — volatilitas rendah, persiapkan ekspansi besar!",
-      "symbol": "MATICUSDT",
+      "id": "act_1779271004927",
+      "timestamp": 1779271361917,
+      "message": "⚡ SQUEEZE terdeteksi di OPUSDT — volatilitas rendah, persiapkan ekspansi besar!",
+      "symbol": "OPUSDT",
       "type": "warning",
       "xpGained": 5
-    },
-    {
-      "id": "act_1779270215113",
-      "timestamp": 1779270726214,
-      "message": "📈 MATICUSDT menyentuh BB atas — potensi rejection atau breakout berlanjut",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215112",
-      "timestamp": 1779270726214,
-      "message": "📊 MACD crossover bullish terdeteksi di MATICUSDT",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 3
-    },
-    {
-      "id": "act_1779270215111",
-      "timestamp": 1779270726214,
-      "message": "📉 Tren turun dikonfirmasi pada MATICUSDT — EMA9<EMA21<EMA50",
-      "symbol": "MATICUSDT",
-      "type": "analysis",
-      "xpGained": 2
     }
   ],
   "memoryBank": {
@@ -1915,6 +1915,66 @@
     ],
     "worstSetups": [
       {
+        "symbol": "SOLUSDT",
+        "interval": "60",
+        "type": "worst_setup",
+        "title": "Missed Prediction SOLUSDT",
+        "description": "Prediksi salah arah — RSI=56, MACD=bullish — pelajaran berharga",
+        "tags": [
+          "mistake",
+          "learn",
+          "SOLUSDT"
+        ],
+        "xpValue": 2,
+        "id": "mem_1779271581918_g57k",
+        "timestamp": 1779271581918
+      },
+      {
+        "symbol": "XRPUSDT",
+        "interval": "240",
+        "type": "worst_setup",
+        "title": "Missed Prediction XRPUSDT",
+        "description": "Prediksi salah arah — RSI=40, MACD=bearish — pelajaran berharga",
+        "tags": [
+          "mistake",
+          "learn",
+          "XRPUSDT"
+        ],
+        "xpValue": 2,
+        "id": "mem_1779271471915_5adr",
+        "timestamp": 1779271471915
+      },
+      {
+        "symbol": "DOTUSDT",
+        "interval": "15",
+        "type": "worst_setup",
+        "title": "Missed Prediction DOTUSDT",
+        "description": "Prediksi salah arah — RSI=54, MACD=bearish — pelajaran berharga",
+        "tags": [
+          "mistake",
+          "learn",
+          "DOTUSDT"
+        ],
+        "xpValue": 2,
+        "id": "mem_1779271449916_c46i",
+        "timestamp": 1779271449916
+      },
+      {
+        "symbol": "XRPUSDT",
+        "interval": "240",
+        "type": "worst_setup",
+        "title": "Missed Prediction XRPUSDT",
+        "description": "Prediksi salah arah — RSI=40, MACD=bearish — pelajaran berharga",
+        "tags": [
+          "mistake",
+          "learn",
+          "XRPUSDT"
+        ],
+        "xpValue": 2,
+        "id": "mem_1779271317911_mw61",
+        "timestamp": 1779271317911
+      },
+      {
         "symbol": "MATICUSDT",
         "interval": "5",
         "type": "worst_setup",
@@ -2453,66 +2513,6 @@
         "xpValue": 2,
         "id": "mem_1779204979585_81gg",
         "timestamp": 1779204979585
-      },
-      {
-        "symbol": "BTCUSDT",
-        "interval": "15",
-        "type": "worst_setup",
-        "title": "Missed Prediction BTCUSDT",
-        "description": "Prediksi salah arah — RSI=44, MACD=bearish — pelajaran berharga",
-        "tags": [
-          "mistake",
-          "learn",
-          "BTCUSDT"
-        ],
-        "xpValue": 2,
-        "id": "mem_1779204627568_6mm0",
-        "timestamp": 1779204627568
-      },
-      {
-        "symbol": "BNBUSDT",
-        "interval": "240",
-        "type": "worst_setup",
-        "title": "Missed Prediction BNBUSDT",
-        "description": "Prediksi salah arah — RSI=36, MACD=bearish — pelajaran berharga",
-        "tags": [
-          "mistake",
-          "learn",
-          "BNBUSDT"
-        ],
-        "xpValue": 2,
-        "id": "mem_1779204561576_yg59",
-        "timestamp": 1779204561576
-      },
-      {
-        "symbol": "SOLUSDT",
-        "interval": "5",
-        "type": "worst_setup",
-        "title": "Missed Prediction SOLUSDT",
-        "description": "Prediksi salah arah — RSI=45, MACD=bullish — pelajaran berharga",
-        "tags": [
-          "mistake",
-          "learn",
-          "SOLUSDT"
-        ],
-        "xpValue": 2,
-        "id": "mem_1779204517565_w4ev",
-        "timestamp": 1779204517565
-      },
-      {
-        "symbol": "OPUSDT",
-        "interval": "240",
-        "type": "worst_setup",
-        "title": "Missed Prediction OPUSDT",
-        "description": "Prediksi salah arah — RSI=34, MACD=bullish — pelajaran berharga",
-        "tags": [
-          "mistake",
-          "learn",
-          "OPUSDT"
-        ],
-        "xpValue": 2,
-        "id": "mem_1779204407574_lz3t",
-        "timestamp": 1779204407574
       }
     ],
     "dangerousConditions": [
@@ -2953,6 +2953,102 @@
       }
     ],
     "learnedPatterns": [
+      {
+        "symbol": "FTMUSDT",
+        "interval": "15",
+        "type": "manipulation",
+        "title": "Liquidity Sweep Bullish FTMUSDT",
+        "description": "SM grab liquidity di bawah 0.70 kemudian reversal ke atas — pola manipulasi klasik",
+        "tags": [
+          "liquidity-sweep",
+          "smart-money",
+          "FTMUSDT",
+          "bullish"
+        ],
+        "xpValue": 6,
+        "id": "mem_1779271648080_vjm0",
+        "timestamp": 1779271648080
+      },
+      {
+        "symbol": "ARBUSDT",
+        "interval": "240",
+        "type": "replay",
+        "title": "Replay Crash/Rally ARBUSDT 21.4%",
+        "description": "Pergerakan ekstrem 21.4% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "ARBUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779271493916_djaj",
+        "timestamp": 1779271493916
+      },
+      {
+        "symbol": "ADAUSDT",
+        "interval": "60",
+        "type": "replay",
+        "title": "Replay Crash/Rally ADAUSDT 10.2%",
+        "description": "Pergerakan ekstrem 10.2% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "ADAUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779271251916_aflq",
+        "timestamp": 1779271251916
+      },
+      {
+        "symbol": "ETHUSDT",
+        "interval": "240",
+        "type": "replay",
+        "title": "Replay Crash/Rally ETHUSDT 9.3%",
+        "description": "Pergerakan ekstrem 9.3% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "ETHUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779271163915_ki6p",
+        "timestamp": 1779271163915
+      },
+      {
+        "symbol": "ETHUSDT",
+        "interval": "240",
+        "type": "replay",
+        "title": "Replay Crash/Rally ETHUSDT 19.9%",
+        "description": "Pergerakan ekstrem 19.9% dalam 100 candle — melatih pengenalan pola volatilitas",
+        "tags": [
+          "replay",
+          "extreme",
+          "ETHUSDT",
+          "crash"
+        ],
+        "xpValue": 13,
+        "id": "mem_1779271119905_81ul",
+        "timestamp": 1779271119905
+      },
+      {
+        "symbol": "FTMUSDT",
+        "interval": "15",
+        "type": "manipulation",
+        "title": "Liquidity Sweep Bullish FTMUSDT",
+        "description": "SM grab liquidity di bawah 0.70 kemudian reversal ke atas — pola manipulasi klasik",
+        "tags": [
+          "liquidity-sweep",
+          "smart-money",
+          "FTMUSDT",
+          "bullish"
+        ],
+        "xpValue": 6,
+        "id": "mem_1779271076069_sjae",
+        "timestamp": 1779271076069
+      },
       {
         "symbol": "LINKUSDT",
         "interval": "240",
@@ -3496,102 +3592,6 @@
         "xpValue": 6,
         "id": "mem_1779254910762_f6k8",
         "timestamp": 1779254910762
-      },
-      {
-        "symbol": "NEARUSDT",
-        "interval": "240",
-        "type": "replay",
-        "title": "Replay Crash/Rally NEARUSDT 34.7%",
-        "description": "Pergerakan ekstrem 34.7% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "NEARUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779254778711_szh9",
-        "timestamp": 1779254778711
-      },
-      {
-        "symbol": "FTMUSDT",
-        "interval": "15",
-        "type": "manipulation",
-        "title": "Liquidity Sweep Bullish FTMUSDT",
-        "description": "SM grab liquidity di bawah 0.70 kemudian reversal ke atas — pola manipulasi klasik",
-        "tags": [
-          "liquidity-sweep",
-          "smart-money",
-          "FTMUSDT",
-          "bullish"
-        ],
-        "xpValue": 6,
-        "id": "mem_1779254734857_2dbk",
-        "timestamp": 1779254734857
-      },
-      {
-        "symbol": "ADAUSDT",
-        "interval": "60",
-        "type": "replay",
-        "title": "Replay Crash/Rally ADAUSDT 9.5%",
-        "description": "Pergerakan ekstrem 9.5% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "ADAUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779254203155_2d7a",
-        "timestamp": 1779254203155
-      },
-      {
-        "symbol": "XRPUSDT",
-        "interval": "240",
-        "type": "replay",
-        "title": "Replay Crash/Rally XRPUSDT 14.7%",
-        "description": "Pergerakan ekstrem 14.7% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "XRPUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779254049143_dlvk",
-        "timestamp": 1779254049143
-      },
-      {
-        "symbol": "ADAUSDT",
-        "interval": "240",
-        "type": "replay",
-        "title": "Replay Crash/Rally ADAUSDT 11.7%",
-        "description": "Pergerakan ekstrem 11.7% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "ADAUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779253983137_ibkp",
-        "timestamp": 1779253983137
-      },
-      {
-        "symbol": "SOLUSDT",
-        "interval": "240",
-        "type": "replay",
-        "title": "Replay Crash/Rally SOLUSDT 14.2%",
-        "description": "Pergerakan ekstrem 14.2% dalam 100 candle — melatih pengenalan pola volatilitas",
-        "tags": [
-          "replay",
-          "extreme",
-          "SOLUSDT",
-          "crash"
-        ],
-        "xpValue": 13,
-        "id": "mem_1779253785132_sgeq",
-        "timestamp": 1779253785132
       }
     ]
   },
