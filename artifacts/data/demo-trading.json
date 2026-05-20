@@ -1,53 +1,10 @@
 {
-  "balance": 40.951012550953735,
-  "realizedPnl": -8.626174949046307,
-  "totalFees": 0.8451877714018506,
-  "winCount": 123,
+  "balance": 40.976874689630804,
+  "realizedPnl": -8.597425310369237,
+  "totalFees": 0.8509801814036241,
+  "winCount": 124,
   "lossCount": 63,
   "positions": [
-    {
-      "id": "e318ab55-6f35-4945-818f-b407b485dd90",
-      "symbol": "BANANAS31USDT",
-      "displayName": "BANANAS31/USDT",
-      "side": "Buy",
-      "size": 465.508068806526,
-      "entryPrice": 0.011278,
-      "markPrice": 0.011344,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.011287022399999999,
-      "takeProfit": 0.012276523857142856,
-      "unrealisedPnl": 0.030723532541230756,
-      "unrealisedPnlPct": 0.5852101436424906,
-      "openedAt": 1779250019861,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0113) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_normal",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.011363,
-      "humanInstinct": {
-        "lastEvalAt": 1779253502198,
-        "momentumScore": 54,
-        "continuationProb": 23,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Candle rejection atas — tekanan jual kuat"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (23%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 27,
-        "urgency": 15
-      },
-      "trailActivated": true
-    },
     {
       "id": "8050a62a-ffa2-4f06-a3bd-91e1911860a0",
       "symbol": "LITUSDT",
@@ -55,13 +12,13 @@
       "side": "Buy",
       "size": 4.320276497695852,
       "entryPrice": 1.2152,
-      "markPrice": 1.2051,
+      "markPrice": 1.2172,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 1.1769178571428573,
       "takeProfit": 1.310905357142857,
-      "unrealisedPnl": -0.0436347926267281,
-      "unrealisedPnlPct": -0.8311389071757734,
+      "unrealisedPnl": 0.008640552995391713,
+      "unrealisedPnlPct": 0.16458196181698498,
       "openedAt": 1779253414162,
       "source": "auto",
       "confidence": 99,
@@ -74,7 +31,22 @@
       "marketCondition": "trending_up_strong",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 1.2107
+      "trailPeakPrice": 1.2172,
+      "humanInstinct": {
+        "lastEvalAt": 1779253726239,
+        "momentumScore": 39,
+        "continuationProb": 2,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 5,
+        "urgency": 15
+      }
     },
     {
       "id": "e4cbfd9f-837e-4014-99df-2f17e23d18fc",
@@ -83,13 +55,13 @@
       "side": "Buy",
       "size": 96.56060327386426,
       "entryPrice": 0.05437,
-      "markPrice": 0.05464,
+      "markPrice": 0.05411,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.05264392857142858,
       "takeProfit": 0.05868517857142857,
-      "unrealisedPnl": 0.026071362883943294,
-      "unrealisedPnlPct": 0.4965973882655865,
+      "unrealisedPnl": -0.025105756851205023,
+      "unrealisedPnlPct": -0.47820489240390524,
       "openedAt": 1779253414888,
       "source": "auto",
       "confidence": 99,
@@ -102,10 +74,126 @@
       "marketCondition": "trending_up_normal",
       "entryFee": 0.0028875000000000003,
       "opportunityScore": 100,
-      "trailPeakPrice": 0.05471
+      "trailPeakPrice": 0.05471,
+      "humanInstinct": {
+        "lastEvalAt": 1779253734320,
+        "momentumScore": 71,
+        "continuationProb": 34,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Potensi fake breakout ke atas — harga kembali di bawah resistance",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (34%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 5,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "bd68ef67-f954-4598-876c-41aac5510595",
+      "symbol": "ALGOUSDT",
+      "displayName": "ALGO/USDT",
+      "side": "Buy",
+      "size": 44.87179487179487,
+      "entryPrice": 0.117,
+      "markPrice": 0.1172,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.11511964285714286,
+      "takeProfit": 0.12170089285714286,
+      "unrealisedPnl": 0.008974358974358608,
+      "unrealisedPnlPct": 0.17094017094016395,
+      "openedAt": 1779253557086,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1151) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.1172,
+      "humanInstinct": {
+        "lastEvalAt": 1779253726440,
+        "momentumScore": 39,
+        "continuationProb": 2,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 2,
+        "urgency": 15
+      }
     }
   ],
   "log": [
+    {
+      "id": "ece63b6f-2d1f-41b9-b364-989add7e73c8",
+      "timestamp": 1779253557086,
+      "openedAt": 1779253557086,
+      "symbol": "ALGOUSDT",
+      "side": "Buy",
+      "qty": 44.87179487179487,
+      "entryPrice": 0.117,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.1170 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.1151) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "a23788d2-450c-45d8-9495-4b81baae5716",
+      "timestamp": 1779253550224,
+      "openedAt": 1779250019861,
+      "closedAt": 1779253550224,
+      "duration": 3530363,
+      "symbol": "BANANAS31USDT",
+      "side": "Sell",
+      "qty": 465.508068806526,
+      "entryPrice": 0.011278,
+      "closePrice": 0.011346,
+      "realizedPnl": 0.028749638677070567,
+      "realizedPnlPct": 0.602943784358932,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 📉 Probabilitas kelanjutan rendah (23%) — risiko reversal lebih besar dari potensi profit tersisa.",
+      "openReason": "Tren Naik ↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0113) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_normal",
+      "fee": 0.005792410001773365,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.0029049100017733646
+    },
     {
       "id": "0a469862-5e87-4811-92fb-3a28bea04ebc",
       "timestamp": 1779253414888,
@@ -11699,6 +11787,10 @@
     {
       "timestamp": 1779253401384,
       "balance": 40.98378701894451
+    },
+    {
+      "timestamp": 1779253550224,
+      "balance": 40.97261907291643
     }
   ]
 }
