@@ -1,10 +1,10 @@
 {
   "iq": 200,
   "level": "Institusional",
-  "experiencePoints": 41268,
-  "learningCycles": 2721,
-  "chartsAnalyzed": 2718,
-  "marketHoursStudied": 929299.5699999981,
+  "experiencePoints": 41281,
+  "learningCycles": 2722,
+  "chartsAnalyzed": 2719,
+  "marketHoursStudied": 929324.5699999981,
   "patternsRecognized": 7207,
   "predictionsValidated": 0,
   "mistakesCorrected": 496,
@@ -14,7 +14,7 @@
   "breakoutsStudied": 40,
   "fakeBreakoutsDetected": 14,
   "reversalsStudied": 12,
-  "replaySessionsCompleted": 631,
+  "replaySessionsCompleted": 632,
   "smartMoneyPatternsFound": 81,
   "marketReading": 96.22,
   "patternRecognition": 96.97,
@@ -27,16 +27,19 @@
   "candlePsychology": 97.48,
   "orderflowReading": 90.88,
   "smartMoneyConceptSkill": 88.09,
-  "replayTrainingScore": 83.05,
+  "replayTrainingScore": 83.09,
   "patience": 92.68,
   "selectivity": 91.68,
   "confidenceAccuracy": 88.65,
   "predictionAccuracy": 92.77,
   "isLearning": false,
-  "currentActivity": "✅ OPUSDT selesai — dipelajari: 4 pola | +18 XP",
-  "currentSymbol": "OPUSDT",
-  "lastLearningAt": 1779272575367,
+  "currentActivity": "✅ Replay selesai — manipulation AVAXUSDT dipelajari | +13 XP",
+  "currentSymbol": "AVAXUSDT",
+  "lastLearningAt": 1779272597368,
   "activityLog": [
+    "[10.23.17] ✅ Replay selesai — manipulation AVAXUSDT dipelajari | +13 XP",
+    "[10.23.17] 🎭 Replay MANIPULASI: Volume spike 48.4x di AVAXUSDT — mempelajari pola institusional...",
+    "[10.23.17] 🔁 Memulai sesi REPLAY TRAINING — AVAXUSDT (15M)...",
     "[10.22.55] ✅ OPUSDT selesai — dipelajari: 4 pola | +18 XP",
     "[10.22.55] 📚 Prediksi meleset di OPUSDT — menganalisis kesalahan dan memperbaiki model...",
     "[10.22.55] 📍 OPUSDT mendekati level S/R kuat di 0.13 — berlatih deteksi area kritis...",
@@ -533,12 +536,33 @@
     "[09.55.02] 🔇 Volume sangat rendah di LINKUSDT — zona konsolidasi, waspada breakout mendadak",
     "[09.55.02] 📊 MACD crossover bullish terdeteksi di LINKUSDT",
     "[09.55.02] 📉 Tren turun dikonfirmasi pada LINKUSDT — EMA9<EMA21<EMA50",
-    "[09.55.01] 📊 Mempelajari struktur chart LINKUSDT (240M)...",
-    "[09.54.40] ✅ Replay selesai — crash/rally LINKUSDT dipelajari | +13 XP",
-    "[09.54.40] 📉 Replay CRASH/RALLY: LINKUSDT bergerak 13.9% — mempelajari volatilitas ekstrem...",
-    "[09.54.39] 🔁 Memulai sesi REPLAY TRAINING — LINKUSDT (60M)..."
+    "[09.55.01] 📊 Mempelajari struktur chart LINKUSDT (240M)..."
   ],
   "liveActivities": [
+    {
+      "id": "act_1779272372358",
+      "timestamp": 1779272597368,
+      "message": "✅ Replay selesai — manipulation AVAXUSDT dipelajari | +13 XP",
+      "symbol": "AVAXUSDT",
+      "type": "success",
+      "xpGained": 13
+    },
+    {
+      "id": "act_1779272372357",
+      "timestamp": 1779272597368,
+      "message": "🎭 Replay MANIPULASI: Volume spike 48.4x di AVAXUSDT — mempelajari pola institusional...",
+      "symbol": "AVAXUSDT",
+      "type": "replay",
+      "xpGained": 10
+    },
+    {
+      "id": "act_1779272372356",
+      "timestamp": 1779272597296,
+      "message": "🔁 Memulai sesi REPLAY TRAINING — AVAXUSDT (15M)...",
+      "symbol": "AVAXUSDT",
+      "type": "replay",
+      "xpGained": 0
+    },
     {
       "id": "act_1779272372355",
       "timestamp": 1779272575367,
@@ -1314,30 +1338,6 @@
       "symbol": "ADAUSDT",
       "type": "success",
       "xpGained": 13
-    },
-    {
-      "id": "act_1779271005186",
-      "timestamp": 1779272285948,
-      "message": "🎭 Replay MANIPULASI: Volume spike 6.7x di ADAUSDT — mempelajari pola institusional...",
-      "symbol": "ADAUSDT",
-      "type": "replay",
-      "xpGained": 10
-    },
-    {
-      "id": "act_1779271005185",
-      "timestamp": 1779272285879,
-      "message": "🔁 Memulai sesi REPLAY TRAINING — ADAUSDT (5M)...",
-      "symbol": "ADAUSDT",
-      "type": "replay",
-      "xpGained": 0
-    },
-    {
-      "id": "act_1779271005184",
-      "timestamp": 1779272263950,
-      "message": "✅ BNBUSDT selesai — dipelajari: 5 pola | +22 XP",
-      "symbol": "BNBUSDT",
-      "type": "success",
-      "xpGained": 22
     }
   ],
   "memoryBank": {
