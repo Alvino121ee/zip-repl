@@ -1,8 +1,8 @@
 {
-  "balance": 40.952152813366595,
-  "realizedPnl": -8.558622186633453,
-  "totalFees": 0.9780864928429713,
-  "winCount": 142,
+  "balance": 40.96761591947101,
+  "realizedPnl": -8.540271580529042,
+  "totalFees": 0.9838731802293913,
+  "winCount": 143,
   "lossCount": 67,
   "positions": [
     {
@@ -12,13 +12,13 @@
       "side": "Buy",
       "size": 1007.4841681059297,
       "entryPrice": 0.005211,
-      "markPrice": 0.00515,
+      "markPrice": 0.005126,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 0.005093892857142858,
       "takeProfit": 0.005503767857142857,
-      "unrealisedPnl": -0.06145653425446201,
-      "unrealisedPnlPct": -1.170600652465943,
+      "unrealisedPnl": -0.08563615428900404,
+      "unrealisedPnlPct": -1.6311648436000767,
       "openedAt": 1779269610942,
       "source": "auto",
       "confidence": 99,
@@ -33,65 +33,19 @@
       "opportunityScore": 100,
       "trailPeakPrice": 0.005216,
       "humanInstinct": {
-        "lastEvalAt": 1779272388452,
-        "momentumScore": 6,
-        "continuationProb": 0,
+        "lastEvalAt": 1779272580472,
+        "momentumScore": 45,
+        "continuationProb": 18,
         "greedIndex": 0,
         "decaySignals": [
-          "Volume turun 56% — momentum sangat lemah",
-          "Candle doji terdeteksi — ragu-ragu pasar",
-          "Potensi fake breakout ke atas — harga kembali di bawah resistance",
+          "Volume turun 59% — momentum sangat lemah",
           "Pergerakan sangat kecil — breakout tanpa kelanjutan"
         ],
         "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 47,
+        "reason": "⚡ Probabilitas kelanjutan rendah (18%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 51,
         "urgency": 15
       }
-    },
-    {
-      "id": "f31a6df9-bb81-4a57-9ac2-da61401693b5",
-      "symbol": "BANANAS31USDT",
-      "displayName": "BANANAS31/USDT",
-      "side": "Buy",
-      "size": 433.6692549149182,
-      "entryPrice": 0.012106,
-      "markPrice": 0.01215,
-      "leverage": 1,
-      "margin": 5.25,
-      "stopLoss": 0.0121156848,
-      "takeProfit": 0.012860553571428571,
-      "unrealisedPnl": 0.019081447216255924,
-      "unrealisedPnlPct": 0.36345613745249383,
-      "openedAt": 1779270276226,
-      "source": "auto",
-      "confidence": 99,
-      "signal": "institutional_long",
-      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0118) — momentum bullish",
-      "tags": [
-        "Auto AI",
-        "Kepercayaan Tinggi"
-      ],
-      "marketCondition": "trending_up_strong",
-      "entryFee": 0.0028875000000000003,
-      "opportunityScore": 100,
-      "trailPeakPrice": 0.012229,
-      "humanInstinct": {
-        "lastEvalAt": 1779272380498,
-        "momentumScore": 42,
-        "continuationProb": 4,
-        "greedIndex": 0,
-        "decaySignals": [
-          "Volume menurun 30% — tanda pelemahan",
-          "Candle rejection atas — tekanan jual kuat",
-          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
-        ],
-        "action": "hold",
-        "reason": "⚡ Probabilitas kelanjutan rendah (4%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
-        "evalCount": 42,
-        "urgency": 15
-      },
-      "trailActivated": true
     },
     {
       "id": "9e7c0289-2282-4211-a1ee-eb5a7d45c8c4",
@@ -100,13 +54,13 @@
       "side": "Buy",
       "size": 0.30017152658662094,
       "entryPrice": 17.49,
-      "markPrice": 17.4539,
+      "markPrice": 17.4829,
       "leverage": 1,
       "margin": 5.25,
       "stopLoss": 17.16942857142857,
       "takeProfit": 18.291428571428572,
-      "unrealisedPnl": -0.010836192109776288,
-      "unrealisedPnlPct": -0.20640365923383408,
+      "unrealisedPnl": -0.0021312178387643075,
+      "unrealisedPnlPct": -0.04059462550027252,
       "openedAt": 1779272266109,
       "source": "auto",
       "confidence": 99,
@@ -121,7 +75,7 @@
       "opportunityScore": 100,
       "trailPeakPrice": 17.5065,
       "humanInstinct": {
-        "lastEvalAt": 1779272388660,
+        "lastEvalAt": 1779272580609,
         "momentumScore": 39,
         "continuationProb": 2,
         "greedIndex": 0,
@@ -132,12 +86,115 @@
         ],
         "action": "hold",
         "reason": "⚡ Probabilitas kelanjutan rendah (2%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
+        "evalCount": 5,
+        "urgency": 15
+      }
+    },
+    {
+      "id": "f3b63c13-81f2-45aa-a790-4a56efaada66",
+      "symbol": "BANANAS31USDT",
+      "displayName": "BANANAS31/USDT",
+      "side": "Buy",
+      "size": 431.5659679408138,
+      "entryPrice": 0.012165,
+      "markPrice": 0.012208,
+      "leverage": 1,
+      "margin": 5.25,
+      "stopLoss": 0.011893500000000001,
+      "takeProfit": 0.01284375,
+      "unrealisedPnl": 0.018557336621454836,
+      "unrealisedPnlPct": 0.35347307850390164,
+      "openedAt": 1779272433668,
+      "source": "auto",
+      "confidence": 99,
+      "signal": "institutional_long",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0119) — momentum bullish",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong",
+      "entryFee": 0.0028875000000000003,
+      "opportunityScore": 100,
+      "trailPeakPrice": 0.012208,
+      "humanInstinct": {
+        "lastEvalAt": 1779272556591,
+        "momentumScore": 17,
+        "continuationProb": 0,
+        "greedIndex": 0,
+        "decaySignals": [
+          "Volume menurun 49% — tanda pelemahan",
+          "Candle doji terdeteksi — ragu-ragu pasar",
+          "Candle rejection atas — tekanan jual kuat",
+          "Pergerakan sangat kecil — breakout tanpa kelanjutan"
+        ],
+        "action": "hold",
+        "reason": "⚡ Probabilitas kelanjutan rendah (0%) — momentum lemah, amankan profit lebih bijaksana dari risiko reversal",
         "evalCount": 1,
         "urgency": 15
       }
     }
   ],
   "log": [
+    {
+      "id": "257a7603-db92-4727-8c78-9e3e4cde1b83",
+      "timestamp": 1779272433668,
+      "openedAt": 1779272433668,
+      "symbol": "BANANAS31USDT",
+      "side": "Buy",
+      "qty": 431.5659679408138,
+      "entryPrice": 0.012165,
+      "closePrice": null,
+      "realizedPnl": null,
+      "realizedPnlPct": null,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "opened",
+      "reason": "Demo LONG dibuka @ $0.0122 | Fee: -$0.0029",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0119) — momentum bullish",
+      "entryFee": 0.0028875000000000003,
+      "fee": 0.0028875000000000003,
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi"
+      ],
+      "marketCondition": "trending_up_strong"
+    },
+    {
+      "id": "ee075261-3826-4031-a47b-944ca53ee33d",
+      "timestamp": 1779272428518,
+      "openedAt": 1779270276226,
+      "closedAt": 1779272428518,
+      "duration": 2152292,
+      "symbol": "BANANAS31USDT",
+      "side": "Sell",
+      "qty": 433.6692549149182,
+      "entryPrice": 0.012106,
+      "closePrice": 0.012155,
+      "realizedPnl": 0.018350606104410472,
+      "realizedPnlPct": 0.40475797125391294,
+      "leverage": 1,
+      "margin": 5.25,
+      "confidence": 99,
+      "signal": "institutional_long",
+      "status": "closed_manual",
+      "reason": "[Instinct Exit] 🚨 Momentum kritis — Volume turun 51% — momentum sangat lemah. Profit $0.40% diamankan.",
+      "openReason": "Tren Naik Kuat ↑↑ | OppScore:100 | EMA 20>50>200 — tren bullish jangka panjang; Harga di atas EMA20 ($0.0118) — momentum bullish",
+      "source": "auto",
+      "tags": [
+        "Auto AI",
+        "Kepercayaan Tinggi",
+        "Short Term",
+        "Profit"
+      ],
+      "marketCondition": "trending_up_strong",
+      "fee": 0.005786687386419957,
+      "entryFee": 0.0028875000000000003,
+      "exitFee": 0.002899187386419957
+    },
     {
       "id": "4ebadf77-830a-4f9a-8a5a-08e14d18d736",
       "timestamp": 1779272266109,
@@ -13180,6 +13237,10 @@
     {
       "timestamp": 1779272253266,
       "balance": 40.957047458845395
+    },
+    {
+      "timestamp": 1779272428518,
+      "balance": 40.891985685182185
     }
   ]
 }
